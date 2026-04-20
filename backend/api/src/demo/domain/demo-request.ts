@@ -1,0 +1,24 @@
+export class DemoRequest {
+  constructor(
+    public readonly id: number,
+    public readonly catalogBookId: number,
+    public readonly catalogBookVariantId: number,
+    public readonly personalizedCategoryId: number,
+    public readonly personalizedModelId: number,
+    public readonly customerFullName: string,
+    public readonly customerEmail: string,
+    public readonly customerPhone: string,
+    public readonly shippingAddressLine1: string,
+    public readonly shippingAddressLine2: string | null,
+    public readonly shippingCity: string | null,
+    public readonly shippingRegion: string | null,
+    public readonly shippingReference: string | null,
+    public readonly deliveryDate: string,
+    public readonly wantsCustomDedication: boolean,
+    public readonly dedicationText: string | null,
+    public readonly messageOptional: string | null,
+    public readonly status: string,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+  ) {}
+}

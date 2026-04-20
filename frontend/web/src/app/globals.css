@@ -1,0 +1,134 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* PixelArt Navbar Animations */
+
+/* Animación de gradiente para la barra superior multicolor */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Animación de color shift para el logo (definida en PixelArtLogo.tsx) */
+/* Se mantiene dentro del componente para mejor encapsulación */
+
+/* ===== Nav Shimmer Button Effect ===== */
+
+@property --shimmer {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 33deg;
+}
+
+@keyframes nav-shimmer {
+  0%   { --shimmer: 0deg; }
+  100% { --shimmer: 360deg; }
+}
+
+@keyframes nav-shine {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  55%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes nav-text {
+  0%   { background-position: 100% center; }
+  100% { background-position: -100% center; }
+}
+
+.nav-shimmer-btn {
+  --inset: 12px;
+  --glow-hue: 222deg;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Shimmer rotating mask layer */
+.nav-shimmer-btn .shimmer {
+  position: absolute;
+  inset: calc(var(--inset) * -1);
+  border-radius: inherit;
+  pointer-events: none;
+  mask-image: conic-gradient(
+    from var(--shimmer, 0deg),
+    transparent 0%,
+    transparent 20%,
+    black 36%,
+    black 45%,
+    transparent 50%,
+    transparent 70%,
+    black 85%,
+    black 95%,
+    transparent 100%
+  );
+  mask-size: cover;
+  mix-blend-mode: plus-lighter;
+  animation: nav-shimmer 5s linear infinite both;
+}
+
+/* Hover: el glow aparece y desaparece una vez */
+.nav-shimmer-btn:hover .shimmer::before,
+.nav-shimmer-btn:hover .shimmer::after {
+  opacity: 1;
+  animation: nav-shine 1.2s ease-in 1 forwards;
+}
+
+/* Active: el glow queda encendido permanentemente */
+.nav-shimmer-btn.active .shimmer::before,
+.nav-shimmer-btn.active .shimmer::after {
+  opacity: 1;
+  animation: none;
+}
+
+.nav-shimmer-btn .shimmer::before,
+.nav-shimmer-btn .shimmer::after {
+  transition: all 0.5s ease;
+  opacity: 0;
+  content: "";
+  border-radius: inherit;
+  position: absolute;
+  mix-blend-mode: color;
+  inset: var(--inset);
+  pointer-events: none;
+}
+
+/* Outer glow */
+.nav-shimmer-btn .shimmer::before {
+  box-shadow:
+    0 0 calc(var(--inset) * 0.1)  2px hsl(var(--glow-hue) 20% 95%),
+    0 0 calc(var(--inset) * 0.18) 4px hsl(var(--glow-hue) 20% 80%),
+    0 0 calc(var(--inset) * 0.33) 4px hsl(var(--glow-hue) 50% 70%),
+    0 0 calc(var(--inset) * 0.66) 5px hsl(var(--glow-hue) 100% 70%);
+  z-index: -1;
+}
+
+/* Inner border glow */
+.nav-shimmer-btn .shimmer::after {
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--glow-hue) 70% 95%),
+    inset 0 0 2px 1px hsl(var(--glow-hue) 100% 80%),
+    inset 0 0 5px 2px hsl(var(--glow-hue) 100% 70%);
+  z-index: 2;
+}
+
