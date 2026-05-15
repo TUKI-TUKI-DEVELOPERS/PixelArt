@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+
+type Badges = { demos: number; payments: number };
 
 const NAV_SECTIONS = [
   {
@@ -14,7 +18,7 @@ const NAV_SECTIONS = [
   {
     title: "Libros Personalizados",
     items: [
-      { label: "Solicitudes Demo", href: "/admin/libros-personalizados/solicitudes", icon: "inbox" },
+      { label: "Solicitudes Demo", href: "/admin/libros-personalizados/solicitudes", icon: "inbox", badgeKey: "demos" as keyof Badges },
     ],
   },
   {
@@ -26,9 +30,9 @@ const NAV_SECTIONS = [
   {
     title: "Gestión",
     items: [
-      { label: "Órdenes", href: "/admin/ordenes", icon: "package" },
+      { label: "Órdenes", href: "/admin/ordenes", icon: "package", badgeKey: "payments" as keyof Badges },
       { label: "Feedback", href: "/admin/feedback", icon: "star" },
-      { label: "Configuración", href: "/admin/configuracion", icon: "settings" },
+      { label: "Promociones", href: "/admin/promociones", icon: "tag" },
     ],
   },
 ];
@@ -40,7 +44,8 @@ function NavIcon({ name, color }: { name: string; color: string }) {
     camera: <><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></>,
     package: <><line x1="16.5" y1="9.4" x2="7.5" y2="4.21" /><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></>,
     star: <><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></>,
-    settings: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
+    settings: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
+    tag: <><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></>,
   };
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -51,8 +56,22 @@ function NavIcon({ name, color }: { name: string; color: string }) {
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [badges, setBadges] = useState<Badges>({ demos: 0, payments: 0 });
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/api/admin/orders`).then((r) => r.json()).catch(() => []),
+    ]).then(([demosData, ordersData]) => {
+      const demos  = (Array.isArray(demosData)  ? demosData  : demosData.data  ?? []) as { status: string }[];
+      const orders = (Array.isArray(ordersData) ? ordersData : ordersData.data ?? []) as { status: string }[];
+      setBadges({
+        demos:    demos.filter((d) => d.status === "RECEIVED").length,
+        payments: orders.filter((o) => o.status === "UNDER_PAYMENT_REVIEW").length,
+      });
+    });
+  }, [pathname]); // re-fetch al navegar para mantener actualizado
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -118,6 +137,7 @@ export default function AdminSidebar() {
             )}
             {section.items.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+              const badge = item.badgeKey ? badges[item.badgeKey] : 0;
               return (
                 <Link
                   key={item.href}
@@ -135,10 +155,40 @@ export default function AdminSidebar() {
                     fontSize: "14px",
                     fontWeight: isActive ? 600 : 400,
                     textDecoration: "none",
+                    position: "relative",
                   }}
                 >
-                  <NavIcon name={item.icon} color={isActive ? "#fff" : "#6b7280"} />
-                  {!collapsed && item.label}
+                  <div style={{ position: "relative", flexShrink: 0 }}>
+                    <NavIcon name={item.icon} color={isActive ? "#fff" : "#6b7280"} />
+                    {collapsed && badge > 0 && (
+                      <span style={{
+                        position: "absolute", top: "-5px", right: "-5px",
+                        background: "#ef4444", color: "#fff",
+                        fontSize: "10px", fontWeight: 700,
+                        borderRadius: "999px", padding: "0 4px",
+                        minWidth: "16px", height: "16px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        lineHeight: 1,
+                      }}>
+                        {badge > 99 ? "99+" : badge}
+                      </span>
+                    )}
+                  </div>
+                  {!collapsed && (
+                    <>
+                      <span style={{ flex: 1 }}>{item.label}</span>
+                      {badge > 0 && (
+                        <span style={{
+                          background: "#ef4444", color: "#fff",
+                          fontSize: "11px", fontWeight: 700,
+                          borderRadius: "999px", padding: "1px 7px",
+                          minWidth: "20px", textAlign: "center",
+                        }}>
+                          {badge > 99 ? "99+" : badge}
+                        </span>
+                      )}
+                    </>
+                  )}
                 </Link>
               );
             })}

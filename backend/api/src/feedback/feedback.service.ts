@@ -4,7 +4,7 @@ import { PublicLinksService } from '../public-links/public-links.service';
 import { OrdersService } from '../orders/orders.service';
 import { EmailService } from '../email/email.service';
 
-const GOOGLE_REVIEW_URL = 'https://g.page/pixelart-peru/review'; // Placeholder
+const GOOGLE_REVIEW_URL = process.env.GOOGLE_REVIEW_URL ?? 'https://g.page/pixelart-peru/review';
 
 @Injectable()
 export class FeedbackService {
@@ -15,24 +15,20 @@ export class FeedbackService {
     private readonly emailService: EmailService,
   ) {}
 
-  /** Admin genera link de feedback para una orden entregada */
+  /** Admin genera link de feedback — disponible desde que el pago fue aprobado */
   async generateFeedbackLink(orderId: number) {
     const order = await this.ordersService.findById(orderId);
     if (!order) throw new NotFoundException('Orden no encontrada');
-    if (order.status !== 'DELIVERED') throw new BadRequestException('La orden debe estar entregada');
+
+    const ELIGIBLE = ['PAYMENT_VERIFIED', 'IN_PRODUCTION', 'SHIPPED', 'DELIVERED'];
+    if (!ELIGIBLE.includes(order.status)) {
+      throw new BadRequestException('El pago debe estar verificado para generar el link de feedback');
+    }
 
     const link = await this.publicLinksService.generate({ linkType: 'FEEDBACK', orderId });
 
     const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
     const feedbackUrl = `${frontendBase}/feedback/${link.token}`;
-
-    await this.emailService.queue({
-      eventType: 'DELIVERY_FEEDBACK_REQUEST',
-      orderId,
-      toEmail: order.customerEmail,
-      subject: 'PixelArt — Cuéntanos tu experiencia',
-      payload: { customerName: order.customerFullName, feedbackUrl },
-    });
 
     return { token: link.token, url: feedbackUrl, expiresAt: link.expiresAt };
   }
@@ -88,5 +84,10 @@ export class FeedbackService {
   /** Admin lista todos los feedbacks */
   async listAll() {
     return this.repo.findAll();
+  }
+
+  /** Público — promedio de ratings por libro/tema para mostrar en tarjetas */
+  async getPublicRatings() {
+    return this.repo.getAverageRatings();
   }
 }

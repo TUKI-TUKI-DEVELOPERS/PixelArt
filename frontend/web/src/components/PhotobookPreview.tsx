@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { PageFlip } from "page-flip";
 
 type SlotPhoto = { preview: string } | null;
@@ -85,6 +85,12 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
   const [totalPfPages, setTotalPfPages] = useState(0);
   const [ready, setReady] = useState(false);
 
+  // Re-init when photo assignments change, not just page count
+  const pagesKey = useMemo(
+    () => pages.map(p => `${p.layoutKey}:${p.slots.map(s => s?.preview ?? "").join("|")}`).join(";"),
+    [pages]
+  );
+
   const init = useCallback(() => {
     if (!bookRef.current || pfRef.current) return;
     const el = bookRef.current;
@@ -123,7 +129,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
     pf.on("flip", (e) => {
       setCurrentPage(e.data as number);
     });
-  }, [pages.length]);
+  }, [pagesKey]);
 
   useEffect(() => {
     const t = setTimeout(init, 200);
@@ -134,16 +140,31 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
     };
   }, [init]);
 
+
+  // Hint: abre la tapa y vuelve usando el flip nativo de la librería
+  useEffect(() => {
+    if (!ready || !pfRef.current) return;
+    const t1 = setTimeout(() => {
+      pfRef.current?.flip(1);
+      const t2 = setTimeout(() => {
+        pfRef.current?.flipPrev();
+      }, 1000);
+      return () => clearTimeout(t2);
+    }, 600);
+    return () => clearTimeout(t1);
+  }, [ready]);
+
   function flipPrev() { pfRef.current?.flipPrev(); }
   function flipNext() { pfRef.current?.flipNext(); }
 
   const spreadIdx = Math.floor(currentPage / 2);
-  const totalSpreads = Math.ceil(pages.length / 2) + 1; // +1 for cover
+  const emptyPagesCount = pages.filter(p => p.slots.every(s => s === null)).length;
 
   return (
     <div>
       <style>{`
         @import url('https://fonts.googleapis.com/css?family=Playfair+Display:400,700,900&display=swap');
+
 
         .photobook-wrap {
           position: relative;
@@ -238,7 +259,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
         </button>
 
         {/* Book */}
-        <div className="photobook-cover">
+        <div className="photobook-cover" style={{ overflow: "hidden" }}>
           <div ref={bookRef}>
             {/* Front cover */}
             <div className="pb-page" data-density="hard" style={{ backgroundColor: "#8B4513" }}>
@@ -310,6 +331,12 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
           {currentPage === 0 ? "Portada" : currentPage >= totalPfPages - 1 ? "Contraportada" : `Páginas ${currentPage} – ${Math.min(currentPage + 1, pages.length)}`}
           <span style={{ margin: "0 10px", color: "#d4c9b8" }}>·</span>
           {pages.length} páginas en total
+          {emptyPagesCount > 0 && (
+            <>
+              <span style={{ margin: "0 10px", color: "#d4c9b8" }}>·</span>
+              <span style={{ color: "#f59e0b", fontWeight: 600 }}>{emptyPagesCount} sin foto</span>
+            </>
+          )}
           <span style={{ margin: "0 10px", color: "#d4c9b8" }}>·</span>
           <span style={{ fontSize: "12px" }}>Arrastra las esquinas para hojear</span>
         </div>

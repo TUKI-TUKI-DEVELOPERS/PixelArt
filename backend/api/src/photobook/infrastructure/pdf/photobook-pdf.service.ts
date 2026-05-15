@@ -61,8 +61,13 @@ export class PhotobookPdfService {
     const widthCm = project.customWidthCm ?? DEFAULT_WIDTH_CM;
     const heightCm = project.customHeightCm ?? DEFAULT_HEIGHT_CM;
 
+    const theme = await this.repo.getTheme(project.photobookThemeId);
+
     const assetMap = await this.prepareAssets(project);
-    const html = this.buildHtml(project, assetMap, widthCm, heightCm);
+    const coverBase64 = theme ? await this.downloadCoverAsBase64(theme.coverTemplateKey) : null;
+    const backCoverBase64 = theme?.backCoverKey ? await this.downloadCoverAsBase64(theme.backCoverKey) : null;
+
+    const html = this.buildHtml(project, assetMap, widthCm, heightCm, coverBase64, backCoverBase64);
     const pdfBuffer = await this.renderPdf(html, widthCm, heightCm);
 
     const storageKey = `photobooks/renders/${projectId}.pdf`;
@@ -74,6 +79,20 @@ export class PhotobookPdfService {
 
   getPdfUrl(pdfStorageKey: string): string {
     return this.fileStorage.getPublicUrl(pdfStorageKey);
+  }
+
+  private async downloadCoverAsBase64(storageKey: string): Promise<string> {
+    try {
+      const rawBuffer = await this.fileStorage.download(storageKey);
+      const optimized = await sharp(rawBuffer)
+        .resize(MAX_IMAGE_PX, MAX_IMAGE_PX, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 92 })
+        .toBuffer();
+      return `data:image/jpeg;base64,${optimized.toString('base64')}`;
+    } catch (err) {
+      this.logger.warn(`Error procesando portada (${storageKey}): ${(err as Error).message}`);
+      return PLACEHOLDER_BASE64;
+    }
   }
 
   private async prepareAssets(project: ProjectDetailRecord): Promise<Map<number, string>> {
@@ -115,16 +134,28 @@ export class PhotobookPdfService {
     assetMap: Map<number, string>,
     widthCm: number,
     heightCm: number,
+    coverBase64: string | null,
+    backCoverBase64: string | null,
   ): string {
     const halfH = heightCm / 2;
 
-    const pages = project.pages.map((page) => {
+    const coverPage = coverBase64
+      ? `<div class="page cover"><img src="${coverBase64}" alt="Portada" /></div>`
+      : '';
+
+    const backCoverPage = backCoverBase64
+      ? `<div class="page cover back-cover"><img src="${backCoverBase64}" alt="Contraportada" /></div>`
+      : '';
+
+    const contentPages = project.pages.map((page) => {
       const layoutClass = page.layoutKey.toLowerCase().replace('_', '-');
       const imgs = page.slots.map(
         (slot) => `<img src="${assetMap.get(slot.assetId) ?? PLACEHOLDER_BASE64}" alt="" />`,
       );
       return `<div class="page ${layoutClass}">${imgs.join('')}</div>`;
     });
+
+    const allPages = [coverPage, ...contentPages, backCoverPage].filter(Boolean);
 
     return `<!DOCTYPE html>
 <html>
@@ -142,6 +173,9 @@ export class PhotobookPdfService {
     }
     .page:last-child { page-break-after: avoid; }
     .page img { object-fit: cover; display: block; }
+
+    /* Portada y contraportada: imagen full-bleed */
+    .cover img { width: ${widthCm}cm; height: ${heightCm}cm; }
 
     /* FULL_1 */
     .full-1 img { width: ${widthCm}cm; height: ${heightCm}cm; }
@@ -161,7 +195,7 @@ export class PhotobookPdfService {
   </style>
 </head>
 <body>
-  ${pages.join('\n  ')}
+  ${allPages.join('\n  ')}
 </body>
 </html>`;
   }

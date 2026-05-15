@@ -24,6 +24,10 @@ const LIBROS_VALIDOS: Record<string, Record<string, string>> = {
   },
   "libros-de-memorias-familiares": {
     "recuerdos-familiares": "Recuerdos Familiares",
+    "gracias-por-tu-amor": "Gracias por tu amor",
+    "mi-angel-guardian": "Mi Ángel Guardián",
+    "siempre-en-mi-corazon": "Siempre en mi Corazón",
+    "siempre-seras-parte-de-mi": "Siempre Serás Parte de Mi Corazón",
   },
 };
 
@@ -42,6 +46,10 @@ const BACKGROUND_KEYS: Record<string, string> = {
   "mi-mejor-amigo-del-mundo": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Mi_Mejor_Amigo_del_mundo.png",
   "mi-amigo-miauravilloso": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Mi_amigo_miauravilloso.png",
   "nuestro-angel-de-4-patas": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Nuestro_Angel_de_4_patas.png",
+  "gracias-por-tu-amor": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Gracias_por_tu_amor.png",
+  "mi-angel-guardian": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Mi_angel_guardian.png",
+  "siempre-en-mi-corazon": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_en_mi_corazon.png",
+  "siempre-seras-parte-de-mi": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon.png",
 };
 
 /* ── Mapa slug → nombres en BD (para lookup dinámico de IDs) ── */
@@ -60,12 +68,16 @@ const LIBRO_NAMES: Record<string, { modelName: string; catalogBookName: string }
   "el-mejor-equipo": { modelName: "El Mejor Equipo", catalogBookName: "El Mejor Equipo" },
   "la-familia": { modelName: "Mi Familia", catalogBookName: "Mi Familia" },
   "recuerdos-familiares": { modelName: "Recuerdos Familiares", catalogBookName: "Mi Familia" },
+  "gracias-por-tu-amor": { modelName: "Gracias por tu amor", catalogBookName: "Gracias por tu amor" },
+  "mi-angel-guardian": { modelName: "Mi angel guardian", catalogBookName: "Mi angel guardian" },
+  "siempre-en-mi-corazon": { modelName: "Siempre en mi corazon", catalogBookName: "Siempre en mi corazon" },
+  "siempre-seras-parte-de-mi": { modelName: "Siempre seras parte de mi", catalogBookName: "Siempre seras parte de mi" },
 };
 
 /* ── Mapa slug → storage_keys de imágenes centrales del carousel ── */
 const CAROUSEL_KEYS: Record<string, string[]> = {
   "mi-amor": [
-    "IA_Books/Love_Books_Page/Libros/Mi_Amor/Libros_Amor_MiAmor_Central.png",
+    "IA_Books/Love_Books_Page/Libros/Mi_Amor/Libros_Amor_Mi_Amor_Central.png",
     "IA_Books/Love_Books_Page/Libros/Mi_Amor/Libros_Amor_MiAmor_Central_2.png",
     "IA_Books/Love_Books_Page/Libros/Mi_Amor/Libros_Amor_MiAmor_Central_3.png",
   ],
@@ -131,6 +143,26 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
     "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Libros_Familia_Teamoabuelo_Central_2.png",
     "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Libros_Familia_Teamoabuelo_Central_3.png",
   ],
+  "gracias-por-tu-amor": [
+    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central.png",
+    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central_2.png",
+    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central_3.png",
+  ],
+  "mi-angel-guardian": [
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Libros_Memoria_Familiar_Mi_angel_guardian_Central.png",
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Libros_Memoria_Familiar_Mi_angel_guardian_Central_2.png",
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Libros_Memoria_Familiar_Mi_angel_guardian_Central_3.png",
+  ],
+  "siempre-en-mi-corazon": [
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central.png",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central_2.png",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central_3.png",
+  ],
+  "siempre-seras-parte-de-mi": [
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon_Central.png",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon_Central_2.png",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon_Central_3.png",
+  ],
 };
 
 const API_BASE = "http://api:3001";
@@ -182,11 +214,13 @@ async function fetchVariants(catalogBookId: number): Promise<{ id: number; cover
   if (!res.ok) return [];
   const books = await res.json();
   const book = books.find((b: { id: string }) => Number(b.id) === catalogBookId);
-  return (book?.variants ?? []).map((v: { id: string; coverType: string; basePriceCents: number }) => ({
-    id: Number(v.id),
-    coverType: v.coverType,
-    basePriceCents: v.basePriceCents,
-  }));
+  return (book?.variants ?? [])
+    .filter((v: { coverType: string }) => v.coverType !== 'TAPA_PREMIUM')
+    .map((v: { id: string; coverType: string; basePriceCents: number }) => ({
+      id: Number(v.id),
+      coverType: v.coverType,
+      basePriceCents: v.basePriceCents,
+    }));
 }
 
 async function fetchTemplates(modelId: number): Promise<{ id: number; name: string | null; previewUrl: string }[]> {

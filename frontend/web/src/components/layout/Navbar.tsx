@@ -4,7 +4,7 @@ type BannerConfig = { text: string; color: string; enabled: boolean } | null;
 
 async function fetchBannerConfig(): Promise<BannerConfig> {
   try {
-    const res = await fetch("http://api:3001/api/site-config/promo_banner", { next: { revalidate: 60 } });
+    const res = await fetch("http://api:3001/api/site-config/promo_banner", { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
     if (!data?.value?.enabled) return null;

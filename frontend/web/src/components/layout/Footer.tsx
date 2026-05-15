@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { HOME_ASSET_KEYS } from "@/lib/homeAssetKeys";
 import { getAssetUrl } from "@/lib/assetUrl";
+import FooterBackground from "@/components/backgrounds/FooterBackground";
 
 function SocialIcon({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
   return (
@@ -76,7 +77,6 @@ const LINK_STYLE = {
 };
 
 export default function Footer() {
-  const footerBackgroundUrl = getAssetUrl(HOME_ASSET_KEYS.footerBackground);
   const logoUrl = getAssetUrl(HOME_ASSET_KEYS.logo);
 
   return (
@@ -88,27 +88,7 @@ export default function Footer() {
         overflow: "hidden",
       }}
     >
-      {/* Background image */}
-      <Image
-        src={footerBackgroundUrl}
-        alt=""
-        fill
-        style={{ objectFit: "cover", objectPosition: "center" }}
-        sizes="100vw"
-        loading="lazy"
-      />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `linear-gradient(to bottom,
-            rgba(10,10,15,0.55) 0%,
-            rgba(10,10,15,0.8) 35%,
-            rgba(10,10,15,0.94) 100%
-          )`,
-          zIndex: 1,
-        }}
-      />
+      <FooterBackground />
 
       <div
         style={{

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 type Variant = {
   id: string;
@@ -17,6 +18,7 @@ type Props = {
   categoryBadge?: string;
   tagline?: string;
   reviewCount?: number;
+  rating?: number;
   href?: string;
 };
 
@@ -30,19 +32,32 @@ function formatPrice(cents: number): string {
   return `S/ ${(cents / 100).toFixed(2)}`;
 }
 
-function StarIcon({ filled }: { filled: boolean }) {
+function StarRating({ rating }: { rating: number }) {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill={filled ? "#f5a623" : "none"}
-      stroke={filled ? "#f5a623" : "#ccc"}
-      strokeWidth="2"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
+    <div style={{ display: 'flex', gap: '2px' }}>
+      {[1, 2, 3, 4, 5].map((pos) => {
+        const full = rating >= pos;
+        const half = !full && rating >= pos - 0.5;
+        return (
+          <svg key={pos} width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id={`half-pc-${pos}`}>
+                <rect x="0" y="0" width="12" height="24" />
+              </clipPath>
+            </defs>
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#e5e7eb" stroke="none" />
+            {(full || half) && (
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                fill="#f5a623"
+                stroke="none"
+                clipPath={half ? `url(#half-pc-${pos})` : undefined}
+              />
+            )}
+          </svg>
+        );
+      })}
+    </div>
   );
 }
 
@@ -54,8 +69,11 @@ export default function ProductCard({
   categoryBadge,
   tagline,
   reviewCount = 0,
+  rating = 5,
   href,
 }: Props) {
+  const { isMobile } = useWindowSize();
+
   const cheapestVariant = variants.length
     ? variants.reduce((a, b) => (a.basePriceCents < b.basePriceCents ? a : b))
     : null;
@@ -87,7 +105,7 @@ export default function ProductCard({
             background: badgeColor,
             color: "#fff",
             fontSize: "12px",
-            fontWeight: 700,
+            fontWeight: 500,
             textTransform: "uppercase",
             letterSpacing: "0.5px",
             marginBottom: "16px",
@@ -101,7 +119,7 @@ export default function ProductCard({
       <div
         style={{
           width: "100%",
-          height: "220px",
+          height: isMobile ? "160px" : "220px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -142,16 +160,8 @@ export default function ProductCard({
       </div>
 
       {/* 3. Estrellas */}
-      <div
-        style={{
-          display: "flex",
-          gap: "2px",
-          marginBottom: "4px",
-        }}
-      >
-        {[1, 2, 3, 4, 5].map((i) => (
-          <StarIcon key={i} filled={i <= 5} />
-        ))}
+      <div style={{ marginBottom: "4px" }}>
+        <StarRating rating={rating} />
       </div>
 
       {/* 4. Reviews */}
@@ -170,9 +180,9 @@ export default function ProductCard({
         style={{
           margin: "0 0 6px 0",
           fontSize: "18px",
-          lineHeight: 1.2,
+          lineHeight: 1.5,
           color: "#111",
-          fontWeight: 700,
+          fontWeight: 500,
         }}
       >
         {name}
@@ -182,9 +192,9 @@ export default function ProductCard({
       {tagline && (
         <div
           style={{
-            fontSize: "13px",
+            fontSize: "14px",
             color: "#4f97cf",
-            fontWeight: 600,
+            fontWeight: 500,
             textTransform: "uppercase",
             marginBottom: "10px",
             lineHeight: 1.3,
@@ -201,8 +211,8 @@ export default function ProductCard({
           style={{
             margin: "0 0 14px 0",
             maxWidth: "360px",
-            fontSize: "13px",
-            lineHeight: 1.4,
+            fontSize: "14px",
+            lineHeight: 1.5,
             color: "#666",
             fontWeight: 400,
           }}
@@ -217,7 +227,7 @@ export default function ProductCard({
           style={{
             margin: "0 0 18px 0",
             fontSize: "18px",
-            fontWeight: 700,
+            fontWeight: 500,
             color: "#111",
           }}
         >
@@ -240,7 +250,7 @@ export default function ProductCard({
             background: "#fff",
             color: "#111",
             fontSize: "16px",
-            fontWeight: 800,
+            fontWeight: 700,
             cursor: "pointer",
             textTransform: "uppercase",
             textDecoration: "none",
@@ -258,7 +268,7 @@ export default function ProductCard({
             background: "#fff",
             color: "#111",
             fontSize: "16px",
-            fontWeight: 800,
+            fontWeight: 700,
             cursor: "pointer",
             textTransform: "uppercase",
           }}

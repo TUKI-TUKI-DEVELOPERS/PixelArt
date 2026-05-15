@@ -29,7 +29,29 @@ export default function ProyectosPage() {
       </div>
 
       {loading ? (
-        <div style={{ padding: "48px", textAlign: "center", color: "#999" }}>Cargando...</div>
+        <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
+          <style>{`@keyframes sk-pulse{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "#f9fafb" }}>
+                {["#", "Cliente", "Páginas", "Total", "Estado", "Fecha", ""].map((h) => (
+                  <th key={h} style={{ textAlign: "left", padding: "12px 16px", fontSize: "11px", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                  {[40, 130, 50, 60, 80, 70, 40].map((w, j) => (
+                    <td key={j} style={{ padding: "14px 16px" }}>
+                      <div style={{ height: 13, width: w, borderRadius: 4, background: "#f0f0f0", animation: "sk-pulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.05}s` }} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : projects.length === 0 ? (
         <div style={{ padding: "48px", textAlign: "center", color: "#999" }}>No hay proyectos aún.</div>
       ) : (
@@ -66,6 +88,36 @@ export default function ProyectosPage() {
           </table>
         </div>
       )}
+
+      {/* Leyenda de estados */}
+      <div style={{ marginTop: "20px", padding: "20px 24px", background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb" }}>
+        <div style={{ fontSize: "11px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "14px" }}>
+          Guía de estados
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+          {[
+            {
+              bg: "#f3f4f6", text: "#6b7280", label: "Borrador",
+              desc: "El cliente comenzó a armar su photobook pero aún no confirmó el pedido ni realizó el pago.",
+            },
+            {
+              bg: "#dbeafe", text: "#1e40af", label: "Confirmado",
+              desc: "El cliente confirmó su diseño y subió el comprobante de pago. Pendiente de revisión.",
+            },
+            {
+              bg: "#d1fae5", text: "#065f46", label: "Orden Creada",
+              desc: "El pago fue verificado y se generó una orden de producción. El photobook está en proceso.",
+            },
+          ].map((s) => (
+            <div key={s.label} style={{ display: "flex", alignItems: "flex-start", gap: "10px", flex: "1 1 220px", minWidth: 0 }}>
+              <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: "6px", background: s.bg, color: s.text, fontSize: "11px", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0, marginTop: "1px" }}>
+                {s.label}
+              </span>
+              <span style={{ fontSize: "12px", color: "#6b7280", lineHeight: "1.5" }}>{s.desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

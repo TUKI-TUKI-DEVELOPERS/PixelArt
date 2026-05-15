@@ -48,6 +48,7 @@ export type RenderRecord = { pdfStorageKey: string; generatedAt: Date };
 
 export abstract class PhotobookRepositoryPort {
   abstract listThemes(): Promise<PhotobookThemeRecord[]>;
+  abstract getTheme(id: number): Promise<PhotobookThemeRecord | null>;
   abstract listProducts(): Promise<PhotobookProductRecord[]>;
   abstract getProduct(id: number): Promise<PhotobookProductRecord | null>;
   abstract createProject(data: CreateProjectData): Promise<ProjectRecord>;

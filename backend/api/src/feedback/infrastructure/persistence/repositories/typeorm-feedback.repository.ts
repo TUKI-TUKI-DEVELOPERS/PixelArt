@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FeedbackRepositoryPort, FeedbackRecord, CreateFeedbackData } from '../../../domain/ports/feedback-repository.port';
+import { FeedbackRepositoryPort, FeedbackRecord, CreateFeedbackData, BookRatingSummary } from '../../../domain/ports/feedback-repository.port';
 import { FeedbackOrmEntity } from '../entities/feedback.orm-entity';
 
 function toRecord(e: FeedbackOrmEntity): FeedbackRecord {
@@ -48,5 +48,26 @@ export class TypeOrmFeedbackRepository extends FeedbackRepositoryPort {
   async findByOrderId(orderId: number): Promise<FeedbackRecord | null> {
     const e = await this.repo.findOne({ where: { orderId: String(orderId) } });
     return e ? toRecord(e) : null;
+  }
+
+  async getAverageRatings(): Promise<BookRatingSummary[]> {
+    const rows: { model_id: string | null; photobook_theme_id: string | null; avg: string; cnt: string }[] =
+      await this.repo.query(`
+        SELECT
+          model_id,
+          photobook_theme_id,
+          AVG(rating_x2)::float / 2 AS avg,
+          COUNT(*)::int             AS cnt
+        FROM feedback
+        WHERE model_id IS NOT NULL OR photobook_theme_id IS NOT NULL
+        GROUP BY model_id, photobook_theme_id
+      `);
+
+    return rows.map((r) => ({
+      modelId:          r.model_id          ? Number(r.model_id)          : null,
+      photobookThemeId: r.photobook_theme_id ? Number(r.photobook_theme_id) : null,
+      average:          parseFloat(r.avg),
+      count:            Number(r.cnt),
+    }));
   }
 }

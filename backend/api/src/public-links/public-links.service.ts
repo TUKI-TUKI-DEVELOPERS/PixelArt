@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PublicLinksRepositoryPort, CreateLinkData } from './domain/ports/public-links-repository.port';
+import { PublicLinksRepositoryPort, CreateLinkData, ReissueLinkData } from './domain/ports/public-links-repository.port';
 import { PublicLink } from './domain/public-link';
 
 @Injectable()
@@ -15,5 +15,17 @@ export class PublicLinksService {
     if (!link) throw new NotFoundException('Link no encontrado');
     if (!link.isValid) throw new ForbiddenException('Link expirado o revocado');
     return link;
+  }
+
+  async findByToken(token: string): Promise<PublicLink | null> {
+    return this.repo.findByToken(token);
+  }
+
+  async reissue(data: ReissueLinkData): Promise<PublicLink> {
+    return this.repo.reissue(data);
+  }
+
+  async revoke(id: number): Promise<void> {
+    return this.repo.revoke(id);
   }
 }

@@ -15,6 +15,7 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { PhotobookModule } from './photobook/photobook.module';
 import { SiteConfigModule } from './site-config/site-config.module';
 import { CheckoutModule } from './checkout/checkout.module';
+import { PromotionsModule } from './promotions/promotion.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CheckoutModule } from './checkout/checkout.module';
     PhotobookModule,
     SiteConfigModule,
     CheckoutModule,
+    PromotionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '../../.env'

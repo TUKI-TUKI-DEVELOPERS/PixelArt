@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /* ── Datos de todos los temas ── */
 
@@ -27,14 +28,22 @@ const ALL_THEMES: TemaInfo[] = [
   { slug: "portada-miami", name: "Portada Miami", description: "Un álbum diseñado para capturar la luz y el carácter de tu viaje en Miami. Moderno y luminoso.", reviews: 120 },
 ];
 
-/* ── Tapa specs ── */
-const TAPA_SPECS = [
-  "Cartón rígido de alta calidad",
-  "Colores metálicos brillosos (dorado, plateado, rosa gold)",
-  "Acabado plastificado a prueba de agua",
-  "Colores más vibrantes y decorativos",
-  "Textura especial y acabados elaborados",
-  "Máxima durabilidad y presentación de lujo",
+/* ── Ejemplos de precio por hoja ── */
+// Delgada: S/90 + S/3 × (hojas - 15)
+// Gruesa:  S/120 + S/4 × (hojas - 15)
+const EXAMPLES_DELGADA = [
+  { hojas: 15, price: "S/ 90",  highlight: false },
+  { hojas: 20, price: "S/ 105", highlight: false },
+  { hojas: 25, price: "S/ 120", highlight: true  },
+  { hojas: 35, price: "S/ 150", highlight: false },
+  { hojas: 50, price: "S/ 195", highlight: false },
+];
+const EXAMPLES_GRUESA = [
+  { hojas: 15, price: "S/ 120", highlight: false },
+  { hojas: 20, price: "S/ 140", highlight: false },
+  { hojas: 25, price: "S/ 160", highlight: true  },
+  { hojas: 35, price: "S/ 200", highlight: false },
+  { hojas: 50, price: "S/ 240", highlight: false },
 ];
 
 /* ── Calidad ── */
@@ -69,12 +78,37 @@ type Props = {
   temaNombre: string;
 };
 
+type CoverOption = "TAPA_DELGADA" | "TAPA_GRUESA";
+
 export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) {
   const currentTheme = ALL_THEMES.find((t) => t.slug === temaSlug);
   const otherThemes = ALL_THEMES.filter((t) => t.slug !== temaSlug);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
   const visibleOthers = otherThemes.slice(0, visibleCount);
   const hasMore = visibleCount < otherThemes.length;
+  const [selectedCover, setSelectedCover] = useState<CoverOption>("TAPA_DELGADA");
+  const [selectedHojasDelgada, setSelectedHojasDelgada] = useState(25);
+  const [selectedHojasGruesa, setSelectedHojasGruesa] = useState(25);
+  const router = useRouter();
+
+  const selectedHojas = selectedCover === "TAPA_DELGADA" ? selectedHojasDelgada : selectedHojasGruesa;
+  function calcPrice(cover: CoverOption, hojas: number): string {
+    const base = cover === "TAPA_DELGADA" ? 90 : 120;
+    const extra = cover === "TAPA_DELGADA" ? 3 : 4;
+    return `S/ ${base + (hojas - 15) * extra}`;
+  }
+
+  function scrollToPrecios() {
+    document.getElementById("precios")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function handleStartEditor() {
+    try {
+      localStorage.setItem(`photobook_initial_cover_${temaSlug}`, selectedCover);
+      localStorage.setItem(`photobook_initial_hojas_${temaSlug}`, String(selectedHojas));
+    } catch { /* */ }
+    router.push(`/photobooks/${temaSlug}/editor`);
+  }
 
   return (
     <div>
@@ -176,12 +210,13 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                 </span>
               </div>
             )}
-            <Link
-              href={`/photobooks/${temaSlug}/editor`}
+            <button
+              onClick={scrollToPrecios}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
+                gap: "8px",
                 padding: "16px 36px",
                 borderRadius: "14px",
                 border: "none",
@@ -191,11 +226,13 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                 fontWeight: 700,
                 cursor: "pointer",
                 fontFamily: "inherit",
-                textDecoration: "none",
               }}
             >
-              Comenzar mi diseño
-            </Link>
+              Ver precios y crear
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" />
+              </svg>
+            </button>
           </div>
 
           {/* Right: portada placeholder */}
@@ -219,55 +256,154 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
         </div>
       </section>
 
-      {/* ═══ TAPA PREMIUM ═══ */}
-      <section style={{ background: "#fafafa", padding: "72px 48px" }}>
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "48px",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: i === 2 ? "200px" : "160px",
-                  height: "260px",
-                  borderRadius: "16px",
-                  background: `linear-gradient(135deg, ${ACCENT}15 0%, ${ACCENT}08 100%)`,
-                  border: "1px solid #eee",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#ccc",
-                  fontSize: "12px",
-                }}
-              >
-                Tapa {i}
-              </div>
-            ))}
-          </div>
-          <div>
-            <h2 style={{ margin: "0 0 8px 0", fontSize: "40px", fontWeight: 700, color: "#111" }}>
-              TAPA PREMIUM
-            </h2>
-            <div style={{ fontSize: "18px", fontWeight: 600, color: ACCENT_LIGHT, marginBottom: "24px" }}>
-              Para una experiencia más fina
+      {/* ═══ PRECIOS ═══ */}
+      <section id="precios" style={{ background: "linear-gradient(160deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%)", padding: "80px 48px" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "20px", padding: "6px 16px", marginBottom: "20px" }}>
+              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#4ade80" }} />
+              <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: "2px" }}>Paso 1 de 2</span>
             </div>
-            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "12px" }}>
-              {TAPA_SPECS.map((spec) => (
-                <li key={spec} style={{ fontSize: "15px", fontWeight: 600, color: "#333", paddingLeft: "20px", position: "relative" }}>
-                  <span style={{ position: "absolute", left: 0, color: ACCENT, fontWeight: 700 }}>·</span>
-                  {spec}
-                </li>
-              ))}
-            </ul>
+            <h2 style={{ margin: "0 0 14px 0", fontSize: "38px", fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>
+              Elige tu tipo de tapa
+            </h2>
+            <p style={{ margin: 0, fontSize: "16px", color: "rgba(255,255,255,0.45)", maxWidth: "460px", marginLeft: "auto", marginRight: "auto" }}>
+              El precio se define por la tapa y la cantidad de hojas. Después eliges cuántas páginas quieres en el editor.
+            </p>
           </div>
+
+          {/* Cards seleccionables */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "36px" }}>
+
+            {/* ── Tapa Delgada ── */}
+            <div
+              onClick={() => setSelectedCover("TAPA_DELGADA")}
+              style={{
+                cursor: "pointer",
+                background: selectedCover === "TAPA_DELGADA" ? "rgba(107,159,255,0.12)" : "rgba(255,255,255,0.03)",
+                border: selectedCover === "TAPA_DELGADA" ? "2px solid #6b9fff" : "2px solid rgba(255,255,255,0.12)",
+                borderRadius: "22px",
+                padding: "28px 24px",
+                position: "relative",
+                userSelect: "none",
+              }}
+            >
+              <div style={{ position: "absolute", top: "16px", right: "16px", width: "22px", height: "22px", borderRadius: "50%", background: selectedCover === "TAPA_DELGADA" ? "#6b9fff" : "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {selectedCover === "TAPA_DELGADA" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+              </div>
+              <div style={{ marginBottom: "16px", paddingRight: "32px" }}>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: "#6b9fff", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "5px" }}>TAPA DELGADA</div>
+                <div style={{ fontSize: "18px", fontWeight: 800, color: "#fff", marginBottom: "4px" }}>Cartulina estándar</div>
+                <div style={{ fontSize: "11px", color: "#6b9fff", fontWeight: 600 }}>S/ 90 base · +S/ 3 por hoja extra</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {EXAMPLES_DELGADA.map((ex) => {
+                  const isRowSelected = selectedCover === "TAPA_DELGADA" && selectedHojasDelgada === ex.hojas;
+                  return (
+                    <div
+                      key={ex.hojas}
+                      onClick={(e) => { e.stopPropagation(); setSelectedCover("TAPA_DELGADA"); setSelectedHojasDelgada(ex.hojas); }}
+                      style={{ padding: "10px 14px", borderRadius: "10px", cursor: "pointer", background: isRowSelected ? "rgba(107,159,255,0.22)" : ex.highlight ? "rgba(107,159,255,0.08)" : "rgba(255,255,255,0.04)", border: isRowSelected ? "1px solid #6b9fff" : ex.highlight ? "1px solid rgba(107,159,255,0.3)" : "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", transition: "all 0.15s" }}
+                    >
+                      {ex.highlight && !isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>}
+                      {isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>}
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: isRowSelected ? "#fff" : "rgba(255,255,255,0.7)" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
+                      <span style={{ fontSize: "18px", fontWeight: 900, color: isRowSelected ? "#6b9fff" : ex.highlight ? "#6b9fff" : "#fff", whiteSpace: "nowrap" }}>{ex.price}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Tapa Gruesa ── */}
+            <div
+              onClick={() => setSelectedCover("TAPA_GRUESA")}
+              style={{
+                cursor: "pointer",
+                background: selectedCover === "TAPA_GRUESA" ? "rgba(167,139,250,0.12)" : "rgba(255,255,255,0.03)",
+                border: selectedCover === "TAPA_GRUESA" ? "2px solid #a78bfa" : "2px solid rgba(255,255,255,0.12)",
+                borderRadius: "22px",
+                padding: "28px 24px",
+                position: "relative",
+                userSelect: "none",
+              }}
+            >
+              <div style={{ position: "absolute", top: "16px", right: "16px" }}>
+                {selectedCover === "TAPA_GRUESA"
+                  ? <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#a78bfa", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+                  : <span style={{ fontSize: "9px", fontWeight: 700, color: "#a78bfa", background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)", padding: "3px 10px", borderRadius: "10px", textTransform: "uppercase" }}>Recomendada</span>
+                }
+              </div>
+              <div style={{ marginBottom: "16px", paddingRight: "32px" }}>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "5px" }}>TAPA GRUESA</div>
+                <div style={{ fontSize: "18px", fontWeight: 800, color: "#fff", marginBottom: "4px" }}>Tapa dura resistente</div>
+                <div style={{ fontSize: "11px", color: "#a78bfa", fontWeight: 600 }}>S/ 120 base · +S/ 4 por hoja extra</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {EXAMPLES_GRUESA.map((ex) => {
+                  const isRowSelected = selectedCover === "TAPA_GRUESA" && selectedHojasGruesa === ex.hojas;
+                  return (
+                    <div
+                      key={ex.hojas}
+                      onClick={(e) => { e.stopPropagation(); setSelectedCover("TAPA_GRUESA"); setSelectedHojasGruesa(ex.hojas); }}
+                      style={{ padding: "10px 14px", borderRadius: "10px", cursor: "pointer", background: isRowSelected ? "rgba(167,139,250,0.22)" : ex.highlight ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.04)", border: isRowSelected ? "1px solid #a78bfa" : ex.highlight ? "1px solid rgba(167,139,250,0.3)" : "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", transition: "all 0.15s" }}
+                    >
+                      {ex.highlight && !isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#a78bfa", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>}
+                      {isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#a78bfa", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>}
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: isRowSelected ? "#fff" : "rgba(255,255,255,0.7)" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
+                      <span style={{ fontSize: "18px", fontWeight: 900, color: isRowSelected ? "#a78bfa" : ex.highlight ? "#a78bfa" : "#fff", whiteSpace: "nowrap" }}>{ex.price}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+
+          {/* CTA principal */}
+          {(() => {
+            const isDelgada = selectedCover === "TAPA_DELGADA";
+            return (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
+                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>
+                  {isDelgada ? "Tapa Delgada" : "Tapa Gruesa"} · {selectedHojas} hojas · {selectedHojas * 2} caras →{" "}
+                  <span style={{ color: "#fff", fontWeight: 700 }}>{calcPrice(selectedCover, selectedHojas)}</span>
+                </div>
+                <button
+                  onClick={handleStartEditor}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "10px",
+                    padding: "18px 48px",
+                    borderRadius: "16px",
+                    border: "none",
+                    background: isDelgada
+                      ? "linear-gradient(135deg, #4a7fff 0%, #6b9fff 100%)"
+                      : "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)",
+                    color: "#fff",
+                    fontSize: "18px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    boxShadow: isDelgada ? "0 8px 32px rgba(107,159,255,0.4)" : "0 8px 32px rgba(139,92,246,0.4)",
+                    transition: "all 0.2s",
+                    letterSpacing: "0.3px",
+                  }}
+                >
+                  Empezar con {isDelgada ? "Tapa Delgada" : "Tapa Gruesa"}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </button>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)" }}>
+                  Puedes cambiar la tapa y la cantidad de hojas dentro del editor
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </section>
 
@@ -351,7 +487,11 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                 <div style={{ fontSize: "13px", color: "#999", marginBottom: "14px" }}>{theme.reviews} Reviews</div>
                 <h3 style={{ margin: "0 0 10px 0", fontSize: "18px", fontWeight: 700, color: "#111" }}>{theme.name}</h3>
                 <p style={{ margin: "0 0 14px 0", maxWidth: "360px", fontSize: "13px", lineHeight: 1.4, color: "#666" }}>{theme.description}</p>
-                <div style={{ fontSize: "18px", fontWeight: 700, color: "#111", marginBottom: "14px" }}>PRECIO</div>
+                <div style={{ marginBottom: "14px", textAlign: "center" }}>
+                  <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "2px" }}>Desde</div>
+                  <div style={{ fontSize: "22px", fontWeight: 900, color: "#111", lineHeight: 1 }}>S/ 90</div>
+                  <div style={{ fontSize: "11px", color: "#aaa", marginTop: "3px" }}>15 hojas · Tapa Delgada</div>
+                </div>
                 <span
                   style={{
                     display: "inline-flex",

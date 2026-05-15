@@ -7,10 +7,12 @@ import * as BookIcons from "./icons/ai-books/BookElements";
 import * as StarIcons from "./icons/ai-books/Stars";
 import * as PawIcons from "./icons/ai-books/PetPaws";
 import * as FlowerIcons from "./icons/ai-books/Flowers";
-import * as CameraIcons from "./icons/photobooks/Cameras";
-import * as PhotoIcons from "./icons/photobooks/Photos";
-import * as FilmIcons from "./icons/photobooks/FilmStrips";
-import * as FlashIcons from "./icons/photobooks/FlashElements";
+import * as PhotoStarIcons from "./icons/photobooks/Stars";
+import * as SparkleIcons from "./icons/photobooks/Sparkles";
+import * as GemIcons from "./icons/photobooks/Gems";
+import * as MoonIcons from "./icons/photobooks/Moons";
+import * as ButterflyIcons from "./icons/photobooks/Butterflies";
+import * as CometIcons from "./icons/photobooks/Comets";
 import { useMemo, useState, useEffect } from "react";
 
 interface FloatingElementsLayerProps {
@@ -47,24 +49,34 @@ export default function FloatingElementsLayer({
       { icon: <FlowerIcons.SimpleFlower />, weight: 1.5 }, // Reducido de 2 a 1.5
     ],
     photobooks: [
-      // CÁMARAS (Protagonistas - 43% probabilidad)
-      { icon: <CameraIcons.CameraVintage />, weight: 5 },
-      { icon: <CameraIcons.CameraDSLR />, weight: 4 },
-      { icon: <CameraIcons.CameraInstant />, weight: 3 },
-      
-      // POLAROIDS/FOTOS (Secundarios - 30% probabilidad)
-      { icon: <PhotoIcons.PolaroidLandscape />, weight: 4 },
-      { icon: <PhotoIcons.PolaroidEmpty />, weight: 2 },
-      { icon: <PhotoIcons.FrameRectangle />, weight: 1 },
-      { icon: <PhotoIcons.FrameCircle />, weight: 0.5 },
-      
-      // EFECTOS DE LUZ (Acento - 21% probabilidad)
-      { icon: <FlashIcons.FlashStarburst />, weight: 3 },
-      { icon: <FlashIcons.FlashGlow />, weight: 3 },
-      
-      // FILMS (Complemento - 12% probabilidad)
-      { icon: <FilmIcons.Film35mm />, weight: 2 },
-      { icon: <FilmIcons.FilmRoll />, weight: 1.5 },
+      // ESTRELLAS (Protagonistas - 40% probabilidad)
+      { icon: <PhotoStarIcons.StarFour />, weight: 5 },
+      { icon: <PhotoStarIcons.StarSix />, weight: 4 },
+      { icon: <PhotoStarIcons.StarGlow />, weight: 3 },
+
+      // DESTELLOS (Secundarios - 28% probabilidad)
+      { icon: <SparkleIcons.SparkleCross />, weight: 4 },
+      { icon: <SparkleIcons.SparkleBurst />, weight: 3 },
+      { icon: <SparkleIcons.SparkleTrail />, weight: 1.5 },
+
+      // GEMAS (Acento - 20% probabilidad)
+      { icon: <GemIcons.DiamondGem />, weight: 3 },
+      { icon: <GemIcons.CrystalGem />, weight: 2 },
+      { icon: <GemIcons.GemFaceted />, weight: 1.5 },
+
+      // LUNAS (Complemento - 8% probabilidad)
+      { icon: <MoonIcons.MoonCrescent />, weight: 1.5 },
+      { icon: <MoonIcons.MoonThin />, weight: 1 },
+      { icon: <MoonIcons.MoonGlow />, weight: 1 },
+
+      // MARIPOSAS (Detalle suave - 10% probabilidad)
+      { icon: <ButterflyIcons.ButterflyBlue />, weight: 2 },
+      { icon: <ButterflyIcons.ButterflyOutline />, weight: 1.5 },
+
+      // COMETAS (Dinamismo - 10% probabilidad)
+      { icon: <CometIcons.ShootingStar />, weight: 2 },
+      { icon: <CometIcons.CometDiagonal />, weight: 1.5 },
+      { icon: <CometIcons.MiniComet />, weight: 1 },
     ],
   };
 

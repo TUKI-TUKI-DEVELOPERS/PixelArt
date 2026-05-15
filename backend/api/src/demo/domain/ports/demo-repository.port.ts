@@ -14,6 +14,8 @@ export type CreateDemoRequestData = {
   shippingRegion?: string | null;
   shippingReference?: string | null;
   deliveryDate: string;
+  wantsRush?: boolean;
+  packagePreference?: string;
   wantsCustomDedication: boolean;
   dedicationText?: string | null;
   messageOptional?: string | null;
@@ -22,6 +24,7 @@ export type CreateDemoRequestData = {
 };
 
 export type DemoRequestWithRelations = DemoRequest & {
+  coverType: string | null;
   templateSelections: { id: number; templateId: number; templateName: string | null; templatePreviewKey: string | null }[];
   assetIds: number[];
   proposals: { id: number; templateId: number; outputStorageKey: string; protectionMode: string }[];

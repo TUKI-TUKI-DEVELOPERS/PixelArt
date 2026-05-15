@@ -46,7 +46,7 @@ export class AssetsController {
    */
   @Post('upload-public')
   @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('file'))
   async uploadPublic(
     @UploadedFile() file: Express.Multer.File,

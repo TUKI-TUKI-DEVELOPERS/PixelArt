@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <filter id="ps" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="rgba(0,0,0,0.45)"/>
+    </filter>
+  </defs>
+
+  <!--
+    ═══ CHROMATIC RING ═══
+    72 segments × 5° — interpolated RGB between 8 key colors.
+    Colors at key angles (from 270° clockwise):
+      270°: purple #9333EA → 315°: red #EF4444 → 0°: orange #F97316
+      45°: yellow #EAB308 → 90°: green #22C55E → 135°: cyan #06B6D4
+      180°: blue #3B82F6 → 225°: pink #EC4899 → (back to purple)
+  -->
+  <path d="M 50.0000,10.0000 A 40,40 0 0,1 53.4862,10.1522" fill="none" stroke="#9834e1" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 53.4862,10.1522 A 40,40 0 0,1 56.9459,10.6077" fill="none" stroke="#a236ce" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 56.9459,10.6077 A 40,40 0 0,1 60.3528,11.3630" fill="none" stroke="#ad38bc" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 60.3528,11.3630 A 40,40 0 0,1 63.6808,12.4123" fill="none" stroke="#b73aa9" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 63.6808,12.4123 A 40,40 0 0,1 66.9047,13.7477" fill="none" stroke="#c13c97" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 66.9047,13.7477 A 40,40 0 0,1 70.0000,15.3590" fill="none" stroke="#cb3d85" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 70.0000,15.3590 A 40,40 0 0,1 72.9431,17.2339" fill="none" stroke="#d53f72" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 72.9431,17.2339 A 40,40 0 0,1 75.7115,19.3582" fill="none" stroke="#e04160" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 75.7115,19.3582 A 40,40 0 0,1 78.2843,21.7157" fill="none" stroke="#ea434d" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 78.2843,21.7157 A 40,40 0 0,1 80.6418,24.2885" fill="none" stroke="#f04741" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 80.6418,24.2885 A 40,40 0 0,1 82.7661,27.0569" fill="none" stroke="#f14c3c" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 82.7661,27.0569 A 40,40 0 0,1 84.6410,30.0000" fill="none" stroke="#f25137" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 84.6410,30.0000 A 40,40 0 0,1 86.2523,33.0953" fill="none" stroke="#f35632" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 86.2523,33.0953 A 40,40 0 0,1 87.5877,36.3192" fill="none" stroke="#f45c2d" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 87.5877,36.3192 A 40,40 0 0,1 88.6370,39.6472" fill="none" stroke="#f56128" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 88.6370,39.6472 A 40,40 0 0,1 89.3923,43.0541" fill="none" stroke="#f66623" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 89.3923,43.0541 A 40,40 0 0,1 89.8478,46.5138" fill="none" stroke="#f76b1e" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 89.8478,46.5138 A 40,40 0 0,1 90.0000,50.0000" fill="none" stroke="#f87019" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 90.0000,50.0000 A 40,40 0 0,1 89.8478,53.4862" fill="none" stroke="#f87715" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 89.8478,53.4862 A 40,40 0 0,1 89.3923,56.9459" fill="none" stroke="#f77e14" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 89.3923,56.9459 A 40,40 0 0,1 88.6370,60.3528" fill="none" stroke="#f58512" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 88.6370,60.3528 A 40,40 0 0,1 87.5877,63.6808" fill="none" stroke="#f38c11" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 87.5877,63.6808 A 40,40 0 0,1 86.2523,66.9047" fill="none" stroke="#f2930f" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 86.2523,66.9047 A 40,40 0 0,1 84.6410,70.0000" fill="none" stroke="#f09a0d" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 84.6410,70.0000 A 40,40 0 0,1 82.7661,72.9431" fill="none" stroke="#eea10c" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 82.7661,72.9431 A 40,40 0 0,1 80.6418,75.7115" fill="none" stroke="#eda80a" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 80.6418,75.7115 A 40,40 0 0,1 78.2843,78.2843" fill="none" stroke="#ebaf09" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 78.2843,78.2843 A 40,40 0 0,1 75.7115,80.6418" fill="none" stroke="#dfb40d" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 75.7115,80.6418 A 40,40 0 0,1 72.9431,82.7661" fill="none" stroke="#c9b616" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 72.9431,82.7661 A 40,40 0 0,1 70.0000,84.6410" fill="none" stroke="#b2b820" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 70.0000,84.6410 A 40,40 0 0,1 66.9047,86.2523" fill="none" stroke="#9cba29" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 66.9047,86.2523 A 40,40 0 0,1 63.6808,87.5877" fill="none" stroke="#86bc33" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 63.6808,87.5877 A 40,40 0 0,1 60.3528,88.6370" fill="none" stroke="#70be3d" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 60.3528,88.6370 A 40,40 0 0,1 56.9459,89.3923" fill="none" stroke="#5ac046" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 56.9459,89.3923 A 40,40 0 0,1 53.4862,89.8478" fill="none" stroke="#43c250" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 53.4862,89.8478 A 40,40 0 0,1 50.0000,90.0000" fill="none" stroke="#2dc459" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 50.0000,90.0000 A 40,40 0 0,1 46.5138,89.8478" fill="none" stroke="#20c465" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 46.5138,89.8478 A 40,40 0 0,1 43.0541,89.3923" fill="none" stroke="#1dc372" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 43.0541,89.3923 A 40,40 0 0,1 39.6472,88.6370" fill="none" stroke="#1ac17f" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 39.6472,88.6370 A 40,40 0 0,1 36.3192,87.5877" fill="none" stroke="#17bf8c" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 36.3192,87.5877 A 40,40 0 0,1 33.0953,86.2523" fill="none" stroke="#14be99" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 33.0953,86.2523 A 40,40 0 0,1 30.0000,84.6410" fill="none" stroke="#11bca6" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 30.0000,84.6410 A 40,40 0 0,1 27.0569,82.7661" fill="none" stroke="#0ebab3" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 27.0569,82.7661 A 40,40 0 0,1 24.2885,80.6418" fill="none" stroke="#0bb9c0" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 24.2885,80.6418 A 40,40 0 0,1 21.7157,78.2843" fill="none" stroke="#08b7cd" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 21.7157,78.2843 A 40,40 0 0,1 19.3582,75.7115" fill="none" stroke="#09b3d6" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 19.3582,75.7115 A 40,40 0 0,1 17.2339,72.9431" fill="none" stroke="#0fadda" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 17.2339,72.9431 A 40,40 0 0,1 15.3590,70.0000" fill="none" stroke="#15a8dd" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 15.3590,70.0000 A 40,40 0 0,1 13.7477,66.9047" fill="none" stroke="#1ba2e1" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 13.7477,66.9047 A 40,40 0 0,1 12.4123,63.6808" fill="none" stroke="#219ce5" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 12.4123,63.6808 A 40,40 0 0,1 11.3630,60.3528" fill="none" stroke="#2696e9" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 11.3630,60.3528 A 40,40 0 0,1 10.6077,56.9459" fill="none" stroke="#2c90ed" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 10.6077,56.9459 A 40,40 0 0,1 10.1522,53.4862" fill="none" stroke="#328bf0" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 10.1522,53.4862 A 40,40 0 0,1 10.0000,50.0000" fill="none" stroke="#3885f4" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 10.0000,50.0000 A 40,40 0 0,1 10.1522,46.5138" fill="none" stroke="#457ff1" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 10.1522,46.5138 A 40,40 0 0,1 10.6077,43.0541" fill="none" stroke="#5978e6" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 10.6077,43.0541 A 40,40 0 0,1 11.3630,39.6472" fill="none" stroke="#6c72dc" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 11.3630,39.6472 A 40,40 0 0,1 12.4123,36.3192" fill="none" stroke="#806bd2" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 12.4123,36.3192 A 40,40 0 0,1 13.7477,33.0953" fill="none" stroke="#9465c8" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 13.7477,33.0953 A 40,40 0 0,1 15.3590,30.0000" fill="none" stroke="#a75fbd" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 15.3590,30.0000 A 40,40 0 0,1 17.2339,27.0569" fill="none" stroke="#bb58b3" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 17.2339,27.0569 A 40,40 0 0,1 19.3582,24.2885" fill="none" stroke="#ce52a9" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 19.3582,24.2885 A 40,40 0 0,1 21.7157,21.7157" fill="none" stroke="#e24b9e" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 21.7157,21.7157 A 40,40 0 0,1 24.2885,19.3582" fill="none" stroke="#e7479d" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 24.2885,19.3582 A 40,40 0 0,1 27.0569,17.2339" fill="none" stroke="#dd45a7" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 27.0569,17.2339 A 40,40 0 0,1 30.0000,15.3590" fill="none" stroke="#d342b0" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 30.0000,15.3590 A 40,40 0 0,1 33.0953,13.7477" fill="none" stroke="#c940b9" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 33.0953,13.7477 A 40,40 0 0,1 36.3192,12.4123" fill="none" stroke="#c03ec2" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 36.3192,12.4123 A 40,40 0 0,1 39.6472,11.3630" fill="none" stroke="#b63bca" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 39.6472,11.3630 A 40,40 0 0,1 43.0541,10.6077" fill="none" stroke="#ac39d4" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 43.0541,10.6077 A 40,40 0 0,1 46.5138,10.1522" fill="none" stroke="#a237dc" stroke-width="10" stroke-linecap="butt"/>
+  <path d="M 46.5138,10.1522 A 40,40 0 0,1 50.0000,10.0000" fill="none" stroke="#9834e6" stroke-width="10" stroke-linecap="butt"/>
+
+  <!--
+    ═══ PIXEL ART P ═══
+    Solo <rect> con ángulos rectos — cero curvas.
+    Grid de 8px × 8px. Centrada en (50,50).
+
+    Columnas:  C0=34-42 | C1=42-50 | C2=50-58 | C3=58-66
+    Filas:     R0=30-38 | R1=38-46 | R2=46-54 | R3=54-62 | R4=62-70
+
+    Mapa de pixels:
+      R0: C0 C1 C2 C3   ← barra superior (ancho completo)
+      R1: C0 [  ][  ]C3 ← stem + lateral der del bowl
+      R2: C0 C1 C2      ← barra media sin esquina inferior-derecha (opción B)
+      R3: C0             ← stem solo
+      R4: C0             ← stem solo
+  -->
+  <g fill="#CC1A1A" filter="url(#ps)">
+    <!-- Barra superior: R0 completa -->
+    <rect x="34" y="30" width="32" height="8"/>
+    <!-- Stem: C0, R1–R4 -->
+    <rect x="34" y="38" width="8" height="32"/>
+    <!-- Lateral derecho del bowl: C3 en R1 -->
+    <rect x="58" y="38" width="8" height="8"/>
+    <!-- Barra media: C1–C2 (C3 removido = esquina inferior-derecha del bowl) -->
+    <rect x="42" y="46" width="16" height="8"/>
+  </g>
+</svg>

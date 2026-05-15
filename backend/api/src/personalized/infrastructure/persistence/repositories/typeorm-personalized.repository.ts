@@ -22,7 +22,7 @@ export class TypeOrmPersonalizedRepository extends PersonalizedRepositoryPort {
   async findAllActiveCategories(): Promise<PersonalizedCategoryOrmEntity[]> {
     return this.categoryRepo.find({
       where: { isActive: true },
-      relations: ['models', 'models.templates', 'coverAsset'],
+      relations: ['models', 'models.templates', 'models.coverAsset', 'coverAsset'],
       order: { name: 'ASC' },
     });
   }
@@ -30,7 +30,7 @@ export class TypeOrmPersonalizedRepository extends PersonalizedRepositoryPort {
   async findModelsByCategory(categoryId: string): Promise<PersonalizedModelOrmEntity[]> {
     return this.modelRepo.find({
       where: { categoryId, isActive: true },
-      relations: ['templates'],
+      relations: ['templates', 'coverAsset'],
       order: { name: 'ASC' },
     });
   }

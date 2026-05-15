@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AssetOrmEntity } from '../../../../assets/infrastructure/persistence/entities/asset.orm-entity';
 import { PersonalizedCategoryOrmEntity } from './personalized-category.orm-entity';
 import { PersonalizedTemplateOrmEntity } from './personalized-template.orm-entity';
 
@@ -24,6 +25,13 @@ export class PersonalizedModelOrmEntity {
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
+
+  @Column({ name: 'cover_asset_id', type: 'bigint', nullable: true })
+  coverAssetId!: string | null;
+
+  @ManyToOne(() => AssetOrmEntity, { eager: false, nullable: true })
+  @JoinColumn({ name: 'cover_asset_id' })
+  coverAsset!: AssetOrmEntity | null;
 
   @ManyToOne(() => PersonalizedCategoryOrmEntity, (c) => c.models)
   @JoinColumn({ name: 'category_id' })

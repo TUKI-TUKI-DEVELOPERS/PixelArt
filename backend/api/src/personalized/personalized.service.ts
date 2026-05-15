@@ -24,13 +24,26 @@ export class PersonalizedService {
       const coverImageUrl = cat.coverAsset
         ? this.storage.getPublicUrl(cat.coverAsset.storageKey)
         : null;
-      return PersonalizedCategoryMapper.toResponse(cat, coverImageUrl);
+
+      const modelCoverUrls: Record<string, string | null> = {};
+      for (const m of cat.models ?? []) {
+        modelCoverUrls[m.id] = m.coverAsset
+          ? this.storage.getPublicUrl(m.coverAsset.storageKey)
+          : null;
+      }
+
+      return PersonalizedCategoryMapper.toResponse(cat, coverImageUrl, modelCoverUrls);
     });
   }
 
   async listModelsByCategory(categoryId: string): Promise<PersonalizedModelResponse[]> {
     const models = await this.repo.findModelsByCategory(categoryId);
-    return models.map(PersonalizedModelMapper.toResponse);
+    return models.map((m) => {
+      const coverImageUrl = m.coverAsset
+        ? this.storage.getPublicUrl(m.coverAsset.storageKey)
+        : null;
+      return PersonalizedModelMapper.toResponse(m, coverImageUrl);
+    });
   }
 
   async listTemplatesByModel(modelId: string): Promise<PersonalizedTemplateResponse[]> {

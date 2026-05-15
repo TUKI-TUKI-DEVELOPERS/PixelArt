@@ -21,6 +21,9 @@ export default function PagarPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -37,11 +40,28 @@ export default function PagarPage() {
       .finally(() => setLoading(false));
   }, [token]);
 
-  async function handleUploadVoucher(file: File) {
+  function handleFileSelected(file: File) {
+    const url = URL.createObjectURL(file);
+    setPendingFile(file);
+    setPendingPreview(url);
+    setUploadError(null);
+  }
+
+  function handleCancelPending() {
+    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    setPendingFile(null);
+    setPendingPreview(null);
+    setUploadError(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function handleConfirmUpload() {
+    if (!pendingFile) return;
     setUploading(true);
+    setUploadError(null);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", pendingFile);
       const res = await fetch(`${API}/api/payment/${token}/voucher`, {
         method: "POST",
         body: formData,
@@ -50,9 +70,10 @@ export default function PagarPage() {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as { message?: string }).message ?? "Error al subir voucher");
       }
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
       setSubmitted(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error");
+      setUploadError(err instanceof Error ? err.message : "Error al enviar el comprobante");
     } finally {
       setUploading(false);
     }
@@ -69,7 +90,9 @@ export default function PagarPage() {
   if (error) {
     return (
       <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px", textAlign: "center" }}>
-        <div style={{ fontSize: "48px", marginBottom: "16px" }}>😔</div>
+        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
         <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#111", marginBottom: "8px" }}>Link no válido</h1>
         <p style={{ fontSize: "16px", color: "#6b7280" }}>{error}</p>
       </div>
@@ -81,7 +104,9 @@ export default function PagarPage() {
   if (submitted) {
     return (
       <div style={{ maxWidth: "600px", margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: "56px", marginBottom: "16px" }}>✅</div>
+        <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
         <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#065f46", marginBottom: "12px" }}>Voucher enviado</h1>
         <p style={{ fontSize: "16px", color: "#6b7280", lineHeight: 1.6 }}>
           Tu comprobante de pago fue recibido correctamente. Nuestro equipo lo revisará y te contactaremos
@@ -141,8 +166,8 @@ export default function PagarPage() {
       </div>
 
       {/* Upload voucher */}
-      <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center" }}>
-        <h2 style={{ margin: "0 0 12px 0", fontSize: "18px", fontWeight: 700, color: "#111" }}>Sube tu comprobante</h2>
+      <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px" }}>
+        <h2 style={{ margin: "0 0 8px 0", fontSize: "18px", fontWeight: 700, color: "#111" }}>Sube tu comprobante</h2>
         <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#6b7280" }}>
           Después de pagar, sube la captura de pantalla del pago realizado.
         </p>
@@ -154,27 +179,68 @@ export default function PagarPage() {
           style={{ display: "none" }}
           onChange={(e) => {
             const file = e.target.files?.[0];
-            if (file) handleUploadVoucher(file);
+            if (file) handleFileSelected(file);
           }}
         />
 
-        <button
-          disabled={uploading}
-          onClick={() => fileRef.current?.click()}
-          style={{
-            padding: "14px 32px",
-            borderRadius: "12px",
-            border: "none",
-            background: uploading ? "#ccc" : "#8b5cf6",
-            color: "#fff",
-            fontSize: "16px",
-            fontWeight: 700,
-            cursor: uploading ? "wait" : "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          {uploading ? "Subiendo..." : "Subir captura de pago"}
-        </button>
+        {/* Estado: sin archivo seleccionado */}
+        {!pendingFile && (
+          <button
+            onClick={() => fileRef.current?.click()}
+            style={{ width: "100%", padding: "14px 0", borderRadius: "12px", border: "2px dashed #d1d5db", background: "#f9fafb", color: "#6b7280", fontSize: "15px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Seleccionar captura de pago
+          </button>
+        )}
+
+        {/* Estado: archivo seleccionado — mostrar preview y pedir confirmación */}
+        {pendingFile && (
+          <div>
+            {/* Preview */}
+            <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #e5e7eb", marginBottom: "16px", maxHeight: "280px", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb" }}>
+              <img src={pendingPreview!} alt="Comprobante" style={{ maxWidth: "100%", maxHeight: "280px", objectFit: "contain", display: "block" }} />
+            </div>
+
+            <div style={{ fontSize: "13px", color: "#6b7280", marginBottom: "16px", textAlign: "center" }}>
+              <strong style={{ color: "#111" }}>{pendingFile.name}</strong>
+              <span style={{ color: "#9ca3af" }}> · {(pendingFile.size / 1024).toFixed(0)} KB</span>
+            </div>
+
+            {uploadError && (
+              <div style={{ padding: "10px 14px", borderRadius: "10px", background: "#fef2f2", border: "1px solid #fecaca", fontSize: "13px", color: "#dc2626", fontWeight: 500, marginBottom: "14px", textAlign: "center" }}>
+                {uploadError}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={handleCancelPending}
+                disabled={uploading}
+                style={{ flex: 1, padding: "13px 0", borderRadius: "12px", border: "1.5px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "14px", fontWeight: 600, cursor: uploading ? "not-allowed" : "pointer", fontFamily: "inherit" }}
+              >
+                Cambiar imagen
+              </button>
+              <button
+                onClick={handleConfirmUpload}
+                disabled={uploading}
+                style={{ flex: 2, padding: "13px 0", borderRadius: "12px", border: "none", background: uploading ? "#d1d5db" : "#8b5cf6", color: "#fff", fontSize: "14px", fontWeight: 700, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+              >
+                {uploading ? (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Sí, enviar comprobante
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

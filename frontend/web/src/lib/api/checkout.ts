@@ -15,10 +15,13 @@ export type AvailableTemplate = {
 };
 
 export type CheckoutInfo = {
+  orderStatus: string;
   customerName: string;
   bookName: string;
   orderId: number;
   baseAmountCents: number;
+  rushFeeCents: number;
+  packagePreference: 'STANDARD' | 'PREMIUM';
   extraTemplatesAmountCents: number;
   currency: string;
   expiresAt: string;

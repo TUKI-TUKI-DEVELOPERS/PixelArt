@@ -84,4 +84,13 @@ export class DemoAdminController {
   deleteProposal(@Param('id') id: string, @Param('proposalId') proposalId: string) {
     return this.demoService.deleteProposal(Number(id), Number(proposalId));
   }
+
+  /**
+   * POST /api/admin/demo/requests/:id/reissue-checkout
+   * Revoca el link anterior y genera uno nuevo con TTL 7 días
+   */
+  @Post('requests/:id/reissue-checkout')
+  reissueCheckout(@Param('id') id: string) {
+    return this.demoService.reissueCheckoutLink(Number(id));
+  }
 }

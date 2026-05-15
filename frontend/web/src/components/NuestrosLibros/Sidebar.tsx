@@ -27,9 +27,9 @@ export default function Sidebar({
       <h2
         style={{
           margin: "0 0 28px 0",
-          fontSize: "52px",
-          lineHeight: 1,
-          fontWeight: 800,
+          fontSize: "48px",
+          lineHeight: 1.15,
+          fontWeight: 900,
           color: "#4f97cf",
           textTransform: "uppercase",
         }}
@@ -69,7 +69,7 @@ export default function Sidebar({
           style={{
             border: "none",
             outline: "none",
-            fontSize: "20px",
+            fontSize: "16px",
             color: "#222",
             background: "transparent",
             width: "100%",
@@ -87,7 +87,7 @@ export default function Sidebar({
       >
         <div
           style={{
-            fontSize: "22px",
+            fontSize: "18px",
             fontWeight: 500,
             color: "#222",
             marginBottom: "14px",
@@ -127,7 +127,7 @@ export default function Sidebar({
 
         <div
           style={{
-            fontSize: "22px",
+            fontSize: "18px",
             fontWeight: 500,
             color: "#222",
             marginBottom: "14px",

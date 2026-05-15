@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import { PhotobookRepositoryPort, CreateProjectData } from './domain/ports/photobook-repository.port';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { OrdersService } from '../orders/orders.service';
@@ -13,6 +14,7 @@ export class PhotobookService {
     private readonly ordersService: OrdersService,
     private readonly publicLinksService: PublicLinksService,
     private readonly emailService: EmailService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async listThemes() {
@@ -28,7 +30,28 @@ export class PhotobookService {
   }
   listProducts() { return this.repo.listProducts(); }
   listProjects() { return this.repo.findAllProjects(); }
-  getProjectDetail(id: number) { return this.repo.findProjectById(id); }
+
+  async getProjectDetail(id: number) {
+    const detail = await this.repo.findProjectById(id);
+    if (!detail) return null;
+
+    const orderRows: { id: string }[] = await this.dataSource.query(
+      `SELECT id FROM orders WHERE photobook_project_id = $1 LIMIT 1`,
+      [id],
+    );
+    const orderId = orderRows.length > 0 ? Number(orderRows[0].id) : null;
+
+    let hasPaymentProof = false;
+    if (orderId) {
+      const proofRows: { id: string }[] = await this.dataSource.query(
+        `SELECT id FROM payment_proofs WHERE order_id = $1 LIMIT 1`,
+        [orderId],
+      );
+      hasPaymentProof = proofRows.length > 0;
+    }
+
+    return { ...detail, orderId, hasPaymentProof };
+  }
 
   async createProject(data: CreateProjectData) {
     const product = await this.repo.getProduct(data.photobookProductId);

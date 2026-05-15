@@ -58,7 +58,7 @@ export default async function LibrosPersonalizadosPage() {
         variant="custom-books"
         style={{
           width: "100%",
-          padding: "0 0 72px",
+          padding: "0",
           minHeight: "100vh",
         }}
       >

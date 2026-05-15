@@ -192,6 +192,8 @@ CREATE TABLE demo_request (
   shipping_reference TEXT,
 
   delivery_date DATE NOT NULL,
+  wants_rush         BOOLEAN     NOT NULL DEFAULT FALSE,
+  package_preference VARCHAR(10) NOT NULL DEFAULT 'STANDARD',
 
   wants_custom_dedication BOOLEAN NOT NULL DEFAULT FALSE,
   dedication_text TEXT,
@@ -772,3 +774,63 @@ CREATE TABLE IF NOT EXISTS rush_fee_rules (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- C1 — promotions: descuentos por libro, categoría o global con rango de fechas
+CREATE TABLE IF NOT EXISTS promotions (
+  id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  label          TEXT NOT NULL,
+  target_type    TEXT NOT NULL CHECK (target_type IN ('model', 'models', 'category', 'all')),
+  target_id      BIGINT,
+  discount_type  TEXT NOT NULL CHECK (discount_type IN ('percent', 'fixed_cents')),
+  discount_value BIGINT NOT NULL CHECK (discount_value > 0),
+  valid_from     TIMESTAMPTZ NOT NULL,
+  valid_until    TIMESTAMPTZ NOT NULL,
+  is_active      BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT chk_promotions_valid_range   CHECK (valid_until > valid_from),
+  CONSTRAINT chk_promotions_percent_range CHECK (
+    discount_type != 'percent' OR (discount_value > 0 AND discount_value <= 100)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS promotions_active_idx
+  ON promotions (is_active, valid_from, valid_until);
+
+-- Junction table para target_type = 'models' (múltiples libros por promoción)
+CREATE TABLE IF NOT EXISTS promotion_targets (
+  promotion_id    BIGINT NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
+  catalog_book_id BIGINT NOT NULL REFERENCES catalog_books(id) ON DELETE CASCADE,
+  PRIMARY KEY (promotion_id, catalog_book_id)
+);
+
+-- =========================================
+-- CUSTOM BOOK PRINT (archivos para imprenta)
+-- =========================================
+
+-- Archivos subidos por el admin para generar el PDF de impresión
+CREATE TABLE IF NOT EXISTS order_print_assets (
+  id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  order_id          BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  asset_type        TEXT   NOT NULL CHECK (asset_type IN ('COVER', 'BACK_COVER', 'TEMPLATE')),
+  template_id       BIGINT REFERENCES personalized_templates(id) ON DELETE SET NULL,
+  slot_index        INT,   -- orden de la plantilla dentro del libro
+  storage_key       TEXT   NOT NULL,
+  original_filename TEXT,
+  mime_type         TEXT,
+  size_bytes        BIGINT,
+  uploaded_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (order_id, asset_type, template_id)
+);
+
+CREATE INDEX IF NOT EXISTS order_print_assets_order_id_idx ON order_print_assets(order_id);
+
+-- PDF generado para imprenta (1 por orden)
+CREATE TABLE IF NOT EXISTS custom_book_renders (
+  id               BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  order_id         BIGINT NOT NULL UNIQUE REFERENCES orders(id) ON DELETE CASCADE,
+  pdf_storage_key  TEXT   NOT NULL,
+  generated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS custom_book_renders_order_id_idx ON custom_book_renders(order_id);

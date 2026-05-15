@@ -515,7 +515,7 @@ export default function AdminLoginPage() {
         <div className="login-glass">
           {/* Logo + heading */}
           <div className="login-logo-area">
-            <PixelArtLogo size="default" />
+            <PixelArtLogo />
             <h1>Bienvenido de vuelta</h1>
             <p className="subtitle">Ingresa al panel de administración</p>
           </div>

@@ -37,6 +37,31 @@ export default async function CategoriaPage({ params }: Props) {
 
   const categoriaNombre = CATEGORIA_NOMBRES[categoriaId];
 
+  // Fetch catalog books + personalized categories en paralelo
+  const [catalogIds, modelCovers] = await Promise.all([
+    fetch(`${API_BASE}/api/catalog/books`, { next: { revalidate: 300 } })
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => {
+        const list: { id: number | string; name: string }[] = Array.isArray(data) ? data : data.data ?? [];
+        return Object.fromEntries(list.map((b) => [b.name, Number(b.id)]));
+      })
+      .catch(() => ({} as Record<string, number>)),
+
+    // Extrae coverImageUrl de cada modelo: Record<modelName, url>
+    fetch(`${API_BASE}/api/personalized/categories`, { next: { revalidate: 300 } })
+      .then((r) => r.ok ? r.json() : [])
+      .then((cats: { models: { name: string; coverImageUrl: string | null }[] }[]) => {
+        const result: Record<string, string> = {};
+        for (const cat of cats) {
+          for (const m of cat.models ?? []) {
+            if (m.coverImageUrl) result[m.name] = m.coverImageUrl;
+          }
+        }
+        return result;
+      })
+      .catch(() => ({} as Record<string, string>)),
+  ]);
+
   // Fetch assets para libros-de-amor
   let assetUrls: Record<string, string> = {};
   if (categoriaId === "libros-de-amor") {
@@ -45,6 +70,12 @@ export default async function CategoriaPage({ params }: Props) {
     keys.forEach(([name, storageKey]) => {
       assetUrls[name] = getAssetUrlDirect(storageKey);
     });
+  } else if (categoriaId === "libros-de-familia") {
+    assetUrls.heroBackground = getAssetUrlDirect('IA_Books/Backgrounds/Background_IA_Books_Family_Book_Page.png');
+  } else if (categoriaId === "libros-de-mascotas") {
+    assetUrls.heroBackground = getAssetUrlDirect('IA_Books/Backgrounds/Background_IA_Books_Pet_Book_Page.png');
+  } else if (categoriaId === "libros-de-memorias-familiares") {
+    assetUrls.heroBackground = getAssetUrlDirect('IA_Books/Backgrounds/Background_IA_Books_Memories_Book_Page.png');
   }
 
   return (
@@ -52,6 +83,8 @@ export default async function CategoriaPage({ params }: Props) {
       categoriaSlug={categoriaId}
       categoriaNombre={categoriaNombre}
       assetUrls={assetUrls}
+      catalogIds={catalogIds}
+      modelCovers={modelCovers}
     />
   );
 }

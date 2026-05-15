@@ -3,10 +3,11 @@ import { DataSource } from 'typeorm';
 import { PublicLinksService } from '../../../public-links/public-links.service';
 import { OrdersService } from '../../../orders/orders.service';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
+import { PublicLink } from '../../../public-links/domain/public-link';
 
-const STANDARD_ADDITIONAL = 12;
-const PREMIUM_ADDITIONAL = 17;
-const EXTRA_TEMPLATES_PRICE_CENTS = 5000; // S/ 50
+const STANDARD_ADDITIONAL = 7;   // 10 plantillas total − 3 del demo
+const PREMIUM_ADDITIONAL = 12;   // 15 plantillas total − 3 del demo
+const EXTRA_TEMPLATES_PRICE_CENTS = 4000; // S/ 40.00 — siempre, independiente de la tapa
 
 export type SubmitCheckoutInput = {
   token: string;
@@ -27,7 +28,7 @@ export class SubmitCheckoutUseCase {
   ) {}
 
   async execute(input: SubmitCheckoutInput) {
-    const link = await this.publicLinksService.validate(input.token);
+    const link: PublicLink = await this.publicLinksService.validate(input.token);
     if (link.linkType !== 'CHECKOUT' || !link.orderId) {
       throw new BadRequestException('Link de checkout inválido');
     }
@@ -110,6 +111,16 @@ export class SubmitCheckoutUseCase {
         'YAPE_QR',
         updatedOrder.totalAmountCents,
       ],
+    );
+
+    // Revocar el link para que no pueda ser usado nuevamente
+    await this.publicLinksService.revoke(link.id);
+
+    // Avanzar la orden a UNDER_PAYMENT_REVIEW automáticamente
+    await this.ordersService.advanceStatus(
+      order.id,
+      'UNDER_PAYMENT_REVIEW',
+      'Comprobante enviado por el cliente',
     );
 
     return {

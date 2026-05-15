@@ -199,7 +199,7 @@ export default function HomeHeroClient({ slides }: Props) {
                   />
                   <span
                     style={{
-                      fontSize: "32px",
+                      fontSize: tokens.typography.h4.size,
                       fontWeight: 900,
                       textTransform: "uppercase",
                       letterSpacing: "1px",
@@ -249,8 +249,8 @@ export default function HomeHeroClient({ slides }: Props) {
                   flexWrap: "wrap",
                 }}
               >
-                <TrustBadge icon={Star} text="4.8/5 ★ 1500+ reseñas" />
-                <TrustBadge icon={Truck} text="Envío en 5-7 días" />
+                <TrustBadge icon={Star} text="Alta Calidad" />
+                <TrustBadge icon={Truck} text="Envío Rápido" />
               </motion.div>
             </AnimatePresence>
 
@@ -399,9 +399,9 @@ export default function HomeHeroClient({ slides }: Props) {
                 exit={{ opacity: 0, y: -18 }}
                 transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
                 style={{
-                  fontSize: "36px",
-                  lineHeight: 1.15,
-                  fontWeight: 800,
+                  fontSize: tokens.typography.display.size,
+                  lineHeight: 1.1,
+                  fontWeight: 900,
                   color: "#111",
                   margin: "0 0 20px 0",
                   textTransform: "uppercase",
@@ -575,7 +575,7 @@ export default function HomeHeroClient({ slides }: Props) {
           }
 
           h1 {
-            font-size: 40px !important;
+            font-size: 48px !important;
             max-width: 100% !important;
           }
 
@@ -592,7 +592,7 @@ export default function HomeHeroClient({ slides }: Props) {
           }
 
           h1 {
-            font-size: 36px !important;
+            font-size: 40px !important;
           }
 
           p {
@@ -611,7 +611,7 @@ export default function HomeHeroClient({ slides }: Props) {
           }
 
           h1 {
-            font-size: 32px !important;
+            font-size: 36px !important;
             line-height: 1.2 !important;
           }
 
@@ -646,13 +646,13 @@ export default function HomeHeroClient({ slides }: Props) {
 
           /* Adjust title size on mobile */
           .hero-grid > div:first-child > div:first-child span {
-            font-size: 24px !important;
+            font-size: 18px !important;
           }
         }
 
         @media (max-width: 480px) {
           h1 {
-            font-size: 28px !important;
+            font-size: 30px !important;
           }
         }
       `}</style>

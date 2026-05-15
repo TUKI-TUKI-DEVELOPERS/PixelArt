@@ -2,6 +2,7 @@ export interface PersonalizedModelResponse {
   id: string;
   name: string;
   templateCount: number;
+  coverImageUrl: string | null;
 }
 
 export interface PersonalizedCategoryResponse {

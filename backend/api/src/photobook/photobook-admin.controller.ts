@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Param, NotFoundException, Logger } from '@nestjs/common';
 import { PhotobookService } from './photobook.service';
 import { PhotobookPdfService } from './infrastructure/pdf/photobook-pdf.service';
 import { PhotobookRepositoryPort } from './domain/ports/photobook-repository.port';
@@ -28,5 +28,15 @@ export class PhotobookAdminController {
       pdfUrl: this.pdfService.getPdfUrl(render.pdfStorageKey),
       generatedAt: render.generatedAt,
     };
+  }
+
+  @Post('projects/:id/render')
+  regenerateRender(@Param('id') id: string) {
+    const projectId = Number(id);
+    // Fire & forget — igual que el flujo automático al aprobar el pago
+    void this.pdfService.generateAndStore(projectId).catch((err: Error) => {
+      new Logger(PhotobookAdminController.name).error(`Error regenerando PDF proyecto #${projectId}: ${err.message}`);
+    });
+    return { queued: true };
   }
 }

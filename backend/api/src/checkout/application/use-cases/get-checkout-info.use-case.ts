@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { PublicLinksService } from '../../../public-links/public-links.service';
 import { OrdersService } from '../../../orders/orders.service';
@@ -14,13 +14,24 @@ export class GetCheckoutInfoUseCase {
   ) {}
 
   async execute(token: string) {
-    const link = await this.publicLinksService.validate(token);
+    const link = await this.publicLinksService.findByToken(token);
+    if (!link) throw new NotFoundException('Link no encontrado');
     if (link.linkType !== 'CHECKOUT' || !link.orderId) {
       throw new BadRequestException('Link de checkout inválido');
+    }
+    // Link expirado sin haberse revocado (venció antes de que pagara)
+    if (link.isExpired && !link.isRevoked) {
+      throw new ForbiddenException('El link de pago expiró. Contactá al equipo para que te envíen uno nuevo.');
     }
 
     const order = await this.ordersService.findById(link.orderId);
     if (!order) throw new NotFoundException('Orden no encontrada');
+
+    // Link revocado → el cliente ya pagó, devolvemos solo el estado de la orden
+    if (link.isRevoked) {
+      return { orderStatus: order.status };
+    }
+
     if (!order.demoRequestId) throw new BadRequestException('Orden sin demo request asociada');
 
     const demoRequestId = order.demoRequestId;
@@ -68,11 +79,11 @@ export class GetCheckoutInfoUseCase {
       [order.personalizedModelId],
     ) as { model_name: string }[];
 
-    // Customer name from demo request
+    // Customer name and package preference from demo request
     const [demoRow] = await this.dataSource.query(
-      `SELECT customer_full_name FROM demo_request WHERE id = $1`,
+      `SELECT customer_full_name, package_preference FROM demo_request WHERE id = $1`,
       [demoRequestId],
-    ) as { customer_full_name: string }[];
+    ) as { customer_full_name: string; package_preference: string }[];
 
     // Check if payment proof already submitted
     const [proofRow] = await this.dataSource.query(
@@ -81,10 +92,13 @@ export class GetCheckoutInfoUseCase {
     ) as { id: string }[];
 
     return {
+      orderStatus: order.status,
       customerName: demoRow?.customer_full_name ?? order.customerFullName,
+      packagePreference: (demoRow?.package_preference ?? 'STANDARD') as 'STANDARD' | 'PREMIUM',
       bookName: modelRow?.model_name ?? 'Libro Personalizado',
       orderId: order.id,
       baseAmountCents: order.baseAmountCents,
+      rushFeeCents: order.rushFeeCents,
       extraTemplatesAmountCents: order.extraTemplatesAmountCents,
       currency: order.currency,
       expiresAt: link.expiresAt,

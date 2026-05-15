@@ -28,7 +28,17 @@ export const HOME_ASSET_KEYS = {
 
   // SECTION OUR BOOKS - Family
   ourBooksFamilyAbuelo: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png',
+  ourBooksFamilyAbuela: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png',
   ourBooksFamilyPapaHeroe: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png',
+  ourBooksFamilyMamaHeroina: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png',
+  ourBooksFamilyLaFamilia: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png',
+  ourBooksFamilyElMejorEquipo: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png',
+
+  // SECTION OUR BOOKS - Memorias Familiares
+  ourBooksMemoriasGracias: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png',
+  ourBooksMemoriasAngelGuardian: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png',
+  ourBooksMemoriasSiempreCorazon: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png',
+  ourBooksMemoriasSiempreSerás: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png',
 
   // SECTION OUR BOOKS - Pets
   ourBooksPetsAngel: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_NuestroAngelde4Patas_Miniatura.png',
@@ -43,6 +53,14 @@ export const HOME_ASSET_KEYS = {
   ourBooksPhotobooksParis:       'Photobooks/Miniaturas/Photobook_Miniatura_Paris.png',
   ourBooksPhotobooksNuevaYork:   'Photobooks/Miniaturas/Photobook_Miniatura_New_York.png',
   ourBooksPhotobooksRoma:        'Photobooks/Miniaturas/Photobook_Miniatura_Coliseo_Romano.png',
+  ourBooksPhotobooksAmsterdam:   'Photobooks/Miniaturas/Photobook_Miniatura_Amsterdam.png',
+  ourBooksPhotobooksBangkok:     'Photobooks/Miniaturas/Photobook_Miniatura_Bangkok.png',
+  ourBooksPhotobooksChichenItza: 'Photobooks/Miniaturas/Photobook_Miniatura_Chichen_Itza.png',
+  ourBooksPhotobooksIquitos:     'Photobooks/Miniaturas/Photobook_Miniatura_Iquitos.png',
+  ourBooksPhotobooksJamaica:     'Photobooks/Miniaturas/Photobook_Miniatura_Jamaica.png',
+  ourBooksPhotobooksMiami:       'Photobooks/Miniaturas/Photobook_Miniatura_Miami.png',
+  ourBooksPhotobooksPuntaCana:   'Photobooks/Miniaturas/Photobook_Miniatura_Punta_Cana.png',
+  ourBooksPhotobooksRioJaneiro:  'Photobooks/Miniaturas/Photobook_Miniatura_Rio_Janeiro.png',
 
   // SECTION OUR BOOKS - Background
   ourBooksSectionBackground: 'Home/Section_Our_Books/Section_Our_Books_Background.png',
@@ -56,6 +74,7 @@ export const HOME_ASSET_KEYS = {
 
   // SECTION COVER BOOKS
   bookCoverThick: 'Home/Section_Cover_Books/Section_Book_Cover_Thick.png',
+  bookCoverSlim:  'Home/Section_Cover_Books/Section_Book_Cover_Slim.png',
 
   // SECTION CREATE YOUR BOOK - Register Information
   createBookBoy: 'Home/Section_Create_Your_Book/Register_Information/Section_Create_Your_Book_Boy.png',

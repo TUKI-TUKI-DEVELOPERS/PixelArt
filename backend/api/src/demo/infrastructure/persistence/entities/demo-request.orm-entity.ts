@@ -50,6 +50,12 @@ export class DemoRequestOrmEntity {
   @Column({ name: 'delivery_date', type: 'date' })
   deliveryDate!: string;
 
+  @Column({ name: 'wants_rush', type: 'boolean', default: false })
+  wantsRush!: boolean;
+
+  @Column({ name: 'package_preference', type: 'varchar', length: 10, default: 'STANDARD' })
+  packagePreference!: string;
+
   @Column({ name: 'wants_custom_dedication', type: 'boolean', default: false })
   wantsCustomDedication!: boolean;
 

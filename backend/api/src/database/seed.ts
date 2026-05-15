@@ -9,6 +9,7 @@
  *   docker compose -f infra/docker/docker-compose.yml exec api npm run seed
  */
 
+import { createHash } from 'crypto';
 import { Client } from 'pg';
 import * as bcryptjs from 'bcryptjs';
 
@@ -84,6 +85,37 @@ export async function runSeed(): Promise<void> {
       )
     `);
 
+    // 0g. Tabla promotions
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS promotions (
+        id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        label          TEXT NOT NULL,
+        target_type    TEXT NOT NULL CHECK (target_type IN ('model', 'category', 'all')),
+        target_id      BIGINT,
+        discount_type  TEXT NOT NULL CHECK (discount_type IN ('percent', 'fixed_cents')),
+        discount_value BIGINT NOT NULL CHECK (discount_value > 0),
+        valid_from     TIMESTAMPTZ NOT NULL,
+        valid_until    TIMESTAMPTZ NOT NULL,
+        is_active      BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+        CONSTRAINT chk_promotions_valid_range   CHECK (valid_until > valid_from),
+        CONSTRAINT chk_promotions_percent_range CHECK (
+          discount_type != 'percent' OR (discount_value > 0 AND discount_value <= 100)
+        )
+      )
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS promotions_active_idx
+        ON promotions (is_active, valid_from, valid_until)
+    `);
+
+    // 0h. cover_asset_id en personalized_models
+    await client.query(`
+      ALTER TABLE personalized_models
+        ADD COLUMN IF NOT EXISTS cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL
+    `);
+
     console.log('[seed] schema migrations ✓');
 
     // ── 1. personalized_categories ──────────────────────────────────────────
@@ -123,6 +155,10 @@ export async function runSeed(): Promise<void> {
       { categoryId: cat['Libros de Familia'], name: 'Mi Familia' },
       // Libros de Memorias Familiares
       { categoryId: cat['Libros de Memorias Familiares'], name: 'Recuerdos Familiares' },
+      { categoryId: cat['Libros de Memorias Familiares'], name: 'Gracias por tu amor' },
+      { categoryId: cat['Libros de Memorias Familiares'], name: 'Mi angel guardian' },
+      { categoryId: cat['Libros de Memorias Familiares'], name: 'Siempre en mi corazon' },
+      { categoryId: cat['Libros de Memorias Familiares'], name: 'Siempre seras parte de mi' },
     ];
 
     for (const m of modelSeeds) {
@@ -468,6 +504,106 @@ export async function runSeed(): Promise<void> {
           'PLANTILLA_20_Familia_Cuento_Sin_Final_Magico.png',
         ],
       },
+      'Mi angel guardian': {
+        base: 'IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Plantillas',
+        files: [
+          'PLANTILLA_01_Memoria_Familiar_Mi_Heroina_Eterna.png',
+          'PLANTILLA_02_Memoria_Familiar_Porque_Eres_Mi_Guia.png',
+          'PLANTILLA_03_Memoria_Familiar_Porque_Eres_Una_Hechicera.png',
+          'PLANTILLA_04_Memoria_Familiar_Porque_Eres_Una_Reina.png',
+          'PLANTILLA_05_Memoria_Familiar_Porque_Eres_Encantadora.png',
+          'PLANTILLA_06_Memoria_Familiar_Porque_Eres_Aventurera.png',
+          'PLANTILLA_07_Memoria_Familiar_Porque_Eres_Divertida.png',
+          'PLANTILLA_08_Memoria_Familiar_Porque_Cumples_Mis_Deseos.png',
+          'PLANTILLA_09_Memoria_Familiar_Porque_Eres_Valiente.png',
+          'PLANTILLA_10_Memoria_Familiar_Porque_Eres_Una_Sonadora.png',
+          'PLANTILLA_11_Memoria_Familiar_Porque_Me_Haces_Sentir_A_Salvo.png',
+          'PLANTILLA_12_Memoria_Familiar_Porque_Eres_Generosa.png',
+          'PLANTILLA_13_Memoria_Familiar_Porque_Eres_Atrevida.png',
+          'PLANTILLA_14_Memoria_Familiar_Porque_Eres_Una_Rebelde.png',
+          'PLANTILLA_15_Memoria_Familiar_Porque_Eres_Alegre.png',
+          'PLANTILLA_16_Memoria_Familiar_Porque_Eres_Mi_Guardiana_De_Historias.png',
+          'PLANTILLA_17_Memoria_Familiar_Porque_Eres_Mi_Raiz_Y_Mi_Fuerza.png',
+          'PLANTILLA_18_Memoria_Familiar_Porque_Eres_Mi_Estrella_Guia.png',
+          'PLANTILLA_19_Memoria_Familiar_Porque_Eres_Mi_Viajera_Del_Tiempo.png',
+          'PLANTILLA_20_Memoria_Familiar_Porque_Eres_Mi_Angel_Guardian.png',
+        ],
+      },
+      'Siempre seras parte de mi': {
+        base: 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas',
+        files: [
+          'PLANTILLA_01_Siempre_Seras_Parte_De_Mi_Porque_Somos_El_Mejor_Equipo.png',
+          'PLANTILLA_02_Siempre_Seras_Parte_De_Mi_Porque_Somos_Complices_De_Travesuras.png',
+          'PLANTILLA_03_Siempre_Seras_Parte_De_Mi_Porque_Nuestras_Locuras_Tienen_Sentido.png',
+          'PLANTILLA_04_Siempre_Seras_Parte_De_Mi_Porque_Resolvemos_Todos_Los_Misterios.png',
+          'PLANTILLA_05_Siempre_Seras_Parte_De_Mi_Porque_Eres_Mi_Companero_De_Infinito.png',
+          'PLANTILLA_06_Siempre_Seras_Parte_De_Mi_Porque_Eres_Mi_Copiloto_Eterno.png',
+          'PLANTILLA_07_Siempre_Seras_Parte_De_Mi_Porque_Llegamos_Hasta_El_Fin_Del_Mundo.png',
+          'PLANTILLA_08_Siempre_Seras_Parte_De_Mi_Porque_Viajamos_En_Nuestro_Propio_Tiempo.png',
+          'PLANTILLA_09_Siempre_Seras_Parte_De_Mi_Porque_Volamos_A_Nunca_Jamas.png',
+          'PLANTILLA_10_Siempre_Seras_Parte_De_Mi_Porque_Nos_Protegemos_La_Espalda.png',
+          'PLANTILLA_11_Siempre_Seras_Parte_De_Mi_Porque_Juntos_Somos_Invencibles.png',
+          'PLANTILLA_12_Siempre_Seras_Parte_De_Mi_Porque_Somos_Cazafantasmas_De_Miedos.png',
+          'PLANTILLA_13_Siempre_Seras_Parte_De_Mi_Porque_Somos_El_Yin_De_Mi_Yang.png',
+          'PLANTILLA_14_Siempre_Seras_Parte_De_Mi_Porque_Eres_Mi_Refugio_Constante.png',
+          'PLANTILLA_15_Siempre_Seras_Parte_De_Mi_Porque_Somos_Rivales_Y_Mejores_Amigos.png',
+          'PLANTILLA_16_Siempre_Seras_Parte_De_Mi_Porque_Cantamos_La_Misma_Cancion.png',
+          'PLANTILLA_17_Siempre_Seras_Parte_De_Mi_Porque_Eres_La_Magia_De_Mi_Invierno.png',
+          'PLANTILLA_18_Siempre_Seras_Parte_De_Mi_Porque_Nos_Reimos_Del_Peligro.png',
+          'PLANTILLA_19_Siempre_Seras_Parte_De_Mi_Porque_Nuestros_Caminos_Siempre_Se_Cruzan.png',
+          'PLANTILLA_20_Siempre_Seras_Parte_De_Mi_Porque_Nuestro_Vinculo_Es_Eterno.png',
+        ],
+      },
+      'Siempre en mi corazon': {
+        base: 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas',
+        files: [
+          'PLANTILLA_01_Memoria_Familiar_Abuelo_Superheroe_Legado_Eterno.png',
+          'PLANTILLA_02_Memoria_Familiar_Abuelo_Guia_Sabiduria_Eterna.png',
+          'PLANTILLA_03_Memoria_Familiar_Abuelo_Hechicero_Magia_Eterna.png',
+          'PLANTILLA_04_Memoria_Familiar_Abuelo_Lider_Legado_Imperial.png',
+          'PLANTILLA_05_Memoria_Familiar_Abuelo_Encanto_Etern.png',
+          'PLANTILLA_06_Memoria_Familiar_Abuelo_Aventurero_Legado_Sin_Fronteras.png',
+          'PLANTILLA_07_Memoria_Familiar_Abuelo_Alegria_Eterna.png',
+          'PLANTILLA_08_Memoria_Familiar_Abuelo_Deseos_Magia_Eterna.png',
+          'PLANTILLA_09_Memoria_Familiar_Abuelo_Valentia_Legado_Heroico.png',
+          'PLANTILLA_10_Memoria_Familiar_Abuelo_Suenos_Paz_Eterna.png',
+          'PLANTILLA_11_Memoria_Familiar_Abuelo_Proteccion_Fuerza_Eterna.png',
+          'PLANTILLA_12_Memoria_Familiar_Abuelo_Generosidad_Amor_Infinito.png',
+          'PLANTILLA_13_Memoria_Familiar_Abuelo_Espiritu_Atrevido_Eterno.png',
+          'PLANTILLA_14_Memoria_Familiar_Abuelo_Rebelde_Leyenda_Dorada.png',
+          'PLANTILLA_15_Memoria_Familiar_Abuelo_Alegria_Ritmo_Eterno.png',
+          'PLANTILLA_16_Memoria_Familiar_Abuelo_Guardian_Historias_Legado_Eterno.png',
+          'PLANTILLA_17_Memoria_Familiar_Abuelo_Raiz_Fuerza_Legado_Vivo.png',
+          'PLANTILLA_18_Memoria_Familiar_Abuelo_Estrella_Guia_Luz_Eterna.png',
+          'PLANTILLA_19_Memoria_Familiar_Abuelo_Viajero_Tiempo_Recuerdo_Eterno.png',
+          'PLANTILLA_20_Memoria_Familiar_Abuelo_Angel_Guardian_Cierre_Eterno.png',
+        ],
+      },
+      'Gracias por tu amor': {
+        base: 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas',
+        files: [
+          'PLANTILLA_01_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Ninos.png',
+          'PLANTILLA_02_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Estrellas_De_Rock.png',
+          'PLANTILLA_03_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Exploradores.png',
+          'PLANTILLA_04_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Chefs_Expertos.png',
+          'PLANTILLA_05_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Piratas.png',
+          'PLANTILLA_06_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Astronautas.png',
+          'PLANTILLA_07_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Pilotos.png',
+          'PLANTILLA_08_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Magos.png',
+          'PLANTILLA_09_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Artistas.png',
+          'PLANTILLA_10_Siempre_Seras_Parte_De_Mi_Porque_Nos_Divertimos_Como_Bailarines.png',
+          'PLANTILLA_11_Siempre_Seras_Parte_De_Mi_Porque_Eres_El_Alma_De_La_Fiesta.png',
+          'PLANTILLA_12_Siempre_Seras_Parte_De_Mi_Porque_Eres_Mi_Complice_Perfecto.png',
+          'PLANTILLA_13_Siempre_Seras_Parte_De_Mi_Porque_Me_Ense\u00f1aste_A_Romper_Las_Reglas.png',
+          'PLANTILLA_14_Siempre_Seras_Parte_De_Mi_Porque_Haciamos_El_Mejor_Equipo.png',
+          'PLANTILLA_15_Siempre_Seras_Parte_De_Mi_Porque_Eres_El_Guardian_De_Mis_Secretos.png',
+          'PLANTILLA_16_Siempre_Seras_Parte_De_Mi_Porque_Tus_Abrazos_Curaban_Todo.png',
+          'PLANTILLA_17_Siempre_Seras_Parte_De_Mi_Porque_Iluminabas_Los_Dias_Grises.png',
+          'PLANTILLA_18_Siempre_Seras_Parte_De_Mi_Porque_Eres_Mi_Heroe_Secreto.png',
+          'PLANTILLA_19_Siempre_Seras_Parte_De_Mi_Porque_Tus_Recuerdos_Son_Mi_Tesoro.png',
+          'PLANTILLA_20_Siempre_Seras_Parte_De_Mi_Porque_Nuestra_Familia_Es_Eterna.png',
+        ],
+      },
     };
 
     // Función auxiliar: extrae nombre legible del archivo (quita PLANTILLA_XX_ y .png, reemplaza _ con espacio)
@@ -478,9 +614,6 @@ export async function runSeed(): Promise<void> {
         .replace(/_/g, ' ')
         .trim();
     }
-
-    // Limpiar plantillas existentes para evitar duplicados por Unicode NFC/NFD
-    await client.query(`DELETE FROM personalized_templates`);
 
     for (const [modelName, data] of Object.entries(templateData)) {
       const modelId = model[modelName];
@@ -493,11 +626,59 @@ export async function runSeed(): Promise<void> {
         const name = fileToName(file);
         await client.query(`
           INSERT INTO personalized_templates (model_id, name, template_preview_key)
-          VALUES ($1, $2, $3)
+          SELECT $1, $2, $3
+          WHERE NOT EXISTS (
+            SELECT 1 FROM personalized_templates
+            WHERE model_id = $1 AND template_preview_key = $3
+          )
         `, [modelId, name, key]);
       }
     }
     console.log('[seed] personalized_templates ✓');
+
+    // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
+    // Registra los assets de miniaturas en la tabla assets y los vincula a cada
+    // modelo via cover_asset_id. Usa encode(digest(...)) para hash determinístico.
+    // Es idempotente: ON CONFLICT(content_hash) DO NOTHING + WHERE cover_asset_id IS NULL.
+    const modelCoverSeeds: { modelName: string; storageKey: string }[] = [
+      { modelName: '10 Razones por las que Te Amo',  storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_10RazonesPorLasQueTeAmo_Miniatura.png' },
+      { modelName: 'Mi Amor',                        storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_Miamor_Miniatura.png' },
+      { modelName: '1025 Días enamorándome de ti',   storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_xDiasEnamorandomeDeTi_Miniatura.png' },
+      { modelName: 'Nuestro Angel de 4 patas',       storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_NuestroAngelde4Patas_Miniatura.png' },
+      { modelName: 'Aventura entre patas',           storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Miniatura.png' },
+      { modelName: 'Mi amigo Miauravilloso',         storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png' },
+      { modelName: 'Mi mejor amigo del mundo',       storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png' },
+      { modelName: 'Papá, Mi Héroe',                 storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png' },
+      { modelName: 'Mamá, Mi Heroína',               storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png' },
+      { modelName: 'Te amo, abuelo',                 storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png' },
+      { modelName: 'Te amo, abuela',                 storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png' },
+      { modelName: 'El Mejor Equipo',                storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png' },
+      { modelName: 'Mi Familia',                     storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png' },
+      { modelName: 'Gracias por tu amor',            storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png' },
+      { modelName: 'Mi angel guardian',              storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png' },
+      { modelName: 'Siempre en mi corazon',          storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png' },
+      { modelName: 'Siempre seras parte de mi',      storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png' },
+    ];
+
+    for (const { modelName, storageKey } of modelCoverSeeds) {
+      // 1) Insertar asset con hash determinístico (computado en Node.js)
+      const contentHash = createHash('sha256').update(storageKey).digest('hex');
+      await client.query(`
+        INSERT INTO assets (storage_key, original_filename, mime_type, content_hash)
+        VALUES ($1, $1, 'image/png', $2)
+        ON CONFLICT (content_hash) DO NOTHING
+      `, [storageKey, contentHash]);
+
+      // 2) Vincular al modelo al asset con el storage_key correcto
+      await client.query(`
+        UPDATE personalized_models m
+        SET cover_asset_id = a.id
+        FROM assets a
+        WHERE a.storage_key = $1
+          AND m.name = $2
+      `, [storageKey, modelName]);
+    }
+    console.log('[seed] model cover assets ✓');
 
     // ── 4. catalog_books ─────────────────────────────────────────────────────
     const catalogSeeds = [
@@ -515,6 +696,11 @@ export async function runSeed(): Promise<void> {
       { name: 'Te amo, abuela',                  type: 'CUSTOM_BOOK', desc: 'Libro personalizado que honra el vínculo sagrado entre abuelas y nietos, capturando la sabiduría, ternura y ese amor incondicional que solo las abuelas saben dar.' },
       { name: 'El Mejor Equipo',                  type: 'CUSTOM_BOOK', desc: 'Libro personalizado para celebrar la hermandad entre hermanos o hermanas, mostrando por qué juntos forman el mejor equipo.' },
       { name: 'Mi Familia',                       type: 'CUSTOM_BOOK', desc: 'Libro donde la familia vive aventuras increíbles sin límites: cavernícolas, astronautas, científicos locos, piratas y mucho más.' },
+      // Libros Memoriales
+      { name: 'Gracias por tu amor',              type: 'CUSTOM_BOOK', desc: 'Un libro homenaje para honrar a esa persona especial que siempre será parte de tu corazón. Cada página celebra los momentos únicos que compartieron juntos.' },
+      { name: 'Mi angel guardian',               type: 'CUSTOM_BOOK', desc: 'Un homenaje lleno de amor para honrar a esa persona que fue tu guía, tu fuerza y tu luz. Porque su presencia sigue brillando en cada recuerdo.' },
+      { name: 'Siempre en mi corazon',           type: 'CUSTOM_BOOK', desc: 'Un libro dedicado a ese ser querido que partió pero vive para siempre en tus recuerdos. Cada página celebra su legado y el amor que los unió.' },
+      { name: 'Siempre seras parte de mi',       type: 'CUSTOM_BOOK', desc: 'Un homenaje a ese vínculo eterno que ninguna distancia puede romper. Cada página celebra la complicidad, las aventuras y el amor que los une para siempre.' },
       // Photobooks
       { name: 'PhotoBook de Tapa Gruesa',         type: 'PHOTOBOOK',   desc: 'Un álbum que captura tus mejores recuerdos con una tapa especial gruesa que conservara esos momentos especiales.' },
       { name: 'Photobook de Tapa Delgada',        type: 'PHOTOBOOK',   desc: 'Un álbum que captura tus mejores momentos con una tapa más fina para un mejor acabado.' },
@@ -536,27 +722,31 @@ export async function runSeed(): Promise<void> {
 
     for (const book of allBooks) {
       if (book.product_type === 'CUSTOM_BOOK') {
-        // Todos los libros personalizados tienen 3 variantes de tapa
+        // Libros personalizados: tapa delgada (10 plantillas base) y tapa gruesa (+S/30)
         const variants = [
-          { coverType: 'TAPA_DELGADA', price: 9999 },
-          { coverType: 'TAPA_GRUESA',  price: 14999 },
-          { coverType: 'TAPA_PREMIUM', price: 24999 },
+          { coverType: 'TAPA_DELGADA', price: 13000 }, // S/ 130.00 — 10 plantillas
+          { coverType: 'TAPA_GRUESA',  price: 15000 }, // S/ 150.00 — 10 plantillas + tapa gruesa
         ];
         for (const v of variants) {
           await client.query(`
             INSERT INTO catalog_book_variants (catalog_book_id, cover_type, base_price_cents)
             VALUES ($1, $2, $3)
-            ON CONFLICT (catalog_book_id, cover_type) DO NOTHING
+            ON CONFLICT (catalog_book_id, cover_type) DO UPDATE SET base_price_cents = EXCLUDED.base_price_cents
           `, [book.id, v.coverType, v.price]);
         }
+        // Eliminar TAPA_PREMIUM si existe
+        await client.query(
+          `DELETE FROM catalog_book_variants WHERE catalog_book_id = $1 AND cover_type = 'TAPA_PREMIUM'`,
+          [book.id],
+        );
       } else if (book.product_type === 'PHOTOBOOK') {
         // Photobooks tienen su variante de tapa correspondiente
         const coverType = book.name.includes('Gruesa') ? 'TAPA_GRUESA' : 'TAPA_DELGADA';
-        const price = book.name.includes('Gruesa') ? 14999 : 9999;
+        const price = book.name.includes('Gruesa') ? 12000 : 9000;
         await client.query(`
           INSERT INTO catalog_book_variants (catalog_book_id, cover_type, base_price_cents)
           VALUES ($1, $2, $3)
-          ON CONFLICT (catalog_book_id, cover_type) DO NOTHING
+          ON CONFLICT (catalog_book_id, cover_type) DO UPDATE SET base_price_cents = EXCLUDED.base_price_cents
         `, [book.id, coverType, price]);
       }
     }
@@ -565,19 +755,19 @@ export async function runSeed(): Promise<void> {
     // ── 6. photobook_themes ──────────────────────────────────────────────────
     await client.query(`
       INSERT INTO photobook_themes (name, cover_preview_key, cover_template_key, back_cover_key) VALUES
-        ('Francia',        'Photobooks/Miniaturas/Photobook_Miniatura_Paris.png',          'themes/francia/template.psd',        NULL),
-        ('México',         'Photobooks/Miniaturas/Photobook_Miniatura_Chichen_Itza.png',   'themes/mexico/template.psd',         NULL),
-        ('Nueva York',     'Photobooks/Miniaturas/Photobook_Miniatura_New_York.png',       'themes/nueva-york/template.psd',     NULL),
-        ('Roma',           'Photobooks/Miniaturas/Photobook_Miniatura_Coliseo_Romano.png', 'themes/roma/template.psd',           NULL),
-        ('Holanda',        'Photobooks/Miniaturas/Photobook_Miniatura_Amsterdam.png',      'themes/holanda/template.psd',        NULL),
-        ('Thailandia',     'Photobooks/Miniaturas/Photobook_Miniatura_Bangkok.png',        'themes/thailandia/template.psd',     NULL),
-        ('Río de Janeiro', 'Photobooks/Miniaturas/Photobook_Miniatura_Rio_Janeiro.png',    'themes/rio-de-janeiro/template.psd', NULL),
-        ('Iquitos',        'Photobooks/Miniaturas/Photobook_Miniatura_Iquitos.png',        'themes/iquitos/template.psd',        NULL),
-        ('Machu Picchu',   'Photobooks/Miniaturas/Photobook_Miniatura_Machu_Picchu.png',   'Photobooks/Portadas/Photobook_MachuPichu_Portada.png',   'Photobooks/Contraportadas/Photobook_MachuPichu_Contraportada.png'),
-        ('Punta Cana',     'Photobooks/Miniaturas/Photobook_Miniatura_Punta_Cana.png',     'themes/punta-cana/template.psd',     NULL),
-        ('Jamaica',        'Photobooks/Miniaturas/Photobook_Miniatura_Jamaica.png',        'themes/jamaica/template.psd',        NULL),
-        ('Bodas',          'themes/bodas/preview.jpg',                                     'themes/bodas/template.psd',          NULL),
-        ('Miami',          'Photobooks/Miniaturas/Photobook_Miniatura_Miami.png',          'themes/miami/template.psd',          NULL)
+        ('Francia',        'Photobooks/Miniaturas/Photobook_Miniatura_Paris.png',          'Photobooks/Portadas/Photobook_Paris_Portada.png',          'Photobooks/Contraportadas/Photobook_Paris_Contraportada.png'),
+        ('México',         'Photobooks/Miniaturas/Photobook_Miniatura_Chichen_Itza.png',   'Photobooks/Portadas/Photobook_Chichen_Itza_Portada.png',   'Photobooks/Contraportadas/Photobook_Chichen_Itza_Contraportada.png'),
+        ('Nueva York',     'Photobooks/Miniaturas/Photobook_Miniatura_New_York.png',       'Photobooks/Portadas/Photobook_New_York_Portada.png',       'Photobooks/Contraportadas/Photobook_New_York_Contraportada.png'),
+        ('Roma',           'Photobooks/Miniaturas/Photobook_Miniatura_Coliseo_Romano.png', 'Photobooks/Portadas/Photobook_Coliseo_Romano_Portada.png', 'Photobooks/Contraportadas/Photobook_Coliseo_Romano_Contraportada.png'),
+        ('Holanda',        'Photobooks/Miniaturas/Photobook_Miniatura_Amsterdam.png',      'Photobooks/Portadas/Photobook_Amsterdam_Portada.png',      'Photobooks/Contraportadas/Photobook_Amsterdam_Contraportada.png'),
+        ('Thailandia',     'Photobooks/Miniaturas/Photobook_Miniatura_Bangkok.png',        'Photobooks/Portadas/Photobook_Bangkok_Portada.png',        'Photobooks/Contraportadas/Photobook_Bangkok_Contraportada.png'),
+        ('Río de Janeiro', 'Photobooks/Miniaturas/Photobook_Miniatura_Rio_Janeiro.png',    'Photobooks/Portadas/Photobook_Rio_Janeiro_Portada.png',    'Photobooks/Contraportadas/Photobook_Rio_Janeiro_Contraportada.png'),
+        ('Iquitos',        'Photobooks/Miniaturas/Photobook_Miniatura_Iquitos.png',        'Photobooks/Portadas/Photobook_Iquitos_Portada.png',        'Photobooks/Contraportadas/Photobook_Iquitos_Contraportada.png'),
+        ('Machu Picchu',   'Photobooks/Miniaturas/Photobook_Miniatura_Machu_Picchu.png',   'Photobooks/Portadas/Photobook_MachuPichu_Portada.png',     'Photobooks/Contraportadas/Photobook_MachuPichu_Contraportada.png'),
+        ('Punta Cana',     'Photobooks/Miniaturas/Photobook_Miniatura_Punta_Cana.png',     'Photobooks/Portadas/Photobook_Punta_Cana_Portada.png',     'Photobooks/Contraportadas/Photobook_Punta_Cana_Contraportada.png'),
+        ('Jamaica',        'Photobooks/Miniaturas/Photobook_Miniatura_Jamaica.png',        'Photobooks/Portadas/Photobook_Jamaica_Portada.png',        'Photobooks/Contraportadas/Photobook_Jamaica_Contraportada.png'),
+        ('Bodas',          'themes/bodas/preview.jpg',                                     'themes/bodas/template.psd',                                NULL),
+        ('Miami',          'Photobooks/Miniaturas/Photobook_Miniatura_Miami.png',          'Photobooks/Portadas/Photobook_Miami_Portada.png',          'Photobooks/Contraportadas/Photobook_Miami_Contraportada.png')
       ON CONFLICT (name) DO UPDATE SET
         cover_preview_key  = EXCLUDED.cover_preview_key,
         cover_template_key = EXCLUDED.cover_template_key,

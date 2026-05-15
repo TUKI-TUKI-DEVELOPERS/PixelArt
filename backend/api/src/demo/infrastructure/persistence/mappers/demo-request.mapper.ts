@@ -18,6 +18,8 @@ export class DemoRequestMapper {
       orm.shippingRegion,
       orm.shippingReference,
       orm.deliveryDate,
+      orm.wantsRush,
+      orm.packagePreference ?? 'STANDARD',
       orm.wantsCustomDedication,
       orm.dedicationText,
       orm.messageOptional,

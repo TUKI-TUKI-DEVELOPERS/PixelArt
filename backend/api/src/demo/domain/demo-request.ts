@@ -14,6 +14,8 @@ export class DemoRequest {
     public readonly shippingRegion: string | null,
     public readonly shippingReference: string | null,
     public readonly deliveryDate: string,
+    public readonly wantsRush: boolean,
+    public readonly packagePreference: string,
     public readonly wantsCustomDedication: boolean,
     public readonly dedicationText: string | null,
     public readonly messageOptional: string | null,

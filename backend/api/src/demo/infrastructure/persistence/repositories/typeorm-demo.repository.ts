@@ -44,6 +44,8 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
         shippingRegion: data.shippingRegion ?? null,
         shippingReference: data.shippingReference ?? null,
         deliveryDate: data.deliveryDate,
+        wantsRush: data.wantsRush ?? false,
+        packagePreference: data.packagePreference ?? 'STANDARD',
         wantsCustomDedication: data.wantsCustomDedication,
         dedicationText: data.dedicationText ?? null,
         messageOptional: data.messageOptional ?? null,
@@ -85,6 +87,13 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
     });
     if (!entity) return null;
 
+    // Obtener cover_type de la variante seleccionada
+    const variantRows: { cover_type: string }[] = await this.dataSource.query(
+      `SELECT cover_type FROM catalog_book_variants WHERE id = $1`,
+      [entity.catalogBookVariantId],
+    );
+    const coverType = variantRows[0]?.cover_type ?? null;
+
     // JOIN con personalized_templates para obtener nombre y preview key
     const selectionRows: { id: string; template_id: string; template_name: string | null; template_preview_key: string | null }[] =
       await this.dataSource.query(
@@ -107,6 +116,7 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
     const base = DemoRequestMapper.toDomain(entity);
     return {
       ...base,
+      coverType,
       templateSelections: selectionRows.map((s) => ({
         id: Number(s.id),
         templateId: Number(s.template_id),

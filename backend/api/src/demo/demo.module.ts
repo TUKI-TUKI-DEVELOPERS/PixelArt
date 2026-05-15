@@ -20,6 +20,7 @@ import { SendDemoProposalsUseCase } from './application/use-cases/send-demo-prop
 import { CreateOrderFromDemoUseCase } from './application/use-cases/create-order-from-demo.use-case';
 import { SendUnifiedCheckoutUseCase } from './application/use-cases/send-unified-checkout.use-case';
 import { DeleteDemoProposalUseCase } from './application/use-cases/delete-demo-proposal.use-case';
+import { ReissueCheckoutLinkUseCase } from './application/use-cases/reissue-checkout-link.use-case';
 import { OrdersModule } from '../orders/orders.module';
 
 @Module({
@@ -43,6 +44,7 @@ import { OrdersModule } from '../orders/orders.module';
     CreateOrderFromDemoUseCase,
     SendUnifiedCheckoutUseCase,
     DeleteDemoProposalUseCase,
+    ReissueCheckoutLinkUseCase,
     { provide: DemoRepositoryPort, useExisting: TypeOrmDemoRepository },
   ],
   exports: [DemoService],

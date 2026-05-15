@@ -52,7 +52,7 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
     >
       <div
         style={{
-          maxWidth: "1400px",
+          maxWidth: "1280px",
           margin: "0 auto",
           display: "grid",
           gridTemplateColumns: "1.1fr 1fr",
@@ -82,7 +82,7 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
           <h2
             style={{
               margin: `0 0 ${tokens.spacing.component.xs} 0`,
-              fontSize: tokens.typography.display.size,
+              fontSize: tokens.typography.h1.size,
               fontWeight: 900,
               color: tokens.colors.neutral.text.primary,
               lineHeight: 1,

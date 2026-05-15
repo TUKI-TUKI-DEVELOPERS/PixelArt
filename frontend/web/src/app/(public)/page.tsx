@@ -1,10 +1,14 @@
 import Image from "next/image";
+import IntroOverlay from "@/components/layout/IntroOverlay";
 import HomeHeroClient from "@/components/Home/HomeHeroClient";
 import CreateBookAccordion from "@/components/Home/CreateBookAccordion";
 import ModernBackground from "@/components/backgrounds/ModernBackground";
 import NuestrosLibrosSection from "@/components/Home/NuestrosLibrosSection";
 import type { Book, BookCategory } from "@/components/Home/NuestrosLibrosSection";
 import WhyChooseSection from "@/components/Home/WhyChooseSection";
+import BookQualitySection from "@/components/Home/BookQualitySection";
+import { PIXELART_COLORS } from "@/lib/colors";
+import IdentityBackground from "@/components/backgrounds/IdentityBackground";
 import { HOME_ASSET_KEYS } from "@/lib/homeAssetKeys";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { tokens } from "@/lib/design-tokens";
@@ -19,8 +23,37 @@ type HeroSlide = {
 };
 
 
-export default function HomePage() {
+type ActivePromo = {
+  targetType: string;
+  discountType: string;
+  discountValue: number;
+};
+
+function parsePriceCents(priceStr?: string): number | undefined {
+  if (!priceStr) return undefined;
+  const match = priceStr.match(/([\d.]+)/);
+  return match ? Math.round(parseFloat(match[1]) * 100) : undefined;
+}
+
+function applyBestPromo(priceCents: number, promos: ActivePromo[]): number | undefined {
+  const applicable = promos.filter((p) => p.targetType === 'all');
+  if (!applicable.length) return undefined;
+  let best = priceCents;
+  for (const p of applicable) {
+    const result = p.discountType === 'percent'
+      ? Math.round(priceCents * (1 - p.discountValue / 100))
+      : Math.max(0, priceCents - p.discountValue);
+    if (result < best) best = result;
+  }
+  return best < priceCents ? best : undefined;
+}
+
+export default async function HomePage() {
   const K = HOME_ASSET_KEYS;
+
+  const activePromos: ActivePromo[] = await fetch('http://api:3001/api/promotions/active', {
+    next: { revalidate: 60 },
+  }).then((r) => r.ok ? r.json() : []).catch(() => []);
 
   // URLs construidas directamente — sin fetch al backend
   const customBookCarouselUrl = getAssetUrl(K.heroAIBookCarousel);
@@ -28,7 +61,6 @@ export default function HomePage() {
   const photobookSliderUrl = getAssetUrl(K.heroPhotobookSlider);
   const photobookCarouselUrl = getAssetUrl(K.heroPhotobookCarousel);
 
-  const identityBackgroundUrl = getAssetUrl(K.identityBackground);
   const logoUrl = getAssetUrl(K.logo);
 
   const loveBookUrl = getAssetUrl(K.ourBooksLove10Razones);
@@ -38,15 +70,32 @@ export default function HomePage() {
   const photobookParisUrl       = getAssetUrl(K.ourBooksPhotobooksParis);
   const photobookNuevaYorkUrl   = getAssetUrl(K.ourBooksPhotobooksNuevaYork);
   const photobookRomaUrl        = getAssetUrl(K.ourBooksPhotobooksRoma);
+  const photobookAmsterdamUrl   = getAssetUrl(K.ourBooksPhotobooksAmsterdam);
+  const photobookBangkokUrl     = getAssetUrl(K.ourBooksPhotobooksBangkok);
+  const photobookChichenUrl     = getAssetUrl(K.ourBooksPhotobooksChichenItza);
+  const photobookIquitosUrl     = getAssetUrl(K.ourBooksPhotobooksIquitos);
+  const photobookJamaicaUrl     = getAssetUrl(K.ourBooksPhotobooksJamaica);
+  const photobookMiamiUrl       = getAssetUrl(K.ourBooksPhotobooksMiami);
+  const photobookPuntaCanaUrl   = getAssetUrl(K.ourBooksPhotobooksPuntaCana);
+  const photobookRioUrl         = getAssetUrl(K.ourBooksPhotobooksRioJaneiro);
   const grandpaBookUrl = getAssetUrl(K.ourBooksFamilyAbuelo);
+  const grandmaBookUrl = getAssetUrl(K.ourBooksFamilyAbuela);
+  const mamaHeroinaUrl = getAssetUrl(K.ourBooksFamilyMamaHeroina);
+  const laFamiliaUrl   = getAssetUrl(K.ourBooksFamilyLaFamilia);
+  const mejorEquipoUrl = getAssetUrl(K.ourBooksFamilyElMejorEquipo);
   const miAmorBookUrl = getAssetUrl(K.ourBooksLoveMiAmor);
   const aventuraPatasUrl = getAssetUrl(K.ourBooksPetsAventuras);
   const love1025Url = getAssetUrl(K.ourBooksLove1025Dias);
   const miauravillosoUrl = getAssetUrl(K.ourBooksPetsMiauravilloso);
   const mejorAmigoUrl = getAssetUrl(K.ourBooksPetsMejorAmigo);
+  const memoriasGraciasUrl = getAssetUrl(K.ourBooksMemoriasGracias);
+  const memoriasAngelUrl = getAssetUrl(K.ourBooksMemoriasAngelGuardian);
+  const memoriasSiempreCorazonUrl = getAssetUrl(K.ourBooksMemoriasSiempreCorazon);
+  const memoriasSiempreSerasUrl = getAssetUrl(K.ourBooksMemoriasSiempreSerás);
   const photobooksExampleUrl = getAssetUrl(K.photobooksExample);
   const whyChooseUsImageUrl = getAssetUrl(K.whyChooseUsImage);
   const bookCoverThickUrl = getAssetUrl(K.bookCoverThick);
+  const bookCoverSlimUrl  = getAssetUrl(K.bookCoverSlim);
   const photobooksSectionBgUrl = getAssetUrl(K.photobooksSectionBackground);
 
   const registerBoyImageUrl = getAssetUrl(K.createBookBoy);
@@ -62,8 +111,6 @@ export default function HomePage() {
   const ourClients1Url = getAssetUrl(K.ourClients1);
   const ourClients2Url = getAssetUrl(K.ourClients2);
   const ourClients3Url = getAssetUrl(K.ourClients3);
-  const ourClients4Url = getAssetUrl(K.ourClients4);
-  const ourClientsBackgroundUrl = getAssetUrl(K.ourClientsBackground);
 
   const slides: HeroSlide[] = [
     {
@@ -94,7 +141,7 @@ export default function HomePage() {
       badge: "NEW",
       href: "/libros-personalizados/libros-de-amor/10-razones-por-las-que-te-amo",
       category: "love" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -106,7 +153,7 @@ export default function HomePage() {
       badge: "NEW",
       href: "/libros-personalizados/libros-de-mascotas/nuestro-angel-de-4-patas",
       category: "pets" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -117,7 +164,7 @@ export default function HomePage() {
       image: photobookMachuPicchuUrl,
       href: "/photobooks",
       category: "photobooks" as BookCategory,
-      price: "S/ 149.00",
+      price: "S/ 90.00",
       pages: 24,
     },
     {
@@ -128,7 +175,7 @@ export default function HomePage() {
       image: photobookParisUrl,
       href: "/photobooks",
       category: "photobooks" as BookCategory,
-      price: "S/ 99.00",
+      price: "S/ 90.00",
       pages: 24,
     },
     {
@@ -139,7 +186,7 @@ export default function HomePage() {
       image: photobookNuevaYorkUrl,
       href: "/photobooks",
       category: "photobooks" as BookCategory,
-      price: "S/ 99.00",
+      price: "S/ 90.00",
       pages: 24,
     },
     {
@@ -150,7 +197,95 @@ export default function HomePage() {
       image: photobookRomaUrl,
       href: "/photobooks",
       category: "photobooks" as BookCategory,
-      price: "S/ 99.00",
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Amsterdam",
+      subtitle: "Canales, flores y tus mejores momentos",
+      description:
+        "La magia de los canales, los tulipanes y la arquitectura única de Amsterdam en un photobook de calidad premium. Un recuerdo europeo inigualable.",
+      image: photobookAmsterdamUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Bangkok",
+      subtitle: "El exotismo del sudeste asiático",
+      description:
+        "Templos dorados, sabores únicos y energía inigualable. Inmortaliza tu aventura por Bangkok en un photobook que captura todo su misticismo.",
+      image: photobookBangkokUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Chichen Itzá",
+      subtitle: "La maravilla maya en tus páginas",
+      description:
+        "La imponente pirámide de Kukulkán y la magia de la civilización maya capturadas en un photobook de calidad superior. Historia viva en cada imagen.",
+      image: photobookChichenUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Iquitos",
+      subtitle: "La Amazonía peruana en todo su esplendor",
+      description:
+        "La selva, el río y la vida salvaje del Amazonas peruano en un photobook que celebra la biodiversidad más increíble del planeta.",
+      image: photobookIquitosUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Jamaica",
+      subtitle: "Playas, ritmo y color caribeño",
+      description:
+        "El paraíso caribeño con sus playas de arena blanca, aguas turquesas y el ritmo del reggae plasmados en un photobook vibrante y lleno de color.",
+      image: photobookJamaicaUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Miami",
+      subtitle: "Sol, playa y estilo en cada página",
+      description:
+        "Las playas de South Beach, el Art Deco y la energía vibrante de Miami capturadas en un photobook que irradia vida, color y estilo.",
+      image: photobookMiamiUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Punta Cana",
+      subtitle: "El paraíso dominicano en tus manos",
+      description:
+        "Cocoteros, aguas cristalinas y atardeceres únicos del Caribe dominicano. Un photobook que revive cada instante de ese destino soñado.",
+      image: photobookPuntaCanaUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
+      pages: 24,
+    },
+    {
+      title: "Photobook Río de Janeiro",
+      subtitle: "La ciudad maravillosa en cada imagen",
+      description:
+        "El Cristo Redentor, las playas de Copacabana e Ipanema y la energía única de Río capturadas en un photobook que celebra una ciudad única en el mundo.",
+      image: photobookRioUrl,
+      href: "/photobooks",
+      category: "photobooks" as BookCategory,
+      price: "S/ 90.00",
       pages: 24,
     },
     {
@@ -161,7 +296,7 @@ export default function HomePage() {
       image: familyHeroUrl,
       href: "/libros-personalizados/libros-de-familia/papa-mi-heroe",
       category: "family" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -172,7 +307,95 @@ export default function HomePage() {
       image: grandpaBookUrl,
       href: "/libros-personalizados/libros-de-familia/te-amo-abuelo",
       category: "family" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "Te Amo, Abuela",
+      subtitle: "Homenaje al amor incondicional de la abuela",
+      description:
+        "Celebra a esa abuela que llena cada momento de ternura, cariño y sabiduría. Un libro que captura todo lo que la hace tan especial e irremplazable.",
+      image: grandmaBookUrl,
+      href: "/libros-personalizados/libros-de-familia/te-amo-abuela",
+      category: "family" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "Mamá, Mi Heroína",
+      subtitle: "El regalo que tu mamá guardará para siempre",
+      description:
+        "Un libro donde los hijos celebran a su madre reconociendo todo lo que la hace extraordinaria. Cada página es un abrazo de gratitud y amor eterno.",
+      image: mamaHeroinaUrl,
+      href: "/libros-personalizados/libros-de-familia/mama-mi-heroina",
+      category: "family" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "La Familia",
+      subtitle: "Porque estando juntos todo es mejor",
+      description:
+        "Un libro que celebra la unión familiar, capturando los momentos que hacen de tu familia algo único e irrepetible. El regalo perfecto para toda la familia.",
+      image: laFamiliaUrl,
+      href: "/libros-personalizados/libros-de-familia/la-familia",
+      category: "family" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "El Mejor Equipo",
+      subtitle: "La unión que lo puede todo",
+      description:
+        "Celebra ese equipo que se apoya, ríe y crece junto. Un libro que refleja la complicidad y el amor que hacen de tu familia el mejor equipo del mundo.",
+      image: mejorEquipoUrl,
+      href: "/libros-personalizados/libros-de-familia/el-mejor-equipo",
+      category: "family" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "Gracias por Tu Amor",
+      subtitle: "Homenaje a quien siempre estará en tu corazón",
+      description:
+        "Un libro para honrar a esa persona especial que dejó una huella imborrable. Cada página celebra los momentos únicos que compartieron juntos.",
+      image: memoriasGraciasUrl,
+      href: "/libros-personalizados/libros-de-memorias-familiares/gracias-por-tu-amor",
+      category: "memories" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "Mi Ángel Guardián",
+      subtitle: "Para quienes cuidan desde el cielo",
+      description:
+        "Un homenaje lleno de amor para esa persona que, aunque ya no está, sigue siendo tu ángel. Un recuerdo que preserva su presencia para siempre.",
+      image: memoriasAngelUrl,
+      href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian",
+      category: "memories" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "Siempre en Mi Corazón",
+      subtitle: "Porque el amor no tiene fin",
+      description:
+        "Un libro de memorias que preserva los recuerdos más preciados de quien amaste. Porque algunas personas dejan una marca eterna en el corazón.",
+      image: memoriasSiempreCorazonUrl,
+      href: "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon",
+      category: "memories" as BookCategory,
+      price: "S/ 130.00",
+      pages: 30,
+    },
+    {
+      title: "Siempre Serás Parte de Mi Corazón",
+      subtitle: "Un legado de amor que perdura",
+      description:
+        "Celebra la vida y el amor de esa persona que siempre será parte de ti. Cada página es un tributo a los momentos que los unieron para siempre.",
+      image: memoriasSiempreSerasUrl,
+      href: "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi",
+      category: "memories" as BookCategory,
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -183,7 +406,7 @@ export default function HomePage() {
       image: miAmorBookUrl,
       href: "/libros-personalizados/libros-de-amor/mi-amor",
       category: "love" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -194,7 +417,7 @@ export default function HomePage() {
       image: aventuraPatasUrl,
       href: "/libros-personalizados/libros-de-mascotas/aventura-entre-patas",
       category: "pets" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -205,7 +428,7 @@ export default function HomePage() {
       image: love1025Url,
       href: "/libros-personalizados/libros-de-amor/1025-dias-enamorandome-de-ti",
       category: "love" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -216,7 +439,7 @@ export default function HomePage() {
       image: miauravillosoUrl,
       href: "/libros-personalizados/libros-de-mascotas/mi-amigo-miauravilloso",
       category: "pets" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
     {
@@ -227,18 +450,11 @@ export default function HomePage() {
       image: mejorAmigoUrl,
       href: "/libros-personalizados/libros-de-mascotas/mi-mejor-amigo",
       category: "pets" as BookCategory,
-      price: "S/ 89.00",
+      price: "S/ 130.00",
       pages: 30,
     },
   ];
 
-  const categories = [
-    { label: "Todos", value: "all" },
-    { label: "Amor", value: "love" },
-    { label: "Mascotas", value: "pets" },
-    { label: "Familia", value: "family" },
-    { label: "Photobooks", value: "photobooks" },
-  ];
 
   const clients = [
     {
@@ -262,13 +478,6 @@ export default function HomePage() {
         "El libro 'Nuestro Ángel de 4 Patas' fue el mejor regalo de despedida para nuestra mascota. Nos ayudó a recordar todos los momentos hermosos juntos.",
       rating: 4,
     },
-    {
-      name: "Roberto Fernández Cruz",
-      image: ourClients4Url,
-      review:
-        "Excelente servicio al cliente. Me ayudaron a personalizar cada detalle del libro para mi padre. Llegó antes de lo esperado y en perfectas condiciones.",
-      rating: 5,
-    },
   ];
 
   return (
@@ -279,6 +488,7 @@ export default function HomePage() {
         flexDirection: "column",
       }}
     >
+      <IntroOverlay />
       {/* ═══ HERO SECTION ═══ */}
       <HomeHeroClient slides={slides} />
 
@@ -292,16 +502,11 @@ export default function HomePage() {
           alignItems: "center",
           justifyContent: "center",
           padding: `${tokens.spacing.section.lg} ${tokens.spacing.component.md}`,
+          background: "radial-gradient(circle at center, #ffffff 0%, #D9AF62 42%)",
+          overflow: "hidden",
         }}
       >
-        <Image
-          src={identityBackgroundUrl}
-          alt=""
-          fill
-          style={{ objectFit: "cover" }}
-          sizes="100vw"
-          loading="lazy"
-        />
+        <IdentityBackground />
         <div
           style={{
             position: "relative",
@@ -317,56 +522,111 @@ export default function HomePage() {
             textAlign: "center",
           }}
         >
-          <Image
-            src={logoUrl}
-            alt="PixelArt Logo"
-            width={280}
-            height={80}
+          {/* Logo multicolor */}
+          <h2
             style={{
-              width: "280px",
-              maxWidth: "100%",
-              height: "auto",
-              display: "block",
-              margin: `0 auto ${tokens.spacing.component.md}`,
+              margin: `0 0 ${tokens.spacing.component.xs} 0`,
+              fontSize: "64px",
+              fontWeight: 900,
+              letterSpacing: "-1px",
+              lineHeight: 1,
+              userSelect: "none",
             }}
-            loading="lazy"
-          />
+            aria-label="PixelArt"
+          >
+            <span style={{ color: PIXELART_COLORS.P_RED }}>P</span>
+            <span style={{ color: PIXELART_COLORS.I_ORANGE }}>I</span>
+            <span style={{ color: PIXELART_COLORS.X_YELLOW }}>X</span>
+            <span style={{ color: PIXELART_COLORS.E_GREEN }}>E</span>
+            <span style={{ color: PIXELART_COLORS.L_PURPLE }}>L</span>
+            <span style={{ color: PIXELART_COLORS.A_BLUE }}>A</span>
+            <span style={{ color: PIXELART_COLORS.R_PINK }}>R</span>
+            <span style={{ color: PIXELART_COLORS.T_TURQUOISE }}>T</span>
+          </h2>
 
+          {/* Tagline */}
           <p
             style={{
-              margin: 0,
-              fontSize: tokens.typography.h4.size,
-              lineHeight: tokens.typography.h4.lineHeight,
+              margin: `0 0 ${tokens.spacing.component.md} 0`,
+              fontSize: tokens.typography.h3.size,
+              fontWeight: 700,
               color: tokens.colors.neutral.text.primary,
-              fontWeight: 500,
-              maxWidth: "800px",
+              letterSpacing: "-0.3px",
+            }}
+          >
+            Tus momentos, para siempre.
+          </p>
+
+          {/* Separador dorado */}
+          <div style={{
+            width: "120px",
+            height: "3px",
+            background: "linear-gradient(90deg, transparent, #D9AF62, transparent)",
+            borderRadius: "2px",
+            margin: `0 auto ${tokens.spacing.component.md}`,
+          }} />
+
+          {/* B — Manifiesto */}
+          <p
+            style={{
+              margin: `0 0 ${tokens.spacing.component.md} 0`,
+              fontSize: "22px",
+              fontStyle: "italic",
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: tokens.colors.neutral.text.secondary,
+              maxWidth: "640px",
               marginLeft: "auto",
               marginRight: "auto",
             }}
           >
-            En <strong>PixelArt</strong> convertimos tus momentos en historias para
-            siempre. Crea <strong>libros personalizados con IA</strong> o{" "}
-            <strong>Photobooks</strong> para guardar tus recuerdos más importantes.
+            "Cada foto cuenta una historia.{" "}
+            <strong style={{ color: tokens.colors.neutral.text.primary, fontStyle: "normal" }}>
+              Nosotros la convertimos en un libro.
+            </strong>"
+          </p>
+
+          {/* Separador dorado */}
+          <div style={{
+            width: "120px",
+            height: "3px",
+            background: "linear-gradient(90deg, transparent, #D9AF62, transparent)",
+            borderRadius: "2px",
+            margin: `0 auto ${tokens.spacing.component.md}`,
+          }} />
+
+          {/* C — Propuesta de valor + dos productos */}
+          <p
+            style={{
+              margin: `0 0 ${tokens.spacing.component.md} 0`,
+              fontSize: tokens.typography.h3.size,
+              fontWeight: 800,
+              color: tokens.colors.neutral.text.primary,
+              letterSpacing: "-0.3px",
+              lineHeight: 1.2,
+            }}
+          >
+            Dos formas de preservar lo que más amás
           </p>
         </div>
       </section>
 
       {/* ═══ BOOKS SECTION ═══ */}
-      <NuestrosLibrosSection books={books} categories={categories} />
+      <NuestrosLibrosSection books={books.map((b) => {
+        const priceCents = parsePriceCents(b.price);
+        const promoPrice = priceCents !== undefined ? applyBestPromo(priceCents, activePromos) : undefined;
+        return { ...b, priceCents, promoPrice };
+      })} />
 
-      {/* ═══ PHOTOBOOKS HERO SECTION ═══ */}
+      {/* ═══ PHOTOBOOKS HERO + COMO FUNCIONA (sección unificada) ═══ */}
       <section
         style={{
           position: "relative",
           width: "100%",
-          minHeight: "700px",
-          display: "flex",
-          alignItems: "center",
-          padding: `${tokens.spacing.section.lg} ${tokens.spacing.component.md}`,
           overflow: "hidden",
         }}
       >
-        {/* Background image */}
+        {/* Background image compartida */}
         <Image
           src={photobooksSectionBgUrl}
           alt=""
@@ -375,7 +635,7 @@ export default function HomePage() {
           sizes="100vw"
           loading="lazy"
         />
-        {/* Gradient overlay: solid left → transparent right */}
+        {/* Overlay 1: gradiente lateral para el hero (izquierda oscura) */}
         <div
           style={{
             position: "absolute",
@@ -389,14 +649,25 @@ export default function HomePage() {
             zIndex: 1,
           }}
         />
+        {/* Overlay 2: capa oscura que aparece en la parte inferior para el stepper */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(to bottom, transparent 38%, rgba(8, 28, 62, 0.90) 68%, rgba(8, 28, 62, 0.95) 100%)",
+            zIndex: 1,
+          }}
+        />
 
+        {/* ── Hero content ── */}
         <div
           style={{
             position: "relative",
             zIndex: 2,
             width: "100%",
-            maxWidth: "1400px",
+            maxWidth: "1280px",
             margin: "0 auto",
+            padding: `${tokens.spacing.section.lg} ${tokens.spacing.component.md}`,
             display: "grid",
             gridTemplateColumns: "1fr 1.25fr",
             alignItems: "center",
@@ -407,8 +678,8 @@ export default function HomePage() {
             <h2
               style={{
                 margin: `0 0 ${tokens.spacing.component.md} 0`,
-                fontSize: "64px",
-                lineHeight: 0.95,
+                fontSize: tokens.typography.h1.size,
+                lineHeight: 1,
                 fontWeight: 900,
                 color: "#ffffff",
                 textTransform: "uppercase",
@@ -432,7 +703,7 @@ export default function HomePage() {
 
             <p
               style={{
-                margin: `0 0 ${tokens.spacing.section.sm} 0`,
+                margin: `0 0 ${tokens.spacing.component.md} 0`,
                 fontSize: "18px",
                 lineHeight: 1.6,
                 color: "rgba(255,255,255,0.92)",
@@ -445,6 +716,68 @@ export default function HomePage() {
               diseñados para capturar la emoción de cada momento y conservarla para
               toda la vida.
             </p>
+
+            {/* Feature chips */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                marginBottom: tokens.spacing.component.md,
+              }}
+            >
+              {["Alta resolución", "Tapa dura", "24-72 páginas", "Envío a Lima"].map((feat) => (
+                <span
+                  key={feat}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 14px",
+                    background: "rgba(255,255,255,0.15)",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    borderRadius: "9999px",
+                    color: "#fff",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    backdropFilter: "blur(4px)",
+                    letterSpacing: "0.2px",
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {feat}
+                </span>
+              ))}
+            </div>
+
+            {/* Social counter */}
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "12px",
+                padding: "12px 20px",
+                background: "rgba(255,255,255,0.12)",
+                borderLeft: "3px solid rgba(255,255,255,0.7)",
+                borderRadius: "0 8px 8px 0",
+                marginBottom: tokens.spacing.section.sm,
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="13" r="4" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8"/>
+              </svg>
+              <div>
+                <div style={{ color: "#fff", fontSize: "17px", fontWeight: 800, lineHeight: 1.1 }}>
+                  +2,400 photobooks entregados
+                </div>
+                <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", fontWeight: 500, marginTop: "2px" }}>
+                  y contando — cada uno, un recuerdo único
+                </div>
+              </div>
+            </div>
 
             <button
               style={{
@@ -490,202 +823,309 @@ export default function HomePage() {
             />
           </div>
         </div>
+
+        {/* ── Separador visual interno ── */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            maxWidth: "900px",
+            margin: "0 auto",
+            height: "1px",
+            background: "rgba(255,255,255,0.18)",
+          }}
+        />
+
+        {/* ── Como funciona (stepper glassmorphism) ── */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            maxWidth: "1100px",
+            margin: "0 auto",
+            padding: `${tokens.spacing.section.sm} ${tokens.spacing.component.md} ${tokens.spacing.section.lg}`,
+          }}
+        >
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: tokens.spacing.section.xs }}>
+            <p
+              style={{
+                margin: `0 0 ${tokens.spacing.micro.sm} 0`,
+                fontSize: tokens.typography.small.size,
+                fontWeight: 700,
+                color: "rgba(255,255,255,0.55)",
+                textTransform: "uppercase",
+                letterSpacing: "3px",
+              }}
+            >
+              Facil y rapido
+            </p>
+            <h2
+              style={{
+                margin: `0 0 ${tokens.spacing.component.xs} 0`,
+                fontSize: tokens.typography.h1.size,
+                fontWeight: 900,
+                color: "#ffffff",
+                lineHeight: 1.1,
+                letterSpacing: "-1px",
+                textShadow: "0 2px 16px rgba(0,0,0,0.3)",
+              }}
+            >
+              Como funciona
+            </h2>
+            <div
+              style={{
+                width: "64px",
+                height: "3px",
+                background: "rgba(255,255,255,0.5)",
+                borderRadius: "2px",
+                margin: "0 auto",
+              }}
+            />
+          </div>
+
+          {/* Steps grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr",
+              gap: "24px",
+              position: "relative",
+            }}
+          >
+            {/* Connector line */}
+            <div
+              style={{
+                position: "absolute",
+                top: "44px",
+                left: "calc(33.33% - 16px)",
+                right: "calc(33.33% - 16px)",
+                height: "1px",
+                background: "rgba(255,255,255,0.25)",
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Step 1 */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                padding: `${tokens.spacing.section.xs} ${tokens.spacing.component.md}`,
+                background: "rgba(255,255,255,0.10)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                borderRadius: tokens.borderRadius["2xl"],
+                border: "1px solid rgba(255,255,255,0.18)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+              }}
+            >
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.15)",
+                  border: "1.5px solid rgba(255,255,255,0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: tokens.spacing.component.md,
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="13" r="4" stroke="white" strokeWidth="1.8"/>
+                </svg>
+              </div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  color: "rgba(255,255,255,0.5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "2.5px",
+                  marginBottom: tokens.spacing.micro.sm,
+                }}
+              >
+                Paso 01
+              </div>
+              <h3
+                style={{
+                  margin: `0 0 ${tokens.spacing.component.xs} 0`,
+                  fontSize: tokens.typography.h3.size,
+                  fontWeight: 800,
+                  color: "#ffffff",
+                  lineHeight: 1.2,
+                }}
+              >
+                Sube tus fotos
+              </h3>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: tokens.typography.body.size,
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.72)",
+                }}
+              >
+                Selecciona las mejores fotos de tus viajes o momentos especiales. Aceptamos todos los formatos de alta resolucion.
+              </p>
+            </div>
+
+            {/* Step 2 — destacado */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                padding: `${tokens.spacing.section.xs} ${tokens.spacing.component.md}`,
+                background: "rgba(255,255,255,0.22)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                borderRadius: tokens.borderRadius["2xl"],
+                border: "1px solid rgba(255,255,255,0.38)",
+                boxShadow: "0 8px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.08)",
+              }}
+            >
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.25)",
+                  border: "1.5px solid rgba(255,255,255,0.6)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: tokens.spacing.component.md,
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 20h9" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  color: "rgba(255,255,255,0.65)",
+                  textTransform: "uppercase",
+                  letterSpacing: "2.5px",
+                  marginBottom: tokens.spacing.micro.sm,
+                }}
+              >
+                Paso 02
+              </div>
+              <h3
+                style={{
+                  margin: `0 0 ${tokens.spacing.component.xs} 0`,
+                  fontSize: tokens.typography.h3.size,
+                  fontWeight: 800,
+                  color: "#fff",
+                  lineHeight: 1.2,
+                }}
+              >
+                Elige tu diseno
+              </h3>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: tokens.typography.body.size,
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.82)",
+                }}
+              >
+                Escoge entre nuestras plantillas profesionales, elige la tapa y personaliza cada pagina a tu gusto.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                padding: `${tokens.spacing.section.xs} ${tokens.spacing.component.md}`,
+                background: "rgba(255,255,255,0.10)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                borderRadius: tokens.borderRadius["2xl"],
+                border: "1px solid rgba(255,255,255,0.18)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+              }}
+            >
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.15)",
+                  border: "1.5px solid rgba(255,255,255,0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: tokens.spacing.component.md,
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 12H3l9-9 9 9h-2M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 21V12h6v9" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  color: "rgba(255,255,255,0.5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "2.5px",
+                  marginBottom: tokens.spacing.micro.sm,
+                }}
+              >
+                Paso 03
+              </div>
+              <h3
+                style={{
+                  margin: `0 0 ${tokens.spacing.component.xs} 0`,
+                  fontSize: tokens.typography.h3.size,
+                  fontWeight: 800,
+                  color: "#ffffff",
+                  lineHeight: 1.2,
+                }}
+              >
+                Lo recibes en casa
+              </h3>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: tokens.typography.body.size,
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.72)",
+                }}
+              >
+                Imprimimos con la maxima calidad y te lo enviamos a domicilio en Lima. Tu recuerdo, listo para atesorar.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ═══ WHY CHOOSE US - Icons SVG + Real Copy ═══ */}
       <WhyChooseSection logoUrl={logoUrl} whyChooseUsImageUrl={whyChooseUsImageUrl} />
 
       {/* ═══ BOOK QUALITY SECTION ═══ */}
-      <section
-        style={{
-          width: "100%",
-          padding: `${tokens.spacing.section.lg} ${tokens.spacing.component.md}`,
-          background: "linear-gradient(180deg, #dce9d1 0%, #a6d8a8 100%)",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1400px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "48px",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: tokens.spacing.component.md,
-            }}
-          >
-            <div
-              style={{
-                background: "rgba(255,255,255,0.45)",
-                borderRadius: tokens.borderRadius["2xl"],
-                padding: tokens.spacing.section.xs,
-                minHeight: "310px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Image
-                src={bookCoverThickUrl}
-                alt="Tipos de tapa de photobook - delgada, gruesa y premium"
-                width={560}
-                height={310}
-                style={{
-                  width: "100%",
-                  maxWidth: "560px",
-                  height: "auto",
-                  display: "block",
-                }}
-                loading="lazy"
-              />
-            </div>
-
-            <div
-              style={{
-                width: "82%",
-                marginLeft: "60px",
-                background: "rgba(255,255,255,0.55)",
-                borderRadius: tokens.borderRadius["2xl"],
-                padding: `${tokens.spacing.component.md} ${tokens.spacing.section.xs}`,
-              }}
-            >
-              <h3
-                style={{
-                  margin: `0 0 ${tokens.spacing.micro.sm} 0`,
-                  fontSize: "42px",
-                  lineHeight: 1,
-                  fontWeight: 900,
-                  color: tokens.colors.neutral.text.primary,
-                  textTransform: "uppercase",
-                }}
-              >
-                Tapa Delgada
-              </h3>
-
-              <div
-                style={{
-                  marginBottom: tokens.spacing.component.xs,
-                  fontSize: tokens.typography.bodyLarge.size,
-                  color: tokens.colors.photobooks.accent,
-                  fontWeight: 700,
-                }}
-              >
-                Para una experiencia más fina
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-end",
-                  gap: tokens.spacing.component.md,
-                }}
-              >
-                <ul
-                  style={{
-                    margin: 0,
-                    paddingLeft: "18px",
-                    fontSize: tokens.typography.body.size,
-                    lineHeight: 1.35,
-                    color: tokens.colors.neutral.text.primary,
-                    fontWeight: 600,
-                  }}
-                >
-                  <li>Cartulina de grosor estándar</li>
-                  <li>Acabado mate profesional</li>
-                  <li>Colores vibrantes</li>
-                  <li>Protección duradera</li>
-                </ul>
-
-                <div
-                  style={{
-                    fontSize: "28px",
-                    fontWeight: 600,
-                    color: tokens.colors.neutral.text.primary,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  S/ 99.99
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              paddingRight: tokens.spacing.component.md,
-            }}
-          >
-            <h2
-              style={{
-                margin: `0 0 ${tokens.spacing.component.md} 0`,
-                fontSize: "68px",
-                lineHeight: 1.05,
-                fontWeight: 900,
-                color: tokens.colors.neutral.text.primary,
-                textTransform: "uppercase",
-              }}
-            >
-              Calidad en cada
-              <br />
-              página
-            </h2>
-
-            <div
-              style={{
-                width: "78%",
-                height: "5px",
-                background: tokens.colors.neutral.text.primary,
-                marginBottom: tokens.spacing.component.md,
-              }}
-            />
-
-            <p
-              style={{
-                margin: `0 0 ${tokens.spacing.component.md} 0`,
-                fontSize: tokens.typography.h4.size,
-                lineHeight: tokens.typography.h4.lineHeight,
-                color: tokens.colors.neutral.text.primary,
-                maxWidth: "640px",
-              }}
-            >
-              En PixelArt cuidamos cada detalle de tu Photobook ofreciéndote tres
-              tipos de tapa:
-              <strong> Delgada, ligera y básica</strong> para un uso estándar;
-              <strong> Gruesa, rígida</strong> y más resistente con mejor
-              presentación; y <strong>Premium, de alta calidad</strong> con acabados
-              metálicos, plastificado resistente al agua y una apariencia de lujo.
-            </p>
-
-            <button
-              style={{
-                width: "280px",
-                padding: `${tokens.spacing.component.xs} ${tokens.spacing.component.md}`,
-                borderRadius: tokens.borderRadius.md,
-                border: "none",
-                background: tokens.colors.neutral.text.primary,
-                color: "#fff",
-                fontSize: tokens.typography.bodyLarge.size,
-                fontWeight: 800,
-                cursor: "pointer",
-                transition: `all ${tokens.transitions.fast}`,
-              }}
-            >
-              Comenzar mi diseño
-            </button>
-          </div>
-        </div>
-      </section>
-
+      <BookQualitySection bookCoverThickUrl={bookCoverThickUrl} bookCoverSlimUrl={bookCoverSlimUrl} />
       {/* ═══ CREATE BOOK ACCORDION ═══ */}
       <CreateBookAccordion
         registerInformationCarouselProps={{
@@ -702,58 +1142,95 @@ export default function HomePage() {
       />
 
       {/* ═══ CLIENT TESTIMONIALS ═══ */}
+      <style>{`
+        @keyframes clientsBgShift {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
       <section
         style={{
           position: "relative",
           width: "100%",
           padding: `${tokens.spacing.section.lg} ${tokens.spacing.component.md}`,
+          backgroundImage: "linear-gradient(45deg, #2196F3 0%, #010b14 100%)",
+          backgroundSize: "200% 200%",
+          animation: "clientsBgShift 6s ease infinite",
         }}
       >
-        <Image
-          src={ourClientsBackgroundUrl}
-          alt=""
-          fill
-          style={{ objectFit: "cover" }}
-          sizes="100vw"
-          loading="lazy"
-        />
         <div
           style={{
             position: "relative",
             zIndex: 1,
-            maxWidth: "1480px",
+            maxWidth: "1060px",
             margin: "0 auto",
           }}
         >
-          <h2
-            style={{
-              margin: `0 0 ${tokens.spacing.component.xs} 0`,
-              fontSize: "64px",
-              lineHeight: 1.05,
-              fontWeight: 900,
-              color: tokens.colors.neutral.text.primary,
-              textTransform: "uppercase",
-            }}
-          >
-            Nuestros Clientes
-            <br />
-            Nos Respaldan
-          </h2>
+          {/* Header — mismo patrón eyebrow + título que el resto de secciones */}
+          <div style={{ textAlign: "center", marginBottom: tokens.spacing.section.xs }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "16px",
+              }}
+            >
+              <div
+                style={{
+                  width: "4px",
+                  height: "28px",
+                  borderRadius: "2px",
+                  background: tokens.colors.customBooks.gradient,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: tokens.typography.caption.size,
+                  fontWeight: 700,
+                  color: "#f87171",
+                  textTransform: "uppercase",
+                  letterSpacing: "2px",
+                }}
+              >
+                Testimonios reales
+              </span>
+            </div>
 
-          <div
-            style={{
-              width: "680px",
-              maxWidth: "100%",
-              height: "5px",
-              background: tokens.colors.neutral.text.primary,
-              marginBottom: tokens.spacing.section.xs,
-            }}
-          />
+            <h2
+              style={{
+                margin: `0 0 ${tokens.spacing.component.xs} 0`,
+                fontSize: tokens.typography.h2.size,
+                lineHeight: 1.15,
+                fontWeight: 900,
+                color: "#ffffff",
+                textTransform: "uppercase",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Nuestros clientes
+              <br />
+              <span style={{ color: "#f87171" }}>nos respaldan</span>
+            </h2>
 
+            <div
+              aria-hidden="true"
+              style={{
+                width: "56px",
+                height: "3px",
+                borderRadius: "9999px",
+                background: tokens.colors.customBooks.gradient,
+                margin: "0 auto",
+              }}
+            />
+          </div>
+
+          {/* Grid de tarjetas — glassmorphism */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gridTemplateColumns: "repeat(3, 1fr)",
               gap: tokens.spacing.component.md,
               marginBottom: tokens.spacing.section.sm,
             }}
@@ -762,63 +1239,83 @@ export default function HomePage() {
               <article
                 key={`${client.name}-${idx}`}
                 style={{
-                  background: "rgba(240, 248, 247, 0.92)",
-                  borderRadius: tokens.borderRadius["2xl"],
-                  padding: `${tokens.spacing.section.sm} ${tokens.spacing.component.md}`,
-                  boxShadow: tokens.shadows.lg,
-                  textAlign: "center",
+                  background: "rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  borderRadius: tokens.borderRadius.xl,
+                  padding: tokens.spacing.component.md,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
                 }}
               >
-                <Image
-                  src={client.image}
-                  alt={client.name}
-                  width={160}
-                  height={160}
-                  style={{
-                    objectFit: "cover",
-                    borderRadius: "50%",
-                    display: "block",
-                    margin: `0 auto ${tokens.spacing.component.md}`,
-                    border: "4px solid #f2f2f2",
-                  }}
-                  loading="lazy"
-                />
-
-                <h3
-                  style={{
-                    margin: `0 0 ${tokens.spacing.component.xs} 0`,
-                    fontSize: tokens.typography.bodyLarge.size,
-                    lineHeight: tokens.typography.bodyLarge.lineHeight,
-                    fontWeight: 700,
-                    color: tokens.colors.neutral.text.primary,
-                  }}
-                >
-                  {client.name}
-                </h3>
-
+                {/* Header de la card — foto + nombre + estrellas en fila */}
                 <div
                   style={{
-                    fontSize: "22px",
-                    marginBottom: tokens.spacing.component.md,
-                    letterSpacing: "2px",
-                    color: "#f5a623",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "14px",
                   }}
                 >
-                  {Array.from({ length: client.rating }, (_, i) => (
-                    <svg key={i} width="20" height="20" viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" strokeWidth="2" style={{ display: "inline-block", marginRight: "2px" }} xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                  ))}
-                  {Array.from({ length: 5 - client.rating }, (_, i) => (
-                    <svg key={i + client.rating} width="20" height="20" viewBox="0 0 24 24" fill="transparent" stroke="#d0d0d0" strokeWidth="2" style={{ display: "inline-block", marginRight: "2px" }} xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                  ))}
+                  <Image
+                    src={client.image}
+                    alt={client.name}
+                    width={56}
+                    height={56}
+                    style={{
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      border: "2px solid rgba(255,255,255,0.25)",
+                    }}
+                    loading="lazy"
+                  />
+                  <div>
+                    <h3
+                      style={{
+                        margin: "0 0 4px 0",
+                        fontSize: tokens.typography.small.size,
+                        fontWeight: 700,
+                        color: "#ffffff",
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {client.name}
+                    </h3>
+                    <div style={{ display: "flex", gap: "2px" }}>
+                      {Array.from({ length: client.rating }, (_, i) => (
+                        <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill="#f5a623" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                      {Array.from({ length: 5 - client.rating }, (_, i) => (
+                        <svg key={i + client.rating} width="13" height="13" viewBox="0 0 24 24" fill="rgba(255,255,255,0.2)" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comilla decorativa */}
+                <div
+                  style={{
+                    fontSize: "32px",
+                    lineHeight: 1,
+                    color: "rgba(248,113,113,0.5)",
+                    marginBottom: "6px",
+                    userSelect: "none",
+                  }}
+                >
+                  &ldquo;
                 </div>
 
                 <p
                   style={{
                     margin: 0,
-                    fontSize: tokens.typography.body.size,
-                    lineHeight: tokens.typography.body.lineHeight,
-                    color: tokens.colors.neutral.text.secondary,
-                    textAlign: "left",
+                    fontSize: "14px",
+                    lineHeight: 1.6,
+                    color: "rgba(255,255,255,0.80)",
                   }}
                 >
                   {client.review}
@@ -827,28 +1324,41 @@ export default function HomePage() {
             ))}
           </div>
 
+          {/* Métricas inline — sin recuadro pesado */}
           <div
             style={{
-              maxWidth: "1060px",
-              margin: "0 auto",
-              background: "rgba(255,255,255,0.9)",
-              borderRadius: tokens.borderRadius.lg,
-              padding: `${tokens.spacing.component.md} ${tokens.spacing.section.xs}`,
-              textAlign: "center",
-              boxShadow: tokens.shadows.md,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: tokens.spacing.section.xs,
+              flexWrap: "wrap",
             }}
           >
-            <p
-              style={{
-                margin: 0,
-                fontSize: tokens.typography.h4.size,
-                lineHeight: tokens.typography.h4.lineHeight,
-                fontWeight: 800,
-                color: tokens.colors.neutral.text.primary,
-              }}
-            >
-              Calificación 4.8/5 basada en más de 1500 clientes satisfechos
-            </p>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>4.8</div>
+              <div style={{ display: "flex", gap: "2px", justifyContent: "center", margin: "4px 0" }}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#f5a623" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                ))}
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>Calificacion</div>
+            </div>
+
+            <div style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.15)" }} />
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>+1500</div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontWeight: 500, marginTop: "8px" }}>Clientes satisfechos</div>
+            </div>
+
+            <div style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.15)" }} />
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>+2400</div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontWeight: 500, marginTop: "8px" }}>Libros entregados</div>
+            </div>
           </div>
         </div>
       </section>

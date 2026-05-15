@@ -19,8 +19,16 @@ export type CreateFeedbackData = {
   redirectedToGoogle: boolean;
 };
 
+export type BookRatingSummary = {
+  modelId: number | null;
+  photobookThemeId: number | null;
+  average: number;
+  count: number;
+};
+
 export abstract class FeedbackRepositoryPort {
   abstract create(data: CreateFeedbackData): Promise<FeedbackRecord>;
   abstract findAll(): Promise<FeedbackRecord[]>;
   abstract findByOrderId(orderId: number): Promise<FeedbackRecord | null>;
+  abstract getAverageRatings(): Promise<BookRatingSummary[]>;
 }

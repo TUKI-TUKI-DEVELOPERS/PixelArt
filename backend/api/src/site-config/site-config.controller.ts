@@ -6,8 +6,9 @@ export class SiteConfigPublicController {
   constructor(private readonly service: SiteConfigService) {}
 
   @Get(':key')
-  get(@Param('key') key: string) {
-    return this.service.get(key);
+  async get(@Param('key') key: string) {
+    const result = await this.service.get(key);
+    return result ?? { key, value: null };
   }
 }
 
@@ -16,8 +17,9 @@ export class SiteConfigAdminController {
   constructor(private readonly service: SiteConfigService) {}
 
   @Get(':key')
-  get(@Param('key') key: string) {
-    return this.service.get(key);
+  async get(@Param('key') key: string) {
+    const result = await this.service.get(key);
+    return result ?? { key, value: null };
   }
 
   @Put(':key')

@@ -22,6 +22,10 @@ const SLUG_THUMBNAIL: Record<string, string> = {
   "te-amo-abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
   "el-mejor-equipo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png",
   "la-familia": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png",
+  // "gracias-por-tu-amor": sin miniatura todavía
+  // "mi-angel-guardian": sin miniatura todavía
+  // "siempre-en-mi-corazon": sin miniatura todavía
+  // "siempre-seras-parte-de-mi": sin miniatura todavía
 };
 
 /* ── Datos de libros ── */
@@ -228,6 +232,90 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     reviewCount: 182,
     accent: "#44b9b1",
   },
+  "siempre-seras-parte-de-mi": {
+    nombre: "Siempre Serás Parte de Mi Corazón",
+    subtitulo: "Libro Memorial Personalizado",
+    tagline: "PORQUE NUESTRO VÍNCULO ES ETERNO",
+    descripcionCorta:
+      "El homenaje a ese lazo que ninguna distancia puede romper:",
+    bullets: [
+      "Un libro que celebra la complicidad, las aventuras compartidas y ese vínculo único que los une para siempre.",
+      "Cada página honra los momentos que los hicieron cómplices, compañeros y el mejor equipo del mundo.",
+    ],
+    caracteristicas: [
+      { label: "Edad", value: "0 - 100 años" },
+      { label: "Longitud", value: "16 páginas" },
+      { label: "Tamaño", value: "20 x 12 cm" },
+      { label: "Tipo de tapa", value: "Delgada" },
+      { label: "Historias", value: "1 / 10 Seleccionadas" },
+    ],
+    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    reviewCount: 0,
+    accent: "#8b6bb1",
+  },
+  "siempre-en-mi-corazon": {
+    nombre: "Siempre en mi Corazón",
+    subtitulo: "Libro Memorial Personalizado",
+    tagline: "PORQUE TU RECUERDO VIVE EN CADA LATIDO",
+    descripcionCorta:
+      "El homenaje más hermoso para quien siempre estará en tu corazón:",
+    bullets: [
+      "Un libro que honra el legado de ese ser querido que partió pero dejó una huella imborrable en tu vida.",
+      "Cada página celebra sus virtudes, su sabiduría y los momentos únicos que compartieron juntos.",
+    ],
+    caracteristicas: [
+      { label: "Edad", value: "0 - 100 años" },
+      { label: "Longitud", value: "16 páginas" },
+      { label: "Tamaño", value: "20 x 12 cm" },
+      { label: "Tipo de tapa", value: "Delgada" },
+      { label: "Historias", value: "1 / 10 Seleccionadas" },
+    ],
+    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    reviewCount: 0,
+    accent: "#8b6bb1",
+  },
+  "mi-angel-guardian": {
+    nombre: "Mi Ángel Guardián",
+    subtitulo: "Libro Memorial Personalizado",
+    tagline: "PORQUE TU LUZ SIGUE BRILLANDO EN MÍ",
+    descripcionCorta:
+      "El homenaje más hermoso para quien fue tu guía y tu fuerza:",
+    bullets: [
+      "Un libro que celebra a esa persona especial que te protegió, te guió y dejó una huella imborrable en tu corazón.",
+      "Cada página honra quién fue, todo lo que significó para vos y el amor que sigue vivo en cada recuerdo.",
+    ],
+    caracteristicas: [
+      { label: "Edad", value: "0 - 100 años" },
+      { label: "Longitud", value: "16 páginas" },
+      { label: "Tamaño", value: "20 x 12 cm" },
+      { label: "Tipo de tapa", value: "Delgada" },
+      { label: "Historias", value: "1 / 10 Seleccionadas" },
+    ],
+    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    reviewCount: 0,
+    accent: "#8b6bb1",
+  },
+  "gracias-por-tu-amor": {
+    nombre: "Gracias por tu amor",
+    subtitulo: "Libro Memorial Personalizado",
+    tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ",
+    descripcionCorta:
+      "El homenaje más hermoso para quien nunca olvidarás:",
+    bullets: [
+      "Un libro que honra los momentos únicos que compartieron juntos: las risas, las aventuras y el amor que dejó una huella imborrable.",
+      "Cada página celebra quién fue esa persona especial y lo que significó para vos.",
+    ],
+    caracteristicas: [
+      { label: "Edad", value: "0 - 100 años" },
+      { label: "Longitud", value: "16 páginas" },
+      { label: "Tamaño", value: "20 x 12 cm" },
+      { label: "Tipo de tapa", value: "Delgada" },
+      { label: "Historias", value: "1 / 10 Seleccionadas" },
+    ],
+    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    reviewCount: 0,
+    accent: "#8b6bb1",
+  },
 };
 
 const DEFAULT_INFO: LibroInfo = {
@@ -276,7 +364,18 @@ const RELATED_BOOKS: Record<string, RelatedBook[]> = {
   ],
   "libros-de-memorias-familiares": [
     { name: "Recuerdos Familiares", slug: "recuerdos-familiares", reviews: 170, tagline: "PORQUE CADA FAMILIA TIENE UNA HISTORIA QUE CONTAR" },
+    { name: "Gracias por tu amor", slug: "gracias-por-tu-amor", reviews: 0, tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ" },
+    { name: "Mi Ángel Guardián", slug: "mi-angel-guardian", reviews: 0, tagline: "PORQUE TU LUZ SIGUE BRILLANDO EN MÍ" },
+    { name: "Siempre en mi Corazón", slug: "siempre-en-mi-corazon", reviews: 0, tagline: "PORQUE TU RECUERDO VIVE EN CADA LATIDO" },
+    { name: "Siempre Serás Parte de Mi Corazón", slug: "siempre-seras-parte-de-mi", reviews: 0, tagline: "PORQUE NUESTRO VÍNCULO ES ETERNO" },
   ],
+};
+
+const RELATED_SECTION_TITLE: Record<string, string> = {
+  "libros-de-amor":                "OTROS LIBROS QUE TE VAN A ENAMORAR",
+  "libros-de-mascotas":            "MÁS LIBROS PARA TU PELUDO",
+  "libros-de-familia":             "MÁS LIBROS PARA TU FAMILIA",
+  "libros-de-memorias-familiares": "MÁS LIBROS DE MEMORIAS",
 };
 
 /* ── Wizard Steps ── */
@@ -298,6 +397,7 @@ const FAQ_ITEMS = [
       "¡Por supuesto! En PixelArt celebramos el amor en todas sus formas. Nuestros libros personalizados están diseñados para cualquier pareja, sin importar su orientación. El amor es universal y merece ser celebrado.",
   },
 ];
+
 
 /* ══════════════════════════════════════════
    Componente principal
@@ -332,43 +432,86 @@ export default function LibroDetalleClient({
   const info = LIBROS_INFO[libroSlug] ?? { ...DEFAULT_INFO, nombre: libroNombre };
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTapa, setSelectedTapa] = useState<"gruesa" | "premium">("gruesa");
+  const [hoveredThumb, setHoveredThumb] = useState<number | null>(null);
+  const [hoveredImage, setHoveredImage] = useState<number | null>(null);
 
   const isMamaHeroina = libroSlug === "mama-mi-heroina";
   const hasBg = !!backgroundUrl;
-
   const hasRealImages = carouselImageUrls.length > 0;
-  const carouselImages = hasRealImages ? carouselImageUrls : [0, 1, 2, 3, 4];
-  const [activeSlide, setActiveSlide] = useState(hasRealImages ? 0 : 2);
 
-  function nextSlide() {
-    setActiveSlide((s) => (s + 1) % carouselImages.length);
-  }
-  function prevSlide() {
-    setActiveSlide((s) => (s - 1 + carouselImages.length) % carouselImages.length);
-  }
+  const CATEGORIA_LABEL: Record<string, string> = {
+    "libros-de-amor": "AMOR",
+    "libros-de-mascotas": "MASCOTAS",
+    "libros-de-familia": "FAMILIA",
+    "libros-de-memorias-familiares": "MEMORIAS FAMILIARES",
+  };
+
+  const CATEGORIA_SUBTITULO_HERO: Record<string, string> = {
+    "libros-de-amor": "Libro Personalizado de Amor",
+    "libros-de-mascotas": "Libro Personalizado de Mascotas",
+    "libros-de-familia": "Libro Personalizado de Familia",
+    "libros-de-memorias-familiares": "Libro Personalizado Memorias Familiares",
+  };
 
   return (
     <div>
-      {/* ═══ HERO + CONTENIDO SOBRE BACKGROUND ═══ */}
+      <style>{`
+        @keyframes subtitleSweep {
+          0%   { background-position: 100% center; }
+          100% { background-position: -200% center; }
+        }
+        .hero-subtitle-animated {
+          background-size: 300% 100%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          color: transparent;
+          animation: subtitleSweep 6s linear infinite;
+        }
+        .hero-subtitle-amor {
+          background-image: linear-gradient(to right, #e91e8c 25%, #ffffff 50%, #e91e8c 75%);
+        }
+        .hero-subtitle-mascotas {
+          background-image: linear-gradient(to right, #2196f3 25%, #ffffff 50%, #2196f3 75%);
+        }
+        .hero-subtitle-familia {
+          background-image: linear-gradient(to right, #4caf50 25%, #ffffff 50%, #4caf50 75%);
+        }
+        .hero-subtitle-memorias {
+          background-image: linear-gradient(to right, #8b6bb1 25%, #ffffff 50%, #8b6bb1 75%);
+        }
+      `}</style>
+      {/* ═══ HERO ═══ */}
       <section
         style={{
           position: "relative",
           width: "100%",
-          paddingBottom: "48px",
+          paddingBottom: isMobile ? "24px" : "36px",
+          marginBottom: isMobile ? 0 : "-120px",
         }}
       >
-        {/* Background — imagen de MinIO o fallback */}
+        {/* Background */}
         {backgroundUrl ? (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `url(${backgroundUrl})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+          <>
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `url(${backgroundUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(to bottom, transparent 30%, #ffffff 80%)",
+                pointerEvents: "none",
+              }}
+            />
+          </>
         ) : isMamaHeroina ? (
           <MaternalSkyBackground />
         ) : (
@@ -384,247 +527,345 @@ export default function LibroDetalleClient({
         <div
           style={{
             position: "relative",
+            zIndex: 1,
             maxWidth: "1200px",
             margin: "0 auto",
-            padding: isMobile ? "24px 16px 0" : "48px 48px 0",
+            padding: isMobile ? "32px 16px 0" : "56px 48px 0",
             display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? "24px" : "48px",
-            alignItems: isMobile ? "stretch" : "center",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: isMobile ? "28px" : "40px",
           }}
         >
-          {/* ── Columna izquierda: Info ── */}
-          <div style={{ flex: "1 1 0", minWidth: 0 }}>
-            <div
+
+          {/* ── Cabecera de texto centrada ── */}
+          <div style={{ textAlign: "center" }}>
+            <p
               style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: hasBg ? "rgba(255,255,255,0.7)" : "#888",
-                marginBottom: "8px",
-                letterSpacing: "1.5px",
+                margin: "0 0 8px 0",
+                fontSize: "13px",
+                fontWeight: 500,
+                color: "#111",
+                letterSpacing: "2px",
                 textTransform: "uppercase",
               }}
             >
               Libro Personalizado
-            </div>
-            <h1
+            </p>
+            <p
               style={{
-                margin: "0 0 8px 0",
-                fontSize: isMobile ? "26px" : "38px",
+                margin: "0 0 10px 0",
+                fontSize: isMobile ? "26px" : "36px",
                 fontWeight: 900,
-                color: hasBg ? "#fff" : "#111",
-                lineHeight: 1.1,
+                color: "#111",
                 textTransform: "uppercase",
-                textShadow: hasBg ? "0 2px 12px rgba(0,0,0,0.25)" : undefined,
+                letterSpacing: "3px",
+                lineHeight: 1.1,
               }}
             >
-              {info.nombre}
-            </h1>
+              {CATEGORIA_LABEL[categoriaSlug] ?? categoriaSlug.replace(/-/g, " ").toUpperCase()}
+            </p>
+            <p
+              className={`hero-subtitle-animated ${{
+                "libros-de-amor": "hero-subtitle-amor",
+                "libros-de-mascotas": "hero-subtitle-mascotas",
+                "libros-de-familia": "hero-subtitle-familia",
+                "libros-de-memorias-familiares": "hero-subtitle-memorias",
+              }[categoriaSlug] ?? "hero-subtitle-memorias"}`}
+              style={{
+                margin: 0,
+                fontSize: isMobile ? "15px" : "18px",
+                fontWeight: 700,
+                letterSpacing: "0.5px",
+              }}
+            >
+              {CATEGORIA_SUBTITULO_HERO[categoriaSlug] ?? info.subtitulo}
+            </p>
+          </div>
+
+          {/* ── 3 imágenes lado a lado ── */}
+          {hasRealImages && (
             <div
               style={{
-                fontSize: "16px",
-                fontWeight: 700,
-                color: info.accent,
-                marginBottom: "20px",
-                textShadow: hasBg ? "0 1px 6px rgba(0,0,0,0.2)" : undefined,
-              }}
-            >
-              {info.subtitulo}
-            </div>
-
-            <h3
-              style={{
-                margin: "0 0 16px 0",
-                fontSize: "22px",
-                fontWeight: 800,
-                color: hasBg ? "#fff" : "#111",
-                textTransform: "uppercase",
-                textShadow: hasBg ? "0 1px 4px rgba(0,0,0,0.15)" : undefined,
-              }}
-            >
-              {info.descripcionCorta}
-            </h3>
-
-            <ul
-              style={{
-                margin: "0 0 28px 0",
-                padding: 0,
-                listStyle: "none",
                 display: "flex",
-                flexDirection: "column",
-                gap: "12px",
+                gap: isMobile ? "8px" : "16px",
+                justifyContent: "center",
+                alignItems: "flex-end",
+                width: "100%",
+                overflowX: isMobile ? "auto" : "visible",
+                paddingBottom: isMobile ? "4px" : 0,
               }}
             >
-              {info.bullets.map((b, i) => (
-                <li
-                  key={i}
-                  style={{
-                    fontSize: "15px",
-                    lineHeight: 1.6,
-                    color: hasBg ? "rgba(255,255,255,0.9)" : "#444",
-                    paddingLeft: "28px",
-                    position: "relative",
-                  }}
-                >
-                  <span
+              {(carouselImageUrls.length === 3
+                ? [carouselImageUrls[1], carouselImageUrls[0], carouselImageUrls[2]]
+                : carouselImageUrls
+              ).map((url, i) => {
+                const isHovered = hoveredImage === i;
+                return (
+                  <div
+                    key={i}
+                    onMouseEnter={() => setHoveredImage(i)}
+                    onMouseLeave={() => setHoveredImage(null)}
                     style={{
-                      position: "absolute",
-                      left: 0,
-                      top: "1px",
-                      color: info.accent,
-                      fontWeight: 700,
-                      fontSize: "16px",
+                      flex: "0 0 auto",
+                      width: isMobile ? "180px" : "calc(33.33% - 12px)",
+                      maxWidth: "360px",
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                      boxShadow: isHovered
+                        ? "0 24px 56px rgba(0,0,0,0.28)"
+                        : "0 8px 32px rgba(0,0,0,0.15)",
+                      transform: isHovered
+                        ? "perspective(800px) translateY(-10px) scale(1.04) translateZ(30px)"
+                        : "perspective(800px) translateY(0) scale(1) translateZ(0)",
+                      transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                      cursor: "pointer",
                     }}
                   >
-                    ★
-                  </span>
-                  {b}
-                </li>
-              ))}
-            </ul>
+                    <img
+                      src={url}
+                      alt={`${info.nombre} - vista ${i + 1}`}
+                      style={{ width: "100%", height: "auto", display: "block" }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
-            <button
-              onClick={() => { setCurrentStep(1); document.getElementById("wizard-section")?.scrollIntoView({ behavior: "smooth" }); }}
+          {/* ── Miniaturas pequeñas ── */}
+          {hasRealImages && (
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", perspective: "600px" }}>
+              {(carouselImageUrls.length === 3
+                ? [carouselImageUrls[1], carouselImageUrls[0], carouselImageUrls[2]]
+                : carouselImageUrls
+              ).map((url, i) => {
+                const isHovered = hoveredThumb === i;
+                return (
+                  <div
+                    key={i}
+                    onMouseEnter={() => setHoveredThumb(i)}
+                    onMouseLeave={() => setHoveredThumb(null)}
+                    style={{
+                      width: "52px",
+                      height: "52px",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      border: isHovered
+                        ? `2px solid ${info.accent}`
+                        : `2px solid ${info.accent}40`,
+                      boxShadow: isHovered
+                        ? `0 12px 28px rgba(0,0,0,0.25), 0 0 0 1px ${info.accent}60`
+                        : "0 2px 8px rgba(0,0,0,0.10)",
+                      transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <img
+                      src={url}
+                      alt=""
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ── Tarjetas: info + características ── */}
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
+              alignItems: "center",
+            }}
+          >
+
+            {/* Info card */}
+            <div
               style={{
-                padding: "14px 40px",
-                borderRadius: "14px",
-                border: "none",
-                background: info.accent,
-                color: "#fff",
-                fontSize: "16px",
-                fontWeight: 800,
-                cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                width: isMobile ? "100%" : undefined,
+                width: "100%",
+                maxWidth: "680px",
+                ...(hasBg ? {
+                  background: "rgba(255, 255, 255, 0.18)",
+                  backdropFilter: "blur(28px)",
+                  WebkitBackdropFilter: "blur(28px)",
+                  borderRadius: "20px",
+                  boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
+                  padding: isMobile ? "28px 24px" : "36px 40px",
+                } : {
+                  background: "rgba(255,255,255,0.7)",
+                  borderRadius: "20px",
+                  padding: isMobile ? "28px 24px" : "36px 40px",
+                }),
               }}
             >
-              Crea Un Libro Ahora
-            </button>
-          </div>
+              <h1
+                style={{
+                  margin: "0 0 8px 0",
+                  fontSize: isMobile ? "28px" : "36px",
+                  fontWeight: isMobile ? 600 : 700,
+                  color: "#111",
+                  lineHeight: 1.1,
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                }}
+              >
+                {info.nombre}
+              </h1>
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: info.accent,
+                  marginBottom: "20px",
+                  textAlign: "center",
+                }}
+              >
+                {info.tagline}
+              </div>
 
-          {/* ── Columna derecha: Carousel ── */}
-          <div style={{ flex: "0 0 auto", width: isMobile ? "100%" : "480px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
-              <button onClick={prevSlide} style={{ width: "40px", height: "40px", borderRadius: "50%", border: "none", background: hasBg ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.06)", backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={hasBg ? "#fff" : "#333"} strokeWidth="2.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg"><polyline points="15 18 9 12 15 6" /></svg>
-              </button>
+              <h3
+                style={{
+                  margin: "0 0 16px 0",
+                  fontSize: "18px",
+                  fontWeight: 600,
+                  color: "#111",
+                }}
+              >
+                {info.descripcionCorta}
+              </h3>
 
-              <div style={{ position: "relative", width: isMobile ? "240px" : "380px", height: isMobile ? "280px" : "420px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                {carouselImages.map((item, i) => {
-                  const offset = i - activeSlide;
-                  const isActive = offset === 0;
-                  if (isMobile && !isActive) return null;
-                  if (!isMobile && Math.abs(offset) > 1) return null;
-                  const imgUrl = hasRealImages ? (item as string) : null;
-                  const scale = isActive ? 1 : 0.75;
-                  const translateX = isMobile ? 0 : offset * 140;
-                  const zIdx = isActive ? 3 : 1;
-                  return (
-                    <div
-                      key={i}
-                      onClick={() => !isActive && setActiveSlide(i)}
+              <ul
+                style={{
+                  margin: "0 0 28px 0",
+                  padding: 0,
+                  listStyle: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {info.bullets.map((b, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      fontSize: "16px",
+                      lineHeight: 1.6,
+                      color: "#444",
+                      paddingLeft: "28px",
+                      position: "relative",
+                    }}
+                  >
+                    <span
                       style={{
                         position: "absolute",
-                        width: isMobile ? "220px" : "300px",
-                        height: isActive ? (isMobile ? "260px" : "400px") : "320px",
-                        borderRadius: "20px",
-                        background: imgUrl
-                          ? "transparent"
-                          : hasBg
-                            ? `rgba(255,255,255,${isActive ? 0.12 : 0.06})`
-                            : `linear-gradient(135deg, ${info.accent}${isActive ? "18" : "0a"} 0%, #f0f0f0 100%)`,
-                        backdropFilter: hasBg && !imgUrl ? "blur(4px)" : undefined,
-                        border: isActive
-                          ? `2px solid ${hasBg ? "rgba(255,255,255,0.3)" : info.accent}`
-                          : `1px solid ${hasBg ? "rgba(255,255,255,0.1)" : "#e0e0e0"}`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: hasBg ? "rgba(255,255,255,0.4)" : "#ccc",
-                        fontSize: "13px",
-                        cursor: isActive ? "default" : "pointer",
-                        transition: "all 0.35s ease",
-                        transform: `translateX(${translateX}px) scale(${scale})`,
-                        zIndex: zIdx,
-                        opacity: isActive ? 1 : 0.6,
-                        overflow: "hidden",
-                        boxShadow: isActive ? "0 8px 32px rgba(0,0,0,0.18)" : "none",
+                        left: 0,
+                        top: "1px",
+                        color: info.accent,
+                        fontWeight: 700,
+                        fontSize: "16px",
                       }}
                     >
-                      {imgUrl ? (
-                        <img
-                          src={imgUrl}
-                          alt={`${info.nombre} - vista ${i + 1}`}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                          }}
-                        />
-                      ) : (
-                        isActive ? "Imagen principal" : "Preview"
-                      )}
-                    </div>
-                  );
-                })}
+                      ★
+                    </span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <button
+                  onClick={() => { setCurrentStep(1); document.getElementById("wizard-section")?.scrollIntoView({ behavior: "smooth" }); }}
+                  style={{
+                    padding: "14px 40px",
+                    borderRadius: "14px",
+                    border: "none",
+                    background: info.accent,
+                    color: "#fff",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    width: isMobile ? "100%" : undefined,
+                  }}
+                >
+                  Crea tu Libro ahora
+                </button>
               </div>
-
-              <button onClick={nextSlide} style={{ width: "40px", height: "40px", borderRadius: "50%", border: "none", background: hasBg ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.06)", backdropFilter: "blur(4px)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={hasBg ? "#fff" : "#333"} strokeWidth="2.5" strokeLinecap="round" xmlns="http://www.w3.org/2000/svg"><polyline points="9 18 15 12 9 6" /></svg>
-              </button>
             </div>
 
-            {/* Dots */}
-            <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "12px" }}>
-              {carouselImages.map((_, i) => (
-                <button key={i} onClick={() => setActiveSlide(i)} style={{ width: activeSlide === i ? "24px" : "8px", height: "8px", borderRadius: "4px", border: "none", background: activeSlide === i ? info.accent : hasBg ? "rgba(255,255,255,0.35)" : "#d0d0d0", cursor: "pointer", transition: "all 0.2s ease", padding: 0 }} />
-              ))}
+            {/* Características card */}
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "680px",
+                ...(hasBg ? {
+                  background: "rgba(255, 255, 255, 0.18)",
+                  backdropFilter: "blur(28px)",
+                  WebkitBackdropFilter: "blur(28px)",
+                  borderRadius: "16px",
+                  boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
+                  padding: "24px 28px",
+                } : {
+                  background: "rgba(248, 245, 240, 0.8)",
+                  borderRadius: "16px",
+                  padding: "24px 28px",
+                }),
+              }}
+            >
+              <div style={{ fontSize: "12px", fontWeight: 500, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px" }}>
+                Características del Libro
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px" }}>
+                {[
+                  { text: `Edad: ${info.caracteristicas.find((c) => c.label === "Edad")?.value ?? ""}` },
+                  { text: `Longitud: ${info.caracteristicas.find((c) => c.label === "Longitud")?.value ?? ""}` },
+                  { text: `Tipo de tapa: ${info.caracteristicas.find((c) => c.label === "Tipo de tapa")?.value ?? ""}` },
+                  { text: `Tamaño: ${info.caracteristicas.find((c) => c.label === "Tamaño")?.value ?? ""}` },
+                ].map((item) => (
+                  <div key={item.text} style={{ fontSize: "14px", fontWeight: 500, color: "#555", lineHeight: 1.5 }}>
+                    {item.text}
+                  </div>
+                ))}
+              </div>
+              <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", margin: "16px 0 12px" }} />
+              <div style={{ fontSize: "14px", fontWeight: 600, color: "#444", letterSpacing: "0.3px" }}>
+                PRECIO: {info.precio.gruesa}
+              </div>
             </div>
+
           </div>
-        </div>
 
+        </div>
       </section>
 
-      <div style={{ display: "flex", justifyContent: "center", padding: isMobile ? "0 16px" : "0 48px" }}>
+      {/* ═══ WIZARD DE CREACIÓN — 5 pasos ═══ */}
+      <div style={{ paddingTop: isMobile ? 0 : "120px" }}>
+
+        {/* ── Divisor decorativo ── */}
         <div
           style={{
-            width: "100%",
-            maxWidth: "540px",
-            background: "rgba(248, 245, 240, 0.5)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            borderRadius: "8px",
-            padding: "28px 28px 24px",
-            border: "1px solid rgba(200, 195, 185, 0.3)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "16px",
+            padding: isMobile ? "32px 24px 0" : "40px 48px 0",
+            maxWidth: "900px",
+            margin: "0 auto",
           }}
         >
-          <div style={{ fontSize: "14px", fontWeight: 600, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "20px", textAlign: "center" }}>
-            Características del Libro
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px" }}>
-            {[
-              { text: `Edad: ${info.caracteristicas.find((c) => c.label === "Edad")?.value ?? ""}` },
-              { text: `Longitud: ${info.caracteristicas.find((c) => c.label === "Longitud")?.value ?? ""}` },
-              { text: `Tipo de tapa: ${info.caracteristicas.find((c) => c.label === "Tipo de tapa")?.value ?? ""}` },
-              { text: `Tamaño: ${info.caracteristicas.find((c) => c.label === "Tamaño")?.value ?? ""}` },
-            ].map((item) => (
-              <div key={item.text} style={{ fontSize: "14px", fontWeight: 400, color: "#555", lineHeight: 1.5 }}>
-                {item.text}
-              </div>
-            ))}
-          </div>
-
-          <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", margin: "18px 0 14px" }} />
-          <div style={{ textAlign: "center", fontSize: "14px", fontWeight: 400, color: "#666", letterSpacing: "0.3px" }}>
-            PRECIO: {info.precio.gruesa}
-          </div>
-          <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", marginTop: "14px" }} />
+          <div style={{ flex: 1, height: "1px", background: "linear-gradient(to right, transparent, #d0d0d0)" }} />
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "#aaa", letterSpacing: "4px", whiteSpace: "nowrap" }}>
+            ✦ ✦ ✦
+          </span>
+          <div style={{ flex: 1, height: "1px", background: "linear-gradient(to left, transparent, #d0d0d0)" }} />
         </div>
-      </div>
 
-      {/* ═══ WIZARD DE CREACIÓN — 5 pasos ═══ */}
       <WizardSection
         accent={info.accent}
         dbIds={dbIds ?? null}
@@ -632,6 +873,7 @@ export default function LibroDetalleClient({
         templates={templates}
         libroNombre={info.nombre}
       />
+      </div>
 
       {/* ═══ TAMBIÉN TE PODRÍA INTERESAR ═══ */}
       <section
@@ -641,21 +883,46 @@ export default function LibroDetalleClient({
         }}
       >
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h2
-            style={{
-              fontSize: "28px",
-              fontWeight: 600,
-              color: "#222",
-              margin: "0 0 32px 0",
-              textAlign: "center",
-            }}
-          >
-            También te podría interesar
-          </h2>
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: 500,
+                color: info.accent,
+                textTransform: "uppercase",
+                letterSpacing: "2px",
+                marginBottom: "8px",
+              }}
+            >
+              {info.subtitulo}
+            </div>
+            <h2
+              style={{
+                margin: "0 0 16px 0",
+                fontSize: isMobile ? "24px" : "36px",
+                fontWeight: 900,
+                color: "#111",
+                textTransform: "uppercase",
+                lineHeight: 1.1,
+              }}
+            >
+              {RELATED_SECTION_TITLE[categoriaSlug] ?? "TAMBIEN TE PODRIA INTERESAR"}
+            </h2>
+            <div
+              style={{
+                width: "80px",
+                height: "3px",
+                background: info.accent,
+                margin: "0 auto",
+                borderRadius: "2px",
+              }}
+            />
+          </div>
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
               gap: "24px",
             }}
           >
@@ -665,7 +932,7 @@ export default function LibroDetalleClient({
                 <Link
                   key={book.slug}
                   href={`/libros-personalizados/${categoriaSlug}/${book.slug}`}
-                  style={{ textDecoration: "none" }}
+                  style={{ textDecoration: "none", flex: "0 1 340px" }}
                 >
                   <article
                     style={{
@@ -707,10 +974,10 @@ export default function LibroDetalleClient({
                     <div style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>
                       {book.reviews} Reviews
                     </div>
-                    <h3 style={{ fontSize: "17px", fontWeight: 700, color: "#111", margin: "0 0 6px 0" }}>
+                    <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#111", margin: "0 0 6px 0" }}>
                       {book.name}
                     </h3>
-                    <div style={{ fontSize: "12px", fontWeight: 600, color: info.accent, textTransform: "uppercase", marginBottom: "14px" }}>
+                    <div style={{ fontSize: "12px", fontWeight: 500, color: info.accent, textTransform: "uppercase", marginBottom: "14px" }}>
                       {book.tagline}
                     </div>
                     <span
@@ -722,7 +989,7 @@ export default function LibroDetalleClient({
                         background: "#fff",
                         color: "#111",
                         fontSize: "14px",
-                        fontWeight: 800,
+                        fontWeight: 700,
                         textTransform: "uppercase",
                       }}
                     >
@@ -740,13 +1007,13 @@ export default function LibroDetalleClient({
         style={{
           maxWidth: "900px",
           margin: "0 auto",
-          padding: isMobile ? "40px 16px" : "72px 48px",
+          padding: isMobile ? "40px 16px" : "80px 48px",
         }}
       >
         <h2
           style={{
-            fontSize: "32px",
-            fontWeight: 800,
+            fontSize: "36px",
+            fontWeight: 700,
             color: info.accent,
             textAlign: "center",
             margin: "0 0 40px 0",
@@ -1396,8 +1663,8 @@ function FaqItem({
       >
         <span
           style={{
-            fontSize: "17px",
-            fontWeight: 600,
+            fontSize: "18px",
+            fontWeight: 500,
             color: open ? accent : "#222",
             transition: "color 0.2s ease",
             lineHeight: 1.4,
@@ -1433,8 +1700,8 @@ function FaqItem({
         <div
           style={{
             padding: "0 0 22px 0",
-            fontSize: "15px",
-            lineHeight: 1.7,
+            fontSize: "16px",
+            lineHeight: 1.6,
             color: "#666",
           }}
         >

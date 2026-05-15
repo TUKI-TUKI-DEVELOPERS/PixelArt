@@ -26,7 +26,41 @@ export default function FeedbackAdminPage() {
       </div>
 
       {loading ? (
-        <div style={{ padding: "48px", textAlign: "center", color: "#999" }}>Cargando...</div>
+        <>
+          <style>{`@keyframes sk-pulse{0%,100%{opacity:1}50%{opacity:.35}}`}</style>
+          {/* KPI skeletons */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "32px" }}>
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", padding: "24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 56, height: 36, borderRadius: 6, background: "#f0f0f0", animation: "sk-pulse 1.4s ease-in-out infinite" }} />
+                <div style={{ width: 100, height: 13, borderRadius: 4, background: "#f0f0f0", animation: "sk-pulse 1.4s ease-in-out infinite" }} />
+              </div>
+            ))}
+          </div>
+          {/* Table skeleton */}
+          <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#f9fafb" }}>
+                  {["Orden", "Rating", "Comentario", "Google", "Fecha"].map((h) => (
+                    <th key={h} style={{ textAlign: "left", padding: "12px 16px", fontSize: "11px", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                    {[50, 40, 200, 40, 70].map((w, j) => (
+                      <td key={j} style={{ padding: "14px 16px" }}>
+                        <div style={{ height: 13, width: w, borderRadius: 4, background: "#f0f0f0", animation: "sk-pulse 1.4s ease-in-out infinite", animationDelay: `${i * 0.05}s` }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       ) : items.length === 0 ? (
         <div style={{ padding: "48px", textAlign: "center", color: "#999" }}>No hay feedbacks aún.</div>
       ) : (

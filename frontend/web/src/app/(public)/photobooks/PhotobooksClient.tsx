@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PhotobookThemeApi } from "@/lib/api/photobook";
+import PixelArtLogo from "@/components/layout/PixelArtLogo";
 
 /* ── Datos de portadas/temas de photobooks ── */
 
@@ -128,16 +130,6 @@ const PHOTOBOOK_THEMES: Omit<PhotobookTheme, "coverPreviewUrl">[] = [
   },
 ];
 
-/* ── Tapa Premium specs ── */
-const TAPA_SPECS = [
-  "Cartón rígido de alta calidad",
-  "Colores metálicos brillosos (dorado, plateado, rosa gold)",
-  "Acabado plastificado a prueba de agua",
-  "Colores más vibrantes y decorativos",
-  "Textura especial y acabados elaborados",
-  "Máxima durabilidad y presentación de lujo",
-];
-
 /* ── Sección calidad ── */
 const QUALITY_BLOCKS = [
   {
@@ -218,10 +210,47 @@ const INITIAL_VISIBLE = 6;
 
 type Props = {
   apiThemes: PhotobookThemeApi[];
+  heroImageUrl?: string | null;
+  qualityImageUrls?: string[];
+  memoriesImageUrls?: string[];
 };
 
-export default function PhotobooksClient({ apiThemes }: Props) {
+export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImageUrls = [], memoriesImageUrls = [] }: Props) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const heroBgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!heroBgRef.current || !heroSectionRef.current) return;
+      const scrollY = window.scrollY;
+      const heroHeight = heroSectionRef.current.offsetHeight;
+      if (scrollY <= heroHeight) {
+        heroBgRef.current.style.transform = `translateY(${scrollY * 0.3}px)`;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const cards = document.querySelectorAll(".quality-reveal");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const delay = parseInt(el.dataset.delay ?? "0");
+            setTimeout(() => el.classList.add("visible"), delay);
+            observer.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, []);
 
   const themes: PhotobookTheme[] = PHOTOBOOK_THEMES.map((t) => {
     const apiTheme = apiThemes.find((a) => a.name === t.dbName);
@@ -234,237 +263,128 @@ export default function PhotobooksClient({ apiThemes }: Props) {
   return (
     <div>
       {/* ═══ HERO ═══ */}
+      <style>{`
+        @keyframes heroZoom {
+          0%, 100% { transform: scale(1); }
+          50%       { transform: scale(1.07); }
+        }
+      `}</style>
       <section
+        ref={heroSectionRef}
         style={{
           position: "relative",
           width: "100%",
-          minHeight: "520px",
-          background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 40%, #1a1a2e 100%)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          height: "620px",
           overflow: "hidden",
         }}
       >
-        {/* Decorative circles */}
+        {/* Background — parallax wrapper (JS translateY) */}
         <div
+          ref={heroBgRef}
           style={{
             position: "absolute",
-            top: "-80px",
-            right: "-40px",
-            width: "300px",
-            height: "300px",
-            borderRadius: "50%",
-            background: "rgba(128, 65, 135, 0.15)",
+            top: "-15%",
+            left: 0,
+            right: 0,
+            bottom: "-15%",
+            willChange: "transform",
           }}
-        />
+        >
+          {/* Zoom in/out layer (CSS animation) */}
+          <div style={{ width: "100%", height: "100%", animation: "heroZoom 10s ease-in-out infinite" }}>
+            {heroImageUrl ? (
+              <img
+                src={heroImageUrl}
+                alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }}
+              />
+            ) : (
+              <div style={{ width: "100%", height: "100%", background: "#1a1a2e" }} />
+            )}
+          </div>
+        </div>
+
+        {/* Overlay neutral oscuro */}
         <div
           style={{
             position: "absolute",
-            bottom: "-60px",
-            left: "-30px",
-            width: "200px",
-            height: "200px",
-            borderRadius: "50%",
-            background: "rgba(4, 158, 255, 0.1)",
+            inset: 0,
+            background: "linear-gradient(to bottom, rgba(12,12,16,0.30) 0%, rgba(12,12,16,0.65) 100%)",
+            zIndex: 1,
           }}
         />
 
+        {/* Contenido centrado */}
         <div
           style={{
             position: "relative",
-            zIndex: 1,
-            maxWidth: "1200px",
-            padding: "80px 48px",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "64px",
+            zIndex: 2,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "0 48px",
+            gap: "18px",
           }}
         >
-          {/* Left text */}
-          <div>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "6px 16px",
-                borderRadius: "20px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: ACCENT_LIGHT,
-                fontSize: "12px",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "1.5px",
-                marginBottom: "20px",
-              }}
-            >
-              Photobooks PixelArt
-            </div>
-            <h1
-              style={{
-                margin: "0 0 20px 0",
-                fontSize: "44px",
-                fontWeight: 900,
-                color: "#fff",
-                lineHeight: 1.1,
-              }}
-            >
-              Plasma tus mejores recuerdos en un álbum de calidad
-            </h1>
-            <p
-              style={{
-                margin: "0 0 32px 0",
-                fontSize: "17px",
-                lineHeight: 1.7,
-                color: "rgba(255,255,255,0.7)",
-              }}
-            >
-              En su versión de Photobooks, PIXELART permite realizar la impresión
-              de álbumes con fotos que tengas listas para ser subidas de forma digital.
-              Con tan solo unos clicks.
-            </p>
-            <button
-              onClick={() => {
-                document.getElementById("catalogo-section")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              style={{
-                padding: "16px 36px",
-                borderRadius: "14px",
-                border: "none",
-                background: `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_LIGHT} 100%)`,
-                color: "#fff",
-                fontSize: "17px",
-                fontWeight: 700,
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              Comenzar mi diseño
-            </button>
-          </div>
+          <PixelArtLogo width={280} animated={false} />
 
-          {/* Right: preview placeholder */}
-          <div
+          <h1
             style={{
-              width: "100%",
-              aspectRatio: "1",
-              maxHeight: "440px",
-              background: "rgba(255,255,255,0.05)",
-              borderRadius: "24px",
-              border: "1px solid rgba(255,255,255,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "rgba(255,255,255,0.3)",
-              fontSize: "16px",
+              margin: 0,
+              fontSize: "36px",
+              fontWeight: 900,
+              color: "#fff",
+              lineHeight: 1.2,
+              maxWidth: "820px",
+              textShadow: "0 2px 20px rgba(0,0,0,0.5)",
             }}
           >
-            Vista previa Photobook
-          </div>
+            Plasma tus mejores recuerdos<br />en un álbum de calidad, con tan solo unos clicks.
+          </h1>
+
+          <p
+            style={{
+              margin: 0,
+              fontSize: "16px",
+              lineHeight: 1.75,
+              color: "rgba(255,255,255,0.82)",
+              maxWidth: "820px",
+              textShadow: "0 1px 10px rgba(0,0,0,0.4)",
+            }}
+          >
+            En su versión de Photobooks, PIXELART permite realizar la impresión de álbumes<br />con fotos que tengas listas para ser subidas de forma digital.
+          </p>
+
+          <button
+            onClick={() => {
+              document.getElementById("catalogo-section")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            style={{
+              marginTop: "6px",
+              padding: "16px 40px",
+              borderRadius: "14px",
+              border: "1.5px solid rgba(255,255,255,0.6)",
+              background: "rgba(255,255,255,0.15)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              color: "#fff",
+              fontSize: "17px",
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "inherit",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+            }}
+          >
+            Comenzar mi diseño
+          </button>
         </div>
       </section>
 
-      {/* ═══ TAPA PREMIUM ═══ */}
-      <section
-        style={{
-          background: "#fafafa",
-          padding: "72px 48px",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "48px",
-            alignItems: "center",
-          }}
-        >
-          {/* Left: images placeholder */}
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center" }}>
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: i === 2 ? "200px" : "160px",
-                  height: "260px",
-                  borderRadius: "16px",
-                  background: `linear-gradient(135deg, ${ACCENT}15 0%, ${ACCENT}08 100%)`,
-                  border: "1px solid #eee",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#ccc",
-                  fontSize: "12px",
-                }}
-              >
-                Tapa {i}
-              </div>
-            ))}
-          </div>
-
-          {/* Right: specs */}
-          <div>
-            <h2
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "40px",
-                fontWeight: 700,
-                color: "#111",
-              }}
-            >
-              TAPA PREMIUM
-            </h2>
-            <div
-              style={{
-                fontSize: "18px",
-                fontWeight: 600,
-                color: ACCENT_LIGHT,
-                marginBottom: "24px",
-              }}
-            >
-              Para una experiencia más fina
-            </div>
-            <ul
-              style={{
-                margin: 0,
-                padding: 0,
-                listStyle: "none",
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-              }}
-            >
-              {TAPA_SPECS.map((spec) => (
-                <li
-                  key={spec}
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: 600,
-                    color: "#333",
-                    paddingLeft: "20px",
-                    position: "relative",
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      color: ACCENT,
-                      fontWeight: 700,
-                    }}
-                  >
-                    ·
-                  </span>
-                  {spec}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+      {/* ═══ PRECIOS ═══ */}
+      <PricingSection />
 
       {/* ═══ CATÁLOGO DE PORTADAS ═══ */}
       <section
@@ -557,72 +477,171 @@ export default function PhotobooksClient({ apiThemes }: Props) {
       </section>
 
       {/* ═══ SECCIÓN CALIDAD ═══ */}
+      <style>{`
+        .quality-reveal {
+          opacity: 0;
+          transform: translateY(32px);
+          transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .quality-reveal.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .quality-card {
+          background: #fff;
+          border-radius: 20px;
+          border: 1px solid #eee;
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: default;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+        .quality-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 48px rgba(0,0,0,0.10);
+        }
+        .quality-img {
+          transition: transform 0.4s ease;
+        }
+        .quality-card:hover .quality-img {
+          transform: scale(1.06);
+        }
+      `}</style>
       <section
         style={{
           background: "#fafafa",
           padding: "72px 48px",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "32px",
-            }}
-          >
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+
+          {/* Título */}
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <div style={{
+              display: "inline-block",
+              padding: "5px 16px",
+              borderRadius: "20px",
+              background: `${ACCENT}18`,
+              color: ACCENT,
+              fontSize: "12px",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "2px",
+              marginBottom: "16px",
+            }}>
+              Calidad que se siente
+            </div>
+            <h2 style={{
+              margin: 0,
+              fontSize: "34px",
+              fontWeight: 800,
+              color: "#111",
+              lineHeight: 1.2,
+            }}>
+              Cada detalle importa.
+            </h2>
+          </div>
+
+          {/* Grid de cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "32px" }}>
             {QUALITY_BLOCKS.map((block, i) => (
-              <article
+              <div
                 key={i}
-                style={{
-                  background: "#fff",
-                  borderRadius: "20px",
-                  border: "1px solid #eee",
-                  overflow: "hidden",
-                }}
+                className="quality-reveal"
+                data-delay={String(i * 160)}
+                style={{ height: "100%" }}
               >
-                <div
-                  style={{
-                    width: "100%",
-                    aspectRatio: "4/3",
-                    background: `linear-gradient(135deg, ${ACCENT}12 0%, ${ACCENT}06 100%)`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#ccc",
-                    fontSize: "14px",
-                  }}
-                >
-                  Imagen calidad
-                </div>
-                <div style={{ padding: "24px" }}>
-                  <h3
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: 600,
-                      color: "#111",
-                      margin: "0 0 8px 0",
-                    }}
-                  >
-                    {block.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      lineHeight: 1.5,
-                      color: "#888",
-                      margin: 0,
-                    }}
-                  >
-                    {block.subtitle}
-                  </p>
-                </div>
-              </article>
+                <article className="quality-card">
+                  <div style={{ width: "100%", aspectRatio: "4/3", overflow: "hidden", borderRadius: "20px 20px 0 0" }}>
+                    {qualityImageUrls[i] ? (
+                      <img
+                        src={qualityImageUrls[i]}
+                        alt={block.title}
+                        className="quality-img"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${ACCENT}12 0%, ${ACCENT}06 100%)` }} />
+                    )}
+                  </div>
+                  <div style={{ padding: "24px" }}>
+                    <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#111", margin: "0 0 8px 0" }}>
+                      {block.title}
+                    </h3>
+                    <p style={{ fontSize: "14px", lineHeight: 1.5, color: "#888", margin: 0 }}>
+                      {block.subtitle}
+                    </p>
+                  </div>
+                </article>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECCIÓN MEMORIES FOREVER ═══ */}
+      <style>{`
+        .memory-img-wrap {
+          overflow: hidden;
+          border-radius: 16px;
+          flex: 1;
+        }
+        .memory-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.45s ease;
+        }
+        .memory-img-wrap:hover .memory-img {
+          transform: scale(1.08);
+        }
+      `}</style>
+      <section style={{ background: "#fff", padding: "80px 48px" }}>
+        <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
+
+          {/* Título */}
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <h2 style={{
+              margin: 0,
+              fontSize: "34px",
+              fontWeight: 900,
+              color: "#111",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              lineHeight: 1.2,
+            }}>
+              Recuerdos que durarán<br />para siempre
+            </h2>
+            <div style={{
+              width: "64px",
+              height: "3px",
+              background: ACCENT,
+              borderRadius: "2px",
+              margin: "20px auto 0",
+            }} />
+          </div>
+
+          {/* 4 imágenes equidistantes */}
+          <div style={{
+            display: "flex",
+            gap: "24px",
+            height: "420px",
+          }}>
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="memory-img-wrap">
+                {memoriesImageUrls[i] ? (
+                  <img
+                    src={memoriesImageUrls[i]}
+                    alt={`Recuerdo ${i + 1}`}
+                    className="memory-img"
+                  />
+                ) : (
+                  <div style={{ width: "100%", height: "100%", background: `${ACCENT}12` }} />
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -664,6 +683,191 @@ export default function PhotobooksClient({ apiThemes }: Props) {
           ))}
         </div>
       </section>
+    </div>
+  );
+}
+
+/* ── Pricing Section ── */
+
+// Ejemplos de precio para mostrar en las cards (calculados con la fórmula)
+// Delgada: S/90 + S/3 × (hojas - 15)
+// Gruesa:  S/120 + S/4 × (hojas - 15)
+const EXAMPLES_DELGADA = [
+  { hojas: 15, price: "S/ 90",  highlight: false },
+  { hojas: 20, price: "S/ 105", highlight: false },
+  { hojas: 25, price: "S/ 120", highlight: true  },
+  { hojas: 35, price: "S/ 150", highlight: false },
+  { hojas: 50, price: "S/ 195", highlight: false },
+];
+
+const EXAMPLES_GRUESA = [
+  { hojas: 15, price: "S/ 120", highlight: false },
+  { hojas: 20, price: "S/ 140", highlight: false },
+  { hojas: 25, price: "S/ 160", highlight: true  },
+  { hojas: 35, price: "S/ 200", highlight: false },
+  { hojas: 50, price: "S/ 240", highlight: false },
+];
+
+function PricingSection() {
+  return (
+    <section style={{ background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 60%, #1a1a2e 100%)", padding: "80px 48px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: "56px" }}>
+          <div style={{
+            display: "inline-block", padding: "5px 16px", borderRadius: "20px",
+            background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+            color: ACCENT_LIGHT, fontSize: "12px", fontWeight: 700,
+            textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px",
+          }}>
+            Precios claros, sin sorpresas
+          </div>
+          <h2 style={{ margin: "0 0 12px 0", fontSize: "38px", fontWeight: 900, color: "#fff", lineHeight: 1.15 }}>
+            Precio por hoja, sin sorpresas
+          </h2>
+          <p style={{ margin: 0, fontSize: "16px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
+            Pagas exactamente por las hojas que usas. Mínimo <strong style={{ color: "#fff" }}>15 hojas (30 caras)</strong>, cada hoja adicional tiene un costo fijo.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+          <CoverCard
+            title="Tapa Delgada"
+            subtitle="Cartulina estándar · Ligero y económico"
+            formula="S/ 90 base · +S/ 3 por hoja extra"
+            examples={EXAMPLES_DELGADA}
+            accentColor="#049eff"
+            icon={
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#049eff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="9" y1="21" x2="9" y2="9"/>
+              </svg>
+            }
+          />
+          <CoverCard
+            title="Tapa Gruesa"
+            subtitle="Tapa dura resistente · Durabilidad premium"
+            formula="S/ 120 base · +S/ 4 por hoja extra"
+            examples={EXAMPLES_GRUESA}
+            accentColor={ACCENT}
+            isPremium
+            icon={
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            }
+          />
+        </div>
+
+        {/* Footer note */}
+        <div style={{ textAlign: "center", marginTop: "36px" }}>
+          <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
+            Los precios incluyen diseño e impresión. Envío se calcula al confirmar el pedido.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type PriceExample = { hojas: number; price: string; highlight: boolean };
+
+function CoverCard({
+  title, subtitle, formula, examples, accentColor, isPremium = false, icon,
+}: {
+  title: string;
+  subtitle: string;
+  formula: string;
+  examples: PriceExample[];
+  accentColor: string;
+  isPremium?: boolean;
+  icon: ReactNode;
+}) {
+  return (
+    <div style={{
+      background: "rgba(255,255,255,0.05)",
+      border: `1.5px solid ${accentColor}40`,
+      borderRadius: "24px",
+      overflow: "hidden",
+      position: "relative",
+    }}>
+      {isPremium && (
+        <div style={{
+          position: "absolute", top: 0, right: "24px",
+          background: `linear-gradient(135deg, ${ACCENT} 0%, #c471ed 100%)`,
+          color: "#fff", fontSize: "10px", fontWeight: 700,
+          padding: "4px 12px", borderRadius: "0 0 10px 10px",
+          letterSpacing: "0.8px", textTransform: "uppercase",
+        }}>
+          Recomendada
+        </div>
+      )}
+
+      {/* Card header */}
+      <div style={{
+        padding: "28px 28px 20px",
+        borderBottom: `1px solid rgba(255,255,255,0.08)`,
+        display: "flex", alignItems: "flex-start", gap: "14px",
+      }}>
+        <div style={{
+          width: "52px", height: "52px", borderRadius: "14px",
+          background: `${accentColor}18`,
+          border: `1.5px solid ${accentColor}35`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          {icon}
+        </div>
+        <div>
+          <div style={{ fontSize: "20px", fontWeight: 800, color: "#fff", marginBottom: "4px" }}>{title}</div>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}>{subtitle}</div>
+        </div>
+      </div>
+
+      {/* Fórmula */}
+      <div style={{ padding: "16px 28px 0", display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <span style={{ fontSize: "13px", fontWeight: 700, color: accentColor }}>{formula}</span>
+      </div>
+
+      {/* Ejemplos */}
+      <div style={{ padding: "16px 28px 28px", display: "flex", flexDirection: "column", gap: "8px" }}>
+        {examples.map((ex) => (
+          <div
+            key={ex.hojas}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "11px 16px",
+              borderRadius: "12px",
+              background: ex.highlight ? `${accentColor}18` : "rgba(255,255,255,0.03)",
+              border: ex.highlight ? `1.5px solid ${accentColor}50` : "1.5px solid rgba(255,255,255,0.07)",
+              position: "relative",
+            }}
+          >
+            {ex.highlight && (
+              <div style={{
+                position: "absolute", top: "-9px", left: "14px",
+                background: accentColor, color: "#fff",
+                fontSize: "9px", fontWeight: 700,
+                padding: "2px 9px", borderRadius: "99px",
+                letterSpacing: "0.5px",
+              }}>
+                MÁS ELEGIDO
+              </div>
+            )}
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
+              {ex.hojas} hojas · {ex.hojas * 2} caras
+            </div>
+            <div style={{ fontSize: "20px", fontWeight: 900, color: ex.highlight ? accentColor : "#fff" }}>
+              {ex.price}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -790,15 +994,10 @@ function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
       </p>
 
       {/* Price */}
-      <div
-        style={{
-          margin: "0 0 18px 0",
-          fontSize: "18px",
-          fontWeight: 700,
-          color: "#111",
-        }}
-      >
-        PRECIO
+      <div style={{ margin: "0 0 18px 0", textAlign: "center" }}>
+        <div style={{ fontSize: "13px", color: "#999", marginBottom: "2px" }}>Desde</div>
+        <div style={{ fontSize: "26px", fontWeight: 900, color: "#111", lineHeight: 1 }}>S/ 90</div>
+        <div style={{ fontSize: "11px", color: "#aaa", marginTop: "4px" }}>15 hojas · Tapa Delgada</div>
       </div>
 
       {/* CTA */}

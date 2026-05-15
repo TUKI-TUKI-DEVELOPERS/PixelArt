@@ -1,4 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+
+const RUSH_FEE_CENTS = 2500; // S/ 25.00
 import { DemoRepositoryPort } from '../../domain/ports/demo-repository.port';
 import { OrdersService } from '../../../orders/orders.service';
 import { PublicLinksService } from '../../../public-links/public-links.service';
@@ -39,6 +41,7 @@ export class CreateOrderFromDemoUseCase {
       customerEmail: detail.customerEmail,
       customerPhone: detail.customerPhone,
       baseAmountCents: Number(baseAmountCents),
+      rushFeeCents: detail.wantsRush ? RUSH_FEE_CENTS : 0,
       estimatedDeliveryDate: detail.deliveryDate,
     });
 

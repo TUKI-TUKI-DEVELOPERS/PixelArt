@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { compressImage } from "@/lib/compressImage";
 
 export type UploadedPhoto = {
-  id: number;
+  uid: number;       // local unique key (auto-increment, never sent to server)
+  id: number;        // backend asset id (may repeat for same-content files)
   storageKey: string;
   contentHash: string;
   url: string;
@@ -15,8 +16,14 @@ export type UploadedPhoto = {
   preview: string; // local object URL for immediate display
 };
 
+export type PendingDuplicate = {
+  photo: UploadedPhoto;
+  existingFilename: string;
+};
+
 type UploadState = {
   photos: UploadedPhoto[];
+  pendingDuplicates: PendingDuplicate[];
   uploading: boolean;
   progress: number; // 0-100
   error: string | null;
@@ -26,8 +33,10 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const MAX_CONCURRENT = 3;
 
 export function usePhotoUpload(folder: string = "uploads/customers") {
+  const uidCounter = useRef(0);
   const [state, setState] = useState<UploadState>({
     photos: [],
+    pendingDuplicates: [],
     uploading: false,
     progress: 0,
     error: null,
@@ -68,6 +77,7 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
 
         const data = await res.json();
         return {
+          uid: ++uidCounter.current,
           id: data.id,
           storageKey: data.storageKey,
           contentHash: data.contentHash,
@@ -104,22 +114,49 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
       );
       await Promise.all(workers);
 
-      setState((s) => ({
-        ...s,
-        photos: [...s.photos, ...uploaded],
-        uploading: false,
-        progress: 100,
-        error: errors.length > 0 ? errors[0] : null,
-      }));
+      setState((s) => {
+        const existingIds = new Set(s.photos.map((p) => p.id));
+        const newPhotos: UploadedPhoto[] = [];
+        const duplicates: PendingDuplicate[] = [];
+        for (const u of uploaded) {
+          if (existingIds.has(u.id)) {
+            const existing = s.photos.find((p) => p.id === u.id)!;
+            duplicates.push({ photo: u, existingFilename: existing.originalFilename });
+          } else {
+            newPhotos.push(u);
+          }
+        }
+        return {
+          ...s,
+          photos: [...s.photos, ...newPhotos],
+          pendingDuplicates: [...s.pendingDuplicates, ...duplicates],
+          uploading: false,
+          progress: 100,
+          error: errors.length > 0 ? errors[0] : null,
+        };
+      });
     },
     [folder],
   );
 
-  const removePhoto = useCallback((contentHash: string) => {
+  const removePhoto = useCallback((uid: number) => {
     setState((s) => {
-      const photo = s.photos.find((p) => p.contentHash === contentHash);
+      const photo = s.photos.find((p) => p.uid === uid);
       if (photo) URL.revokeObjectURL(photo.preview);
-      return { ...s, photos: s.photos.filter((p) => p.contentHash !== contentHash) };
+      return { ...s, photos: s.photos.filter((p) => p.uid !== uid) };
+    });
+  }, []);
+
+  const resolveDuplicate = useCallback((uid: number, action: "add" | "skip") => {
+    setState((s) => {
+      const pending = s.pendingDuplicates.find((d) => d.photo.uid === uid);
+      if (!pending) return s;
+      const remaining = s.pendingDuplicates.filter((d) => d.photo.uid !== uid);
+      if (action === "skip") {
+        URL.revokeObjectURL(pending.photo.preview);
+        return { ...s, pendingDuplicates: remaining };
+      }
+      return { ...s, photos: [...s.photos, pending.photo], pendingDuplicates: remaining };
     });
   }, []);
 
@@ -127,13 +164,26 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
     setState((s) => ({ ...s, error: null }));
   }, []);
 
+  // Restore photos from a saved draft (assigns fresh uids, uses CDN URL as preview)
+  const restorePhotos = useCallback((restoredPhotos: Omit<UploadedPhoto, "uid">[]) => {
+    const withFreshUids: UploadedPhoto[] = restoredPhotos.map((p) => ({
+      ...p,
+      uid: ++uidCounter.current,
+      preview: p.url || p.preview,
+    }));
+    setState((s) => ({ ...s, photos: withFreshUids }));
+  }, []);
+
   return {
     photos: state.photos,
+    pendingDuplicates: state.pendingDuplicates,
     uploading: state.uploading,
     progress: state.progress,
     error: state.error,
     uploadFiles,
     removePhoto,
+    resolveDuplicate,
     clearError,
+    restorePhotos,
   };
 }

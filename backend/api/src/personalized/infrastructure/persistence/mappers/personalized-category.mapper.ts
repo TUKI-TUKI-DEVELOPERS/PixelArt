@@ -6,6 +6,7 @@ export class PersonalizedCategoryMapper {
   static toResponse(
     entity: PersonalizedCategoryOrmEntity,
     coverImageUrl: string | null,
+    modelCoverUrls: Record<string, string | null> = {},
   ): PersonalizedCategoryResponse {
     return {
       id: entity.id,
@@ -13,7 +14,7 @@ export class PersonalizedCategoryMapper {
       coverImageUrl,
       models: (entity.models ?? [])
         .filter((m) => m.isActive)
-        .map(PersonalizedModelMapper.toResponse),
+        .map((m) => PersonalizedModelMapper.toResponse(m, modelCoverUrls[m.id] ?? null)),
     };
   }
 }

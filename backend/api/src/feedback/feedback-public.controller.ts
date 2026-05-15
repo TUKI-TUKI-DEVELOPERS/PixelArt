@@ -5,6 +5,11 @@ import { FeedbackService } from './feedback.service';
 export class FeedbackPublicController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
+  @Get('ratings')
+  getPublicRatings() {
+    return this.feedbackService.getPublicRatings();
+  }
+
   @Get(':token')
   getInfo(@Param('token') token: string) {
     return this.feedbackService.getFeedbackInfo(token);

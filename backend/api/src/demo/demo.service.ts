@@ -7,6 +7,7 @@ import { SendDemoProposalsUseCase } from './application/use-cases/send-demo-prop
 import { CreateOrderFromDemoUseCase } from './application/use-cases/create-order-from-demo.use-case';
 import { SendUnifiedCheckoutUseCase } from './application/use-cases/send-unified-checkout.use-case';
 import { DeleteDemoProposalUseCase } from './application/use-cases/delete-demo-proposal.use-case';
+import { ReissueCheckoutLinkUseCase } from './application/use-cases/reissue-checkout-link.use-case';
 import { CreateDemoRequestData } from './domain/ports/demo-repository.port';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class DemoService {
     private readonly createOrderUseCase: CreateOrderFromDemoUseCase,
     private readonly sendUnifiedCheckoutUseCase: SendUnifiedCheckoutUseCase,
     private readonly deleteProposalUseCase: DeleteDemoProposalUseCase,
+    private readonly reissueCheckoutLinkUseCase: ReissueCheckoutLinkUseCase,
   ) {}
 
   create(data: CreateDemoRequestData) { return this.createUseCase.execute(data); }
@@ -30,4 +32,5 @@ export class DemoService {
   createOrder(demoRequestId: number) { return this.createOrderUseCase.execute(demoRequestId); }
   sendUnifiedCheckout(demoRequestId: number) { return this.sendUnifiedCheckoutUseCase.execute(demoRequestId); }
   deleteProposal(demoRequestId: number, proposalId: number) { return this.deleteProposalUseCase.execute(demoRequestId, proposalId); }
+  reissueCheckoutLink(demoRequestId: number) { return this.reissueCheckoutLinkUseCase.execute(demoRequestId); }
 }

@@ -3,6 +3,9 @@
 import { useRef, useEffect, useState } from "react";
 import interact from "interactjs";
 
+// Module-level flag — once the user uses pan mode once, hide all hints
+let panHintDismissed = false;
+
 /* ── Types ── */
 type SlotPhoto = {
   id: number;
@@ -16,6 +19,7 @@ type PageData = {
   pageNumber: number;
   layoutKey: string;
   slots: SlotPhoto[];
+  slotPositions?: Record<number, { x: number; y: number }>;
 };
 
 type LayoutOption = { key: string; label: string; slots: number };
@@ -32,6 +36,7 @@ type Props = {
   onReorderPages: (fromIdx: number, toIdx: number) => void;
   onClickPage: (pageIdx: number) => void;
   onSwapSlots: (pageIdx: number, fromSlot: number, toSlot: number) => void;
+  onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number) => void;
   coverUrl: string | null;
   backCoverUrl: string | null;
   /* Mobile props */
@@ -67,13 +72,30 @@ function getGridDef(layoutKey: string): GridDef {
 function DropSlot({
   photo, slotIdx, pageIdx, gridArea, onRemove, accent,
   isMobile, isSelected, onTap,
+  position, onUpdatePosition,
 }: {
   photo: SlotPhoto; slotIdx: number; pageIdx: number; gridArea: string;
   onRemove: (si: number) => void; accent: string;
   isMobile?: boolean; isSelected?: boolean; onTap?: () => void;
+  position?: { x: number; y: number };
+  onUpdatePosition?: (x: number, y: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const prevPhotoId = useRef<number | null>(null);
+  const [isPanning, setIsPanning] = useState(false);
+  const panRef = useRef<{ startX: number; startY: number; posX: number; posY: number } | null>(null);
+  const lastTapRef = useRef(0);
+  const [showHint, setShowHint] = useState(false);
+
+  const pos = position ?? { x: 50, y: 50 };
+
+  // Show hint 4s after a photo lands — only until the user discovers pan mode
+  useEffect(() => {
+    if (!photo || panHintDismissed) { setShowHint(false); return; }
+    setShowHint(true);
+    const t = setTimeout(() => setShowHint(false), 4000);
+    return () => clearTimeout(t);
+  }, [photo?.id]);
 
   // Drop pop animation
   useEffect(() => {
@@ -141,6 +163,7 @@ function DropSlot({
         enabled: !!photo,
         inertia: false,
         autoScroll: false,
+        ignoreFrom: ".pb-move-btn",
         listeners: {
           start(event) {
             const t = event.target as HTMLElement;
@@ -173,19 +196,83 @@ function DropSlot({
     return () => { interactable.unset(); };
   }, [isMobile, pageIdx, slotIdx, accent, photo?.id]);
 
+  // Disable slot-swap drag while panning so they don't conflict
+  useEffect(() => {
+    if (isMobile || !ref.current || !photo) return;
+    interact(ref.current).draggable({ enabled: !isPanning });
+  }, [isPanning, isMobile, photo]);
+
+  // Click outside the slot → exit pan mode
+  useEffect(() => {
+    if (!isPanning) return;
+    function handleOutside(e: MouseEvent | TouchEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsPanning(false);
+        panRef.current = null;
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [isPanning]);
+
+  // ── Pan helpers ──
+  function enterPanMode() {
+    setIsPanning(true);
+    setShowHint(false);
+    panHintDismissed = true;
+  }
+
+  function exitPanMode() {
+    setIsPanning(false);
+    panRef.current = null;
+  }
+
+  function startPan(clientX: number, clientY: number) {
+    panRef.current = { startX: clientX, startY: clientY, posX: pos.x, posY: pos.y };
+  }
+
+  function movePan(clientX: number, clientY: number) {
+    if (!panRef.current || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    // Sensitivity ~1.5× so small drags produce visible movement
+    const dx = (clientX - panRef.current.startX) / rect.width * 100 * 1.5;
+    const dy = (clientY - panRef.current.startY) / rect.height * 100 * 1.5;
+    const newX = Math.max(0, Math.min(100, panRef.current.posX - dx));
+    const newY = Math.max(0, Math.min(100, panRef.current.posY - dy));
+    onUpdatePosition?.(newX, newY);
+  }
+
+  // Mobile: single tap → select, double tap → pan mode
+  function handleMobileClick(e: React.MouseEvent) {
+    const now = Date.now();
+    if (photo && now - lastTapRef.current < 350) {
+      e.stopPropagation();
+      enterPanMode();
+      return;
+    }
+    lastTapRef.current = now;
+    onTap?.();
+  }
+
   /* ── Mobile render ── */
   if (isMobile) {
     return (
       <div
         ref={ref}
         className="pb-drop-slot"
-        onClick={onTap}
+        onClick={handleMobileClick}
         style={{
           gridArea, borderRadius: 4, overflow: "hidden", position: "relative",
-          border: isSelected
-            ? "2px solid #049eff"
-            : photo ? "none" : "2px dashed #c4b8a8",
-          background: isSelected
+          border: isPanning
+            ? `2px solid ${accent}`
+            : isSelected
+              ? "2px solid #049eff"
+              : photo ? "none" : "2px dashed #c4b8a8",
+          background: isSelected && !isPanning
             ? "rgba(4,158,255,0.06)"
             : photo ? "transparent" : "#f7f4f0",
           cursor: "pointer",
@@ -198,9 +285,9 @@ function DropSlot({
           <>
             <img
               src={photo.preview} alt="" draggable={false}
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${pos.x}% ${pos.y}%`, display: "block", pointerEvents: "none" }}
             />
-            {isSelected && (
+            {isSelected && !isPanning && (
               <div style={{
                 position: "absolute", inset: 0,
                 background: "rgba(4,158,255,0.18)",
@@ -214,17 +301,45 @@ function DropSlot({
                 }}>↓</div>
               </div>
             )}
+            {/* Pan overlay — touch events only, prevents scroll conflict */}
+            {isPanning && (
+              <div
+                style={{
+                  position: "absolute", inset: 0, zIndex: 10,
+                  background: "transparent", cursor: "move", touchAction: "none",
+                }}
+                onTouchStart={(e) => { e.stopPropagation(); startPan(e.touches[0].clientX, e.touches[0].clientY); }}
+                onTouchMove={(e) => { e.stopPropagation(); movePan(e.touches[0].clientX, e.touches[0].clientY); }}
+                onTouchEnd={(e) => { e.stopPropagation(); panRef.current = null; }}
+              >
+                <div style={{
+                  position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)",
+                  background: "rgba(0,0,0,0.65)", color: "#fff",
+                  borderRadius: 20, padding: "4px 10px", fontSize: 10, fontWeight: 600,
+                  whiteSpace: "nowrap", pointerEvents: "none",
+                }}>Arrastrá · Toca afuera para salir</div>
+              </div>
+            )}
+            {/* Hint */}
+            {showHint && !isPanning && (
+              <div style={{
+                position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
+                background: "rgba(0,0,0,0.55)", color: "#fff",
+                borderRadius: 20, padding: "3px 8px", fontSize: 10, fontWeight: 600,
+                whiteSpace: "nowrap", pointerEvents: "none",
+              }}>⟲ doble tap · mover</div>
+            )}
             <button
-              onClick={(e) => { e.stopPropagation(); onRemove(slotIdx); }}
+              onClick={(e) => { e.stopPropagation(); isPanning ? exitPanMode() : onRemove(slotIdx); }}
               style={{
-                position: "absolute", top: 4, right: 4,
+                position: "absolute", top: 4, right: 4, zIndex: 20,
                 width: 26, height: 26, borderRadius: "50%",
-                border: "none", background: "rgba(0,0,0,0.6)", color: "#fff",
-                fontSize: 13, cursor: "pointer",
+                border: "none",
+                background: isPanning ? accent : "rgba(0,0,0,0.6)",
+                color: "#fff", fontSize: isPanning ? 14 : 13, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: 1,
               }}
-            >×</button>
+            >{isPanning ? "✓" : "×"}</button>
           </>
         ) : (
           <div style={{
@@ -265,17 +380,72 @@ function DropSlot({
       className="pb-drop-slot"
       style={{
         gridArea, borderRadius: 4, overflow: "hidden", position: "relative",
-        border: photo ? "none" : "2px dashed #c4b8a8",
+        border: isPanning ? `2px solid ${accent}` : photo ? "none" : "2px dashed #c4b8a8",
         background: photo ? "transparent" : "#f7f4f0",
         transition: "border-color 0.2s, background 0.2s, transform 0.15s",
         display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0,
-        cursor: photo ? "grab" : "default",
+        cursor: photo ? (isPanning ? "move" : "grab") : "default",
         touchAction: photo ? "none" : "auto",
       }}
     >
       {photo ? (
         <>
-          <img src={photo.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
+          <img
+            src={photo.preview} alt="" draggable={false}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${pos.x}% ${pos.y}%`, display: "block", pointerEvents: "none" }}
+          />
+          {/* Pan overlay — sits on top and captures mouse events */}
+          {isPanning && (
+            <div
+              style={{
+                position: "absolute", inset: 0, zIndex: 10,
+                background: "transparent", cursor: "move",
+              }}
+              onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); startPan(e.clientX, e.clientY); }}
+              onMouseMove={(e) => movePan(e.clientX, e.clientY)}
+              onMouseUp={() => { panRef.current = null; }}
+              onMouseLeave={() => { panRef.current = null; }}
+            >
+              <div style={{
+                position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)",
+                background: "rgba(0,0,0,0.65)", color: "#fff",
+                borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 600,
+                whiteSpace: "nowrap", pointerEvents: "none",
+              }}>Arrastrá para mover la foto</div>
+              {/* Confirm button replaces the × while panning */}
+              <button
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); exitPanMode(); }}
+                style={{
+                  position: "absolute", top: 4, right: 4, zIndex: 20,
+                  width: 24, height: 24, borderRadius: "50%",
+                  border: "none", background: accent, color: "#fff",
+                  fontSize: 14, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >✓</button>
+            </div>
+          )}
+          {/* Move button — visible on hover, enters pan mode */}
+          {!isPanning && (
+            <button
+              onClick={(e) => { e.stopPropagation(); enterPanMode(); }}
+              className="pb-move-btn"
+              title="Mover foto"
+              style={{
+                position: "absolute", top: 4, left: 4,
+                width: 22, height: 22, borderRadius: "50%",
+                border: "none", background: "rgba(0,0,0,0.55)", color: "#fff",
+                cursor: "move", display: "flex",
+                alignItems: "center", justifyContent: "center",
+                zIndex: 5,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M12 3v18M3 12h18" />
+              </svg>
+            </button>
+          )}
           <button
             onClick={(e) => { e.stopPropagation(); onRemove(slotIdx); }}
             className="pb-remove-btn"
@@ -285,6 +455,7 @@ function DropSlot({
               border: "none", background: "rgba(0,0,0,0.55)", color: "#fff",
               fontSize: 12, cursor: "pointer", display: "flex",
               alignItems: "center", justifyContent: "center", fontFamily: "inherit",
+              zIndex: isPanning ? 0 : 5,
             }}
           >x</button>
         </>
@@ -305,7 +476,7 @@ function DropSlot({
 /* ── Page renderer ── */
 function PageEditor({
   page, pageIdx, layouts, accent, onRemovePhoto, onClickPage, side,
-  isMobile, selectedSlotId, onSlotTap,
+  isMobile, selectedSlotId, onSlotTap, onUpdateSlotPosition,
 }: {
   page: PageData; pageIdx: number; layouts: LayoutOption[]; accent: string;
   onRemovePhoto: (pageIdx: number, slotIdx: number) => void;
@@ -314,6 +485,7 @@ function PageEditor({
   isMobile?: boolean;
   selectedSlotId?: string | null;
   onSlotTap?: (pageIdx: number, slotIdx: number) => void;
+  onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number) => void;
 }) {
   const grid = getGridDef(page.layoutKey);
   const slotCount = layouts.find((l) => l.key === page.layoutKey)?.slots ?? 1;
@@ -345,6 +517,8 @@ function PageEditor({
                 isMobile={isMobile}
                 isSelected={isSelected}
                 onTap={isMobile ? () => onSlotTap?.(pageIdx, si) : undefined}
+                position={page.slotPositions?.[si]}
+                onUpdatePosition={(x, y) => onUpdateSlotPosition(pageIdx, si, x, y)}
               />
             );
           })}
@@ -437,6 +611,7 @@ export default function PhotobookSpreadEditor({
   pages, accent, layouts,
   onChangeLayout, onAssignPhoto, onRemovePhoto,
   onDeletePage, onDuplicatePage, onReorderPages, onClickPage, onSwapSlots,
+  onUpdateSlotPosition,
   coverUrl, backCoverUrl,
   isMobile, mobilePageIdx, selectedSlotId, onSlotTap,
 }: Props) {
@@ -511,6 +686,7 @@ export default function PhotobookSpreadEditor({
     const interactable = interact(".reorderable-spread").draggable({
       inertia: false,
       autoScroll: { container: scrollRef.current!, speed: 300 },
+      ignoreFrom: ".pb-drop-slot",
       listeners: {
         start(event) {
           const t = event.target as HTMLElement;
@@ -573,6 +749,8 @@ export default function PhotobookSpreadEditor({
     .pb-drop-slot { transition: border-color 0.2s, background 0.2s, transform 0.15s; }
     .pb-remove-btn { opacity: 0; transition: opacity 0.15s; }
     .pb-drop-slot:hover .pb-remove-btn { opacity: 1; }
+    .pb-move-btn { opacity: 0; transition: opacity 0.15s; }
+    .pb-drop-slot:hover .pb-move-btn { opacity: 1; }
     @keyframes dropPop { 0% { transform: scale(0.9); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
     .pb-drop-pop { animation: dropPop 0.25s ease-out; }
     .spread-dot { width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer; transition: all 0.15s; padding: 0; }
@@ -624,6 +802,7 @@ export default function PhotobookSpreadEditor({
               isMobile={true}
               selectedSlotId={selectedSlotId}
               onSlotTap={onSlotTap}
+              onUpdateSlotPosition={onUpdateSlotPosition}
             />
           </div>
         </div>
@@ -697,9 +876,9 @@ export default function PhotobookSpreadEditor({
                 <div style={{ position: "absolute", inset: -10, borderRadius: 6, background: "#8B4513", boxShadow: "0 6px 30px rgba(0,0,0,0.3)", zIndex: 0 }} />
                 <div style={{ position: "absolute", top: -10, bottom: -10, left: "50%", transform: "translateX(-50%)", width: 24, zIndex: 2, pointerEvents: "none", background: "linear-gradient(to right, transparent 0%, rgba(0,0,0,0.12) 30%, rgba(0,0,0,0.35) 49%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.35) 51%, rgba(0,0,0,0.12) 70%, transparent 100%)" }} />
                 <div style={{ display: "flex", position: "relative", zIndex: 1 }}>
-                  <PageEditor page={spread.left.page} pageIdx={spread.left.idx} layouts={layouts} accent={accent} onRemovePhoto={onRemovePhoto} onClickPage={onClickPage} side="left" />
+                  <PageEditor page={spread.left.page} pageIdx={spread.left.idx} layouts={layouts} accent={accent} onRemovePhoto={onRemovePhoto} onClickPage={onClickPage} side="left" onUpdateSlotPosition={onUpdateSlotPosition} />
                   {spread.right ? (
-                    <PageEditor page={spread.right.page} pageIdx={spread.right.idx} layouts={layouts} accent={accent} onRemovePhoto={onRemovePhoto} onClickPage={onClickPage} side="right" />
+                    <PageEditor page={spread.right.page} pageIdx={spread.right.idx} layouts={layouts} accent={accent} onRemovePhoto={onRemovePhoto} onClickPage={onClickPage} side="right" onUpdateSlotPosition={onUpdateSlotPosition} />
                   ) : (
                     <div style={{ width: PAGE_W, height: PAGE_H, background: "#FFFEF9", borderRadius: "0 4px 4px 0", display: "flex", alignItems: "center", justifyContent: "center", color: "#d4c9b8", fontSize: 13 }}>
                       Página vacía
