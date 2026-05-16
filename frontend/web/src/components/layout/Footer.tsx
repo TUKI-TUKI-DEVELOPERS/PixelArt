@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { HOME_ASSET_KEYS } from "@/lib/homeAssetKeys";
 import { getAssetUrl } from "@/lib/assetUrl";
 import FooterBackground from "@/components/backgrounds/FooterBackground";
@@ -88,9 +89,68 @@ export default function Footer() {
         overflow: "hidden",
       }}
     >
+      <style>{`
+        /* ── Mobile ── */
+        @media (max-width: 767px) {
+          .footer-wrap { padding: 36px 20px 16px !important; }
+
+          .footer-trust {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 16px 12px !important;
+            justify-items: start;
+          }
+
+          /* Grid: 2 columnas */
+          .footer-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 28px 20px !important;
+          }
+
+          /* Brand: fila completa, centrada */
+          .footer-brand {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+          .footer-brand p { max-width: 100% !important; }
+          .footer-brand > div { align-items: center; }
+          .footer-brand a { justify-content: center !important; }
+
+          /* Links y company: columna cada uno (ya en 2 cols) */
+          .footer-col-links, .footer-col-company { font-size: 13px; }
+
+          /* Social: fila completa, centrada */
+          .footer-col-social {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+          .footer-col-social > div { justify-content: center; }
+
+          /* Bottom bar */
+          .footer-bottom {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+            gap: 6px !important;
+          }
+        }
+
+        /* ── Tablet ── */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .footer-wrap { padding: 40px 32px 16px !important; }
+          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+        }
+      `}</style>
       <FooterBackground />
 
       <div
+        className="footer-wrap"
         style={{
           position: "relative",
           zIndex: 2,
@@ -101,6 +161,7 @@ export default function Footer() {
       >
         {/* ── Main grid: 4 columns ── */}
         <div
+          className="footer-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "1.3fr 1fr 1fr 1.2fr",
@@ -111,7 +172,7 @@ export default function Footer() {
           }}
         >
           {/* Col 1: Brand + Contact */}
-          <div>
+          <div className="footer-brand">
             <Image
               src={logoUrl}
               alt="PixelArt"
@@ -141,7 +202,7 @@ export default function Footer() {
             {/* WhatsApp + Email */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <a
-                href="https://wa.me/51999999999"
+                href="https://wa.me/51941452953"
                 aria-label="WhatsApp"
                 style={{
                   display: "inline-flex",
@@ -157,10 +218,10 @@ export default function Footer() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
-                +51 999 999 999
+                +51 941 452 953
               </a>
               <a
-                href="mailto:hola@pixelart.pe"
+                href="mailto:luccano19@gmail.com"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -176,43 +237,43 @@ export default function Footer() {
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="M22 7l-10 6L2 7" />
                 </svg>
-                hola@pixelart.pe
+                luccano19@gmail.com
               </a>
             </div>
           </div>
 
           {/* Col 2: Navegación + Categorías */}
-          <div>
+          <div className="footer-col-links">
             <div style={LABEL_STYLE}>Productos</div>
             <nav style={{ display: "flex", flexDirection: "column" }}>
-              <a href="/libros-personalizados" style={LINK_STYLE}>Libros Personalizados</a>
-              <a href="/photobooks" style={LINK_STYLE}>Photobooks</a>
+              <Link href="/libros-personalizados" style={LINK_STYLE}>Libros Personalizados</Link>
+              <Link href="/photobooks" style={LINK_STYLE}>Photobooks</Link>
             </nav>
             <div style={{ ...LABEL_STYLE, marginTop: "20px" }}>Categorías</div>
             <nav style={{ display: "flex", flexDirection: "column" }}>
-              <a href="/libros-personalizados/libros-de-amor" style={LINK_STYLE}>Libros de Amor</a>
-              <a href="/libros-personalizados/libros-de-mascotas" style={LINK_STYLE}>Libros de Mascotas</a>
-              <a href="/libros-personalizados/libros-de-familia" style={LINK_STYLE}>Libros de Familia</a>
+              <Link href="/libros-personalizados/libros-de-amor" style={LINK_STYLE}>Libros de Amor</Link>
+              <Link href="/libros-personalizados/libros-de-mascotas" style={LINK_STYLE}>Libros de Mascotas</Link>
+              <Link href="/libros-personalizados/libros-de-familia" style={LINK_STYLE}>Libros de Familia</Link>
+              <Link href="/libros-personalizados/libros-de-memorias-familiares" style={LINK_STYLE}>Memorias Familiares</Link>
             </nav>
           </div>
 
           {/* Col 3: Empresa + Legal */}
-          <div>
+          <div className="footer-col-company">
             <div style={LABEL_STYLE}>Empresa</div>
             <nav style={{ display: "flex", flexDirection: "column" }}>
-              <a href="/" style={LINK_STYLE}>Home</a>
-              <a href="/nuestros-libros" style={LINK_STYLE}>Nuestros Libros</a>
+              <Link href="/" style={LINK_STYLE}>Home</Link>
+              <Link href="/nuestros-libros" style={LINK_STYLE}>Nuestros Libros</Link>
             </nav>
             <div style={{ ...LABEL_STYLE, marginTop: "20px" }}>Legal</div>
             <nav style={{ display: "flex", flexDirection: "column" }}>
               <a href="#" style={LINK_STYLE}>Términos y Condiciones</a>
               <a href="#" style={LINK_STYLE}>Política de Privacidad</a>
-              <a href="#" style={LINK_STYLE}>Cookies</a>
             </nav>
           </div>
 
           {/* Col 4: Social + Payment */}
-          <div>
+          <div className="footer-col-social">
             <div style={LABEL_STYLE}>Síguenos</div>
             <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
               <SocialIcon href="#" label="Facebook">
@@ -241,7 +302,7 @@ export default function Footer() {
 
             <div style={LABEL_STYLE}>Medios de pago</div>
             <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-              {["VISA", "Mastercard", "PayPal", "Yape", "Plin"].map((method) => (
+              {["Yape"].map((method) => (
                 <div
                   key={method}
                   style={{
@@ -264,6 +325,7 @@ export default function Footer() {
 
         {/* ── Trust badges row ── */}
         <div
+          className="footer-trust"
           style={{
             display: "flex",
             justifyContent: "center",
@@ -311,12 +373,13 @@ export default function Footer() {
               </svg>
             }
           >
-            Entrega en 5-7 días
+            Entrega veloz
           </TrustBadge>
         </div>
 
         {/* ── Bottom bar ── */}
         <div
+          className="footer-bottom"
           style={{
             display: "flex",
             justifyContent: "space-between",

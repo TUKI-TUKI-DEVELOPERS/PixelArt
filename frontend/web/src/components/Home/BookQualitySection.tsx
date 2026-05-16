@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { tokens } from "@/lib/design-tokens";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 // ─── Particle canvas (Canvas 2D nativo, sin dependencias externas) ─────────────
 // Porta el comportamiento del tsParticles config: circulos de colores que
@@ -414,6 +415,7 @@ interface BookQualitySectionProps {
 }
 
 export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl }: BookQualitySectionProps) {
+  const { isMobile } = useWindowSize();
   const slides: CubeSlide[] = [
     {
       image: bookCoverThickUrl,
@@ -422,16 +424,16 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
       title: "Tapa Gruesa",
       description: "Tapa dura resistente, acabado premium y mayor durabilidad.",
       rating: "★★★★★",
-      ratingCount: "5.0 (89 resenas)",
+      ratingCount: "5.0 (89 reseñas)",
     },
     {
       image: bookCoverSlimUrl,
       alt: "Tapa Delgada",
       price: "Desde S/ 90.00",
       title: "Tapa Delgada",
-      description: "Cartulina estandar, acabado mate profesional y colores vibrantes.",
+      description: "Cartulina estándar, acabado mate profesional y colores vibrantes.",
       rating: "★★★★★",
-      ratingCount: "4.9 (124 resenas)",
+      ratingCount: "4.9 (124 reseñas)",
     },
   ];
 
@@ -460,18 +462,18 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
           maxWidth: "1280px",
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "50% 45%",
+          gridTemplateColumns: isMobile ? "1fr" : "50% 45%",
           placeItems: "center",
-          gap: "60px",
-          padding: "60px",
-          minHeight: "100vh",
+          gap: isMobile ? "32px" : "60px",
+          padding: isMobile ? "48px 24px" : "60px",
+          minHeight: isMobile ? "auto" : "100vh",
         }}
       >
-        {/* ── Cubo 3D ── */}
-        <CubeSlider slides={slides} width={400} height={490} />
+        {/* ── Cubo 3D — oculto en mobile ── */}
+        {!isMobile && <CubeSlider slides={slides} width={400} height={490} />}
 
         {/* ── Contenido ── */}
-        <div style={{ maxWidth: "540px" }}>
+        <div style={{ maxWidth: "540px", textAlign: isMobile ? "center" : "left" }}>
           <p
             style={{
               margin: `0 0 ${tokens.spacing.micro.sm} 0`,
@@ -499,7 +501,7 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
           >
             Calidad en cada
             <br />
-            pagina
+            página
           </h2>
 
           <div
@@ -509,6 +511,7 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
               background: tokens.colors.photobooks.gradient,
               borderRadius: "2px",
               marginBottom: tokens.spacing.component.md,
+              ...(isMobile && { margin: `0 auto ${tokens.spacing.component.md}` }),
             }}
           />
 
@@ -522,7 +525,7 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
             }}
           >
             En PixelArt cuidamos cada detalle de tu Photobook. Elige entre dos
-            tipos de tapa segun tu presupuesto y el nivel de presentacion que buscas.
+            tipos de tapa según tu presupuesto y el nivel de presentación que buscas.
           </p>
 
           <div
@@ -536,7 +539,7 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
             <CoverCard
               icon={<IconBook />}
               name="Tapa Delgada"
-              features="Cartulina estandar · Acabado mate · Colores vibrantes"
+              features="Cartulina estándar · Acabado mate · Colores vibrantes"
               price="S/ 90.00"
             />
             <CoverCard
@@ -551,7 +554,7 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
 
           <button
             style={{
-              width: "260px",
+              width: isMobile ? "100%" : "260px",
               height: "52px",
               borderRadius: tokens.borderRadius.md,
               border: "none",
@@ -564,7 +567,7 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
               letterSpacing: "0.3px",
             }}
           >
-            Comenzar mi diseno
+            Comenzar mi diseño
           </button>
         </div>
       </div>

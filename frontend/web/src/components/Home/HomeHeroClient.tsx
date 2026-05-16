@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState, useEffect } from "react";
+import { useWindowSize } from "@/hooks/useWindowSize";
 import ModernBackground from "@/components/backgrounds/ModernBackground";
 import TrustBadge from "./TrustBadge";
 import { tokens } from "@/lib/design-tokens";
@@ -24,6 +26,7 @@ type Props = {
 export default function HomeHeroClient({ slides }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
+  const { isCompact } = useWindowSize();
 
   const currentSlide = useMemo(() => slides[currentIndex], [slides, currentIndex]);
   const inactiveSlide = useMemo(
@@ -151,6 +154,7 @@ export default function HomeHeroClient({ slides }: Props) {
       </AnimatePresence>
 
       <div
+        className="hero-wrap"
         style={{
           width: "100%",
           maxWidth: "1600px",
@@ -170,7 +174,7 @@ export default function HomeHeroClient({ slides }: Props) {
           }}
         >
           {/* Left Column - Content */}
-          <div>
+          <div className="hero-left-col">
             {/* Product Title — prominent heading */}
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
@@ -183,6 +187,7 @@ export default function HomeHeroClient({ slides }: Props) {
                 style={{ marginBottom: "16px" }}
               >
                 <div
+                  className="hero-eyebrow-wrap"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -238,6 +243,7 @@ export default function HomeHeroClient({ slides }: Props) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`trust-${currentSlide.key}`}
+                className="hero-trust"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
@@ -256,6 +262,7 @@ export default function HomeHeroClient({ slides }: Props) {
 
             {/* Main Image with Preview */}
             <div
+              className="hero-slider-wrap"
               style={{
                 maxWidth: isCustomBook ? "450px" : "280px",
                 position: "relative",
@@ -340,6 +347,7 @@ export default function HomeHeroClient({ slides }: Props) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`buttons-${currentSlide.key}`}
+                className="hero-cta"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
@@ -349,29 +357,41 @@ export default function HomeHeroClient({ slides }: Props) {
                   gap: "12px",
                   flexWrap: "wrap",
                   alignItems: "center",
+                  ...(isCompact && {
+                    justifyContent: "center",
+                    width: "100%",
+                    flexDirection: "column" as const,
+                  }),
                 }}
               >
                 {/* Primary Button - Active product */}
-                <motion.button
+                <motion.a
+                  href={isPhotobook ? "/photobooks" : "/libros-personalizados"}
                   whileHover={{ y: -4, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.18 }}
-                  style={primaryButtonStyle}
+                  style={{
+                    ...primaryButtonStyle,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textDecoration: "none",
+                    ...(isCompact && { width: "100%", maxWidth: "300px" }),
+                  }}
                   aria-label={`Comenzar ${currentSlide.title}`}
                 >
                   {isPhotobook ? "Comenzar Photobook" : "Comenzar IA Book"}
-                </motion.button>
+                </motion.a>
 
                 {/* Secondary Button - Inactive product */}
                 <motion.button
-                  whileHover={{ 
-                    y: -2, 
-                    scale: 1.02,
-                    borderWidth: "3px",
-                  }}
+                  whileHover={{ y: -2, scale: 1.02, borderWidth: "3px" }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.18 }}
-                  style={secondaryButtonStyle}
+                  style={{
+                    ...secondaryButtonStyle,
+                    ...(isCompact && { width: "100%", maxWidth: "300px" }),
+                  }}
                   onClick={() => switchToSlide(currentIndex === 0 ? 1 : 0)}
                   aria-label={`Ver ${inactiveSlide.title}`}
                 >
@@ -383,6 +403,7 @@ export default function HomeHeroClient({ slides }: Props) {
 
           {/* Right Column - Carousel Image */}
           <div
+            className="hero-right-col"
             style={{
               display: "flex",
               flexDirection: "column",
@@ -415,6 +436,7 @@ export default function HomeHeroClient({ slides }: Props) {
             </AnimatePresence>
 
             <div
+              className="hero-carousel-wrap"
               style={{
                 width: "100%",
                 maxWidth: "1000px",
@@ -549,111 +571,65 @@ export default function HomeHeroClient({ slides }: Props) {
         section {
           min-height: 720px;
         }
-
         .hero-grid {
           grid-template-columns: 0.9fr 1.1fr;
           gap: 48px;
         }
 
+        /* ── Tablet grande ── */
         @media (max-width: 1200px) {
-          .hero-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 48px;
-          }
+          .hero-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
         }
 
-        @media (max-width: 1024px) {
-          section {
-            min-height: auto;
-            padding: 60px 32px !important;
-          }
-
+        /* ── Tablet (768–1023px) y Mobile: columna única, derecha primero ── */
+        @media (max-width: 1023px) {
+          section { min-height: auto; }
+          .hero-wrap { padding: 40px 32px !important; }
           .hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 48px !important;
+            gap: 20px !important;
             text-align: center;
           }
-
-          h1 {
-            font-size: 48px !important;
-            max-width: 100% !important;
-          }
-
-          p {
-            max-width: 600px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-          }
-        }
-
-        @media (max-width: 768px) {
-          section {
-            padding: 48px 24px !important;
-          }
-
-          h1 {
-            font-size: 40px !important;
-          }
-
-          p {
-            font-size: 16px !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          section {
-            min-height: auto;
-            padding: 40px 20px !important;
-          }
-
-          .hero-grid {
-            gap: 32px !important;
-          }
-
-          h1 {
-            font-size: 36px !important;
-            line-height: 1.2 !important;
-          }
-
-          p {
-            font-size: 16px !important;
-            margin-bottom: 24px !important;
-          }
-
-          /* Hide preview on mobile */
-          .hero-grid > div:first-child > div:nth-child(4) > div:last-child {
-            display: none !important;
-          }
-
-          /* Stack buttons vertically on mobile */
-          .hero-grid > div:first-child > div:last-child {
+          .hero-right-col { order: -1; }
+          .hero-left-col  { order: 1; }
+          .hero-left-col {
+            display: flex !important;
             flex-direction: column !important;
-            width: 100%;
+            align-items: center !important;
           }
+          .hero-eyebrow-wrap { justify-content: center !important; }
+          .hero-trust { justify-content: center !important; }
+          .hero-cta   { justify-content: center !important; width: 100% !important; }
+          .hero-slider-wrap { display: none !important; }
+          .hero-carousel-wrap { min-height: 260px !important; }
+          .hero-right-col h1 { font-size: 36px !important; margin-bottom: 12px !important; }
+        }
 
-          .hero-grid > div:first-child > div:last-child button {
+        /* ── Mobile (<768px) ── */
+        @media (max-width: 767px) {
+          .hero-wrap { padding: 28px 20px !important; }
+          .hero-grid { gap: 16px !important; }
+          .hero-right-col h1 {
+            font-size: 24px !important;
+            line-height: 1.25 !important;
+            letter-spacing: 0 !important;
+          }
+          .hero-carousel-wrap { min-height: 160px !important; }
+          .hero-cta {
+            flex-direction: column !important;
+            align-items: center !important;
             width: 100% !important;
-            max-width: 320px;
           }
-
-          /* Smaller navigation on mobile */
-          .hero-grid > div:last-child > div:last-child button {
-            font-size: 22px !important;
-            width: 44px !important;
-            height: 44px !important;
-            padding: 0 !important;
-          }
-
-          /* Adjust title size on mobile */
-          .hero-grid > div:first-child > div:first-child span {
-            font-size: 18px !important;
+          .hero-cta a, .hero-cta button {
+            width: 100% !important;
+            max-width: 300px !important;
+            text-align: center !important;
           }
         }
 
+        /* ── Mobile muy pequeño (<480px) ── */
         @media (max-width: 480px) {
-          h1 {
-            font-size: 30px !important;
-          }
+          .hero-right-col h1 { font-size: 20px !important; }
         }
       `}</style>
     </section>

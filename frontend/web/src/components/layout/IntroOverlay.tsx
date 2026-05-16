@@ -120,10 +120,12 @@ export default function IntroOverlay() {
               color: 'rgba(255,255,255,0.80)',
               fontSize: '0.9rem',
               fontWeight: 700,
-              letterSpacing: '0.55rem',
+              letterSpacing: '0.3rem',
               textTransform: 'uppercase',
               textShadow: '0 2px 12px rgba(0,0,0,0.6)',
+              textAlign: 'center',
               margin: 0,
+              padding: '0 24px',
             }}
           >
             Tus momentos, para siempre

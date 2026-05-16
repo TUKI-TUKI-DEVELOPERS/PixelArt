@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
+import { getAssetUrl } from "@/lib/assetUrl";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -142,26 +143,22 @@ export default function PagarPage() {
 
       {/* QR Yape */}
       <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "32px" }}>
-        <h2 style={{ margin: "0 0 16px 0", fontSize: "18px", fontWeight: 700, color: "#111" }}>Escanea con Yape</h2>
-        <div
+        <h2 style={{ margin: "0 0 4px 0", fontSize: "18px", fontWeight: 700, color: "#111" }}>Escanea con Yape</h2>
+        <p style={{ margin: "0 0 16px 0", fontSize: "13px", color: "#9ca3af" }}>Abre Yape, toca el ícono de QR y escanea</p>
+        <img
+          src={getAssetUrl("QRPago/QR_Pago_Pixelart.png")}
+          alt="QR de pago Yape PixelArt"
           style={{
-            width: "200px",
-            height: "200px",
+            width: "280px",
+            height: "280px",
+            objectFit: "contain",
+            display: "block",
             margin: "0 auto 16px",
             borderRadius: "12px",
-            background: "#f3f4f6",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#9ca3af",
-            fontSize: "14px",
-            border: "2px dashed #d1d5db",
           }}
-        >
-          QR Yape (próximamente)
-        </div>
+        />
         <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-          Escanea el código QR con la app de Yape y realiza el pago por <strong>{totalFormatted}</strong>
+          Realiza el pago por <strong>{totalFormatted}</strong> y luego sube la captura abajo.
         </p>
       </div>
 

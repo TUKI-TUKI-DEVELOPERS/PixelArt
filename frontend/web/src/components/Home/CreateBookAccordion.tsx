@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import RegisterInformationCarousel from "@/components/Home/RegisterInformationCarousel";
 import { tokens } from "@/lib/design-tokens";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 type RegisterInformationCarouselProps = {
   boyImageUrl: string;
@@ -76,6 +77,57 @@ export default function CreateBookAccordion({
   previsualizedResultsCoupleUrl,
 }: CreateBookAccordionProps) {
   const [activeStep, setActiveStep] = useState(1);
+  const { isMobile, isTablet } = useWindowSize();
+  const isCompact = isMobile || isTablet;
+
+  function renderStepImage(stepId: number) {
+    if (stepId === 1) return (
+      <RegisterInformationCarousel
+        boyImageUrl={registerInformationCarouselProps.boyImageUrl}
+        girlImageUrl={registerInformationCarouselProps.girlImageUrl}
+        stage1ImageUrl={registerInformationCarouselProps.stage1ImageUrl}
+        stage2ImageUrl={registerInformationCarouselProps.stage2ImageUrl}
+        resultImageUrl={registerInformationCarouselProps.resultImageUrl}
+      />
+    );
+    if (stepId === 2) return (
+      <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #e8e8e8" }}>
+        <Image
+          src={poemSpaceImageUrl}
+          alt="Espacio para poema o dedicatoria"
+          width={700}
+          height={340}
+          loading="lazy"
+          style={{ width: "100%", height: "auto", display: "block" }}
+        />
+      </div>
+    );
+    if (stepId === 3) return (
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "12px" }}>
+        <div style={{ background: "#fff", borderRadius: "12px", padding: "16px 12px", border: "1px solid #e8e8e8", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Image src={chooseBookCoverThickUrl} alt="Tapa delgada" width={240} height={180} loading="lazy" style={{ width: "100%", height: "auto", display: "block", marginBottom: "10px" }} />
+          <div style={{ fontSize: "13px", fontWeight: 800, color: "#111", textTransform: "uppercase", textAlign: "center" }}>Tapa Delgada</div>
+        </div>
+        <div style={{ background: "#fff", borderRadius: "12px", padding: "16px 12px", border: `2px solid ${ACCENT}`, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Image src={chooseBookCoverPremiumUrl} alt="Tapa premium" width={240} height={180} loading="lazy" style={{ width: "100%", height: "auto", display: "block", marginBottom: "10px" }} />
+          <div style={{ fontSize: "13px", fontWeight: 800, color: ACCENT, textTransform: "uppercase", textAlign: "center" }}>Tapa Premium</div>
+        </div>
+      </div>
+    );
+    if (stepId === 4) return (
+      <div style={{ borderRadius: "12px", overflow: "hidden" }}>
+        <Image
+          src={previsualizedResultsCoupleUrl}
+          alt="Pareja viendo el resultado del libro"
+          width={700}
+          height={420}
+          loading="lazy"
+          style={{ width: "100%", height: "auto", display: "block" }}
+        />
+      </div>
+    );
+    return null;
+  }
 
   return (
     <section
@@ -88,7 +140,7 @@ export default function CreateBookAccordion({
       <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
 
         {/* Section heading */}
-        <div style={{ marginBottom: "48px" }}>
+        <div style={{ marginBottom: "48px", textAlign: isCompact ? "center" : "left" }}>
           <div
             style={{
               display: "inline-flex",
@@ -129,12 +181,176 @@ export default function CreateBookAccordion({
           >
             Crea tu libro
             <br />
-            <span style={{ color: ACCENT }}>muy facil</span>
+            <span style={{ color: ACCENT }}>muy fácil</span>
           </h2>
         </div>
 
-        {/* Split layout */}
-        <div
+        {/* ── MOBILE: tabs horizontales ── */}
+        {isCompact && (
+          <div>
+            {/* Tab bar */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "8px",
+                marginBottom: "24px",
+                background: "#f0f0f0",
+                borderRadius: "14px",
+                padding: "6px",
+              }}
+            >
+              {steps.map((step) => {
+                const isActive = activeStep === step.id;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => setActiveStep(step.id)}
+                    style={{
+                      padding: "10px 4px",
+                      borderRadius: "10px",
+                      border: "none",
+                      background: isActive ? "#fff" : "transparent",
+                      boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.10)" : "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "4px",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        background: isActive ? ACCENT_GRADIENT : "#ddd",
+                        color: isActive ? "#fff" : "#999",
+                        fontSize: "13px",
+                        fontWeight: 800,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {step.id}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        color: isActive ? ACCENT : "#999",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        lineHeight: 1.2,
+                        textAlign: "center",
+                      }}
+                    >
+                      {step.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Contenido del tab activo */}
+            {steps.map((step) => {
+              if (step.id !== activeStep) return null;
+              return (
+                <div key={step.id}>
+                  {/* Imagen primero */}
+                  <div
+                    style={{
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                      marginBottom: "20px",
+                      background: "#fff",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
+                    }}
+                  >
+                    {renderStepImage(step.id)}
+                  </div>
+
+                  {/* Texto debajo */}
+                  <div
+                    style={{
+                      background: "#fff",
+                      borderRadius: "16px",
+                      padding: "20px",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        color: ACCENT,
+                        textTransform: "uppercase",
+                        letterSpacing: "2px",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {step.label}
+                    </div>
+                    <h3
+                      style={{
+                        margin: "0 0 8px 0",
+                        fontSize: tokens.typography.h4.size,
+                        fontWeight: 800,
+                        color: "#111",
+                        textTransform: "uppercase",
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {step.title}
+                    </h3>
+                    <p
+                      style={{
+                        margin: "0 0 14px 0",
+                        fontSize: tokens.typography.body.size,
+                        color: "#555",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {step.description}
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {step.bullets.map((bullet, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              minWidth: "22px",
+                              borderRadius: "5px",
+                              background: ACCENT_GRADIENT,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                          <span style={{ fontSize: "13px", lineHeight: 1.4, color: "#555" }}>
+                            {bullet}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── DESKTOP: acordeón + panel ── */}
+        {!isCompact && <div
           style={{
             display: "grid",
             gridTemplateColumns: "42% 1fr",
@@ -208,13 +424,13 @@ export default function CreateBookAccordion({
                   </div>
 
                   {/* Step text */}
-                  <button
-                    type="button"
+                  <div
                     onClick={() => setActiveStep(step.id)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && setActiveStep(step.id)}
                     style={{
                       flex: 1,
-                      background: "none",
-                      border: "none",
                       cursor: "pointer",
                       textAlign: "left",
                       padding: "0 0 32px 0",
@@ -262,9 +478,9 @@ export default function CreateBookAccordion({
                     {/* Bullets — visible only when active */}
                     <div
                       style={{
-                        maxHeight: isActive ? "200px" : "0",
+                        maxHeight: isActive ? "600px" : "0",
                         overflow: "hidden",
-                        transition: "max-height 0.35s ease",
+                        transition: "max-height 0.4s ease",
                       }}
                     >
                       <div
@@ -322,15 +538,22 @@ export default function CreateBookAccordion({
                           </div>
                         ))}
                       </div>
+
+                      {/* Imagen inline — solo en mobile/tablet */}
+                      {isCompact && (
+                        <div style={{ marginTop: "20px" }}>
+                          {renderStepImage(step.id)}
+                        </div>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 </div>
               );
             })}
           </div>
 
-          {/* RIGHT — visual panel */}
-          <div
+          {/* RIGHT — visual panel (solo desktop) */}
+          {!isCompact && <div
             style={{
               position: "sticky",
               top: "24px",
@@ -338,7 +561,7 @@ export default function CreateBookAccordion({
               overflow: "hidden",
               background: "#fff",
               boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
-              minHeight: "420px",
+              minHeight: isCompact ? "auto" : "420px",
               display: "flex",
               flexDirection: "column",
             }}
@@ -465,7 +688,7 @@ export default function CreateBookAccordion({
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
+                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
                     gap: "20px",
                   }}
                 >
@@ -667,8 +890,8 @@ export default function CreateBookAccordion({
                 />
               ))}
             </div>
-          </div>
-        </div>
+          </div>}
+        </div>}
       </div>
     </section>
   );

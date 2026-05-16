@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useWindowSize } from "@/hooks/useWindowSize";
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -159,19 +160,9 @@ const FAQ_ITEMS = [
       "No necesitas experiencia en diseño. Las plantillas están preparadas para que tus fotografías encajen de forma natural y estética.",
   },
   {
-    question: "¿Puedo elegir la portada?",
-    answer:
-      "Sí. Puedes seleccionar entre diferentes destinos y estilos de portada. Cada colección mantiene una estética limpia y atemporal.",
-  },
-  {
     question: "¿Qué calidad tienen los libros?",
     answer:
       "Nuestros photobooks son de tapa dura, acabado mate y papel de alta calidad. Están pensados para durar y conservar tus recuerdos por años.",
-  },
-  {
-    question: "¿Cuántas fotos puedo subir?",
-    answer:
-      "Depende del formato elegido, pero podrás incluir suficientes imágenes para contar tu viaje sin saturar el diseño.",
   },
   {
     question: "¿Cuánto tarda en llegar mi pedido?",
@@ -179,24 +170,9 @@ const FAQ_ITEMS = [
       "El tiempo de producción e impresión es corto. Luego se suma el tiempo de envío según tu ubicación. Siempre recibirás una estimación clara antes de confirmar tu compra.",
   },
   {
-    question: "¿Puedo enviar el photobook como regalo?",
-    answer:
-      "Sí. Puedes enviarlo directamente a otra persona. Es una forma elegante de regalar recuerdos.",
-  },
-  {
-    question: "¿Qué pasa si no me gusta cómo quedó?",
-    answer:
-      "Antes de confirmar tu pedido podrás revisar el diseño. Queremos que estés completamente seguro antes de imprimir.",
-  },
-  {
     question: "¿Las fotos pierden calidad al imprimir?",
     answer:
       "No. Trabajamos con estándares de impresión de alta resolución para mantener nitidez y fidelidad de color.",
-  },
-  {
-    question: "¿Mis fotos están seguras?",
-    answer:
-      "Sí. Tus imágenes se utilizan únicamente para crear tu photobook y se manejan con confidencialidad.",
   },
 ];
 
@@ -213,10 +189,12 @@ type Props = {
   heroImageUrl?: string | null;
   qualityImageUrls?: string[];
   memoriesImageUrls?: string[];
+  faqImageUrl?: string | null;
 };
 
-export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImageUrls = [], memoriesImageUrls = [] }: Props) {
+export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImageUrls = [], memoriesImageUrls = [], faqImageUrl }: Props) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const { isMobile, isTablet } = useWindowSize();
   const heroSectionRef = useRef<HTMLElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
 
@@ -274,7 +252,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         style={{
           position: "relative",
           width: "100%",
-          height: "620px",
+          height: isMobile ? "520px" : "620px",
           overflow: "hidden",
         }}
       >
@@ -325,16 +303,16 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
             alignItems: "center",
             justifyContent: "center",
             textAlign: "center",
-            padding: "0 48px",
+            padding: isMobile ? "0 24px" : "0 48px",
             gap: "18px",
           }}
         >
-          <PixelArtLogo width={280} animated={false} />
+          <PixelArtLogo width={isMobile ? 180 : 280} animated={false} />
 
           <h1
             style={{
               margin: 0,
-              fontSize: "36px",
+              fontSize: isMobile ? "26px" : "36px",
               fontWeight: 900,
               color: "#fff",
               lineHeight: 1.2,
@@ -383,20 +361,17 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         </div>
       </section>
 
-      {/* ═══ PRECIOS ═══ */}
-      <PricingSection />
-
       {/* ═══ CATÁLOGO DE PORTADAS ═══ */}
       <section
         id="catalogo-section"
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
-          padding: "72px 48px",
+          padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "72px 48px",
         }}
       >
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <h2
+          <p
             style={{
               margin: "0 0 8px 0",
               fontSize: "14px",
@@ -407,18 +382,18 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
             }}
           >
             RECUERDOS QUE DURARÁN PARA SIEMPRE
-          </h2>
-          <h3
+          </p>
+          <h2
             style={{
               margin: "0 0 16px 0",
-              fontSize: "32px",
-              fontWeight: 800,
+              fontSize: "36px",
+              fontWeight: 700,
               color: "#111",
               textTransform: "uppercase",
             }}
           >
             Escoge el diseño que más te guste
-          </h3>
+          </h2>
           <div
             style={{
               width: "80px",
@@ -434,7 +409,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
             columnGap: "32px",
             rowGap: "40px",
             alignItems: "start",
@@ -512,7 +487,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
       <section
         style={{
           background: "#fafafa",
-          padding: "72px 48px",
+          padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "72px 48px",
         }}
       >
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -535,8 +510,8 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
             </div>
             <h2 style={{
               margin: 0,
-              fontSize: "34px",
-              fontWeight: 800,
+              fontSize: "36px",
+              fontWeight: 700,
               color: "#111",
               lineHeight: 1.2,
             }}>
@@ -545,7 +520,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           </div>
 
           {/* Grid de cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "32px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: "32px" }}>
             {QUALITY_BLOCKS.map((block, i) => (
               <div
                 key={i}
@@ -581,6 +556,9 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         </div>
       </section>
 
+      {/* ═══ PRECIOS ═══ */}
+      <PricingSection />
+
       {/* ═══ SECCIÓN MEMORIES FOREVER ═══ */}
       <style>{`
         .memory-img-wrap {
@@ -599,15 +577,15 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           transform: scale(1.08);
         }
       `}</style>
-      <section style={{ background: "#fff", padding: "80px 48px" }}>
+      <section style={{ background: "#fff", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
         <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
 
           {/* Título */}
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
             <h2 style={{
               margin: 0,
-              fontSize: "34px",
-              fontWeight: 900,
+              fontSize: "36px",
+              fontWeight: 700,
               color: "#111",
               textTransform: "uppercase",
               letterSpacing: "1px",
@@ -628,10 +606,11 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           <div style={{
             display: "flex",
             gap: "24px",
-            height: "420px",
+            height: isMobile || isTablet ? "auto" : "420px",
+            flexWrap: isMobile || isTablet ? "wrap" : "nowrap",
           }}>
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="memory-img-wrap">
+              <div key={i} className="memory-img-wrap" style={{ flex: isMobile || isTablet ? "0 0 calc(50% - 12px)" : 1, height: isMobile || isTablet ? "220px" : "100%" }}>
                 {memoriesImageUrls[i] ? (
                   <img
                     src={memoriesImageUrls[i]}
@@ -648,39 +627,32 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "72px 48px",
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <h2
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: "#111",
-              margin: "0 0 8px 0",
-            }}
-          >
-            PREGUNTAS FRECUENTES
-          </h2>
-          <div
-            style={{
-              width: "60px",
-              height: "3px",
-              background: ACCENT,
-              margin: "0 auto",
-              borderRadius: "2px",
-            }}
-          />
-        </div>
+      <section style={{ background: "#fafafa", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: !isMobile && !isTablet && faqImageUrl ? "1fr 1fr" : "1fr", gap: isMobile ? "40px" : "64px", alignItems: "start" }}>
 
-        <div>
-          {FAQ_ITEMS.map((item, i) => (
-            <FaqItem key={i} question={item.question} answer={item.answer} />
-          ))}
+          {/* Imagen izquierda */}
+          {faqImageUrl && (
+            <div style={{ borderRadius: "24px", overflow: "hidden", position: isMobile || isTablet ? "static" : "sticky", top: "100px" }}>
+              <img
+                src={faqImageUrl}
+                alt="Preguntas frecuentes"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+            </div>
+          )}
+
+          {/* Preguntas */}
+          <div>
+            <div style={{ marginBottom: "40px" }}>
+              <h2 style={{ fontSize: "36px", fontWeight: 700, color: "#111", margin: "0 0 12px 0" }}>
+                PREGUNTAS FRECUENTES
+              </h2>
+              <div style={{ width: "60px", height: "3px", background: ACCENT, borderRadius: "2px" }} />
+            </div>
+            {FAQ_ITEMS.map((item, i) => (
+              <FaqItem key={i} index={i} question={item.question} answer={item.answer} />
+            ))}
+          </div>
         </div>
       </section>
     </div>
@@ -709,8 +681,9 @@ const EXAMPLES_GRUESA = [
 ];
 
 function PricingSection() {
+  const { isMobile, isTablet } = useWindowSize();
   return (
-    <section style={{ background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 60%, #1a1a2e 100%)", padding: "80px 48px" }}>
+    <section style={{ background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 60%, #1a1a2e 100%)", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
 
         {/* Header */}
@@ -723,7 +696,7 @@ function PricingSection() {
           }}>
             Precios claros, sin sorpresas
           </div>
-          <h2 style={{ margin: "0 0 12px 0", fontSize: "38px", fontWeight: 900, color: "#fff", lineHeight: 1.15 }}>
+          <h2 style={{ margin: "0 0 12px 0", fontSize: "36px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>
             Precio por hoja, sin sorpresas
           </h2>
           <p style={{ margin: 0, fontSize: "16px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
@@ -732,7 +705,7 @@ function PricingSection() {
         </div>
 
         {/* Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "28px" }}>
           <CoverCard
             title="Tapa Delgada"
             subtitle="Cartulina estándar · Ligero y económico"
@@ -823,7 +796,7 @@ function CoverCard({
           {icon}
         </div>
         <div>
-          <div style={{ fontSize: "20px", fontWeight: 800, color: "#fff", marginBottom: "4px" }}>{title}</div>
+          <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#fff", marginBottom: "4px", margin: "0 0 4px 0" }}>{title}</h3>
           <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}>{subtitle}</div>
         </div>
       </div>
@@ -874,223 +847,344 @@ function CoverCard({
 
 /* ── Photobook Card ── */
 
+const CARD_SHADOW       = `0 8px 32px rgba(128, 65, 135, 0.10)`;
+const CARD_SHADOW_HOVER = `0 24px 64px rgba(128, 65, 135, 0.24)`;
+const CARD_GRADIENT     = `linear-gradient(135deg, ${ACCENT} 0%, #c471ed 100%)`;
+
 function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
   return (
-    <article
-      style={{
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "24px 20px 28px",
-        background: "#fff",
-        borderRadius: "20px",
-        border: "1px solid #e8e8e8",
-      }}
-    >
-      {/* Badge */}
-      <div
+    <div style={{ perspective: "1200px", height: "100%" }}>
+      <article
         style={{
-          display: "inline-block",
-          padding: "6px 18px",
-          borderRadius: "20px",
-          background: ACCENT,
-          color: "#fff",
-          fontSize: "11px",
-          fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-          marginBottom: "16px",
+          position:       "relative",
+          paddingTop:     "115px",
+          cursor:         "pointer",
+          height:         "100%",
+          transformStyle: "preserve-3d",
+          transition:     "transform 0.35s ease",
+          willChange:     "transform",
         }}
-      >
-        {theme.badge}
-      </div>
+        onMouseEnter={(e) => {
+          const el = e.currentTarget;
+          el.style.transition = "transform 0.3s ease";
 
-      {/* Cover image — portrait 5:6, matching natural book-cover ratio (~0.83) */}
-      <div
-        style={{
-          width: "50%",
-          aspectRatio: "5 / 6",
-          marginBottom: "18px",
-          borderRadius: "12px",
-          overflow: "hidden",
-          background: "transparent",
-          position: "relative",
+          const cardBody = el.querySelector<HTMLElement>("[data-card-body]");
+          if (cardBody) {
+            cardBody.style.boxShadow   = CARD_SHADOW_HOVER;
+            cardBody.style.borderColor = `${ACCENT}50`;
+          }
+
+          const img = el.querySelector<HTMLElement>("[data-book-image]");
+          if (img) {
+            img.style.transform = "translateZ(40px) translateY(-10px) scale(1.06)";
+            img.style.filter    = `drop-shadow(0 22px 30px ${ACCENT}70)`;
+          }
+
+          const sheen = el.querySelector<HTMLElement>("[data-sheen]");
+          if (sheen) {
+            sheen.style.transition = "none";
+            sheen.style.transform  = "translateX(-200%) skewX(-20deg)";
+            sheen.getBoundingClientRect();
+            sheen.style.transition = "transform 0.65s ease";
+            sheen.style.transform  = "translateX(200%) skewX(-20deg)";
+          }
+        }}
+        onMouseMove={(e) => {
+          const el   = e.currentTarget;
+          const rect = el.getBoundingClientRect();
+          const nx   = (e.clientX - rect.left  - rect.width  / 2) / (rect.width  / 2);
+          const ny   = (e.clientY - rect.top   - rect.height / 2) / (rect.height / 2);
+          el.style.transition = "transform 0.08s linear";
+          el.style.transform  = `translateY(-8px) rotateX(${-ny * 7}deg) rotateY(${nx * 7}deg)`;
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget;
+          el.style.transition = "transform 0.45s ease";
+          el.style.transform  = "translateY(0) rotateX(0deg) rotateY(0deg)";
+
+          const cardBody = el.querySelector<HTMLElement>("[data-card-body]");
+          if (cardBody) {
+            cardBody.style.boxShadow   = CARD_SHADOW;
+            cardBody.style.borderColor = "#e8e8e8";
+          }
+
+          const img = el.querySelector<HTMLElement>("[data-book-image]");
+          if (img) {
+            img.style.transform = "translateZ(20px) translateY(0) scale(1)";
+            img.style.filter    = `drop-shadow(0 8px 14px ${ACCENT}35)`;
+          }
         }}
       >
-        {theme.coverPreviewUrl ? (
-          <Image
-            src={theme.coverPreviewUrl}
-            alt={theme.name}
-            fill
-            style={{ objectFit: "contain" }}
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ) : (
+        {/* ── IMAGEN FLOTANTE ── */}
+        <div
+          data-book-image=""
+          style={{
+            position:       "absolute",
+            top:            0,
+            left:           0,
+            right:          0,
+            height:         "207px",
+            display:        "flex",
+            alignItems:     "flex-end",
+            justifyContent: "center",
+            zIndex:         3,
+            transform:      "translateZ(20px)",
+            filter:         `drop-shadow(0 8px 14px ${ACCENT}35)`,
+            transition:     "transform 0.35s ease, filter 0.35s ease",
+          }}
+        >
+          {theme.coverPreviewUrl ? (
+            <Image
+              src={theme.coverPreviewUrl}
+              alt={theme.name}
+              width={138}
+              height={184}
+              style={{ maxWidth: "100%", maxHeight: "184px", height: "auto", width: "auto", objectFit: "contain" }}
+            />
+          ) : (
+            <div style={{
+              width: "100px", height: "140px",
+              background: `${ACCENT}20`, borderRadius: "8px",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#ccc", fontSize: "14px",
+            }}>
+              Portada
+            </div>
+          )}
+        </div>
+
+        {/* ── CARD BODY ── */}
+        <div
+          data-card-body=""
+          style={{
+            position:      "relative",
+            overflow:      "hidden",
+            borderRadius:  "20px",
+            border:        "1px solid #e8e8e8",
+            background:    "#fff",
+            boxShadow:     CARD_SHADOW,
+            display:       "flex",
+            flexDirection: "column",
+            height:        "100%",
+            transition:    "box-shadow 0.3s ease, border-color 0.3s ease",
+          }}
+        >
+          {/* Sheen */}
           <div
+            data-sheen=""
             style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ccc",
-              fontSize: "14px",
+              position:      "absolute",
+              top:           0, left: 0, bottom: 0,
+              width:         "55%",
+              background:    "linear-gradient(to right, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%)",
+              transform:     "translateX(-200%) skewX(-20deg)",
+              pointerEvents: "none",
+              zIndex:        10,
             }}
-          >
-            Portada
+          />
+
+          {/* Zona superior tintada */}
+          <div style={{
+            position:   "relative",
+            background: `linear-gradient(160deg, ${ACCENT}14 0%, ${ACCENT}07 100%)`,
+            padding:    "124px 16px 16px",
+          }}>
+            {/* Barra gradiente superior */}
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0,
+              height: "3px", background: CARD_GRADIENT,
+            }} />
+            {/* Badge */}
+            <div style={{
+              display: "inline-block", padding: "5px 14px", borderRadius: "20px",
+              background: ACCENT, color: "#fff",
+              fontSize: "11px", fontWeight: 700,
+              textTransform: "uppercase", letterSpacing: "0.5px",
+            }}>
+              {theme.badge}
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Stars */}
-      <div style={{ display: "flex", gap: "2px", marginBottom: "4px" }}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <svg
-            key={i}
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="#f5a623"
-            stroke="#f5a623"
-            strokeWidth="2"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-        ))}
-      </div>
+          {/* Zona inferior */}
+          <div style={{
+            background:    "#fff",
+            padding:       "16px 20px 24px",
+            flex:          1,
+            display:       "flex",
+            flexDirection: "column",
+            textAlign:     "center",
+            alignItems:    "center",
+            gap:           "8px",
+          }}>
+            {/* Stars */}
+            <div style={{ display: "flex", gap: "2px" }}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              ))}
+            </div>
 
-      {/* Reviews */}
-      <div style={{ fontSize: "13px", color: "#999", marginBottom: "14px" }}>
-        {theme.reviews} Reviews
-      </div>
+            <div style={{ fontSize: "13px", color: "#999" }}>{theme.reviews} Reviews</div>
 
-      {/* Name */}
-      <h3
-        style={{
-          margin: "0 0 10px 0",
-          fontSize: "18px",
-          lineHeight: 1.2,
-          color: "#111",
-          fontWeight: 700,
-        }}
-      >
-        {theme.name}
-      </h3>
+            <h3 style={{ margin: 0, fontSize: "16px", lineHeight: 1.2, color: "#111", fontWeight: 600 }}>
+              {theme.name}
+            </h3>
 
-      {/* Description */}
-      <p
-        style={{
-          margin: "0 0 14px 0",
-          maxWidth: "360px",
-          fontSize: "13px",
-          lineHeight: 1.4,
-          color: "#666",
-          fontWeight: 400,
-        }}
-      >
-        {theme.description}
-      </p>
+            <p style={{ margin: 0, maxWidth: "360px", fontSize: "13px", lineHeight: 1.4, color: "#666", fontWeight: 400 }}>
+              {theme.description}
+            </p>
 
-      {/* Price */}
-      <div style={{ margin: "0 0 18px 0", textAlign: "center" }}>
-        <div style={{ fontSize: "13px", color: "#999", marginBottom: "2px" }}>Desde</div>
-        <div style={{ fontSize: "26px", fontWeight: 900, color: "#111", lineHeight: 1 }}>S/ 90</div>
-        <div style={{ fontSize: "11px", color: "#aaa", marginTop: "4px" }}>15 hojas · Tapa Delgada</div>
-      </div>
+            <div style={{ flex: 1 }} />
 
-      {/* CTA */}
-      <Link
-        href={`/photobooks/${theme.id}`}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minWidth: "170px",
-          height: "42px",
-          borderRadius: "14px",
-          border: `2px solid ${ACCENT}`,
-          background: ACCENT,
-          color: "#fff",
-          fontSize: "16px",
-          fontWeight: 800,
-          cursor: "pointer",
-          textTransform: "uppercase",
-          fontFamily: "inherit",
-          textDecoration: "none",
-        }}
-      >
-        Crear Aquí
-      </Link>
-    </article>
+            {/* Price */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "12px", color: "#999", marginBottom: "2px" }}>Desde</div>
+              <div style={{ fontSize: "24px", fontWeight: 900, color: "#111", lineHeight: 1 }}>S/ 90</div>
+              <div style={{ fontSize: "11px", color: "#aaa", marginTop: "4px" }}>15 hojas · Tapa Delgada</div>
+            </div>
+
+            {/* CTA */}
+            <Link
+              href={`/photobooks/${theme.id}/configurar`}
+              style={{
+                display:        "inline-flex",
+                alignItems:     "center",
+                justifyContent: "center",
+                minWidth:       "170px",
+                height:         "40px",
+                borderRadius:   "9999px",
+                border:         "none",
+                background:     CARD_GRADIENT,
+                color:          "#fff",
+                fontSize:       "14px",
+                fontWeight:     700,
+                cursor:         "pointer",
+                textTransform:  "uppercase",
+                fontFamily:     "inherit",
+                textDecoration: "none",
+                letterSpacing:  "0.03em",
+                boxShadow:      `0 4px 12px ${ACCENT}30`,
+              }}
+            >
+              Crear Aquí
+            </Link>
+          </div>
+        </div>
+      </article>
+    </div>
   );
 }
 
 /* ── FAQ Accordion ── */
 
-function FaqItem({ question, answer }: { question: string; answer: string }) {
+function FaqItem({ question, answer, index }: { question: string; answer: string; index: number }) {
   const [open, setOpen] = useState(false);
+  const num = String(index + 1).padStart(2, "0");
 
   return (
-    <div style={{ borderBottom: "1px solid #e8e8e8" }}>
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "16px",
+        border: `1px solid ${open ? ACCENT + "40" : "#ebebeb"}`,
+        borderLeft: `4px solid ${open ? ACCENT : "transparent"}`,
+        marginBottom: "12px",
+        overflow: "hidden",
+        transition: "border-color 0.25s ease, box-shadow 0.25s ease",
+        boxShadow: open ? `0 4px 24px ${ACCENT}18` : "none",
+      }}
+    >
       <button
         onClick={() => setOpen(!open)}
         style={{
           width: "100%",
-          padding: "22px 0",
+          padding: "20px 24px",
           background: "none",
           border: "none",
           cursor: "pointer",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
           textAlign: "left",
           fontFamily: "inherit",
           gap: "16px",
         }}
       >
+        {/* Número */}
         <span
           style={{
-            fontSize: "17px",
+            flexShrink: 0,
+            fontSize: "13px",
             fontWeight: 700,
-            color: open ? ACCENT : "#222",
-            transition: "color 0.2s ease",
+            color: open ? ACCENT : "#ccc",
+            letterSpacing: "0.5px",
+            minWidth: "26px",
+            transition: "color 0.25s ease",
+          }}
+        >
+          {num}
+        </span>
+
+        {/* Pregunta */}
+        <span
+          style={{
+            flex: 1,
+            fontSize: "16px",
+            fontWeight: 600,
+            color: open ? "#111" : "#333",
+            transition: "color 0.25s ease",
             lineHeight: 1.4,
           }}
         >
           {question}
         </span>
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={open ? ACCENT : "#999"}
-          strokeWidth="2"
-          strokeLinecap="round"
-          xmlns="http://www.w3.org/2000/svg"
+
+        {/* Botón círculo con chevron */}
+        <div
           style={{
             flexShrink: 0,
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.2s ease, stroke 0.2s ease",
+            width: "34px",
+            height: "34px",
+            borderRadius: "50%",
+            background: open ? ACCENT : "transparent",
+            border: `2px solid ${open ? ACCENT : "#ddd"}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "background 0.25s ease, border-color 0.25s ease",
           }}
         >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={open ? "#fff" : "#aaa"}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              transform: open ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.25s ease",
+            }}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
       </button>
+
       <div
         style={{
-          maxHeight: open ? "300px" : "0",
+          maxHeight: open ? "400px" : "0",
           overflow: "hidden",
-          transition: "max-height 0.3s ease",
+          transition: "max-height 0.35s ease",
         }}
       >
         <div
           style={{
-            padding: "0 0 22px 0",
+            padding: "0 24px 24px 66px",
             fontSize: "15px",
-            lineHeight: 1.7,
+            lineHeight: 1.65,
             color: "#666",
           }}
         >

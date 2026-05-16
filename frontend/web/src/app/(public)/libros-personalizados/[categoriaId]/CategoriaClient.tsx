@@ -327,12 +327,12 @@ const FAQ_ITEMS: Record<string, { question: string; answer: string }[]> = {
     {
       question: "¿Necesito saber de diseño para crear el libro?",
       answer:
-        "Para nada. Solo subís tus fotos y nosotros nos encargamos del resto. La IA integra tus imágenes en escenarios ya diseñados de forma profesional. Sin programas de edición, sin complicaciones: en minutos tenés tu libro listo para imprimir.",
+        "Para nada. Solo sube tus fotos y nosotros nos encargamos del resto. La IA integra tus imágenes en escenarios ya diseñados de forma profesional. Sin programas de edición, sin complicaciones: en minutos tienes tu libro listo para imprimir.",
     },
     {
       question: "¿Cuántas fotos necesito subir para el libro de amor?",
       answer:
-        "Con solo 5 fotos es suficiente para que quede hermoso. No necesitás fotos de estudio, con fotos cotidianas del celular funciona perfecto.",
+        "Con solo 5 fotos es suficiente para que quede hermoso. No necesitas fotos de estudio, con fotos cotidianas del celular funciona perfecto.",
     },
     {
       question: "¿Puedo personalizar los nombres y los detalles de la historia?",
@@ -342,24 +342,24 @@ const FAQ_ITEMS: Record<string, { question: string; answer: string }[]> = {
     {
       question: "¿Cuánto tiempo tarda en llegar mi libro?",
       answer:
-        "Una vez aprobado el diseño, el proceso de impresión y envío demora entre 5 y 10 días hábiles según tu ciudad. Podés coordinar la entrega para que llegue justo a tiempo para esa fecha especial.",
+        "Una vez aprobado el diseño, el proceso de impresión y envío demora entre 5 y 10 días hábiles según tu ciudad. Puedes coordinar la entrega para que llegue justo a tiempo para esa fecha especial.",
     },
   ],
   "libros-de-mascotas": [
     {
       question: "¿Qué tipo de fotos de mi mascota necesito subir?",
       answer:
-        "Fotos claras donde se vea bien la cara de tu mascota. No necesitás fotos profesionales, las del celular funcionan perfecto. Cuantas más expresiones y momentos capturés, más rico queda el libro.",
+        "Fotos claras donde se vea bien la cara de tu mascota. No necesitas fotos profesionales, las del celular funcionan perfecto. Cuantas más expresiones y momentos captures, más rico queda el libro.",
     },
     {
       question: "¿El libro funciona para cualquier tipo de mascota?",
       answer:
-        "Sí. Aunque la mayoría de nuestros libros están pensados para perros y gatos, los escenarios se adaptan perfectamente a cualquier compañero peludo. Si tenés dudas con una mascota en particular, escribinos antes de pedir.",
+        "Sí. Aunque la mayoría de nuestros libros están pensados para perros y gatos, los escenarios se adaptan perfectamente a cualquier compañero peludo. Si tienes dudas con una mascota en particular, escríbenos antes de pedir.",
     },
     {
       question: "¿Puedo hacer un libro en memoria de una mascota que ya no está?",
       answer:
-        "Sí, y de hecho es uno de los usos más emotivos que le dan nuestros clientes. Con las fotos que tenés guardadas, creamos un libro que honra su memoria y se convierte en un recuerdo para siempre.",
+        "Sí, y de hecho es uno de los usos más emotivos que le dan nuestros clientes. Con las fotos que tienes guardadas, creamos un libro que honra su memoria y se convierte en un recuerdo para siempre.",
     },
     {
       question: "¿Cómo aparece el nombre de mi mascota en el libro?",
@@ -376,7 +376,7 @@ const FAQ_ITEMS: Record<string, { question: string; answer: string }[]> = {
     {
       question: "¿Puedo incluir a varios miembros de la familia en el mismo libro?",
       answer:
-        "Sí. Podés subir fotos de toda la familia y el libro los incluirá a todos. Es ideal para regalar en fechas especiales donde la familia se reúne, como el Día de la Madre, Navidad o un cumpleaños especial.",
+        "Sí. Puedes subir fotos de toda la familia y el libro los incluirá a todos. Es ideal para regalar en fechas especiales donde la familia se reúne, como el Día de la Madre, Navidad o un cumpleaños especial.",
     },
     {
       question: "¿Qué libro es mejor para el Día de la Madre o del Padre?",
@@ -386,12 +386,12 @@ const FAQ_ITEMS: Record<string, { question: string; answer: string }[]> = {
     {
       question: "¿Las fotos tienen que ser de alta calidad?",
       answer:
-        "No necesariamente. Con fotos tomadas desde el celular es suficiente. Lo más importante es que estén bien iluminadas y que se vean con claridad los rostros de las personas que querés incluir.",
+        "No necesariamente. Con fotos tomadas desde el celular es suficiente. Lo más importante es que estén bien iluminadas y que se vean con claridad los rostros de las personas que quieres incluir.",
     },
     {
       question: "¿Puedo hacer un libro especial para mis abuelos?",
       answer:
-        'Sí, y es uno de los regalos más emotivos que podés hacer. Tenemos libros como "Te Amo Abuelo" y "Te Amo Abuela" que celebran ese vínculo especial. Los abuelos lo guardan con mucho cariño.',
+        'Sí, y es uno de los regalos más emotivos que puedes hacer. Tenemos libros como "Te Amo Abuelo" y "Te Amo Abuela" que celebran ese vínculo especial. Los abuelos lo guardan con mucho cariño.',
     },
     {
       question: "¿Cuánto tiempo tarda en llegar mi libro?",
@@ -408,7 +408,7 @@ const FAQ_ITEMS: Record<string, { question: string; answer: string }[]> = {
     {
       question: "¿Puedo usar fotos antiguas o escaneadas?",
       answer:
-        "Sí. Podés subir fotos escaneadas de épocas anteriores junto con fotos actuales. Mezclar generaciones en un mismo libro es de las cosas más emocionantes que podés crear.",
+        "Sí. Puedes subir fotos escaneadas de épocas anteriores junto con fotos actuales. Mezclar generaciones en un mismo libro es de las cosas más emocionantes que puedes crear.",
     },
     {
       question: "¿Cuántas páginas tiene el libro de memorias?",
@@ -418,7 +418,7 @@ const FAQ_ITEMS: Record<string, { question: string; answer: string }[]> = {
     {
       question: "¿Puedo agregar textos o descripciones junto a las fotos?",
       answer:
-        "Sí. Al momento de pedir el libro podés incluir frases, fechas, nombres y pequeños relatos que querés que acompañen cada imagen. Nosotros los integramos de forma cuidada dentro del diseño.",
+        "Sí. Al momento de pedir el libro puedes incluir frases, fechas, nombres y pequeños relatos que quieres que acompañen cada imagen. Nosotros los integramos de forma cuidada dentro del diseño.",
     },
     {
       question: "¿Cuánto tiempo tarda en llegar mi libro?",
@@ -490,7 +490,7 @@ const OCCASIONS: Record<string, { subtitle: string; items: string[] }> = {
     ],
   },
   "libros-de-memorias-familiares": {
-    subtitle: "Preserva los momentos que nunca querés olvidar.",
+    subtitle: "Preserva los momentos que nunca quieres olvidar.",
     items: [
       "Fin de año",
       "Cumpleaños especial",

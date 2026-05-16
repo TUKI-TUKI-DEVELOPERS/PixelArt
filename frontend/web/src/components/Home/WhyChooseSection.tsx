@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { tokens } from '@/lib/design-tokens';
 import FeatureCard from './FeatureCard';
 import { Award, Shield, CheckCircle2, Truck } from 'lucide-react';
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 type WhyChooseSectionProps = {
   logoUrl: string;
@@ -11,6 +12,7 @@ type WhyChooseSectionProps = {
 };
 
 export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyChooseSectionProps) {
+  const { isMobile } = useWindowSize();
   const features = [
     {
       icon: Award,
@@ -55,30 +57,32 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
           maxWidth: "1280px",
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "1.1fr 1fr",
-          gap: "80px",
+          gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr",
+          gap: isMobile ? "0" : "80px",
           alignItems: "center",
         }}
       >
-        {/* Imagen izquierda */}
-        <div>
-          <Image
-            src={whyChooseUsImageUrl}
-            alt="Familia feliz viendo su Photobook personalizado"
-            width={700}
-            height={500}
-            style={{
-              width: "100%",
-              height: "auto",
-              display: "block",
-              borderRadius: tokens.borderRadius["2xl"],
-              boxShadow: tokens.shadows.xl,
-            }}
-          />
-        </div>
+        {/* Imagen izquierda — oculta en mobile */}
+        {!isMobile && (
+          <div>
+            <Image
+              src={whyChooseUsImageUrl}
+              alt="Familia feliz viendo su Photobook personalizado"
+              width={700}
+              height={500}
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                borderRadius: tokens.borderRadius["2xl"],
+                boxShadow: tokens.shadows.xl,
+              }}
+            />
+          </div>
+        )}
 
-        {/* Contenido derecha */}
-        <div>
+        {/* Contenido */}
+        <div style={{ textAlign: isMobile ? "center" : "left" }}>
           <h2
             style={{
               margin: `0 0 ${tokens.spacing.component.xs} 0`,
@@ -101,6 +105,7 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
               height: "auto",
               display: "block",
               marginBottom: tokens.spacing.component.md,
+              ...(isMobile && { margin: `0 auto ${tokens.spacing.component.md}` }),
             }}
           />
 
@@ -110,6 +115,7 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
               height: "4px",
               background: tokens.colors.neutral.text.primary,
               marginBottom: tokens.spacing.section.sm,
+              ...(isMobile && { margin: `0 auto ${tokens.spacing.section.sm}` }),
             }}
           />
 

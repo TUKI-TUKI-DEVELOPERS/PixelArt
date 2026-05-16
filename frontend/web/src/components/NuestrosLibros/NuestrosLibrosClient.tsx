@@ -383,6 +383,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
   const { isMobile, isTablet } = useWindowSize();
   const [visibleCount, setVisibleCount]   = useState(CARDS_PER_PAGE);
   const [activeFilter, setActiveFilter]   = useState<FilterKey>('todos');
+  const [filterOpen, setFilterOpen]       = useState(false);
   const [lightboxSrc, setLightboxSrc]     = useState<string | null>(null);
   const [pillStyle, setPillStyle]         = useState({ left: 6, width: 0 });
   const [promos, setPromos]               = useState<ActivePromo[]>([]);
@@ -662,6 +663,10 @@ export default function NuestrosLibrosClient({ books }: Props) {
           {/* CTA */}
           <a
             href="#libros"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("libros")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -766,8 +771,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: isMobile ? "flex-start" : "center",
-                textAlign: isMobile ? "left" : "center",
+                alignItems: "center",
+                textAlign: "center",
                 gap: "16px",
               }}
             >
@@ -822,8 +827,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: isMobile ? "flex-start" : "center",
-                textAlign: isMobile ? "left" : "center",
+                alignItems: "center",
+                textAlign: "center",
                 gap: "16px",
               }}
             >
@@ -878,8 +883,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: isMobile ? "flex-start" : "center",
-                textAlign: isMobile ? "left" : "center",
+                alignItems: "center",
+                textAlign: "center",
                 gap: "16px",
               }}
             >
@@ -981,7 +986,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
       </section>
 
       {/* ═══ SECCIÓN 3: GRID DE LIBROS ═══ */}
-      <section id="libros" style={{ position: "relative", overflow: "hidden" }}>
+      <section id="libros" style={{ position: "relative" }}>
 
         {/* ── Bloque título — full bleed con gradiente ── */}
         <div
@@ -1082,53 +1087,16 @@ export default function NuestrosLibrosClient({ books }: Props) {
               Cada libro se personaliza con tus fotos, nombres e historia.
             </p>
 
-            {/* ── Filtros — pill deslizante ── */}
-            <div
-              ref={filterContainerRef}
-              role="group"
-              aria-label="Filtrar por categoría"
-              style={{
-                position: "relative",
-                display: "inline-flex",
-                alignItems: "center",
-                padding: "5px",
-                borderRadius: "9999px",
-                background: "rgba(255,255,255,0.88)",
-                backdropFilter: "blur(12px)",
-                boxShadow: "0 2px 20px rgba(183,32,32,0.12), 0 1px 4px rgba(0,0,0,0.06)",
-                border: "1px solid rgba(183,32,32,0.10)",
-              }}
-            >
-              {/* Pill deslizante */}
-              {pillStyle.width > 0 && (
-                <span
-                  aria-hidden="true"
-                  style={{
-                    position: "absolute",
-                    top: "5px",
-                    left: `${pillStyle.left}px`,
-                    width: `${pillStyle.width}px`,
-                    height: "calc(100% - 10px)",
-                    borderRadius: "9999px",
-                    background: "linear-gradient(135deg, #B72020, #e8453c)",
-                    boxShadow: "0 2px 12px rgba(183,32,32,0.40)",
-                    transition: "left 0.28s cubic-bezier(0.4, 0, 0.2, 1), width 0.28s cubic-bezier(0.4, 0, 0.2, 1)",
-                    pointerEvents: "none",
-                    zIndex: 0,
-                  }}
-                />
-              )}
-
-              {([
+            {/* ── Filtros ── */}
+            {(() => {
+              const FILTERS: { key: FilterKey; label: string; icon: React.ReactNode }[] = [
                 {
                   key: "todos",
                   label: "Todos",
                   icon: (
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="7" height="7" rx="1"/>
-                      <rect x="14" y="3" width="7" height="7" rx="1"/>
-                      <rect x="14" y="14" width="7" height="7" rx="1"/>
-                      <rect x="3" y="14" width="7" height="7" rx="1"/>
+                      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                      <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
                     </svg>
                   ),
                 },
@@ -1146,10 +1114,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
                   label: "Familia",
                   icon: (
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                      <circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
                   ),
                 },
@@ -1158,10 +1124,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
                   label: "Mascotas",
                   icon: (
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="9" cy="6" r="2"/>
-                      <circle cx="15" cy="6" r="2"/>
-                      <circle cx="6" cy="11.5" r="1.75"/>
-                      <circle cx="18" cy="11.5" r="1.75"/>
+                      <circle cx="9" cy="6" r="2"/><circle cx="15" cy="6" r="2"/>
+                      <circle cx="6" cy="11.5" r="1.75"/><circle cx="18" cy="11.5" r="1.75"/>
                       <path d="M7.5 15c-1.8 0-3.5 1.5-3.5 3.5C4 20.5 6 22 12 22s8-1.5 8-3.5C20 16.5 18.3 15 16.5 15c-1.5 0-2.5.8-4.5.8S9 15 7.5 15z"/>
                     </svg>
                   ),
@@ -1173,45 +1137,175 @@ export default function NuestrosLibrosClient({ books }: Props) {
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                       <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08v0c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
-                      <path d="m18 15-2-2"/>
-                      <path d="m15 18-2-2"/>
+                      <path d="m18 15-2-2"/><path d="m15 18-2-2"/>
                     </svg>
                   ),
                 },
-              ] as { key: FilterKey; label: string; icon: React.ReactNode }[]).map(({ key, label, icon }, idx) => {
-                const isActive = activeFilter === key;
+              ];
+
+              const activeLabel = FILTERS.find(f => f.key === activeFilter)?.label ?? "Todos";
+              const activeIcon  = FILTERS.find(f => f.key === activeFilter)?.icon;
+
+              if (isMobile) {
+                /* ── Mobile: dropdown tipo acordeón ── */
                 return (
-                  <button
-                    key={key}
-                    ref={(el) => { filterBtnRefs.current[idx] = el; }}
-                    type="button"
-                    onClick={() => handleFilterChange(key)}
-                    style={{
-                      position: "relative",
-                      zIndex: 1,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "7px",
-                      padding: isMobile ? "9px 14px" : "10px 20px",
-                      borderRadius: "9999px",
-                      border: "none",
-                      background: "transparent",
-                      color: isActive ? "#fff" : "#888",
-                      fontSize: isMobile ? "13px" : "14px",
-                      fontWeight: isActive ? 700 : 500,
-                      letterSpacing: "0.01em",
-                      cursor: "pointer",
-                      transition: "color 0.2s ease",
-                      outline: "none",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {icon}
-                    {label}
-                  </button>
+                  <div style={{ width: "100%", maxWidth: "320px", margin: "0 auto", position: "relative" }}>
+                    {/* Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => setFilterOpen(o => !o)}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "12px 18px",
+                        borderRadius: filterOpen ? "16px 16px 0 0" : "9999px",
+                        border: "1px solid rgba(183,32,32,0.18)",
+                        background: "rgba(255,255,255,0.92)",
+                        backdropFilter: "blur(12px)",
+                        boxShadow: "0 2px 16px rgba(183,32,32,0.10)",
+                        cursor: "pointer",
+                        transition: "border-radius 0.2s ease",
+                      }}
+                    >
+                      <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 700, color: "#B72020" }}>
+                        {activeIcon}
+                        {activeLabel}
+                      </span>
+                      <svg
+                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B72020" strokeWidth="2.5" strokeLinecap="round"
+                        style={{ transform: filterOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease", flexShrink: 0 }}
+                      >
+                        <path d="M6 9l6 6 6-6"/>
+                      </svg>
+                    </button>
+
+                    {/* Panel desplegable */}
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        maxHeight: filterOpen ? "300px" : "0",
+                        transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        borderRadius: "0 0 16px 16px",
+                        borderTop: "none",
+                        borderRight: filterOpen ? "1px solid rgba(183,32,32,0.18)" : "none",
+                        borderBottom: filterOpen ? "1px solid rgba(183,32,32,0.18)" : "none",
+                        borderLeft: filterOpen ? "1px solid rgba(183,32,32,0.18)" : "none",
+                        background: "rgba(255,255,255,0.95)",
+                        boxShadow: filterOpen ? "0 8px 24px rgba(183,32,32,0.10)" : "none",
+                      }}
+                    >
+                      {FILTERS.map(({ key, label, icon }) => {
+                        const isActive = activeFilter === key;
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => { handleFilterChange(key); setFilterOpen(false); }}
+                            style={{
+                              width: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "13px 18px",
+                              border: "none",
+                              borderBottom: "1px solid rgba(183,32,32,0.07)",
+                              background: isActive ? "rgba(183,32,32,0.06)" : "transparent",
+                              color: isActive ? "#B72020" : "#555",
+                              fontSize: "14px",
+                              fontWeight: isActive ? 700 : 400,
+                              cursor: "pointer",
+                              textAlign: "left",
+                            }}
+                          >
+                            {icon}
+                            {label}
+                            {isActive && (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B72020" strokeWidth="2.5" strokeLinecap="round" style={{ marginLeft: "auto" }}>
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
-              })}
-            </div>
+              }
+
+              /* ── Desktop: pill deslizante ── */
+              return (
+                <div
+                  ref={filterContainerRef}
+                  role="group"
+                  aria-label="Filtrar por categoría"
+                  style={{
+                    position: "relative",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "5px",
+                    borderRadius: "9999px",
+                    background: "rgba(255,255,255,0.88)",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: "0 2px 20px rgba(183,32,32,0.12), 0 1px 4px rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(183,32,32,0.10)",
+                  }}
+                >
+                  {pillStyle.width > 0 && (
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        position: "absolute",
+                        top: "5px",
+                        left: `${pillStyle.left}px`,
+                        width: `${pillStyle.width}px`,
+                        height: "calc(100% - 10px)",
+                        borderRadius: "9999px",
+                        background: "linear-gradient(135deg, #B72020, #e8453c)",
+                        boxShadow: "0 2px 12px rgba(183,32,32,0.40)",
+                        transition: "left 0.28s cubic-bezier(0.4, 0, 0.2, 1), width 0.28s cubic-bezier(0.4, 0, 0.2, 1)",
+                        pointerEvents: "none",
+                        zIndex: 0,
+                      }}
+                    />
+                  )}
+                  {FILTERS.map(({ key, label, icon }, idx) => {
+                    const isActive = activeFilter === key;
+                    return (
+                      <button
+                        key={key}
+                        ref={(el) => { filterBtnRefs.current[idx] = el; }}
+                        type="button"
+                        onClick={() => handleFilterChange(key)}
+                        style={{
+                          position: "relative",
+                          zIndex: 1,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "7px",
+                          padding: "10px 20px",
+                          borderRadius: "9999px",
+                          border: "none",
+                          background: "transparent",
+                          color: isActive ? "#fff" : "#888",
+                          fontSize: "14px",
+                          fontWeight: isActive ? 700 : 500,
+                          letterSpacing: "0.01em",
+                          cursor: "pointer",
+                          transition: "color 0.2s ease",
+                          outline: "none",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {icon}
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import MaternalSkyBackground from "@/components/backgrounds/MaternalSkyBackground";
 import WizardSection from "./WizardSection";
+import BookCard from "@/components/Home/BookCard";
+import type { BookCategory } from "@/components/Home/NuestrosLibrosSection";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
@@ -22,10 +24,10 @@ const SLUG_THUMBNAIL: Record<string, string> = {
   "te-amo-abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
   "el-mejor-equipo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png",
   "la-familia": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png",
-  // "gracias-por-tu-amor": sin miniatura todavía
-  // "mi-angel-guardian": sin miniatura todavía
-  // "siempre-en-mi-corazon": sin miniatura todavía
-  // "siempre-seras-parte-de-mi": sin miniatura todavía
+  "gracias-por-tu-amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png",
+  "mi-angel-guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
+  "siempre-en-mi-corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
+  "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMi_Miniatura.png",
 };
 
 /* ── Datos de libros ── */
@@ -340,6 +342,13 @@ const DEFAULT_INFO: LibroInfo = {
 };
 
 /* ── Libros relacionados por categoría ── */
+const CATEGORIA_TO_BOOK_CATEGORY: Record<string, BookCategory> = {
+  "libros-de-amor":                "love",
+  "libros-de-mascotas":            "pets",
+  "libros-de-familia":             "family",
+  "libros-de-memorias-familiares": "memories",
+};
+
 type RelatedBook = { name: string; slug: string; reviews: number; tagline: string };
 
 const RELATED_BOOKS: Record<string, RelatedBook[]> = {
@@ -363,7 +372,6 @@ const RELATED_BOOKS: Record<string, RelatedBook[]> = {
     { name: "El Mejor Equipo", slug: "el-mejor-equipo", reviews: 180, tagline: "PORQUE SER HERMANOS SE MERECE UN LIBRO PROPIO" },
   ],
   "libros-de-memorias-familiares": [
-    { name: "Recuerdos Familiares", slug: "recuerdos-familiares", reviews: 170, tagline: "PORQUE CADA FAMILIA TIENE UNA HISTORIA QUE CONTAR" },
     { name: "Gracias por tu amor", slug: "gracias-por-tu-amor", reviews: 0, tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ" },
     { name: "Mi Ángel Guardián", slug: "mi-angel-guardian", reviews: 0, tagline: "PORQUE TU LUZ SIGUE BRILLANDO EN MÍ" },
     { name: "Siempre en mi Corazón", slug: "siempre-en-mi-corazon", reviews: 0, tagline: "PORQUE TU RECUERDO VIVE EN CADA LATIDO" },
@@ -380,23 +388,93 @@ const RELATED_SECTION_TITLE: Record<string, string> = {
 
 /* ── Wizard Steps ── */
 /* ── FAQ ── */
-const FAQ_ITEMS = [
-  {
-    question: "¿Este es el único libro personalizado para dedicarle a mi pareja?",
-    answer:
-      'No, tenemos varios modelos de libros de amor. Este es uno de los más populares, pero puedes explorar otros como "10 Razones por las que Te Amo" o "Mi Amor" en nuestra sección de Libros de Amor.',
+type FaqEntry = { question: string; answer: string };
+
+type CategoryFaq = {
+  tituloBase: string;
+  tituloDestacado: string;
+  subtitulo: string;
+  items: FaqEntry[];
+};
+
+const FAQ_BY_CATEGORY: Record<string, CategoryFaq> = {
+  "libros-de-amor": {
+    tituloBase: "El regalo perfecto",
+    tituloDestacado: "para él o ella",
+    subtitulo: "Todo lo que necesitas saber antes de sorprender a tu persona especial.",
+    items: [
+      {
+        question: "¿Este es el único libro personalizado para dedicarle a mi pareja?",
+        answer: 'No, tenemos varios modelos de libros de amor. Este es uno de los más populares, pero puedes explorar otros como "10 Razones por las que Te Amo" o "Mi Amor" en nuestra sección de Libros de Amor.',
+      },
+      {
+        question: "¿Puedo realizar toda la personalización antes de realizar el pago?",
+        answer: "Sí, puedes completar todos los pasos de personalización (subir fotos, elegir escenarios, escribir dedicatoria y elegir portada) antes de realizar cualquier pago. Solo pagas cuando estés completamente satisfecho con el resultado.",
+      },
+      {
+        question: "¿Si pertenezco a la comunidad LGTBQ es posible dedicar un libro?",
+        answer: "¡Por supuesto! En PixelArt celebramos el amor en todas sus formas. Nuestros libros personalizados están diseñados para cualquier pareja, sin importar su orientación. El amor es universal y merece ser celebrado.",
+      },
+    ],
   },
-  {
-    question: "¿Puedo realizar toda la personalización antes de realizar el pago?",
-    answer:
-      "Sí, puedes completar todos los pasos de personalización (subir fotos, elegir escenarios, escribir dedicatoria y elegir portada) antes de realizar cualquier pago. Solo pagas cuando estés completamente satisfecho con el resultado.",
+  "libros-de-mascotas": {
+    tituloBase: "El regalo perfecto",
+    tituloDestacado: "para tu mascota",
+    subtitulo: "Porque su huella en tu corazón merece vivir para siempre en un libro.",
+    items: [
+      {
+        question: "¿Puedo usar fotos de mi mascota para personalizar el libro?",
+        answer: "Sí, ese es el corazón del libro. Subes las fotos de tu compañero y nuestra IA las integra en escenas únicas diseñadas especialmente para este libro. Cada página refleja su personalidad.",
+      },
+      {
+        question: "¿El libro es solo para perros o también para gatos y otras mascotas?",
+        answer: "Funciona para cualquier mascota: perros, gatos, conejos, aves y más. La IA adapta las escenas para que tu compañero se vea natural y adorable en cada página.",
+      },
+      {
+        question: "¿Puedo dedicarlo a una mascota que ya falleció?",
+        answer: "Sí, y es uno de los usos más emotivos de este libro. Si tienes fotos de tu mascota, podemos crear un tributo hermoso para honrar su memoria y mantenerla siempre presente.",
+      },
+    ],
   },
-  {
-    question: "¿Si pertenezco a la comunidad LGTBQ es posible dedicar un libro?",
-    answer:
-      "¡Por supuesto! En PixelArt celebramos el amor en todas sus formas. Nuestros libros personalizados están diseñados para cualquier pareja, sin importar su orientación. El amor es universal y merece ser celebrado.",
+  "libros-de-familia": {
+    tituloBase: "El regalo perfecto para",
+    tituloDestacado: "compartir en familia",
+    subtitulo: "Un libro que une generaciones y convierte los recuerdos en algo que dura para siempre.",
+    items: [
+      {
+        question: "¿Puedo incluir a varios miembros de la familia en el libro?",
+        answer: "Sí. Puedes subir fotos de toda la familia y el libro se construye en torno a esa historia compartida. Es ideal para celebrar reuniones, aniversarios o simplemente el amor cotidiano de estar juntos.",
+      },
+      {
+        question: "¿Es un buen regalo para el Día de la Madre o el Día del Padre?",
+        answer: "Es uno de los regalos más valorados en esas fechas. Un libro personalizado con fotos reales dice mucho más que cualquier regalo convencional. Demuestra cuánto los conoces y cuánto los quieres.",
+      },
+      {
+        question: "¿Lo pueden disfrutar también los abuelos?",
+        answer: "¡Absolutamente! Los abuelos suelen ser quienes más atesoran este tipo de regalo. Un libro con fotos de nietos, hijos y momentos familiares se convierte en uno de sus objetos más preciados.",
+      },
+    ],
   },
-];
+  "libros-de-memorias-familiares": {
+    tituloBase: "Un homenaje eterno para quien",
+    tituloDestacado: "siempre vivirá en tu corazón",
+    subtitulo: "Porque algunas personas dejan una huella tan profunda que merecen ser recordadas con la misma intensidad con la que fueron amadas.",
+    items: [
+      {
+        question: "¿Puedo dedicar el libro a alguien que ya no está?",
+        answer: "Sí. Este libro nació precisamente para eso. Si tienes fotos de esa persona especial, podemos crear un homenaje lleno de amor, con escenas que capturan su esencia y mantienen su recuerdo vivo para siempre.",
+      },
+      {
+        question: "¿Es posible incluir mensajes o dedicatorias de varios familiares?",
+        answer: "Durante la personalización puedes escribir dedicatorias y textos que reflejen el amor de toda la familia. Es una forma hermosa de crear un testimonio colectivo del impacto que esa persona tuvo en sus vidas.",
+      },
+      {
+        question: "¿Cuánto tiempo tarda en llegar después de hacer el pedido?",
+        answer: "El envío se realiza en un plazo de 5 a 7 días hábiles a todo el Perú, con seguimiento en tiempo real desde nuestra planta de impresión hasta tu puerta.",
+      },
+    ],
+  },
+};
 
 
 /* ══════════════════════════════════════════
@@ -876,157 +954,162 @@ export default function LibroDetalleClient({
       </div>
 
       {/* ═══ TAMBIÉN TE PODRÍA INTERESAR ═══ */}
-      <section
-        style={{
-          background: "#fafafa",
-          padding: isMobile ? "48px 16px" : "72px 48px",
-        }}
-      >
+      <section style={{ background: "#fafafa", padding: isMobile ? "48px 20px 64px" : "72px 48px 96px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 500,
-                color: info.accent,
-                textTransform: "uppercase",
-                letterSpacing: "2px",
-                marginBottom: "8px",
-              }}
-            >
-              {info.subtitulo}
-            </div>
-            <h2
-              style={{
-                margin: "0 0 16px 0",
-                fontSize: isMobile ? "24px" : "36px",
-                fontWeight: 900,
-                color: "#111",
-                textTransform: "uppercase",
-                lineHeight: 1.1,
-              }}
-            >
-              {RELATED_SECTION_TITLE[categoriaSlug] ?? "TAMBIEN TE PODRIA INTERESAR"}
+
+          {/* Header editorial */}
+          <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
+            <p style={{
+              margin: "0 0 12px 0",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: info.accent,
+            }}>
+              Nuestra colección
+            </p>
+            <h2 style={{
+              margin: "0 0 16px 0",
+              fontSize: isMobile ? "28px" : "40px",
+              fontWeight: 900,
+              color: "#1a1a1a",
+              lineHeight: 1.1,
+              letterSpacing: "-0.5px",
+            }}>
+              {RELATED_SECTION_TITLE[categoriaSlug]?.split(" ").slice(0, -2).join(" ") ?? "También te"}{" "}
+              <span style={{
+                background: `linear-gradient(135deg, ${info.accent}, ${info.accent}bb)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}>
+                {RELATED_SECTION_TITLE[categoriaSlug]?.split(" ").slice(-2).join(" ") ?? "podría interesar"}
+              </span>
             </h2>
-            <div
-              style={{
-                width: "80px",
-                height: "3px",
-                background: info.accent,
-                margin: "0 auto",
-                borderRadius: "2px",
-              }}
-            />
+            <div aria-hidden="true" style={{
+              width: "48px",
+              height: "3px",
+              borderRadius: "9999px",
+              background: `linear-gradient(90deg, ${info.accent}, ${info.accent}99)`,
+              margin: "0 auto 16px",
+            }} />
+            <p style={{
+              margin: 0,
+              fontSize: isMobile ? "14px" : "16px",
+              color: "#666",
+              fontWeight: 400,
+              lineHeight: 1.6,
+              maxWidth: "440px",
+              marginInline: "auto",
+            }}>
+              Cada libro cuenta una historia única. Encuentra el que mejor se adapta a ese momento especial.
+            </p>
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: "24px",
-            }}
-          >
+
+          {/* Grid de BookCards */}
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: isMobile ? "48px 0" : "48px 24px",
+            alignItems: "start",
+          }}>
             {(RELATED_BOOKS[categoriaSlug] ?? [])
               .filter((b) => b.slug !== libroSlug)
               .map((book) => (
-                <Link
-                  key={book.slug}
+                <div key={book.slug} style={{ flex: isMobile ? "1 1 100%" : "0 0 calc(33.333% - 16px)" }}>
+                <BookCard
+                  title={book.name}
+                  subtitle={book.tagline}
+                  description=""
+                  image={SLUG_THUMBNAIL[book.slug] ? getAssetUrl(SLUG_THUMBNAIL[book.slug]) : ""}
                   href={`/libros-personalizados/${categoriaSlug}/${book.slug}`}
-                  style={{ textDecoration: "none", flex: "0 1 340px" }}
-                >
-                  <article
-                    style={{
-                      background: "#fff",
-                      borderRadius: "20px",
-                      border: "1px solid #eee",
-                      padding: "28px 24px",
-                      textAlign: "center",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "180px",
-                        borderRadius: "12px",
-                        marginBottom: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {SLUG_THUMBNAIL[book.slug] ? (
-                        <img
-                          src={getAssetUrl(SLUG_THUMBNAIL[book.slug])}
-                          alt={book.name}
-                          style={{
-                            maxWidth: "100%",
-                            maxHeight: "100%",
-                            height: "auto",
-                            width: "auto",
-                            display: "block",
-                          }}
-                        />
-                      ) : (
-                        <span style={{ color: "#ccc", fontSize: "14px" }}>Sin imagen</span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: "13px", color: "#999", marginBottom: "8px" }}>
-                      {book.reviews} Reviews
-                    </div>
-                    <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#111", margin: "0 0 6px 0" }}>
-                      {book.name}
-                    </h3>
-                    <div style={{ fontSize: "12px", fontWeight: 500, color: info.accent, textTransform: "uppercase", marginBottom: "14px" }}>
-                      {book.tagline}
-                    </div>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "10px 24px",
-                        borderRadius: "12px",
-                        border: "2px solid #8e8e8e",
-                        background: "#fff",
-                        color: "#111",
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Crear Aquí
-                    </span>
-                  </article>
-                </Link>
+                  category={CATEGORIA_TO_BOOK_CATEGORY[categoriaSlug] ?? "love"}
+                  rating={book.reviews > 0 ? 5 : 4.5}
+                />
+                </div>
               ))}
           </div>
         </div>
       </section>
 
       {/* ═══ FAQ ESPECÍFICO DEL PRODUCTO ═══ */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: isMobile ? "40px 16px" : "80px 48px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "36px",
-            fontWeight: 700,
-            color: info.accent,
-            textAlign: "center",
-            margin: "0 0 40px 0",
-          }}
-        >
-          El regalo perfecto para él o ella
-        </h2>
-        <div>
-          {FAQ_ITEMS.map((item, i) => (
-            <FaqItem key={i} question={item.question} answer={item.answer} accent={info.accent} />
-          ))}
-        </div>
-      </section>
+      {(() => {
+        const faq = FAQ_BY_CATEGORY[categoriaSlug] ?? FAQ_BY_CATEGORY["libros-de-amor"];
+        return (
+          <section
+            style={{
+              maxWidth: "860px",
+              margin: "0 auto",
+              padding: isMobile ? "48px 20px 64px" : "80px 48px 96px",
+            }}
+          >
+            {/* Header editorial */}
+            <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
+              <p style={{
+                margin: "0 0 12px 0",
+                fontSize: "11px",
+                fontWeight: 700,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: info.accent,
+              }}>
+                Preguntas frecuentes
+              </p>
+              <h2 style={{
+                margin: "0 0 16px 0",
+                fontSize: isMobile ? "26px" : "36px",
+                fontWeight: 900,
+                color: "#1a1a1a",
+                lineHeight: 1.15,
+                letterSpacing: "-0.5px",
+              }}>
+                {faq.tituloBase}{" "}
+                <span style={{
+                  background: `linear-gradient(135deg, ${info.accent}, ${info.accent}bb)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}>
+                  {faq.tituloDestacado}
+                </span>
+              </h2>
+              <div aria-hidden="true" style={{
+                width: "48px",
+                height: "3px",
+                borderRadius: "9999px",
+                background: `linear-gradient(90deg, ${info.accent}, ${info.accent}99)`,
+                margin: "0 auto 16px",
+              }} />
+              <p style={{
+                margin: 0,
+                fontSize: isMobile ? "14px" : "16px",
+                color: "#666",
+                fontWeight: 400,
+                lineHeight: 1.6,
+                maxWidth: "480px",
+                marginInline: "auto",
+              }}>
+                {faq.subtitulo}
+              </p>
+            </div>
+
+            {/* Items */}
+            <div style={{
+              background: "#fff",
+              borderRadius: "20px",
+              boxShadow: "0 2px 24px rgba(0,0,0,0.06)",
+              overflow: "hidden",
+              border: "1px solid rgba(0,0,0,0.06)",
+            }}>
+              {faq.items.map((item, i) => (
+                <FaqItem key={i} question={item.question} answer={item.answer} accent={info.accent} />
+              ))}
+            </div>
+          </section>
+        );
+      })()}
     </div>
   );
 }
@@ -1644,13 +1727,13 @@ function FaqItem({
   const [open, setOpen] = useState(false);
 
   return (
-    <div style={{ borderBottom: "1px solid #e8e8e8" }}>
+    <div style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
       <button
         onClick={() => setOpen(!open)}
         style={{
           width: "100%",
-          padding: "22px 0",
-          background: "none",
+          padding: "22px 28px",
+          background: open ? `${accent}06` : "none",
           border: "none",
           cursor: "pointer",
           display: "flex",
@@ -1659,12 +1742,13 @@ function FaqItem({
           textAlign: "left",
           fontFamily: "inherit",
           gap: "16px",
+          transition: "background 0.2s ease",
         }}
       >
         <span
           style={{
-            fontSize: "18px",
-            fontWeight: 500,
+            fontSize: "17px",
+            fontWeight: 600,
             color: open ? accent : "#222",
             transition: "color 0.2s ease",
             lineHeight: 1.4,
@@ -1673,18 +1757,18 @@ function FaqItem({
           {question}
         </span>
         <svg
-          width="22"
-          height="22"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={open ? accent : "#999"}
-          strokeWidth="2"
+          stroke={open ? accent : "#bbb"}
+          strokeWidth="2.5"
           strokeLinecap="round"
           xmlns="http://www.w3.org/2000/svg"
           style={{
             flexShrink: 0,
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.2s ease, stroke 0.2s ease",
+            transition: "transform 0.25s ease",
           }}
         >
           <polyline points="6 9 12 15 18 9" />
@@ -1694,14 +1778,14 @@ function FaqItem({
         style={{
           maxHeight: open ? "300px" : "0",
           overflow: "hidden",
-          transition: "max-height 0.3s ease",
+          transition: "max-height 0.35s cubic-bezier(0.4,0,0.2,1)",
         }}
       >
         <div
           style={{
-            padding: "0 0 22px 0",
-            fontSize: "16px",
-            lineHeight: 1.6,
+            padding: "0 28px 24px",
+            fontSize: "15px",
+            lineHeight: 1.7,
             color: "#666",
           }}
         >

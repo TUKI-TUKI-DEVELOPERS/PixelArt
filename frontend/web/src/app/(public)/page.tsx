@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import IntroOverlay from "@/components/layout/IntroOverlay";
 import HomeHeroClient from "@/components/Home/HomeHeroClient";
 import CreateBookAccordion from "@/components/Home/CreateBookAccordion";
@@ -488,6 +489,48 @@ export default async function HomePage() {
         flexDirection: "column",
       }}
     >
+      <style>{`
+        /* Identity */
+        @media (max-width: 767px) {
+          .identity-card { padding: 24px 20px !important; }
+          .identity-logo { font-size: 44px !important; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .identity-card { padding: 32px 40px !important; }
+          .identity-logo { font-size: 56px !important; }
+        }
+
+        /* Photobooks hero */
+        @media (max-width: 1023px) {
+          .photobooks-hero-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+          .photobooks-hero-image { display: none !important; }
+          .photobooks-hero-left { max-width: 100% !important; }
+        }
+        @media (max-width: 767px) {
+          .photobooks-hero-grid { padding: 40px 20px !important; }
+          .photobook-cta { min-width: unset !important; width: 100% !important; max-width: 340px; }
+        }
+
+        /* Stepper */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .stepper-grid { grid-template-columns: 1fr 1fr !important; }
+          .stepper-connector { display: none !important; }
+        }
+        @media (max-width: 767px) {
+          .stepper-grid { grid-template-columns: 1fr !important; }
+          .stepper-connector { display: none !important; }
+        }
+
+        /* Testimonials */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .testimonials-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 767px) {
+          .testimonials-grid { grid-template-columns: 1fr !important; }
+          .testimonials-metrics { flex-direction: column !important; gap: 16px !important; }
+          .metrics-separator { display: none !important; }
+        }
+      `}</style>
       <IntroOverlay />
       {/* ═══ HERO SECTION ═══ */}
       <HomeHeroClient slides={slides} />
@@ -508,6 +551,7 @@ export default async function HomePage() {
       >
         <IdentityBackground />
         <div
+          className="identity-card"
           style={{
             position: "relative",
             zIndex: 1,
@@ -524,6 +568,7 @@ export default async function HomePage() {
         >
           {/* Logo multicolor */}
           <h2
+            className="identity-logo"
             style={{
               margin: `0 0 ${tokens.spacing.component.xs} 0`,
               fontSize: "64px",
@@ -606,7 +651,7 @@ export default async function HomePage() {
               lineHeight: 1.2,
             }}
           >
-            Dos formas de preservar lo que más amás
+            Dos formas de preservar lo que más amas
           </p>
         </div>
       </section>
@@ -661,6 +706,7 @@ export default async function HomePage() {
 
         {/* ── Hero content ── */}
         <div
+          className="photobooks-hero-grid"
           style={{
             position: "relative",
             zIndex: 2,
@@ -674,7 +720,7 @@ export default async function HomePage() {
             gap: "60px",
           }}
         >
-          <div style={{ maxWidth: "520px" }}>
+          <div className="photobooks-hero-left" style={{ maxWidth: "520px" }}>
             <h2
               style={{
                 margin: `0 0 ${tokens.spacing.component.md} 0`,
@@ -779,8 +825,13 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <button
+            <Link
+              href="/photobooks"
+              className="photobook-cta"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
                 minWidth: "260px",
                 height: "56px",
                 borderRadius: "12px",
@@ -793,14 +844,15 @@ export default async function HomePage() {
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                transition: `transform ${tokens.transitions.fast}`,
+                textDecoration: "none",
               }}
             >
               Comenzar Photobook
-            </button>
+            </Link>
           </div>
 
           <div
+            className="photobooks-hero-image"
             style={{
               display: "flex",
               justifyContent: "center",
@@ -860,7 +912,7 @@ export default async function HomePage() {
                 letterSpacing: "3px",
               }}
             >
-              Facil y rapido
+              Fácil y rápido
             </p>
             <h2
               style={{
@@ -873,7 +925,7 @@ export default async function HomePage() {
                 textShadow: "0 2px 16px rgba(0,0,0,0.3)",
               }}
             >
-              Como funciona
+              Cómo funciona
             </h2>
             <div
               style={{
@@ -888,6 +940,7 @@ export default async function HomePage() {
 
           {/* Steps grid */}
           <div
+            className="stepper-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr 1fr",
@@ -897,6 +950,7 @@ export default async function HomePage() {
           >
             {/* Connector line */}
             <div
+              className="stepper-connector"
               style={{
                 position: "absolute",
                 top: "44px",
@@ -974,7 +1028,7 @@ export default async function HomePage() {
                   color: "rgba(255,255,255,0.72)",
                 }}
               >
-                Selecciona las mejores fotos de tus viajes o momentos especiales. Aceptamos todos los formatos de alta resolucion.
+                Selecciona las mejores fotos de tus viajes o momentos especiales. Aceptamos todos los formatos de alta resolución.
               </p>
             </div>
 
@@ -1034,7 +1088,7 @@ export default async function HomePage() {
                   lineHeight: 1.2,
                 }}
               >
-                Elige tu diseno
+                Elige tu diseño
               </h3>
               <p
                 style={{
@@ -1044,7 +1098,7 @@ export default async function HomePage() {
                   color: "rgba(255,255,255,0.82)",
                 }}
               >
-                Escoge entre nuestras plantillas profesionales, elige la tapa y personaliza cada pagina a tu gusto.
+                Escoge entre nuestras plantillas profesionales, elige la tapa y personaliza cada página a tu gusto.
               </p>
             </div>
 
@@ -1114,7 +1168,7 @@ export default async function HomePage() {
                   color: "rgba(255,255,255,0.72)",
                 }}
               >
-                Imprimimos con la maxima calidad y te lo enviamos a domicilio en Lima. Tu recuerdo, listo para atesorar.
+                Imprimimos con la máxima calidad y te lo enviamos a domicilio en Lima. Tu recuerdo, listo para atesorar.
               </p>
             </div>
           </div>
@@ -1228,6 +1282,7 @@ export default async function HomePage() {
 
           {/* Grid de tarjetas — glassmorphism */}
           <div
+            className="testimonials-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
@@ -1326,6 +1381,7 @@ export default async function HomePage() {
 
           {/* Métricas inline — sin recuadro pesado */}
           <div
+            className="testimonials-metrics"
             style={{
               display: "flex",
               justifyContent: "center",
@@ -1343,17 +1399,17 @@ export default async function HomePage() {
                   </svg>
                 ))}
               </div>
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>Calificacion</div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>Calificación</div>
             </div>
 
-            <div style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.15)" }} />
+            <div className="metrics-separator" style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.15)" }} />
 
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>+1500</div>
               <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.55)", fontWeight: 500, marginTop: "8px" }}>Clientes satisfechos</div>
             </div>
 
-            <div style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.15)" }} />
+            <div className="metrics-separator" style={{ width: "1px", height: "40px", background: "rgba(255,255,255,0.15)" }} />
 
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "28px", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>+2400</div>

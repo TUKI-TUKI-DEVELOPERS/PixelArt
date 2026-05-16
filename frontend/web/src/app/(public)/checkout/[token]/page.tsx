@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { getCheckoutInfo, submitCheckout, type CheckoutInfo } from "@/lib/api/checkout";
+import { getAssetUrl } from "@/lib/assetUrl";
 import ProposalBook from "@/components/ProposalBook";
 import TemplateBook from "@/components/TemplateBook";
 import { useWindowSize } from "@/hooks/useWindowSize";
@@ -386,14 +387,24 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* QR placeholder */}
+        {/* QR Yape */}
         <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "20px" }}>
-          <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 700, color: "#111" }}>Paga con Yape</h3>
-          <div style={{ width: "180px", height: "180px", margin: "0 auto 12px", borderRadius: "12px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", fontSize: "13px", border: "2px dashed #d1d5db" }}>
-            QR Yape (próximamente)
-          </div>
+          <h3 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: 700, color: "#111" }}>Paga con Yape</h3>
+          <p style={{ margin: "0 0 14px 0", fontSize: "13px", color: "#9ca3af" }}>Abre Yape, toca el ícono de QR y escanea</p>
+          <img
+            src={getAssetUrl("QRPago/QR_Pago_Pixelart.png")}
+            alt="QR de pago Yape PixelArt"
+            style={{
+              width: "280px",
+              height: "280px",
+              objectFit: "contain",
+              display: "block",
+              margin: "0 auto 14px",
+              borderRadius: "12px",
+            }}
+          />
           <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-            Paga {formatPrice(totalDisplay)} y sube la captura abajo
+            Paga <strong>{formatPrice(totalDisplay)}</strong> y sube la captura abajo
           </p>
         </div>
 

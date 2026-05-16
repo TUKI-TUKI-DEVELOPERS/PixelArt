@@ -75,7 +75,10 @@ export default function PageTransitionLoader() {
   // así el loader aparece antes de que Next.js procese el popstate.
   // También capturamos 'popstate' directamente para las flechas del navegador.
   useEffect(() => {
-    const handleNavStart = () => {
+    const handleNavStart = (e: Event) => {
+      // Si es un popstate causado solo por cambio de hash → ignorar
+      if (e.type === 'popstate' && window.location.pathname === prevPath.current) return;
+
       if (timerRef.current) clearTimeout(timerRef.current);
 
       sessionStorage.setItem('pixelart_nav', '1');

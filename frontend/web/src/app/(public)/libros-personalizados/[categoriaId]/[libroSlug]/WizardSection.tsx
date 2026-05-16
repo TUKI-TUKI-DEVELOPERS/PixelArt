@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { CheckCircle2 } from "lucide-react";
 import TemplateBook from "@/components/TemplateBook";
@@ -113,6 +113,13 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (submitted && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [submitted]);
 
   function updateForm(field: string, value: string | boolean | number) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -844,7 +851,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
         {/* Success */}
         {submitted && (
-          <div style={{ textAlign: "center", padding: "60px 0" }}>
+          <div ref={successRef} style={{ textAlign: "center", padding: "60px 0" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
               <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#065f46" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

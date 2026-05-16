@@ -1477,7 +1477,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
             <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 20, padding: "28px 24px", width: "min(460px, 100%)", boxShadow: "0 24px 64px rgba(0,0,0,0.3)" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#111", marginBottom: 4 }}>Distribuir fotos</div>
               <div style={{ fontSize: 14, color: "#888", marginBottom: hasContent ? 16 : 24 }}>
-                {pool.length} foto{pool.length !== 1 ? "s" : ""} · elegí cuántas por página
+                {pool.length} foto{pool.length !== 1 ? "s" : ""} · elige cuántas por página
               </div>
 
               {hasContent && (
