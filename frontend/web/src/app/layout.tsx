@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Montserrat } from "next/font/google";
 import './globals.css';
 
@@ -10,6 +10,11 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: 'PixelArt — Libros Personalizados',
   description: 'Crea tu libro personalizado o fotolibro con PixelArt',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

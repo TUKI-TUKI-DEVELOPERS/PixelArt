@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // Disable telemetry in Docker
   env: {
     NEXT_TELEMETRY_DISABLED: '1',
