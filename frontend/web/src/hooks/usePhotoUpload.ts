@@ -29,7 +29,6 @@ type UploadState = {
   error: string | null;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 const MAX_CONCURRENT = 3;
 
 export function usePhotoUpload(folder: string = "uploads/customers") {
@@ -66,7 +65,7 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
 
         // C4: Use public upload endpoint (no JWT required)
         const res = await fetch(
-          `${API_BASE}/api/assets/upload-public?folder=${encodeURIComponent(folder)}`,
+          `/api/assets/upload-public?folder=${encodeURIComponent(folder)}`,
           { method: "POST", body: formData },
         );
 
