@@ -2,6 +2,10 @@ html,
 body {
   margin: 0;
   padding: 0;
+  /* Prevent Chrome Android from expanding the layout viewport
+     when SSR renders desktop-wide content. overflow-x: clip (unlike hidden)
+     does NOT create a block formatting context, so position:sticky still works. */
+  overflow-x: clip;
 }
 
 body {

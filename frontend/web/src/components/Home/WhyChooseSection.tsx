@@ -104,8 +104,10 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
               width: "280px",
               height: "auto",
               display: "block",
+              marginTop: 0,
               marginBottom: tokens.spacing.component.md,
-              ...(isMobile && { margin: `0 auto ${tokens.spacing.component.md}` }),
+              marginLeft: isMobile ? "auto" : 0,
+              marginRight: isMobile ? "auto" : 0,
             }}
           />
 
@@ -114,8 +116,10 @@ export default function WhyChooseSection({ logoUrl, whyChooseUsImageUrl }: WhyCh
               width: "80%",
               height: "4px",
               background: tokens.colors.neutral.text.primary,
+              marginTop: 0,
               marginBottom: tokens.spacing.section.sm,
-              ...(isMobile && { margin: `0 auto ${tokens.spacing.section.sm}` }),
+              marginLeft: isMobile ? "auto" : 0,
+              marginRight: isMobile ? "auto" : 0,
             }}
           />
 

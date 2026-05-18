@@ -510,8 +510,10 @@ export default function BookQualitySection({ bookCoverThickUrl, bookCoverSlimUrl
               height: "3px",
               background: tokens.colors.photobooks.gradient,
               borderRadius: "2px",
+              marginTop: 0,
               marginBottom: tokens.spacing.component.md,
-              ...(isMobile && { margin: `0 auto ${tokens.spacing.component.md}` }),
+              marginLeft: isMobile ? "auto" : 0,
+              marginRight: isMobile ? "auto" : 0,
             }}
           />
 
