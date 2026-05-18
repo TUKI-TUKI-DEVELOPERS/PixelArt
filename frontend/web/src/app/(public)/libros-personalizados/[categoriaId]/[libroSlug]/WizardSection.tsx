@@ -449,9 +449,12 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   input.type = "file";
                   input.accept = "image/*";
                   input.multiple = true;
+                  input.style.display = "none";
+                  document.body.appendChild(input);
                   input.onchange = (e) => {
                     const files = (e.target as HTMLInputElement).files;
                     if (files) uploadFiles(Array.from(files).slice(0, remaining));
+                    document.body.removeChild(input);
                   };
                   input.click();
                 }}

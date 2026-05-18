@@ -599,7 +599,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
             <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#666" }}>Mínimo {MIN_HOJAS} hojas ({MIN_CARAS} caras). Puedes subir más para tener opciones.</p>
 
             <div
-              onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); }; input.click(); }}
+              onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
               style={{ width: "100%", minHeight: isMobile ? "80px" : "120px", borderRadius: "16px", border: "2px dashed #d0d0d0", background: "#fafafa", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", padding: "20px", cursor: "pointer", marginBottom: "16px" }}
             >
               <div style={{ fontSize: "24px" }}>+</div>
@@ -674,7 +674,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid #f0f0f0" }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: "#111", marginBottom: 10 }}>Mis Fotos</div>
                 <div
-                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); }; input.click(); }}
+                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
                   style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: `2px dashed ${ACCENT}40`, background: sidebarDragOver ? `${ACCENT}15` : `${ACCENT}08`, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", transition: "background 0.15s" }}
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -912,7 +912,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
                 {/* Add more photos */}
                 <div
-                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); }; input.click(); }}
+                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
                   style={{ flexShrink: 0, width: 100, height: 100, borderRadius: 14, border: `2px dashed ${ACCENT}60`, background: `${ACCENT}0a`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}
                 >
                   <span style={{ fontSize: 30, color: ACCENT, lineHeight: 1 }}>+</span>
