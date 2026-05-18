@@ -479,7 +479,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   {photos.map((p) => (
                     <div key={p.contentHash} style={{ position: "relative", aspectRatio: "1", borderRadius: "10px", overflow: "hidden", border: "1px solid #eee" }}>
                       <img src={p.preview} alt={p.originalFilename} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button onClick={() => removePhoto(p.contentHash)} style={{ position: "absolute", top: "4px", right: "4px", width: "22px", height: "22px", borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>x</button>
+                      <button onClick={() => removePhoto(p.uid)} style={{ position: "absolute", top: "4px", right: "4px", width: "22px", height: "22px", borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.5)", color: "#fff", fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>x</button>
                     </div>
                   ))}
                 </div>
