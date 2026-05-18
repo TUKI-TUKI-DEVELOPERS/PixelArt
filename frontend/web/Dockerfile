@@ -18,6 +18,10 @@ FROM base AS build
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# API_INTERNAL_URL debe estar disponible en build time para que Next.js standalone
+# baquee correctamente el rewrite /api/* → http://api:3001 (red Docker interna).
+ARG API_INTERNAL_URL=http://api:3001
+ENV API_INTERNAL_URL=${API_INTERNAL_URL}
 RUN npm run build
 
 # ─── Production (standalone output) ───────────────────────────────────────────
