@@ -22,6 +22,8 @@ COPY . .
 # baquee correctamente el rewrite /api/* → http://api:3001 (red Docker interna).
 ARG API_INTERNAL_URL=http://api:3001
 ENV API_INTERNAL_URL=${API_INTERNAL_URL}
+# public/ es opcional en Next.js; si no existe el COPY del stage prod falla
+RUN mkdir -p public
 RUN npm run build
 
 # ─── Production (standalone output) ───────────────────────────────────────────
