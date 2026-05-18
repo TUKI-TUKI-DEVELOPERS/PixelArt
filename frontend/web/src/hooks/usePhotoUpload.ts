@@ -43,7 +43,11 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
 
   const uploadFiles = useCallback(
     async (files: File[]) => {
-      const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+      const imageFiles = files.filter(
+        (f) =>
+          f.type.startsWith("image/") ||
+          (!f.type && /\.(jpe?g|png|gif|webp|heic|heif|avif|bmp)$/i.test(f.name)),
+      );
       if (imageFiles.length === 0) return;
 
       setState((s) => ({ ...s, uploading: true, progress: 0, error: null }));
