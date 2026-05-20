@@ -548,7 +548,7 @@ export default function CategoriaClient({
   catalogIds = {},
   modelCovers = {},
 }: Props) {
-  const { isMobile, isTablet } = useWindowSize();
+  const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   const hero = CATEGORY_HERO[categoriaSlug];
   const booksRaw = CATEGORY_BOOKS[categoriaSlug] ?? [];
 
@@ -950,7 +950,7 @@ export default function CategoriaClient({
           <h3
             style={{
               margin: "0 0 14px 0",
-              fontSize: isMobile ? "26px" : "36px",
+              fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
               fontWeight: 800,
               color: "#fff",
               lineHeight: 1.1,

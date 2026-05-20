@@ -194,7 +194,7 @@ type Props = {
 
 export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImageUrls = [], memoriesImageUrls = [], faqImageUrl }: Props) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
-  const { isMobile, isTablet } = useWindowSize();
+  const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   const heroSectionRef = useRef<HTMLElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
 
@@ -312,7 +312,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           <h1
             style={{
               margin: 0,
-              fontSize: isMobile ? "26px" : "36px",
+              fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
               fontWeight: 900,
               color: "#fff",
               lineHeight: 1.2,
@@ -681,7 +681,7 @@ const EXAMPLES_GRUESA = [
 ];
 
 function PricingSection() {
-  const { isMobile, isTablet } = useWindowSize();
+  const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   return (
     <section style={{ background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 60%, #1a1a2e 100%)", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>

@@ -492,7 +492,7 @@ export default function LibroDetalleClient({
   variants = [],
   templates = [],
 }: Props) {
-  const { isMobile } = useWindowSize();
+  const { isMobile, isSmallMobile } = useWindowSize();
   const info = LIBROS_INFO[libroSlug] ?? { ...DEFAULT_INFO, nombre: libroNombre };
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTapa, setSelectedTapa] = useState<"gruesa" | "premium">("gruesa");
@@ -619,7 +619,7 @@ export default function LibroDetalleClient({
             <p
               style={{
                 margin: "0 0 10px 0",
-                fontSize: isMobile ? "26px" : "36px",
+                fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
                 fontWeight: 900,
                 color: "#111",
                 textTransform: "uppercase",
@@ -770,7 +770,7 @@ export default function LibroDetalleClient({
               <h1
                 style={{
                   margin: "0 0 8px 0",
-                  fontSize: isMobile ? "28px" : "36px",
+                  fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "36px",
                   fontWeight: isMobile ? 600 : 700,
                   color: "#111",
                   lineHeight: 1.1,
@@ -958,7 +958,7 @@ export default function LibroDetalleClient({
             </p>
             <h2 style={{
               margin: "0 0 16px 0",
-              fontSize: isMobile ? "28px" : "40px",
+              fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "40px",
               fontWeight: 900,
               color: "#1a1a1a",
               lineHeight: 1.1,
@@ -1046,7 +1046,7 @@ export default function LibroDetalleClient({
               </p>
               <h2 style={{
                 margin: "0 0 16px 0",
-                fontSize: isMobile ? "26px" : "36px",
+                fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
                 fontWeight: 900,
                 color: "#1a1a1a",
                 lineHeight: 1.15,

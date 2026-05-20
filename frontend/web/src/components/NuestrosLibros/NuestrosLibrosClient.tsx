@@ -380,7 +380,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 type ActivePromo = { targetType: string; targetId: number | null; targetIds: number[]; discountType: string; discountValue: number };
 
 export default function NuestrosLibrosClient({ books }: Props) {
-  const { isMobile, isTablet } = useWindowSize();
+  const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   const [visibleCount, setVisibleCount]   = useState(CARDS_PER_PAGE);
   const [activeFilter, setActiveFilter]   = useState<FilterKey>('todos');
   const [filterOpen, setFilterOpen]       = useState(false);
@@ -580,7 +580,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
           <h1
             style={{
               margin: 0,
-              fontSize: isMobile ? "36px" : isTablet ? "48px" : "64px",
+              fontSize: isSmallMobile ? "30px" : isMobile ? "36px" : isTablet ? "48px" : "64px",
               fontWeight: 900,
               color: "#fff",
               textTransform: "uppercase",
@@ -726,7 +726,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
             <h2
               style={{
                 margin: "0 0 16px 0",
-                fontSize: isMobile ? "26px" : isTablet ? "32px" : "40px",
+                fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : isTablet ? "32px" : "40px",
                 fontWeight: 900,
                 color: "#1a1a1a",
                 lineHeight: 1.1,
@@ -1006,7 +1006,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              fontSize: isMobile ? "80px" : isTablet ? "120px" : "160px",
+              fontSize: isSmallMobile ? "66px" : isMobile ? "80px" : isTablet ? "120px" : "160px",
               fontWeight: 900,
               lineHeight: 1,
               color: "#B72020",
@@ -1050,7 +1050,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
               <span
                 style={{
                   display: "block",
-                  fontSize: isMobile ? "48px" : isTablet ? "72px" : "96px",
+                  fontSize: isSmallMobile ? "40px" : isMobile ? "48px" : isTablet ? "72px" : "96px",
                   color: "#1a1a1a",
                 }}
               >
@@ -1059,7 +1059,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
               <span
                 style={{
                   display: "block",
-                  fontSize: isMobile ? "48px" : isTablet ? "72px" : "96px",
+                  fontSize: isSmallMobile ? "40px" : isMobile ? "48px" : isTablet ? "72px" : "96px",
                   background: "linear-gradient(135deg, #B72020 0%, #e8453c 50%, #c0392b 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -1489,7 +1489,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
           <h2
             style={{
               margin: "0 0 16px 0",
-              fontSize: isMobile ? "28px" : isTablet ? "36px" : "44px",
+              fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : isTablet ? "36px" : "44px",
               fontWeight: 900,
               color: "#fff",
               lineHeight: 1.1,
@@ -1557,7 +1557,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
             <h2
               style={{
                 margin: "0 0 16px 0",
-                fontSize: isMobile ? "28px" : isTablet ? "36px" : "44px",
+                fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : isTablet ? "36px" : "44px",
                 fontWeight: 900, color: "#1a1a1a",
                 lineHeight: 1.1, letterSpacing: "-0.5px",
               }}
@@ -1673,7 +1673,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
             <h2
               style={{
                 margin: "0 0 16px 0",
-                fontSize: isMobile ? "28px" : isTablet ? "36px" : "44px",
+                fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : isTablet ? "36px" : "44px",
                 fontWeight: 900,
                 color: "#1a1a1a",
                 lineHeight: 1.1,

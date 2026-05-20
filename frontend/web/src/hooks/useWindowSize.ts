@@ -20,6 +20,7 @@ export function useWindowSize() {
   const measured = width > 0;
   return {
     isMobile: !measured || width < 768,
+    isSmallMobile: measured && width < 375,
     isTablet: measured && width >= 768 && width < 1024,
     isCompact: !measured || width < 1024,
   };

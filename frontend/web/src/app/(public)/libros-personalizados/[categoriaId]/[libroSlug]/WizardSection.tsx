@@ -107,7 +107,7 @@ function formatPrice(cents: number) {
 
 export default function WizardSection({ accent, dbIds, variants, templates, libroNombre, categoriaSlug }: Props) {
   const photoTips = PHOTO_TIPS[categoriaSlug] ?? DEFAULT_PHOTO_TIPS;
-  const { isMobile } = useWindowSize();
+  const { isMobile, isSmallMobile } = useWindowSize();
   const [currentStep, setCurrentStep] = useState(0);
   const [promos, setPromos] = useState<ActivePromo[]>([]);
   const { photos, uploading, progress, uploadFiles, removePhoto } = usePhotoUpload("uploads/customers");
@@ -258,7 +258,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           </svg>
           <span style={{ fontSize: "11px", fontWeight: 700, color: accent, textTransform: "uppercase", letterSpacing: "1px" }}>Solo 5 pasos</span>
         </div>
-        <h2 style={{ margin: "0 0 12px 0", fontSize: isMobile ? "28px" : "40px", fontWeight: 800, color: "#111", letterSpacing: "-0.5px" }}>
+        <h2 style={{ margin: "0 0 12px 0", fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "40px", fontWeight: 800, color: "#111", letterSpacing: "-0.5px" }}>
           Crea tu libro personalizado
         </h2>
         <p style={{ margin: 0, fontSize: "16px", color: "#666", lineHeight: 1.5 }}>
