@@ -39,7 +39,7 @@ type LibroInfo = {
   descripcionCorta: string;
   bullets: string[];
   caracteristicas: { label: string; value: string }[];
-  precio: { gruesa: string; premium: string };
+  precio: { desde: string };
   reviewCount: number;
   accent: string;
 };
@@ -56,13 +56,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Momentos cotidianos, recuerdos inolvidables: Sigue a la pareja en escenas llenas de cariño, detalles románticos y situaciones del día a día con las que cualquiera se identifica.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 180,
     accent: "#dc4b89",
   },
@@ -77,13 +76,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada plantilla representa un momento especial de la vida en pareja que hace que el amor crezca cada día.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 200,
     accent: "#dc4b89",
   },
@@ -98,13 +96,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada plantilla transforma al destinatario en un personaje poderoso, romántico o inspirador.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 150,
     accent: "#dc4b89",
   },
@@ -119,13 +116,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada página captura momentos únicos, enseñanzas y recuerdos que fortalecen el vínculo padre-hijo.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 185,
     accent: "#2b86bf",
   },
@@ -140,13 +136,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada plantilla recrea los mejores recuerdos junto al abuelo, desde historias hasta aventuras familiares.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 185,
     accent: "#f0b02a",
   },
@@ -161,13 +156,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada plantilla representa momentos especiales de la relación entre hermanos que perdurarán para siempre.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 180,
     accent: "#2b86bf",
   },
@@ -182,13 +176,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Desde reuniones hasta tradiciones, cada página refleja el amor que los mantiene unidos.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 170,
     accent: "#88c343",
   },
@@ -203,13 +196,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada plantilla recrea los momentos más tiernos y las historias que solo una abuela puede contar.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 90,
     accent: "#ea6f29",
   },
@@ -224,13 +216,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada página es un tributo a los sacrificios, sonrisas y abrazos que hacen de mamá la mejor heroína.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 182,
     accent: "#44b9b1",
   },
@@ -245,13 +236,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada página honra los momentos que los hicieron cómplices, compañeros y el mejor equipo del mundo.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 0,
     accent: "#8b6bb1",
   },
@@ -266,13 +256,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada página celebra sus virtudes, su sabiduría y los momentos únicos que compartieron juntos.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 0,
     accent: "#8b6bb1",
   },
@@ -287,13 +276,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada página honra quién fue, todo lo que significó para vos y el amor que sigue vivo en cada recuerdo.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 0,
     accent: "#8b6bb1",
   },
@@ -308,13 +296,12 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "Cada página celebra quién fue esa persona especial y lo que significó para vos.",
     ],
     caracteristicas: [
-      { label: "Edad", value: "0 - 100 años" },
-      { label: "Longitud", value: "16 páginas" },
-      { label: "Tamaño", value: "20 x 12 cm" },
-      { label: "Tipo de tapa", value: "Delgada" },
-      { label: "Historias", value: "1 / 10 Seleccionadas" },
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
     ],
-    precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+    precio: { desde: "S/ 130" },
     reviewCount: 0,
     accent: "#8b6bb1",
   },
@@ -330,13 +317,12 @@ const DEFAULT_INFO: LibroInfo = {
     "Personaliza cada detalle con tus fotos e historias.",
   ],
   caracteristicas: [
-    { label: "Edad", value: "0 - 100 años" },
-    { label: "Longitud", value: "16 páginas" },
-    { label: "Tamaño", value: "20 x 12 cm" },
-    { label: "Tipo de tapa", value: "Delgada" },
-    { label: "Historias", value: "1 / 10 Seleccionadas" },
+    { label: "Páginas", value: "10 a 15" },
+    { label: "Tamaño", value: "29 × 20 cm" },
+    { label: "Tapa", value: "Delgada / Gruesa" },
+    { label: "Material", value: "Hoja couché 200 gr Gloss" },
   ],
-  precio: { gruesa: "S/ 49.99", premium: "S/ 59.99" },
+  precio: { desde: "S/ 130" },
   reviewCount: 100,
   accent: "#dc4b89",
 };
@@ -896,24 +882,24 @@ export default function LibroDetalleClient({
                 }),
               }}
             >
-              <div style={{ fontSize: "12px", fontWeight: 500, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px" }}>
+              <div style={{ fontSize: "12px", fontWeight: 500, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px", textAlign: "center" }}>
                 Características del Libro
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px" }}>
-                {[
-                  { text: `Edad: ${info.caracteristicas.find((c) => c.label === "Edad")?.value ?? ""}` },
-                  { text: `Longitud: ${info.caracteristicas.find((c) => c.label === "Longitud")?.value ?? ""}` },
-                  { text: `Tipo de tapa: ${info.caracteristicas.find((c) => c.label === "Tipo de tapa")?.value ?? ""}` },
-                  { text: `Tamaño: ${info.caracteristicas.find((c) => c.label === "Tamaño")?.value ?? ""}` },
-                ].map((item) => (
-                  <div key={item.text} style={{ fontSize: "14px", fontWeight: 500, color: "#555", lineHeight: 1.5 }}>
-                    {item.text}
+                {info.caracteristicas.map((item) => (
+                  <div key={item.label} style={{ fontSize: "14px", fontWeight: 500, color: "#555", lineHeight: 1.5 }}>
+                    {item.label}: {item.value}
                   </div>
                 ))}
               </div>
               <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", margin: "16px 0 12px" }} />
-              <div style={{ fontSize: "14px", fontWeight: 600, color: "#444", letterSpacing: "0.3px" }}>
-                PRECIO: {info.precio.gruesa}
+              <div>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#444", letterSpacing: "0.3px" }}>
+                  Desde {info.precio.desde}
+                </div>
+                <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+                  El precio varía según la cantidad de plantillas elegidas (10 a 15)
+                </div>
               </div>
             </div>
 
@@ -950,6 +936,7 @@ export default function LibroDetalleClient({
         variants={variants}
         templates={templates}
         libroNombre={info.nombre}
+        categoriaSlug={categoriaSlug}
       />
       </div>
 

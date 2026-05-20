@@ -45,13 +45,68 @@ type Props = {
   variants: VariantProp[];
   templates: TemplateProp[];
   libroNombre: string;
+  categoriaSlug: string;
+};
+
+const PHOTO_TIPS: Record<string, { titulo: string; tips: string[] }> = {
+  "libros-de-amor": {
+    titulo: "Recomendaciones para sus fotos",
+    tips: [
+      "Foto de los dos juntos, mirando a la cámara",
+      "Ambos rostros completos, bien iluminados y enfocados",
+      "Sin filtros, gafas de sol ni gorros",
+      "Pueden subir primeros planos y fotos de cuerpo entero",
+      "Buena resolución — evitar capturas de pantalla",
+    ],
+  },
+  "libros-de-mascotas": {
+    titulo: "Recomendaciones para sus fotos",
+    tips: [
+      "Foto tuya junto a tu mascota",
+      "Rostro de tu mascota bien visible y enfocado",
+      "Buena iluminación, sin flash directo",
+      "Sin accesorios que tapen el rostro de tu mascota",
+      "Pueden subir fotos de diferentes momentos juntos",
+    ],
+  },
+  "libros-de-familia": {
+    titulo: "Recomendaciones para sus fotos",
+    tips: [
+      "Foto grupal donde se vean todos los rostros",
+      "Todos bien iluminados, enfocados y sin gafas de sol",
+      "Sin gorros ni accesorios que tapen la cara",
+      "Foto reciente y de buena resolución",
+      "Pueden subir fotos grupales e individuales",
+    ],
+  },
+  "libros-de-memorias-familiares": {
+    titulo: "Recomendaciones para sus fotos",
+    tips: [
+      "Foto clara de la persona que quieres recordar",
+      "Rostro bien visible, iluminado y enfocado",
+      "Sin filtros que alteren los rasgos",
+      "Foto de buena resolución — evitar capturas de pantalla",
+      "Pueden incluir fotos de momentos especiales compartidos",
+    ],
+  },
+};
+
+const DEFAULT_PHOTO_TIPS = {
+  titulo: "Recomendaciones para tus fotos",
+  tips: [
+    "Foto clara, bien iluminada y nítida",
+    "Rostro completo y enfocado",
+    "Sin gorros, gafas ni filtros",
+    "Buena resolución — evitar capturas de pantalla",
+  ],
 };
 
 function formatPrice(cents: number) {
   return `S/ ${(cents / 100).toFixed(2)}`;
 }
 
-export default function WizardSection({ accent, dbIds, variants, templates, libroNombre }: Props) {
+export default function WizardSection({ accent, dbIds, variants, templates, libroNombre, categoriaSlug }: Props) {
+  const photoTips = PHOTO_TIPS[categoriaSlug] ?? DEFAULT_PHOTO_TIPS;
   const { isMobile } = useWindowSize();
   const [currentStep, setCurrentStep] = useState(0);
   const [promos, setPromos] = useState<ActivePromo[]>([]);
@@ -439,7 +494,29 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           return (
             <div>
               <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: 600 }}>1. Sube tus fotos</h3>
-              <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>Sube fotos tuyas y de tu pareja, mascota o familiar. Fotos claras, diferentes ángulos, buena iluminación. Máximo 5 fotos.</p>
+              <p style={{ margin: "0 0 16px 0", fontSize: "14px", color: "#666" }}>Sube hasta 5 fotos. Cuanto mejores sean las fotos, mejor quedará el libro.</p>
+
+              {/* Recomendaciones */}
+              <div style={{
+                marginBottom: "20px",
+                padding: "14px 16px",
+                borderRadius: "12px",
+                background: `${accent}08`,
+                border: `1px solid ${accent}25`,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                    <circle cx="12" cy="13" r="3"/>
+                  </svg>
+                  <span style={{ fontSize: "13px", fontWeight: 700, color: accent }}>{photoTips.titulo}</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "5px" }}>
+                  {photoTips.tips.map((tip) => (
+                    <li key={tip} style={{ fontSize: "13px", color: "#555", lineHeight: 1.4 }}>{tip}</li>
+                  ))}
+                </ul>
+              </div>
 
               {/* Drop zone */}
               <div

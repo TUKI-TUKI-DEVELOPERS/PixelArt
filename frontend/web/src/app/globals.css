@@ -8,6 +8,12 @@ body {
   overflow-x: clip;
 }
 
+html {
+  /* Prevent MIUI/Android OEM font scaling from overriding CSS font sizes. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   min-height: 100vh;
 }
