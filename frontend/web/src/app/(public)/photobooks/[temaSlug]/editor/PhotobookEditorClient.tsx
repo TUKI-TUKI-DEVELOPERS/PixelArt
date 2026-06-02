@@ -7,7 +7,7 @@ import PhotobookPreview from "@/components/PhotobookPreview";
 import PhotobookSpreadEditor from "@/components/PhotobookSpreadEditor";
 import interact from "interactjs";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API = "";
 const ACCENT = "#804187";
 const LOW_RES_THRESHOLD = 1000;
 const MIN_HOJAS = 15;

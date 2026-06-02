@@ -375,7 +375,7 @@ const FILTER_BADGE: Record<Exclude<FilterKey, 'todos'>, string> = {
   memorias: 'MEMORIAS FAMILIARES',
 };
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const API = "";
 
 type ActivePromo = { targetType: string; targetId: number | null; targetIds: number[]; discountType: string; discountValue: number };
 

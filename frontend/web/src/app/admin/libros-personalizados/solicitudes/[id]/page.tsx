@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API = "";
 
 /** Resuelve la URL pública de un asset desde su ID */
 async function resolveAssetUrl(assetId: number): Promise<string | null> {

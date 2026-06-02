@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API = "";
 
 type FeedbackItem = { id: number; orderId: number; stars: number; ratingX2: number; comment: string | null; redirectedToGoogle: boolean; createdAt: string };
 

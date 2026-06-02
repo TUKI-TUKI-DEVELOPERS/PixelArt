@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API = "";
 
 type OrderResult = { id: number; customerFullName: string; customerEmail: string; status: string; channel: string };
 type DemoResult  = { id: number; customerFullName: string; customerEmail: string; status: string };

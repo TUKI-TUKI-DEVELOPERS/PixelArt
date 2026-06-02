@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API = "";
 
 type OrderDetail = {
   id: number; channel: string; status: string; customerFullName: string; customerEmail: string; customerPhone: string;

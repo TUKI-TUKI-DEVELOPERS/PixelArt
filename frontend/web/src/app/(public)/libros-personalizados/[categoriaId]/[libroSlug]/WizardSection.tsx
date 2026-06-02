@@ -7,7 +7,7 @@ import TemplateBook from "@/components/TemplateBook";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import WizardBackground from "@/components/backgrounds/WizardBackground";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_BASE = "";
 
 type ActivePromo = { label: string; targetType: string; targetId: number | null; discountType: string; discountValue: number };
 

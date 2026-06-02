@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API = "";
 
 type Order = { id: number; channel: string; status: string; customerFullName: string; customerEmail: string; totalAmountCents: number; createdAt: string };
 
