@@ -42,7 +42,7 @@ export class SendUnifiedCheckoutUseCase {
       customerEmail: detail.customerEmail,
       customerPhone: detail.customerPhone,
       baseAmountCents: Number(baseAmountCents),
-      estimatedDeliveryDate: detail.deliveryDate,
+      estimatedDeliveryDate: detail.deliveryDate ?? undefined,
     });
 
     // Generate unified CHECKOUT link referencing order_id

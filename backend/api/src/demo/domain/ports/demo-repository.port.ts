@@ -13,7 +13,7 @@ export type CreateDemoRequestData = {
   shippingCity?: string | null;
   shippingRegion?: string | null;
   shippingReference?: string | null;
-  deliveryDate: string;
+  deliveryDate?: string | null;
   wantsRush?: boolean;
   packagePreference?: string;
   wantsCustomDedication: boolean;

@@ -13,7 +13,7 @@ export class DemoRequest {
     public readonly shippingCity: string | null,
     public readonly shippingRegion: string | null,
     public readonly shippingReference: string | null,
-    public readonly deliveryDate: string,
+    public readonly deliveryDate: string | null,
     public readonly wantsRush: boolean,
     public readonly packagePreference: string,
     public readonly wantsCustomDedication: boolean,

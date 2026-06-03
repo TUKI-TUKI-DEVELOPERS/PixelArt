@@ -47,8 +47,8 @@ export class DemoRequestOrmEntity {
   @Column({ name: 'shipping_reference', type: 'text', nullable: true })
   shippingReference!: string | null;
 
-  @Column({ name: 'delivery_date', type: 'date' })
-  deliveryDate!: string;
+  @Column({ name: 'delivery_date', type: 'date', nullable: true })
+  deliveryDate!: string | null;
 
   @Column({ name: 'wants_rush', type: 'boolean', default: false })
   wantsRush!: boolean;

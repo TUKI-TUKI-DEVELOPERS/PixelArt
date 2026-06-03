@@ -42,7 +42,7 @@ export class CreateOrderFromDemoUseCase {
       customerPhone: detail.customerPhone,
       baseAmountCents: Number(baseAmountCents),
       rushFeeCents: detail.wantsRush ? RUSH_FEE_CENTS : 0,
-      estimatedDeliveryDate: detail.deliveryDate,
+      estimatedDeliveryDate: detail.deliveryDate ?? undefined,
     });
 
     // Generate payment link

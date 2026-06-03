@@ -41,7 +41,7 @@ type DemoDetail = {
   shippingAddressLine2: string | null;
   shippingCity: string | null;
   shippingRegion: string | null;
-  deliveryDate: string;
+  deliveryDate: string | null;
   wantsRush: boolean;
   packagePreference: string;
   coverType: string | null;
@@ -181,7 +181,7 @@ export default function SolicitudDetallePage() {
             { label: "Email",         value: data.customerEmail },
             { label: "Teléfono",      value: data.customerPhone },
             { label: "Dirección",     value: [data.shippingAddressLine1, data.shippingCity, data.shippingRegion].filter(Boolean).join(", ") },
-            { label: "Fecha entrega", value: data.deliveryDate },
+            { label: "Fecha entrega", value: data.deliveryDate ?? "—" },
           ].map((field, i, arr) => (
             <div key={field.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
               <div style={{ fontSize: "11px", fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "5px" }}>{field.label}</div>
@@ -237,7 +237,7 @@ export default function SolicitudDetallePage() {
             },
             {
               label: "Fecha deseada",
-              value: data.deliveryDate,
+              value: data.deliveryDate ?? "—",
               accent: false,
             },
           ].map((field, i, arr) => (

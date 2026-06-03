@@ -191,7 +191,7 @@ CREATE TABLE demo_request (
   shipping_region TEXT,
   shipping_reference TEXT,
 
-  delivery_date DATE NOT NULL,
+  delivery_date DATE,
   wants_rush         BOOLEAN     NOT NULL DEFAULT FALSE,
   package_preference VARCHAR(10) NOT NULL DEFAULT 'STANDARD',
 

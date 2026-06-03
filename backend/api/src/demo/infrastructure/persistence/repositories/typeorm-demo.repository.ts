@@ -43,7 +43,7 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
         shippingCity: data.shippingCity ?? null,
         shippingRegion: data.shippingRegion ?? null,
         shippingReference: data.shippingReference ?? null,
-        deliveryDate: data.deliveryDate,
+        deliveryDate: data.deliveryDate ?? null,
         wantsRush: data.wantsRush ?? false,
         packagePreference: data.packagePreference ?? 'STANDARD',
         wantsCustomDedication: data.wantsCustomDedication,
