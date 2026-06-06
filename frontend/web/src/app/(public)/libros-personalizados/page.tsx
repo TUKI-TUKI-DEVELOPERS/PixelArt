@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import ModernBackground from "@/components/backgrounds/ModernBackground";
 import NuestrosLibrosClient from "@/components/NuestrosLibros/NuestrosLibrosClient";
 
