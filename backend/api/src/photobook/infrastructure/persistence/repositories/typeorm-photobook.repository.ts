@@ -82,6 +82,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
             pageId: savedPage.id,
             assetId: String(slotData.assetId),
             slotIndex: slotData.slotIndex,
+            cropData: slotData.cropData ?? null,
           });
           await manager.save(PhotobookPageSlotOrmEntity, slot);
         }
@@ -116,7 +117,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
         id: Number(page.id),
         pageNumber: page.pageNumber,
         layoutKey: page.layoutKey,
-        slots: slots.map((s) => ({ slotIndex: s.slotIndex, assetId: Number(s.assetId) })),
+        slots: slots.map((s) => ({ slotIndex: s.slotIndex, assetId: Number(s.assetId), cropData: s.cropData as import('../../../domain/ports/photobook-repository.port').CropData | null })),
       });
     }
 

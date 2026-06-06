@@ -9,9 +9,12 @@ import interact from "interactjs";
 
 const API = "";
 const ACCENT = "#804187";
-const LOW_RES_THRESHOLD = 1000;
+const LOW_RES_THRESHOLD = 2000;
 const MIN_HOJAS = 15;
 const MIN_CARAS = MIN_HOJAS * 2; // 30 caras mínimo
+const MAX_HOJAS = 60;
+const MAX_CARAS = MAX_HOJAS * 2; // 120 caras máximo
+const MAX_PHOTOS = 120;
 const RUSH_FEE_CENTS = 2500; // S/ 25
 const MIN_NORMAL_DAYS = 4;
 const MIN_RUSH_DAYS = 2;
@@ -59,7 +62,7 @@ type PageData = {
   pageNumber: number;
   layoutKey: string;
   slots: (UploadedPhoto | null)[];
-  slotPositions?: Record<number, { x: number; y: number }>;
+  slotPositions?: Record<number, { x: number; y: number; zoom?: number }>;
 };
 
 type Product = { id: number; name: string; pricePerPageCents: number; minPages: number; currency: string; allowsCustomDimensions: boolean };
@@ -306,11 +309,13 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     while (newPages.length < minPages) {
       newPages.push({ pageNumber: newPages.length + 1, layoutKey: "FULL_1", slots: [null] });
     }
+    if (newPages.length > MAX_CARAS) newPages.splice(MAX_CARAS);
     setPages(newPages);
     setAutoDistributeOpen(false);
   }
 
   function addPage() {
+    if (pages.length >= MAX_CARAS) return;
     setPages((prev) => [...prev, { pageNumber: prev.length + 1, layoutKey: "FULL_1", slots: [null] }]);
   }
 
@@ -395,12 +400,12 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     });
   }, []);
 
-  const updateSlotPosition = useCallback((pageIdx: number, slotIdx: number, x: number, y: number) => {
+  const updateSlotPosition = useCallback((pageIdx: number, slotIdx: number, x: number, y: number, zoom: number) => {
     setPages((prev) => {
       const copy = [...prev];
       copy[pageIdx] = {
         ...copy[pageIdx],
-        slotPositions: { ...copy[pageIdx].slotPositions, [slotIdx]: { x, y } },
+        slotPositions: { ...copy[pageIdx].slotPositions, [slotIdx]: { x, y, zoom } },
       };
       return copy;
     });
@@ -528,7 +533,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         pages: pages.map((p) => ({
           pageNumber: p.pageNumber,
           layoutKey: p.layoutKey,
-          slots: p.slots.filter(Boolean).map((s, i) => ({ assetId: s!.id, slotIndex: i })),
+          slots: p.slots.filter(Boolean).map((s, i) => ({ assetId: s!.id, slotIndex: i, cropData: p.slotPositions?.[i] ?? null })),
         })),
         assetIds: photos.map((p) => p.id),
       };
@@ -559,7 +564,15 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     e.preventDefault();
     setSidebarDragOver(false);
     const files = e.dataTransfer.files;
-    if (files.length) uploadFiles(Array.from(files));
+    if (files.length) handleUploadFiles(Array.from(files));
+  }
+
+  const photoLimitReached = photos.length >= MAX_PHOTOS;
+
+  function handleUploadFiles(files: File[]) {
+    const remaining = MAX_PHOTOS - photos.length;
+    if (remaining <= 0) return;
+    uploadFiles(files.slice(0, remaining));
   }
 
   return (
@@ -596,15 +609,31 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         {step === 1 && (
           <div>
             <h2 style={{ margin: "0 0 8px", fontSize: isMobile ? "20px" : "24px", fontWeight: 800 }}>Sube tus fotos</h2>
-            <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#666" }}>Mínimo {MIN_HOJAS} hojas ({MIN_CARAS} caras). Puedes subir más para tener opciones.</p>
+            {pages.length > 0 && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: `${ACCENT}12`, border: `1px solid ${ACCENT}30`, borderRadius: 8, padding: "6px 12px", marginBottom: 12 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: ACCENT }}>{coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</span>
+                <span style={{ color: "#ccc" }}>·</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#555" }}>{hojas} hoja{hojas !== 1 ? "s" : ""} ({pages.length} caras)</span>
+              </div>
+            )}
+            <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#666" }}>Mínimo {MIN_CARAS} fotos · Máximo {MAX_PHOTOS} fotos. Sube más de las que necesitas para tener opciones.</p>
 
+            {photoLimitReached && (
+              <div style={{ marginBottom: 12, padding: "10px 14px", borderRadius: 10, background: "#fef3c7", border: "1px solid #fde68a", fontSize: 13, fontWeight: 600, color: "#92400e" }}>
+                Límite alcanzado — ya subiste el máximo de {MAX_PHOTOS} fotos. Elimina alguna si necesitas reemplazarla.
+              </div>
+            )}
             <div
-              onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
-              style={{ width: "100%", minHeight: isMobile ? "80px" : "120px", borderRadius: "16px", border: "2px dashed #d0d0d0", background: "#fafafa", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", padding: "20px", cursor: "pointer", marginBottom: "16px" }}
+              onClick={() => { if (photoLimitReached) return; const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) handleUploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
+              style={{ width: "100%", minHeight: isMobile ? "80px" : "120px", borderRadius: "16px", border: `2px dashed ${photoLimitReached ? "#e5e7eb" : "#d0d0d0"}`, background: photoLimitReached ? "#f3f4f6" : "#fafafa", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", padding: "20px", cursor: photoLimitReached ? "not-allowed" : "pointer", marginBottom: "16px", opacity: photoLimitReached ? 0.6 : 1 }}
             >
-              <div style={{ fontSize: "24px" }}>+</div>
-              <div style={{ fontSize: "14px", fontWeight: 600, color: "#555" }}>{isMobile ? "Subir fotos" : "Agregar Fotos"}</div>
-              {!isMobile && <div style={{ fontSize: "12px", color: "#999" }}>o arrastra aquí</div>}
+              {photoLimitReached ? (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              ) : (
+                <div style={{ fontSize: "24px" }}>+</div>
+              )}
+              <div style={{ fontSize: "14px", fontWeight: 600, color: photoLimitReached ? "#9ca3af" : "#555" }}>{photoLimitReached ? `Máximo ${MAX_PHOTOS} fotos alcanzado` : (isMobile ? "Subir fotos" : "Agregar Fotos")}</div>
+              {!isMobile && !photoLimitReached && <div style={{ fontSize: "12px", color: "#999" }}>o arrastra aquí</div>}
             </div>
 
             {/* Avisos de fotos duplicadas */}
@@ -673,15 +702,20 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
             >
               <div style={{ padding: "16px 16px 12px", borderBottom: "1px solid #f0f0f0" }}>
                 <div style={{ fontSize: 15, fontWeight: 800, color: "#111", marginBottom: 10 }}>Mis Fotos</div>
+                {photoLimitReached && (
+                  <div style={{ margin: "0 0 8px", padding: "7px 10px", borderRadius: 8, background: "#fef3c7", border: "1px solid #fde68a", fontSize: 11, fontWeight: 600, color: "#92400e" }}>
+                    Límite de {MAX_PHOTOS} fotos alcanzado
+                  </div>
+                )}
                 <div
-                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
-                  style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: `2px dashed ${ACCENT}40`, background: sidebarDragOver ? `${ACCENT}15` : `${ACCENT}08`, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", transition: "background 0.15s" }}
+                  onClick={() => { if (photoLimitReached) return; const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) handleUploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
+                  style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: photoLimitReached ? "2px dashed #e5e7eb" : `2px dashed ${ACCENT}40`, background: photoLimitReached ? "#f3f4f6" : (sidebarDragOver ? `${ACCENT}15` : `${ACCENT}08`), display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: photoLimitReached ? "not-allowed" : "pointer", transition: "background 0.15s", opacity: photoLimitReached ? 0.6 : 1 }}
                 >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={photoLimitReached ? "#9ca3af" : ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: ACCENT }}>{sidebarDragOver ? "Suelta aquí" : "Subir fotos"}</span>
-                  <span style={{ fontSize: 10, color: "#999" }}>PC, celular o tablet</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: photoLimitReached ? "#9ca3af" : ACCENT }}>{photoLimitReached ? "Límite alcanzado" : (sidebarDragOver ? "Suelta aquí" : "Subir fotos")}</span>
+                  {!photoLimitReached && <span style={{ fontSize: 10, color: "#999" }}>PC, celular o tablet</span>}
                 </div>
                 {uploading && (
                   <div style={{ marginTop: 8 }}>
@@ -732,8 +766,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                           <div key={p.uid} className="draggable-photo" data-photo-id={p.id} title={`${p.originalFilename}${p.width && p.height ? ` — ${p.width}×${p.height}` : ""}`} style={{ position: "relative", aspectRatio: "1", borderRadius: 6, overflow: "hidden", cursor: "grab", touchAction: "none", border: isPlaced ? `2px solid ${ACCENT}` : "2px solid transparent", opacity: isPlaced ? 0.7 : 1 }}>
                             <img src={p.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
                             {isPlaced && <div style={{ position: "absolute", top: 3, left: 3, width: 18, height: 18, borderRadius: "50%", background: ACCENT, color: "#fff", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>✓</div>}
-                            {isLowRes && !isPlaced && <div style={{ position: "absolute", top: 3, left: 3, width: 18, height: 18, borderRadius: "50%", background: "#f59e0b", color: "#fff", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>!</div>}
-                            {isLowRes && isPlaced && <div style={{ position: "absolute", bottom: 3, left: 3, width: 18, height: 18, borderRadius: "50%", background: "#f59e0b", color: "#fff", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>!</div>}
+                            {isLowRes && <div title="Resolución baja — esta foto puede verse borrosa en impresión. Se recomienda un mínimo de 2000×2000px." style={{ position: "absolute", top: isPlaced ? "auto" : 3, bottom: isPlaced ? 3 : "auto", left: 3, zIndex: 2, width: 18, height: 18, borderRadius: "50%", background: "#f59e0b", color: "#fff", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)", cursor: "help" }}>!</div>}
                             <button onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.uid); }} style={{ position: "absolute", top: 3, right: 3, width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>x</button>
                           </div>
                         );
@@ -772,7 +805,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", marginBottom: 12, marginLeft: 8, background: `${ACCENT}0d`, border: `1px solid ${ACCENT}30`, borderRadius: 10, fontSize: 12, color: "#555" }}>
                 <span style={{ fontSize: 16, flexShrink: 0 }}>💡</span>
-                <span><strong style={{ color: ACCENT }}>Doble clic</strong> sobre una foto para mover el encuadre dentro del slot. Arrastra para elegir qué parte de la foto quieres mostrar.</span>
+                <span>Presione el <strong style={{ color: ACCENT }}>ícono de movimiento</strong> sobre una foto para ajustar el encuadre, ubicado en la parte superior izquierda de cada foto. Además puedes enfocar personas o espacios determinados al usar los botones <strong style={{ color: ACCENT }}>−/+</strong> o la rueda del mouse para hacer zoom.</span>
               </div>
               {pages.length > 0 ? (
                 <PhotobookSpreadEditor pages={pages} accent={ACCENT} layouts={LAYOUTS} onChangeLayout={changeLayout} onAssignPhoto={assignPhotoById} onRemovePhoto={handleRemoveFromPage} onDeletePage={handleDeletePage} onDuplicatePage={handleDuplicatePage} onReorderPages={handleReorderPages} onClickPage={(idx) => setZoomPageIdx(idx)} onSwapSlots={handleSwapSlots} onUpdateSlotPosition={updateSlotPosition} coverUrl={coverUrl} backCoverUrl={backCoverUrl} />
@@ -912,7 +945,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
                 {/* Add more photos */}
                 <div
-                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) uploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
+                  onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none"; document.body.appendChild(input); input.onchange = (e) => { const files = (e.target as HTMLInputElement).files; if (files) handleUploadFiles(Array.from(files)); document.body.removeChild(input); }; input.click(); }}
                   style={{ flexShrink: 0, width: 100, height: 100, borderRadius: 14, border: `2px dashed ${ACCENT}60`, background: `${ACCENT}0a`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}
                 >
                   <span style={{ fontSize: 30, color: ACCENT, lineHeight: 1 }}>+</span>

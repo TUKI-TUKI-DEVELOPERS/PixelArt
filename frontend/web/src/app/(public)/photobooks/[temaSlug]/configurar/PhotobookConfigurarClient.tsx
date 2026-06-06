@@ -310,11 +310,11 @@ export default function PhotobookConfigurarClient({ temaSlug, temaNombre, coverP
                           gap: "8px", position: "relative", transition: "all 0.15s",
                         }}
                       >
-                        {ex.highlight && !isRowSelected && (
-                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>
+                        {ex.highlight && (
+                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px", opacity: (selectedCover === "TAPA_DELGADA" && !isRowSelected) ? 0.35 : 1, transition: "opacity 0.2s" }}>MÁS ELEGIDO</div>
                         )}
                         {isRowSelected && (
-                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>
+                          <div style={{ position: "absolute", top: "-8px", right: "12px", background: "#22c55e", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>
                         )}
                         <span style={{ fontSize: "13px", fontWeight: 500, color: isRowSelected ? "#111" : "#555" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
                         <span style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: 700, color: isRowSelected ? "#6b9fff" : "#111", whiteSpace: "nowrap" }}>{ex.price}</span>
@@ -390,11 +390,11 @@ export default function PhotobookConfigurarClient({ temaSlug, temaNombre, coverP
                           gap: "8px", position: "relative", transition: "all 0.15s",
                         }}
                       >
-                        {ex.highlight && !isRowSelected && (
-                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>
+                        {ex.highlight && (
+                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px", opacity: (selectedCover === "TAPA_GRUESA" && !isRowSelected) ? 0.35 : 1, transition: "opacity 0.2s" }}>MÁS ELEGIDO</div>
                         )}
                         {isRowSelected && (
-                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>
+                          <div style={{ position: "absolute", top: "-8px", right: "12px", background: "#22c55e", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>
                         )}
                         <span style={{ fontSize: "13px", fontWeight: 500, color: isRowSelected ? "#111" : "#555" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
                         <span style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: 700, color: isRowSelected ? ACCENT : "#111", whiteSpace: "nowrap" }}>{ex.price}</span>

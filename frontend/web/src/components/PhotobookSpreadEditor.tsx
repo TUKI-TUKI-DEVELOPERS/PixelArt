@@ -19,7 +19,7 @@ type PageData = {
   pageNumber: number;
   layoutKey: string;
   slots: SlotPhoto[];
-  slotPositions?: Record<number, { x: number; y: number }>;
+  slotPositions?: Record<number, { x: number; y: number; zoom?: number }>;
 };
 
 type LayoutOption = { key: string; label: string; slots: number };
@@ -36,7 +36,7 @@ type Props = {
   onReorderPages: (fromIdx: number, toIdx: number) => void;
   onClickPage: (pageIdx: number) => void;
   onSwapSlots: (pageIdx: number, fromSlot: number, toSlot: number) => void;
-  onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number) => void;
+  onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number, zoom: number) => void;
   coverUrl: string | null;
   backCoverUrl: string | null;
   /* Mobile props */
@@ -77,8 +77,8 @@ function DropSlot({
   photo: SlotPhoto; slotIdx: number; pageIdx: number; gridArea: string;
   onRemove: (si: number) => void; accent: string;
   isMobile?: boolean; isSelected?: boolean; onTap?: () => void;
-  position?: { x: number; y: number };
-  onUpdatePosition?: (x: number, y: number) => void;
+  position?: { x: number; y: number; zoom?: number };
+  onUpdatePosition?: (x: number, y: number, zoom: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const prevPhotoId = useRef<number | null>(null);
@@ -88,6 +88,7 @@ function DropSlot({
   const [showHint, setShowHint] = useState(false);
 
   const pos = position ?? { x: 50, y: 50 };
+  const zoom = position?.zoom ?? 1;
 
   // Show hint 4s after a photo lands — only until the user discovers pan mode
   useEffect(() => {
@@ -243,7 +244,7 @@ function DropSlot({
     const dy = (clientY - panRef.current.startY) / rect.height * 100 * 1.5;
     const newX = Math.max(0, Math.min(100, panRef.current.posX - dx));
     const newY = Math.max(0, Math.min(100, panRef.current.posY - dy));
-    onUpdatePosition?.(newX, newY);
+    onUpdatePosition?.(newX, newY, zoom);
   }
 
   // Mobile: single tap → select, double tap → pan mode
@@ -283,10 +284,12 @@ function DropSlot({
       >
         {photo ? (
           <>
-            <img
-              src={photo.preview} alt="" draggable={false}
-              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${pos.x}% ${pos.y}%`, display: "block", pointerEvents: "none" }}
-            />
+            <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+              <img
+                src={photo.preview} alt="" draggable={false}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${pos.x}% ${pos.y}%`, display: "block", pointerEvents: "none", transform: `scale(${zoom})`, transformOrigin: `${pos.x}% ${pos.y}%` }}
+              />
+            </div>
             {isSelected && !isPanning && (
               <div style={{
                 position: "absolute", inset: 0,
@@ -312,12 +315,14 @@ function DropSlot({
                 onTouchMove={(e) => { e.stopPropagation(); movePan(e.touches[0].clientX, e.touches[0].clientY); }}
                 onTouchEnd={(e) => { e.stopPropagation(); panRef.current = null; }}
               >
-                <div style={{
-                  position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)",
-                  background: "rgba(0,0,0,0.65)", color: "#fff",
-                  borderRadius: 20, padding: "4px 10px", fontSize: 10, fontWeight: 600,
-                  whiteSpace: "nowrap", pointerEvents: "none",
-                }}>Arrastrá · Toca afuera para salir</div>
+                <div
+                  style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.65)", borderRadius: 20, padding: "4px 12px", zIndex: 11 }}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
+                  <button onTouchStart={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); const nz = Math.max(1, zoom - 0.25); onUpdatePosition?.(pos.x, pos.y, nz); }} style={{ width: 22, height: 22, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, fontFamily: "inherit" }}>−</button>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", minWidth: 28, textAlign: "center" }}>{zoom.toFixed(1)}×</span>
+                  <button onTouchStart={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); const nz = Math.min(4, zoom + 0.25); onUpdatePosition?.(pos.x, pos.y, nz); }} style={{ width: 22, height: 22, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, fontFamily: "inherit" }}>+</button>
+                </div>
               </div>
             )}
             {/* Hint */}
@@ -390,10 +395,12 @@ function DropSlot({
     >
       {photo ? (
         <>
-          <img
-            src={photo.preview} alt="" draggable={false}
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${pos.x}% ${pos.y}%`, display: "block", pointerEvents: "none" }}
-          />
+          <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+            <img
+              src={photo.preview} alt="" draggable={false}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${pos.x}% ${pos.y}%`, display: "block", pointerEvents: "none", transform: `scale(${zoom})`, transformOrigin: `${pos.x}% ${pos.y}%` }}
+            />
+          </div>
           {/* Pan overlay — sits on top and captures mouse events */}
           {isPanning && (
             <div
@@ -405,13 +412,16 @@ function DropSlot({
               onMouseMove={(e) => movePan(e.clientX, e.clientY)}
               onMouseUp={() => { panRef.current = null; }}
               onMouseLeave={() => { panRef.current = null; }}
+              onWheel={(e) => { e.preventDefault(); e.stopPropagation(); const nz = Math.max(1, Math.min(4, zoom + e.deltaY * -0.001)); onUpdatePosition?.(pos.x, pos.y, nz); }}
             >
-              <div style={{
-                position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)",
-                background: "rgba(0,0,0,0.65)", color: "#fff",
-                borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 600,
-                whiteSpace: "nowrap", pointerEvents: "none",
-              }}>Arrastrá para mover la foto</div>
+              <div
+                style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.65)", borderRadius: 20, padding: "4px 10px", zIndex: 11 }}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); const nz = Math.max(1, zoom - 0.25); onUpdatePosition?.(pos.x, pos.y, nz); }} style={{ width: 20, height: 20, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, fontFamily: "inherit" }}>−</button>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", minWidth: 30, textAlign: "center" }}>{zoom.toFixed(1)}×</span>
+                <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); const nz = Math.min(4, zoom + 0.25); onUpdatePosition?.(pos.x, pos.y, nz); }} style={{ width: 20, height: 20, borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1, fontFamily: "inherit" }}>+</button>
+              </div>
               {/* Confirm button replaces the × while panning */}
               <button
                 onMouseDown={(e) => e.stopPropagation()}
@@ -485,7 +495,7 @@ function PageEditor({
   isMobile?: boolean;
   selectedSlotId?: string | null;
   onSlotTap?: (pageIdx: number, slotIdx: number) => void;
-  onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number) => void;
+  onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number, zoom: number) => void;
 }) {
   const grid = getGridDef(page.layoutKey);
   const slotCount = layouts.find((l) => l.key === page.layoutKey)?.slots ?? 1;
@@ -518,7 +528,7 @@ function PageEditor({
                 isSelected={isSelected}
                 onTap={isMobile ? () => onSlotTap?.(pageIdx, si) : undefined}
                 position={page.slotPositions?.[si]}
-                onUpdatePosition={(x, y) => onUpdateSlotPosition(pageIdx, si, x, y)}
+                onUpdatePosition={(x, y, zoom) => onUpdateSlotPosition(pageIdx, si, x, y, zoom)}
               />
             );
           })}

@@ -14,7 +14,8 @@ const DEFAULT_WIDTH_CM = 21;
 const DEFAULT_HEIGHT_CM = 21;
 
 // Resolución máxima para optimizar memoria (px)
-const MAX_IMAGE_PX = 2000;
+// 2400px cubre una página de 21cm a 288 DPI (deviceScaleFactor 3 × 96 DPI base)
+const MAX_IMAGE_PX = 2400;
 
 @Injectable()
 export class PhotobookPdfService {
@@ -63,7 +64,8 @@ export class PhotobookPdfService {
 
     const theme = await this.repo.getTheme(project.photobookThemeId);
 
-    const assetMap = await this.prepareAssets(project);
+    const assetIds = Array.from(new Set(project.pages.flatMap((p) => p.slots.map((s) => s.assetId))));
+    const assetMap = await this.prepareAssets(assetIds);
     const coverBase64 = theme ? await this.downloadCoverAsBase64(theme.coverTemplateKey) : null;
     const backCoverBase64 = theme?.backCoverKey ? await this.downloadCoverAsBase64(theme.backCoverKey) : null;
 
@@ -95,10 +97,7 @@ export class PhotobookPdfService {
     }
   }
 
-  private async prepareAssets(project: ProjectDetailRecord): Promise<Map<number, string>> {
-    const assetIds = Array.from(
-      new Set(project.pages.flatMap((p) => p.slots.map((s) => s.assetId))),
-    );
+  private async prepareAssets(assetIds: number[]): Promise<Map<number, string>> {
 
     const assetMap = new Map<number, string>();
 
@@ -149,10 +148,15 @@ export class PhotobookPdfService {
 
     const contentPages = project.pages.map((page) => {
       const layoutClass = page.layoutKey.toLowerCase().replace('_', '-');
-      const imgs = page.slots.map(
-        (slot) => `<img src="${assetMap.get(slot.assetId) ?? PLACEHOLDER_BASE64}" alt="" />`,
-      );
-      return `<div class="page ${layoutClass}">${imgs.join('')}</div>`;
+      const slots = page.slots.map((slot) => {
+        const src = assetMap.get(slot.assetId) ?? PLACEHOLDER_BASE64;
+        const x = slot.cropData?.x ?? 50;
+        const y = slot.cropData?.y ?? 50;
+        const zoom = slot.cropData?.zoom ?? 1;
+        const imgStyle = `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${x}% ${y}%;transform:scale(${zoom});transform-origin:${x}% ${y}%;display:block;`;
+        return `<div class="slot"><img src="${src}" alt="" style="${imgStyle}" /></div>`;
+      });
+      return `<div class="page ${layoutClass}">${slots.join('')}</div>`;
     });
 
     const allPages = [coverPage, ...contentPages, backCoverPage].filter(Boolean);
@@ -172,26 +176,29 @@ export class PhotobookPdfService {
       overflow: hidden;
     }
     .page:last-child { page-break-after: avoid; }
-    .page img { object-fit: cover; display: block; }
 
     /* Portada y contraportada: imagen full-bleed */
-    .cover img { width: ${widthCm}cm; height: ${heightCm}cm; }
+    .cover img { width: ${widthCm}cm; height: ${heightCm}cm; object-fit: cover; display: block; }
+
+    /* Slot base: contenedor relativo con overflow hidden para que el zoom quede recortado */
+    .slot { position: relative; overflow: hidden; }
 
     /* FULL_1 */
-    .full-1 img { width: ${widthCm}cm; height: ${heightCm}cm; }
+    .full-1 { position: relative; }
+    .full-1 .slot { width: ${widthCm}cm; height: ${heightCm}cm; }
 
-    /* GRID_2: dos columnas iguales */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; }
-    .grid-2 img { width: 100%; height: ${heightCm}cm; }
+    /* GRID_2: dos filas iguales */
+    .grid-2 { display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    .grid-2 .slot { width: 100%; height: ${halfH}cm; }
 
     /* GRID_3: una arriba (ancho total) + dos abajo */
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-    .grid-3 img:first-child { grid-column: 1 / -1; width: 100%; height: ${halfH}cm; }
-    .grid-3 img:not(:first-child) { width: 100%; height: ${halfH}cm; }
+    .grid-3 .slot:first-child { grid-column: 1 / -1; height: ${halfH}cm; }
+    .grid-3 .slot:not(:first-child) { height: ${halfH}cm; }
 
     /* GRID_4: 2×2 */
     .grid-4 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-    .grid-4 img { width: 100%; height: ${halfH}cm; }
+    .grid-4 .slot { height: ${halfH}cm; }
   </style>
 </head>
 <body>
@@ -205,7 +212,13 @@ export class PhotobookPdfService {
     const page = await browser.newPage();
     try {
       page.setDefaultTimeout(90000);
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      // deviceScaleFactor: 3 → renderiza a 288 DPI (96 × 3), calidad de impresión profesional
+      await page.setViewport({
+        width: Math.round((widthCm / 2.54) * 96),
+        height: Math.round((heightCm / 2.54) * 96),
+        deviceScaleFactor: 3,
+      });
+      await page.setContent(html, { waitUntil: 'load' });
       const pdf = await page.pdf({
         width: `${widthCm}cm`,
         height: `${heightCm}cm`,

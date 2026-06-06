@@ -8,6 +8,7 @@ type PageData = {
   pageNumber: number;
   layoutKey: string;
   slots: SlotPhoto[];
+  slotPositions?: Record<number, { x: number; y: number; zoom?: number }>;
 };
 
 type Props = {
@@ -20,7 +21,21 @@ type Props = {
 const PAGE_W = 400;
 const PAGE_H = 520;
 
-function renderSlots(slots: SlotPhoto[], layoutKey: string) {
+function SlotImg({ photo, pos }: { photo: { preview: string }; pos?: { x: number; y: number; zoom?: number } }) {
+  const x = pos?.x ?? 50;
+  const y = pos?.y ?? 50;
+  const zoom = pos?.zoom ?? 1;
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+      <img
+        src={photo.preview} alt="" draggable={false}
+        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${x}% ${y}%`, display: "block", transform: `scale(${zoom})`, transformOrigin: `${x}% ${y}%` }}
+      />
+    </div>
+  );
+}
+
+function renderSlots(slots: SlotPhoto[], layoutKey: string, slotPositions?: Record<number, { x: number; y: number; zoom?: number }>) {
   const filled = slots.filter(Boolean) as { preview: string }[];
   const count = filled.length || 1;
 
@@ -28,13 +43,11 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string) {
     const photo = filled[0];
     return (
       <div style={{ width: "100%", height: "100%", padding: "16px" }}>
-        {photo ? (
-          <img src={photo.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "4px", display: "block" }} />
-        ) : (
-          <div style={{ width: "100%", height: "100%", background: "#f0ede8", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", color: "#c4b8a8", fontSize: "13px" }}>
-            Página vacía
-          </div>
-        )}
+        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+          {photo ? <SlotImg photo={photo} pos={slotPositions?.[0]} /> : (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#c4b8a8", fontSize: "13px" }}>Página vacía</div>
+          )}
+        </div>
       </div>
     );
   }
@@ -43,8 +56,8 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string) {
     return (
       <div style={{ width: "100%", height: "100%", padding: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
         {slots.slice(0, 2).map((s, i) => (
-          <div key={i} style={{ flex: 1, borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
-            {s ? <img src={s.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+          <div key={i} style={{ flex: 1, position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+            {s ? <SlotImg photo={s} pos={slotPositions?.[i]} /> : null}
           </div>
         ))}
       </div>
@@ -54,12 +67,12 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string) {
   if (layoutKey === "GRID_3" || count === 3) {
     return (
       <div style={{ width: "100%", height: "100%", padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "6px" }}>
-        <div style={{ gridColumn: "1 / -1", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
-          {slots[0] ? <img src={slots[0].preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+        <div style={{ gridColumn: "1 / -1", position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+          {slots[0] ? <SlotImg photo={slots[0] as { preview: string }} pos={slotPositions?.[0]} /> : null}
         </div>
         {slots.slice(1, 3).map((s, i) => (
-          <div key={i} style={{ borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
-            {s ? <img src={s.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+          <div key={i} style={{ position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+            {s ? <SlotImg photo={s} pos={slotPositions?.[i + 1]} /> : null}
           </div>
         ))}
       </div>
@@ -70,8 +83,8 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string) {
   return (
     <div style={{ width: "100%", height: "100%", padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "6px" }}>
       {slots.slice(0, 4).map((s, i) => (
-        <div key={i} style={{ borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
-          {s ? <img src={s.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+        <div key={i} style={{ position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+          {s ? <SlotImg photo={s} pos={slotPositions?.[i]} /> : null}
         </div>
       ))}
     </div>
@@ -165,8 +178,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
       <style>{`
         @import url('https://fonts.googleapis.com/css?family=Playfair+Display:400,700,900&display=swap');
 
-
-        .photobook-wrap {
+.photobook-wrap {
           position: relative;
           max-width: ${PAGE_W * 2 + 80}px;
           margin: 0 auto 24px;
@@ -206,6 +218,11 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
             width: 3em;
             z-index: 2;
             pointer-events: none;
+            transition: opacity 0.4s ease;
+          }
+
+          .photobook-cover.cover-closed::after {
+            opacity: 0;
           }
         }
 
@@ -259,8 +276,9 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
         </button>
 
         {/* Book */}
-        <div className="photobook-cover" style={{ overflow: "hidden" }}>
-          <div ref={bookRef}>
+        <div className={`photobook-cover${(currentPage === 0 || currentPage >= totalPfPages - 1) ? " cover-closed" : ""}`} style={{ overflow: "hidden" }}>
+
+<div ref={bookRef}>
             {/* Front cover */}
             <div className="pb-page" data-density="hard" style={{ backgroundColor: "#8B4513" }}>
               {coverUrl ? (
@@ -288,7 +306,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
               <div key={idx} className="pb-page" data-density="soft" style={{ backgroundColor: "#FFFEF9" }}>
                 <div className={`pb-page-inner ${idx % 2 === 0 ? "right-page" : "left-page"}`}
                   style={{ width: "100%", height: "100%", position: "relative" }}>
-                  {renderSlots(page.slots, page.layoutKey)}
+                  {renderSlots(page.slots, page.layoutKey, page.slotPositions)}
                   {/* Page number */}
                   <div style={{
                     position: "absolute", bottom: "6px",
@@ -304,7 +322,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
             ))}
 
             {/* Back cover */}
-            <div className="pb-page" data-density="hard" style={{ backgroundColor: "#8B4513" }}>
+            <div className="pb-page" data-density="hard" style={{ backgroundColor: "#8B4513", boxShadow: "0 12px 28px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3)" }}>
               {backCoverUrl ? (
                 <div style={{ width: "100%", height: "100%", borderRadius: "4px 0 0 4px", overflow: "hidden" }}>
                   <img src={backCoverUrl} alt="Contraportada" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />

@@ -2,6 +2,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PromoModal from "@/components/layout/PromoModal";
 import PageTransitionLoader from "@/components/layout/PageTransitionLoader";
+import WhatsAppButton from "@/components/layout/WhatsAppButton";
 
 export default function PublicLayout({
   children,
@@ -15,6 +16,7 @@ export default function PublicLayout({
       <Footer />
       <PromoModal />
       <PageTransitionLoader />
+      <WhatsAppButton />
     </>
   );
 }

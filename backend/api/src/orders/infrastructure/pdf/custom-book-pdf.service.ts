@@ -145,7 +145,7 @@ export class CustomBookPdfService {
     const page = await browser.newPage();
     try {
       page.setDefaultTimeout(90000);
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: 'load' });
       const pdf = await page.pdf({
         width: `${WIDTH_CM}cm`,
         height: `${HEIGHT_CM}cm`,

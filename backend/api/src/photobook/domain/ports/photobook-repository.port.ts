@@ -1,6 +1,8 @@
 export type PhotobookThemeRecord = { id: number; name: string; coverPreviewKey: string; coverTemplateKey: string; backCoverKey: string | null; isActive: boolean };
 export type PhotobookProductRecord = { id: number; name: string; pricePerPageCents: number; minPages: number; currency: string; allowsCustomDimensions: boolean };
 
+export type CropData = { x: number; y: number; zoom?: number };
+
 export type CreateProjectData = {
   photobookProductId: number;
   photobookThemeId: number;
@@ -14,7 +16,7 @@ export type CreateProjectData = {
   customWidthCm?: number;
   customHeightCm?: number;
   pricePerPageCents: number;
-  pages: { pageNumber: number; layoutKey: string; slots: { assetId: number; slotIndex: number }[] }[];
+  pages: { pageNumber: number; layoutKey: string; slots: { assetId: number; slotIndex: number; cropData?: CropData | null }[] }[];
   assetIds: number[];
 };
 
@@ -40,7 +42,7 @@ export type ProjectRecord = {
 };
 
 export type ProjectDetailRecord = ProjectRecord & {
-  pages: { id: number; pageNumber: number; layoutKey: string; slots: { slotIndex: number; assetId: number }[] }[];
+  pages: { id: number; pageNumber: number; layoutKey: string; slots: { slotIndex: number; assetId: number; cropData?: CropData | null }[] }[];
   assetIds: number[];
 };
 
