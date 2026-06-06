@@ -16,7 +16,6 @@ import { PhotobookModule } from './photobook/photobook.module';
 import { SiteConfigModule } from './site-config/site-config.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { PromotionsModule } from './promotions/promotion.module';
-import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -34,7 +33,6 @@ import { EmailModule } from './email/email.module';
     SiteConfigModule,
     CheckoutModule,
     PromotionsModule,
-    EmailModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '../../.env'
