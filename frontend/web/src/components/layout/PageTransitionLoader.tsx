@@ -17,7 +17,7 @@ const COLORS  = [
 ] as const;
 
 // Mínimo tiempo visible — garantiza que la animación se vea aunque la página cargue rápido
-const MIN_VISIBLE_MS = 700;
+const MIN_VISIBLE_MS = 1400;
 
 export default function PageTransitionLoader() {
   const pathname = usePathname();
