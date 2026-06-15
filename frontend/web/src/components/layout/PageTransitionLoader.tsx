@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { PIXELART_COLORS } from '@/lib/colors';
 
@@ -54,16 +55,18 @@ export default function PageTransitionLoader() {
       sessionStorage.setItem('pixelart_nav', '1');
 
       startedAt.current = Date.now();
-      setRemoved(false);
-      setProgress(0);
 
-      // Doble rAF: espera que el DOM monte antes de animar
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          setActive(true);
-          setProgress(80); // CSS transition anima de 0 → 80% en 600ms
-        })
-      );
+      // flushSync: fuerza que React commitee el overlay visible ANTES de que
+      // Next.js complete la navegación instantánea (prefetching same-segment)
+      flushSync(() => {
+        setRemoved(false);
+        setActive(true);
+        setProgress(0);
+      });
+
+      requestAnimationFrame(() => {
+        setProgress(80);
+      });
     };
 
     document.addEventListener('click', handleClick, true);
@@ -112,7 +115,7 @@ export default function PageTransitionLoader() {
     const elapsed = Date.now() - startedAt.current;
     const wait    = startedAt.current === 0
       ? MIN_VISIBLE_MS
-      : Math.max(MIN_VISIBLE_MS, elapsed < 50 ? MIN_VISIBLE_MS : Math.max(0, MIN_VISIBLE_MS - elapsed));
+      : Math.max(0, MIN_VISIBLE_MS - elapsed);
 
     // Esperar el mínimo, luego completar al 100% y hacer fade-out
     timerRef.current = setTimeout(() => {
@@ -124,6 +127,7 @@ export default function PageTransitionLoader() {
         timerRef.current = setTimeout(() => {
           setRemoved(true);
           setProgress(0);
+          startedAt.current = 0;
         }, 350); // espera que termine el fade-out
       }, 250);
     }, wait);
