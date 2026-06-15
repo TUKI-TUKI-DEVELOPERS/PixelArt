@@ -17,127 +17,101 @@ const COLORS  = [
   PIXELART_COLORS.T_TURQUOISE,
 ] as const;
 
-// Mínimo tiempo visible — garantiza que la animación se vea aunque la página cargue rápido
-const MIN_VISIBLE_MS = 1400;
+// 1400ms visible + 400ms fade-out — CSS lo controla todo, no React
+const VISIBLE_MS = 1400;
+const FADE_MS    = 400;
+const TOTAL_MS   = VISIBLE_MS + FADE_MS;
+const V          = Math.round((VISIBLE_MS / TOTAL_MS) * 100); // ~78%
+
+// Keyframes generados una sola vez fuera del componente
+const KEYFRAMES = [
+  `@keyframes px-ov{0%,${V}%{opacity:1}100%{opacity:0}}`,
+  `@keyframes px-bar{0%{width:0}50%{width:75%}${V}%{width:95%}100%{width:100%}}`,
+  ...LETTERS.map((_, i) => {
+    const on = Math.round((i / LETTERS.length) * V * 0.75);
+    return `@keyframes px-l${i}{0%,${on}%{color:#d4d4d4}${on + 6}%,100%{color:${COLORS[i]}}}`;
+  }),
+].join('');
 
 export default function PageTransitionLoader() {
   const pathname = usePathname();
 
-  const [active, setActive]     = useState(false); // controla opacidad
-  const [removed, setRemoved]   = useState(true);  // controla si está en el DOM
-  const [progress, setProgress] = useState(0);     // 0–100
+  // `run` cambia en cada navegación → key diferente → React desmonta+remonta el div
+  // → CSS animation arranca desde cero, sin depender de timers ni React state
+  const [visible, setVisible] = useState(false);
+  const [run, setRun]         = useState(0);
+  const prevPath = useRef(pathname);
 
-  const prevPath  = useRef(pathname);
-  const startedAt = useRef(0);
-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Inyectar keyframes en <head> una sola vez al montar
+  useEffect(() => {
+    if (document.querySelector('style[data-px-loader]')) return;
+    const s = document.createElement('style');
+    s.setAttribute('data-px-loader', '');
+    s.textContent = KEYFRAMES;
+    document.head.appendChild(s);
+  }, []);
+
+  const showLoader = () => {
+    // flushSync garantiza que React commitee el div al DOM ANTES de que
+    // Next.js procese la navegación. CSS animation arranca desde ese paint.
+    flushSync(() => {
+      setVisible(true);
+      setRun(r => r + 1);
+    });
+  };
 
   // ─── Interceptar clicks en links internos ───────────────────────────────────
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const anchor = (e.target as Element).closest('a');
-      if (!anchor) return;
-
-      const href = anchor.getAttribute('href');
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element).closest('a');
+      if (!a) return;
+      const href = a.getAttribute('href');
       if (
         !href ||
         href.startsWith('http') ||
         href.startsWith('#') ||
         href.startsWith('mailto:') ||
         href.startsWith('tel:') ||
-        anchor.target === '_blank' ||
-        href === prevPath.current  // mismo pathname → no mostrar loader (nunca completaría)
+        a.target === '_blank' ||
+        href === prevPath.current
       ) return;
 
-      // Limpiar cualquier timer anterior
-      if (timerRef.current) clearTimeout(timerRef.current);
-
-      // Marcar que ya hubo navegación interna — IntroOverlay lo respeta
       sessionStorage.setItem('pixelart_nav', '1');
-
-      startedAt.current = Date.now();
-
-      // flushSync: fuerza que React commitee el overlay visible ANTES de que
-      // Next.js complete la navegación instantánea (prefetching same-segment)
-      flushSync(() => {
-        setRemoved(false);
-        setActive(true);
-        setProgress(0);
-      });
-
-      requestAnimationFrame(() => {
-        setProgress(80);
-      });
+      showLoader();
     };
 
-    document.addEventListener('click', handleClick, true);
-    return () => document.removeEventListener('click', handleClick, true);
-  }, []);
-
-  // ─── Interceptar navegación programática (router.back / router.forward) ──────
-  // Los botones "Volver" despachan 'pixelart:nav-start' ANTES de navegar,
-  // así el loader aparece antes de que Next.js procese el popstate.
-  // También capturamos 'popstate' directamente para las flechas del navegador.
-  useEffect(() => {
-    const handleNavStart = (e: Event) => {
-      // Si es un popstate causado solo por cambio de hash → ignorar
+    // ─── Interceptar navegación programática (router.back / popstate) ─────────
+    const onNavStart = (e: Event) => {
       if (e.type === 'popstate' && window.location.pathname === prevPath.current) return;
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-
       sessionStorage.setItem('pixelart_nav', '1');
-      startedAt.current = Date.now();
-      setRemoved(false);
-      setProgress(0);
-
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          setActive(true);
-          setProgress(80);
-        })
-      );
+      showLoader();
     };
 
-    window.addEventListener('pixelart:nav-start', handleNavStart);
-    window.addEventListener('popstate', handleNavStart);
+    document.addEventListener('click', onClick, true);
+    window.addEventListener('pixelart:nav-start', onNavStart);
+    window.addEventListener('popstate', onNavStart);
     return () => {
-      window.removeEventListener('pixelart:nav-start', handleNavStart);
-      window.removeEventListener('popstate', handleNavStart);
+      document.removeEventListener('click', onClick, true);
+      window.removeEventListener('pixelart:nav-start', onNavStart);
+      window.removeEventListener('popstate', onNavStart);
     };
   }, []);
 
-  // ─── Detectar que la navegación completó (pathname cambió) ──────────────────
+  // Mantener prevPath sincronizado
   useEffect(() => {
-    if (pathname === prevPath.current) return;
     prevPath.current = pathname;
-
-    if (timerRef.current) clearTimeout(timerRef.current);
-
-    const elapsed = Date.now() - startedAt.current;
-    const wait    = startedAt.current === 0
-      ? MIN_VISIBLE_MS
-      : Math.max(0, MIN_VISIBLE_MS - elapsed);
-
-    // Esperar el mínimo, luego completar al 100% y hacer fade-out
-    timerRef.current = setTimeout(() => {
-      setProgress(100); // dispara transición 80→100% en 200ms
-
-      timerRef.current = setTimeout(() => {
-        setActive(false); // fade-out opacity
-
-        timerRef.current = setTimeout(() => {
-          setRemoved(true);
-          setProgress(0);
-          startedAt.current = 0;
-        }, 350); // espera que termine el fade-out
-      }, 250);
-    }, wait);
   }, [pathname]);
 
-  if (removed) return null;
+  if (!visible) return null;
 
   return (
     <div
+      key={run}
       aria-hidden="true"
+      onAnimationEnd={(e) => {
+        // animationend burbujea desde hijos — filtramos solo el del overlay
+        if (e.animationName === 'px-ov') setVisible(false);
+      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -148,80 +122,48 @@ export default function PageTransitionLoader() {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '1rem',
-        opacity: active ? 1 : 0,
-        transition: 'opacity 300ms ease',
-        pointerEvents: active ? 'all' : 'none',
+        pointerEvents: 'all',
+        animation: `px-ov ${TOTAL_MS}ms ease forwards`,
       }}
     >
-      {/* Letras PIXELART — se iluminan a medida que la barra avanza */}
+      {/* Letras PIXELART — cada una con su propio keyframe de color */}
       <div style={{ display: 'flex', gap: '4px' }}>
-        {LETTERS.map((letter, i) => {
-          // P empieza en 0 → se enciende al primer frame; T en 87.5% → completa al final
-          const threshold = (i / LETTERS.length) * 100;
-          const lit = progress > threshold;
-          return (
-            <span
-              key={letter}
-              style={{
-                display: 'inline-block',
-                width: '34px',
-                textAlign: 'center',
-                fontSize: '2rem',
-                fontWeight: 900,
-                color: lit ? COLORS[i] : '#d4d4d4',
-                transition: 'color 200ms ease',
-                fontFamily: '"Courier New", Courier, monospace',
-              }}
-            >
-              {letter}
-            </span>
-          );
-        })}
+        {LETTERS.map((letter, i) => (
+          <span
+            key={letter}
+            style={{
+              display: 'inline-block',
+              width: '34px',
+              textAlign: 'center',
+              fontSize: '2rem',
+              fontWeight: 900,
+              fontFamily: '"Courier New", Courier, monospace',
+              animation: `px-l${i} ${TOTAL_MS}ms ease forwards`,
+            }}
+          >
+            {letter}
+          </span>
+        ))}
       </div>
 
-      {/* Barra luminosa con tip brillante en el borde */}
+      {/* Barra de progreso — crece con CSS animation */}
       <div
         style={{
-          position: 'relative',
           width: '300px',
           height: '3px',
           background: '#e0e0e0',
           borderRadius: '2px',
+          overflow: 'hidden',
         }}
       >
-        {/* Fill — tenue, solo marca el recorrido */}
         <div
           style={{
             height: '100%',
-            width: `${progress}%`,
             background: '#333333',
             borderRadius: '2px',
-            transition:
-              progress === 0
-                ? 'none'
-                : `width ${progress === 100 ? 200 : 600}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+            animation: `px-bar ${TOTAL_MS}ms cubic-bezier(0.4,0,0.2,1) forwards`,
           }}
         />
-
-        {/* Tip luminoso — borde delantero que irradia luz */}
-        {progress > 0 && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: `${progress}%`,
-              transform: 'translate(-50%, -50%)',
-              width: '3px',
-              height: '9px',
-              borderRadius: '2px',
-              background: '#1a1a1a',
-              transition:
-                progress === 0
-                  ? 'none'
-                  : `left ${progress === 100 ? 200 : 600}ms cubic-bezier(0.4, 0, 0.2, 1)`,
-            }}
-          />
-        )}
       </div>
     </div>
   );
