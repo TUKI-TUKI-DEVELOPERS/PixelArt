@@ -17,13 +17,12 @@ const COLORS  = [
   PIXELART_COLORS.T_TURQUOISE,
 ] as const;
 
-// 1400ms visible + 400ms fade-out — CSS lo controla todo, no React
+// 1400ms visible + 400ms fade-out
 const VISIBLE_MS = 1400;
 const FADE_MS    = 400;
 const TOTAL_MS   = VISIBLE_MS + FADE_MS;
 const V          = Math.round((VISIBLE_MS / TOTAL_MS) * 100); // ~78%
 
-// Keyframes generados una sola vez fuera del componente
 const KEYFRAMES = [
   `@keyframes px-ov{0%,${V}%{opacity:1}100%{opacity:0}}`,
   `@keyframes px-bar{0%{width:0}50%{width:75%}${V}%{width:95%}100%{width:100%}}`,
@@ -36,11 +35,11 @@ const KEYFRAMES = [
 export default function PageTransitionLoader() {
   const pathname = usePathname();
 
-  // `run` cambia en cada navegación → key diferente → React desmonta+remonta el div
-  // → CSS animation arranca desde cero, sin depender de timers ni React state
   const [visible, setVisible] = useState(false);
   const [run, setRun]         = useState(0);
-  const prevPath = useRef(pathname);
+  const prevPath  = useRef(pathname);
+  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startedAt = useRef(0);
 
   // Inyectar keyframes en <head> una sola vez al montar
   useEffect(() => {
@@ -52,12 +51,21 @@ export default function PageTransitionLoader() {
   }, []);
 
   const showLoader = () => {
-    // flushSync garantiza que React commitee el div al DOM ANTES de que
-    // Next.js procese la navegación. CSS animation arranca desde ese paint.
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    startedAt.current = Date.now();
+
+    // flushSync: commitea el div al DOM antes de que Next.js procese la navegación
     flushSync(() => {
       setVisible(true);
       setRun(r => r + 1);
     });
+
+    // Timer puesto EN EL CLICK — garantiza duración fija sin importar
+    // cuándo cambie el pathname (same-segment navigation es instantáneo)
+    timerRef.current = setTimeout(() => {
+      setVisible(false);
+    }, TOTAL_MS);
   };
 
   // ─── Interceptar clicks en links internos ───────────────────────────────────
@@ -94,12 +102,22 @@ export default function PageTransitionLoader() {
       document.removeEventListener('click', onClick, true);
       window.removeEventListener('pixelart:nav-start', onNavStart);
       window.removeEventListener('popstate', onNavStart);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
 
-  // Mantener prevPath sincronizado
+  // Mantener prevPath sincronizado + extender si la navegación fue lenta
   useEffect(() => {
+    if (pathname === prevPath.current) return;
     prevPath.current = pathname;
+
+    // Si la navegación tardó más que TOTAL_MS (página sin prefetch, conexión lenta),
+    // ya se fue el timer — mostramos brevemente y cerramos
+    const elapsed = Date.now() - startedAt.current;
+    if (startedAt.current > 0 && elapsed >= TOTAL_MS) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setVisible(false), 400);
+    }
   }, [pathname]);
 
   if (!visible) return null;
@@ -108,10 +126,6 @@ export default function PageTransitionLoader() {
     <div
       key={run}
       aria-hidden="true"
-      onAnimationEnd={(e) => {
-        // animationend burbujea desde hijos — filtramos solo el del overlay
-        if (e.animationName === 'px-ov') setVisible(false);
-      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -126,7 +140,7 @@ export default function PageTransitionLoader() {
         animation: `px-ov ${TOTAL_MS}ms ease forwards`,
       }}
     >
-      {/* Letras PIXELART — cada una con su propio keyframe de color */}
+      {/* Letras PIXELART */}
       <div style={{ display: 'flex', gap: '4px' }}>
         {LETTERS.map((letter, i) => (
           <span
@@ -146,7 +160,7 @@ export default function PageTransitionLoader() {
         ))}
       </div>
 
-      {/* Barra de progreso — crece con CSS animation */}
+      {/* Barra de progreso */}
       <div
         style={{
           width: '300px',
