@@ -110,7 +110,9 @@ export default function PageTransitionLoader() {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     const elapsed = Date.now() - startedAt.current;
-    const wait    = Math.max(0, MIN_VISIBLE_MS - elapsed);
+    const wait    = startedAt.current === 0
+      ? MIN_VISIBLE_MS
+      : Math.max(MIN_VISIBLE_MS, elapsed < 50 ? MIN_VISIBLE_MS : Math.max(0, MIN_VISIBLE_MS - elapsed));
 
     // Esperar el mínimo, luego completar al 100% y hacer fade-out
     timerRef.current = setTimeout(() => {
