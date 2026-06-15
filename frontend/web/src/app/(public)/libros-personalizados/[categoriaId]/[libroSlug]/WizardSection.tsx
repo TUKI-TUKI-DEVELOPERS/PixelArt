@@ -15,7 +15,7 @@ type ActivePromo = { label: string; targetType: string; targetId: number | null;
 type VariantProp = { id: number; coverType: string; basePriceCents: number };
 type TemplateProp = { id: number; name: string | null; previewUrl: string };
 type DbIdsProp = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number } | null;
-type GenderDirection = "HE_TO_SHE" | "SHE_TO_HE" | "";
+type GenderDirection = "HE_TO_SHE" | "SHE_TO_HE" | "HE_TO_HE" | "SHE_TO_SHE" | "";
 
 type Props = {
   accent: string;
@@ -39,6 +39,39 @@ const DEDICATION_TEXTS: Record<string, { HE_TO_SHE: string; SHE_TO_HE: string }>
       "Que estas páginas te recuerden cuánto te quiero. " +
       "Con todo mi amor, {dedicatorName}.",
   },
+};
+
+// HE_TO_HE usa template HE_TO_SHE, SHE_TO_SHE usa template SHE_TO_HE
+
+// ── Wizard mode ───────────────────────────────────────────────────────────────
+
+type WizardMode = "amor" | "mascotas" | "familia" | "familia-grupo" | "hermanos" | "memorial";
+
+function getWizardMode(categoriaSlug: string, libroNombre: string): WizardMode {
+  if (categoriaSlug === "libros-de-amor") return "amor";
+  if (categoriaSlug === "libros-de-mascotas") return "mascotas";
+  if (categoriaSlug === "libros-de-memorias-familiares") return "memorial";
+  if (categoriaSlug === "libros-de-familia") {
+    if (libroNombre === "La Familia" || libroNombre === "Mi Familia") return "familia-grupo";
+    if (libroNombre === "El Mejor Equipo") return "hermanos";
+    return "familia";
+  }
+  return "amor";
+}
+
+// Para "familia" el destinatario está implícito en el nombre del libro
+function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
+  return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(libroNombre) ? "F" : "M";
+}
+
+type PhotoConfig = { recipient: number; dedicator: number };
+const PHOTO_CONFIG: Record<WizardMode, PhotoConfig> = {
+  "amor":          { recipient: 2, dedicator: 2 },
+  "mascotas":      { recipient: 3, dedicator: 3 },
+  "memorial":      { recipient: 6, dedicator: 0 },
+  "familia":       { recipient: 2, dedicator: 2 },
+  "familia-grupo": { recipient: 10, dedicator: 0 },
+  "hermanos":      { recipient: 6, dedicator: 0 },
 };
 
 // ── Wizard steps ──────────────────────────────────────────────────────────────
@@ -88,12 +121,85 @@ function buildDedicationText(
   dedicatorNickname: string,
 ): string {
   const book = DEDICATION_TEXTS[categoriaSlug] ?? DEDICATION_TEXTS.default;
-  const template = genderDirection === "SHE_TO_HE" ? book.SHE_TO_HE : book.HE_TO_SHE;
+  const template = (genderDirection === "SHE_TO_HE" || genderDirection === "SHE_TO_SHE") ? book.SHE_TO_HE : book.HE_TO_SHE;
   return template
     .replace(/\{recipientNickname\}/g, recipientNickname || recipientName || "amor")
     .replace(/\{recipientName\}/g, recipientName || "amor")
     .replace(/\{dedicatorNickname\}/g, dedicatorNickname || dedicatorName || "")
     .replace(/\{dedicatorName\}/g, dedicatorName || "");
+}
+
+// ── MemberSection — zona de carga por integrante (familia-grupo / hermanos) ────
+// Definido fuera del componente principal para que React no lo desmonte en cada render.
+
+function MemberSection({
+  label, svgIcon, name, setName, upload, accent, isMobile,
+}: {
+  label: string;
+  svgIcon: React.ReactNode;
+  name: string;
+  setName: (v: string) => void;
+  upload: ReturnType<typeof usePhotoUpload>;
+  accent: string;
+  isMobile: boolean;
+}) {
+  const atLimit = upload.photos.length >= 2;
+  function openPicker() {
+    if (atLimit) return;
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none";
+    document.body.appendChild(input);
+    input.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files) upload.uploadFiles(Array.from(files).slice(0, 2 - upload.photos.length));
+      input.remove();
+    };
+    input.click();
+  }
+  return (
+    <div style={{ borderRadius: "16px", border: `1.5px solid ${accent}20`, background: "#fafafa", overflow: "hidden", marginBottom: "14px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "14px 18px", background: `${accent}06`, borderBottom: `1px solid ${accent}15` }}>
+        {svgIcon}
+        <span style={{ fontSize: "15px", fontWeight: 700, color: accent }}>{label}</span>
+        <span style={{ marginLeft: "auto", fontSize: "12px", color: "#999" }}>{upload.photos.length}/2 fotos</span>
+      </div>
+      <div style={{ padding: "14px 18px", display: "flex", gap: "16px", alignItems: "flex-start", flexDirection: isMobile ? "column" : "row" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <label style={{ fontSize: "12px", fontWeight: 600, color: "#555", display: "block", marginBottom: "6px" }}>Nombre *</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={`Nombre de ${label.toLowerCase()}`}
+            style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1.5px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+          />
+        </div>
+        <div style={{ flexShrink: 0 }}>
+          <label style={{ fontSize: "12px", fontWeight: 600, color: "#555", display: "block", marginBottom: "6px" }}>Fotos (hasta 2) *</label>
+          <div style={{ display: "flex", gap: "8px" }}>
+            {upload.photos.map((p) => (
+              <div key={p.id} style={{ position: "relative", width: "52px", height: "52px", borderRadius: "10px", overflow: "hidden", border: `2px solid ${accent}40` }}>
+                <img src={p.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <button onClick={() => upload.removePhoto(p.id)} style={{ position: "absolute", top: "2px", right: "2px", width: "16px", height: "16px", borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            ))}
+            {!atLimit && (
+              <button onClick={openPicker} style={{ width: "52px", height: "52px", borderRadius: "10px", border: `2px dashed ${accent}40`, background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span style={{ fontSize: "8px", fontWeight: 700, color: accent }}>FOTO</span>
+              </button>
+            )}
+            {upload.uploading && (
+              <div style={{ width: "52px", height: "52px", borderRadius: "10px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: "10px", color: "#999" }}>{upload.progress}%</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -103,8 +209,16 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const [currentStep, setCurrentStep] = useState(0);
   const [promos, setPromos] = useState<ActivePromo[]>([]);
 
+  // Wizard mode — derivado de categoría y libro
+  const wizardMode = getWizardMode(categoriaSlug, libroNombre);
+  const photoConfig = PHOTO_CONFIG[wizardMode];
+  // Para familia-grupo y hermanos, el step 3 no existe; se salta del 2 al 4
+  const nextAfterRecipient = (wizardMode === "familia-grupo" || wizardMode === "hermanos") ? 4 : 3;
+
   // Step 1 — gender direction
   const [genderDirection, setGenderDirection] = useState<GenderDirection>("");
+  const [dedicatorGender, setDedicatorGender] = useState<"M" | "F" | "">("");
+  const [recipientGender, setRecipientGender] = useState<"M" | "F" | "">("");
 
   // Step 2 — recipient
   const [recipientName, setRecipientName] = useState("");
@@ -113,8 +227,28 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
   // Step 3 — dedicator
   const [dedicatorName, setDedicatorName] = useState("");
-  const [dedicatorNickname, setDedicatorNickname] = useState("");
   const dedicatorUpload = usePhotoUpload("uploads/customers");
+
+  // Familia-grupo — número de hijos y fotos por integrante
+  const [numHijos, setNumHijos] = useState<1 | 2 | 3>(1);
+  const familiaGrupoTotalPhotos = 4 + numHijos * 2;
+  const [papaName, setPapaName] = useState("");
+  const [mamaName, setMamaName] = useState("");
+  const [hijo1Name, setHijo1Name] = useState("");
+  const [hijo2Name, setHijo2Name] = useState("");
+  const [hijo3Name, setHijo3Name] = useState("");
+  const papaUpload = usePhotoUpload("uploads/customers");
+  const mamaUpload = usePhotoUpload("uploads/customers");
+  const hijo1Upload = usePhotoUpload("uploads/customers");
+  const hijo2Upload = usePhotoUpload("uploads/customers");
+  const hijo3Upload = usePhotoUpload("uploads/customers");
+
+  // Hermanos — número de hermanos y género por integrante
+  const [numHermanos, setNumHermanos] = useState<2 | 3>(2);
+  const [hermano1Gender, setHermano1Gender] = useState<"M" | "F" | "">("");
+  const [hermano2Gender, setHermano2Gender] = useState<"M" | "F" | "">("");
+  const [hermano3Gender, setHermano3Gender] = useState<"M" | "F" | "">("");
+  // (reusa hijo1/2/3Name y hijo1/2/3Upload — los modos son mutuamente excluyentes)
 
   // Step 4 — templates
   const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
@@ -176,6 +310,17 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     }
   }, [currentStep]);
 
+  useEffect(() => {
+    if (dedicatorGender && recipientGender) {
+      if (dedicatorGender === "M" && recipientGender === "F") setGenderDirection("HE_TO_SHE");
+      else if (dedicatorGender === "F" && recipientGender === "M") setGenderDirection("SHE_TO_HE");
+      else if (dedicatorGender === "M" && recipientGender === "M") setGenderDirection("HE_TO_HE");
+      else setGenderDirection("SHE_TO_SHE");
+    } else {
+      setGenderDirection("");
+    }
+  }, [dedicatorGender, recipientGender]);
+
   const activeGlobalPromo = promos.find(
     (p) =>
       p.targetType === "all" ||
@@ -201,7 +346,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     recipientName,
     recipientNickname,
     dedicatorName,
-    dedicatorNickname,
+    "",
   );
 
   const step7Valid =
@@ -216,10 +361,24 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     setSubmitError(null);
     try {
       const finalDedication = useDefaultDedication ? dedicationText : customDedication;
-      const allAssetIds = [
-        ...recipientUpload.photos.map((p) => p.id),
-        ...dedicatorUpload.photos.map((p) => p.id),
-      ];
+      const allAssetIds = wizardMode === "familia-grupo"
+        ? [
+            ...papaUpload.photos.map((p) => p.id),
+            ...mamaUpload.photos.map((p) => p.id),
+            ...hijo1Upload.photos.map((p) => p.id),
+            ...(numHijos >= 2 ? hijo2Upload.photos.map((p) => p.id) : []),
+            ...(numHijos >= 3 ? hijo3Upload.photos.map((p) => p.id) : []),
+          ]
+        : wizardMode === "hermanos"
+        ? [
+            ...hijo1Upload.photos.map((p) => p.id),
+            ...hijo2Upload.photos.map((p) => p.id),
+            ...(numHermanos >= 3 ? hijo3Upload.photos.map((p) => p.id) : []),
+          ]
+        : [
+            ...recipientUpload.photos.map((p) => p.id),
+            ...dedicatorUpload.photos.map((p) => p.id),
+          ];
       const res = await fetch(`${API_BASE}/api/demo/requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -243,11 +402,35 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           messageOptional: form.messageOptional || null,
           templateIds: selectedTemplates,
           assetIds: allAssetIds,
-          recipientName,
-          recipientNickname: recipientNickname || null,
-          dedicatorName,
-          dedicatorNickname: dedicatorNickname || null,
-          genderDirection,
+          recipientName: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : recipientName || null,
+          recipientNickname: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : recipientNickname || null,
+          dedicatorName: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : dedicatorName || null,
+          genderDirection: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : genderDirection || null,
+          characterMeta: wizardMode === "familia-grupo"
+            ? {
+                mode: "familia-grupo",
+                papa: { name: papaName, assetIds: papaUpload.photos.map((p) => p.id) },
+                mama: { name: mamaName, assetIds: mamaUpload.photos.map((p) => p.id) },
+                hijos: [
+                  { name: hijo1Name, assetIds: hijo1Upload.photos.map((p) => p.id) },
+                  ...(numHijos >= 2 ? [{ name: hijo2Name, assetIds: hijo2Upload.photos.map((p) => p.id) }] : []),
+                  ...(numHijos >= 3 ? [{ name: hijo3Name, assetIds: hijo3Upload.photos.map((p) => p.id) }] : []),
+                ],
+              }
+            : wizardMode === "hermanos"
+            ? {
+                mode: "hermanos",
+                hermanos: [
+                  { name: hijo1Name, gender: hermano1Gender, assetIds: hijo1Upload.photos.map((p) => p.id) },
+                  { name: hijo2Name, gender: hermano2Gender, assetIds: hijo2Upload.photos.map((p) => p.id) },
+                  ...(numHermanos >= 3 ? [{ name: hijo3Name, gender: hermano3Gender, assetIds: hijo3Upload.photos.map((p) => p.id) }] : []),
+                ],
+              }
+            : {
+                mode: wizardMode,
+                recipient: { name: recipientName, nickname: recipientNickname || null, assetIds: recipientUpload.photos.map((p) => p.id) },
+                ...(photoConfig.dedicator > 0 ? { dedicator: { name: dedicatorName, assetIds: dedicatorUpload.photos.map((p) => p.id) } } : {}),
+              },
         }),
       });
       if (!res.ok) {
@@ -477,113 +660,364 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             </div>
           )}
 
-          {/* ── Step 1: Gender direction ── */}
-          {currentStep === 1 && (
-            <div>
-              <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>¿Este libro es...</h3>
-              <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>
-                Elige el tipo de dedicatoria para personalizar el libro.
-              </p>
+          {/* ── Step 1: Configuración inicial (varía por modo) ── */}
+          {currentStep === 1 && (() => {
+            // ── Helper: tarjeta de género reutilizable ──
+            const GenderCard = ({ id, g, isSelected, onClick }: { id: string; g: "M"|"F"; isSelected: boolean; onClick: () => void }) => {
+              const color = isSelected ? accent : "#bbb";
+              return (
+                <button key={id} type="button" onClick={onClick} style={{ padding: isMobile ? "18px 12px" : "22px 16px", borderRadius: "16px", border: isSelected ? `2px solid ${accent}` : "2px solid #e5e7eb", background: isSelected ? `${accent}08` : "#fafafa", cursor: "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", transition: "all 0.2s ease", boxShadow: isSelected ? `0 4px 20px ${accent}20` : "none" }}>
+                  {g === "M" ? (
+                    <svg width="48" height="60" viewBox="0 0 48 60" fill="none">
+                      <circle cx="24" cy="13" r="10" stroke={color} strokeWidth="2"/>
+                      <path d="M4 56 C4 34 44 34 44 56" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  ) : (
+                    <svg width="48" height="60" viewBox="0 0 48 60" fill="none">
+                      <circle cx="24" cy="13" r="10" stroke={color} strokeWidth="2"/>
+                      <path d="M8 60L24 30L40 60" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <line x1="8" y1="47" x2="40" y2="47" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  )}
+                  <span style={{ fontSize: "17px", fontWeight: 700, color: isSelected ? accent : "#444" }}>{g === "M" ? "Él" : "Ella"}</span>
+                  {isSelected && (
+                    <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                  )}
+                </button>
+              );
+            };
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "32px" }}>
-                {(
-                  [
-                    { value: "HE_TO_SHE" as GenderDirection, label: "De él para ella", sub: "Un hombre le regala el libro a una mujer" },
-                    { value: "SHE_TO_HE" as GenderDirection, label: "De ella para él", sub: "Una mujer le regala el libro a un hombre" },
-                  ]
-                ).map((opt) => {
-                  const isSelected = genderDirection === opt.value;
-                  const iconColor = isSelected ? accent : "#aaa";
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setGenderDirection(opt.value)}
-                      style={{
-                        padding: "20px 24px",
-                        borderRadius: "16px",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        border: isSelected ? `2px solid ${accent}` : "2px solid #e5e7eb",
-                        background: isSelected ? `${accent}07` : "#fafafa",
-                        fontFamily: "inherit",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "16px",
-                        transition: "all 0.2s ease",
-                        boxShadow: isSelected ? `0 4px 20px ${accent}20` : "none",
-                      }}
-                    >
-                      {opt.value === "HE_TO_SHE" ? (
-                        <svg width="68" height="44" viewBox="0 0 68 44" fill="none" style={{ flexShrink: 0 }}>
-                          {/* Man — left */}
-                          <circle cx="10" cy="10" r="7" stroke={iconColor} strokeWidth="1.6"/>
-                          <path d="M2 38 C2 26 18 26 18 38" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round"/>
-                          {/* Heart — center */}
-                          <path d="M39 20C39 17 35.5 15.5 34 18C32.5 15.5 29 17 29 20C29 23 34 27 34 27C34 27 39 23 39 20Z" fill={isSelected ? accent : "#ccc"}/>
-                          {/* Arrow right */}
-                          <path d="M40 22L48 22M45 19L48 22L45 25" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                          {/* Woman — right */}
-                          <circle cx="58" cy="10" r="7" stroke={iconColor} strokeWidth="1.6"/>
-                          <path d="M50 44L58 22L66 44" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                          <line x1="50" y1="33" x2="66" y2="33" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round"/>
-                        </svg>
-                      ) : (
-                        <svg width="68" height="44" viewBox="0 0 68 44" fill="none" style={{ flexShrink: 0 }}>
-                          {/* Woman — left */}
-                          <circle cx="10" cy="10" r="7" stroke={iconColor} strokeWidth="1.6"/>
-                          <path d="M2 44L10 22L18 44" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                          <line x1="2" y1="33" x2="18" y2="33" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round"/>
-                          {/* Heart — center */}
-                          <path d="M39 20C39 17 35.5 15.5 34 18C32.5 15.5 29 17 29 20C29 23 34 27 34 27C34 27 39 23 39 20Z" fill={isSelected ? accent : "#ccc"}/>
-                          {/* Arrow right */}
-                          <path d="M40 22L48 22M45 19L48 22L45 25" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                          {/* Man — right */}
-                          <circle cx="58" cy="10" r="7" stroke={iconColor} strokeWidth="1.6"/>
-                          <path d="M50 38 C50 26 66 26 66 38" stroke={iconColor} strokeWidth="1.6" strokeLinecap="round"/>
-                        </svg>
-                      )}
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: "16px", fontWeight: 700, color: isSelected ? accent : "#222", marginBottom: "3px" }}>
-                          {opt.label}
-                        </div>
-                        <div style={{ fontSize: "13px", color: "#888" }}>{opt.sub}</div>
+            const summaryBox = (text: string) => (
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 18px", borderRadius: "12px", background: `${accent}08`, border: `1px solid ${accent}25`, marginBottom: "28px", animation: "wzSlideIn 0.3s cubic-bezier(0.4,0,0.2,1) both" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={accent}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: accent }}>{text}</span>
+              </div>
+            );
+
+            // ── AMOR ──
+            if (wizardMode === "amor") {
+              const step1Valid = dedicatorGender !== "" && recipientGender !== "";
+              return (
+                <div>
+                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos la dedicatoria</h3>
+                  <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>Cuéntanos quién regala y quién recibe el libro.</p>
+                  <div style={{ marginBottom: "24px" }}>
+                    <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Quién dedica el libro?</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {(["M", "F"] as const).map((g) => <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g} isSelected={dedicatorGender === g} onClick={() => setDedicatorGender(g)} />)}
+                    </div>
+                  </div>
+                  {dedicatorGender !== "" && (
+                    <div style={{ marginBottom: "28px", animation: "wzSlideIn 0.3s cubic-bezier(0.4,0,0.2,1) both" }}>
+                      <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿A quién va dedicado?</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                        {(["M", "F"] as const).map((g) => <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} />)}
                       </div>
-                      <div
-                        style={{
-                          width: "22px", height: "22px", borderRadius: "50%", flexShrink: 0,
-                          border: isSelected ? "none" : "2px solid #ddd",
-                          background: isSelected ? accent : "transparent",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {isSelected && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12"/>
-                          </svg>
-                        )}
-                      </div>
+                    </div>
+                  )}
+                  {step1Valid && summaryBox(`${dedicatorGender === "M" ? "Él" : "Ella"} le dedica el libro a ${recipientGender === "M" ? "él" : "ella"}`)}
+                  <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
+                    {navBtn("Anterior", () => setCurrentStep(0))}
+                    {navBtn("Siguiente", () => setCurrentStep(2), true, !step1Valid)}
+                  </div>
+                </div>
+              );
+            }
+
+            // ── MASCOTAS ──
+            if (wizardMode === "mascotas") {
+              const step1Valid = dedicatorGender !== "";
+              return (
+                <div>
+                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos la dedicatoria</h3>
+                  <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>¿Quién le regala el libro a su mascota?</p>
+                  <div style={{ marginBottom: "28px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {(["M", "F"] as const).map((g) => <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g} isSelected={dedicatorGender === g} onClick={() => setDedicatorGender(g)} />)}
+                    </div>
+                  </div>
+                  {step1Valid && summaryBox(`${dedicatorGender === "M" ? "Él" : "Ella"} le dedica el libro a su mascota`)}
+                  <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
+                    {navBtn("Anterior", () => setCurrentStep(0))}
+                    {navBtn("Siguiente", () => setCurrentStep(2), true, !step1Valid)}
+                  </div>
+                </div>
+              );
+            }
+
+            // ── MEMORIAL ──
+            if (wizardMode === "memorial") {
+              const step1Valid = recipientGender !== "";
+              return (
+                <div>
+                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos el libro</h3>
+                  <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>¿A quién está dedicado este libro?</p>
+                  <div style={{ marginBottom: "28px" }}>
+                    <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>La persona que quieres recordar era...</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {(["M", "F"] as const).map((g) => <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} />)}
+                    </div>
+                  </div>
+                  {step1Valid && summaryBox(`Un libro dedicado a ${recipientGender === "M" ? "él" : "ella"}, siempre en tu corazón`)}
+                  <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
+                    {navBtn("Anterior", () => setCurrentStep(0))}
+                    {navBtn("Siguiente", () => setCurrentStep(2), true, !step1Valid)}
+                  </div>
+                </div>
+              );
+            }
+
+            // ── FAMILIA ──
+            if (wizardMode === "familia") {
+              const recipientG = getFamiliaRecipientGender(libroNombre);
+              const step1Valid = dedicatorGender !== "";
+              return (
+                <div>
+                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos la dedicatoria</h3>
+                  <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>Este libro es un regalo para <strong>{libroNombre.toLowerCase().replace("mi ", "").replace("papá, ", "papá").replace("mamá, ", "mamá")}</strong>. ¿Quién lo dedica?</p>
+                  <div style={{ marginBottom: "28px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {(["M", "F"] as const).map((g) => <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g} isSelected={dedicatorGender === g} onClick={() => { setDedicatorGender(g); setRecipientGender(recipientG); }} />)}
+                    </div>
+                  </div>
+                  {step1Valid && summaryBox(`${dedicatorGender === "M" ? "Él" : "Ella"} le dedica el libro a ${recipientG === "M" ? "él" : "ella"}`)}
+                  <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
+                    {navBtn("Anterior", () => setCurrentStep(0))}
+                    {navBtn("Siguiente", () => setCurrentStep(2), true, !step1Valid)}
+                  </div>
+                </div>
+              );
+            }
+
+            // ── FAMILIA GRUPO ──
+            if (wizardMode === "familia-grupo") {
+            const MaleSVG = ({ color }: { color: string }) => (
+              <svg width="40" height="50" viewBox="0 0 48 60" fill="none">
+                <circle cx="24" cy="13" r="10" stroke={color} strokeWidth="2"/>
+                <path d="M4 56 C4 34 44 34 44 56" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            );
+            const FemaleSVG = ({ color }: { color: string }) => (
+              <svg width="40" height="50" viewBox="0 0 48 60" fill="none">
+                <circle cx="24" cy="13" r="10" stroke={color} strokeWidth="2"/>
+                <path d="M8 60L24 30L40 60" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="8" y1="47" x2="40" y2="47" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            );
+            const ChildSVG = ({ color, isFemale = false }: { color: string; isFemale?: boolean }) => (
+              <svg width="30" height="40" viewBox="0 0 36 48" fill="none">
+                <circle cx="18" cy="10" r="8" stroke={color} strokeWidth="2"/>
+                {isFemale ? (
+                  <>
+                    <path d="M6 46L18 24L30 46" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="6" y1="37" x2="30" y2="37" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+                  </>
+                ) : (
+                  <path d="M2 44 C2 26 34 26 34 44" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+                )}
+              </svg>
+            );
+
+            const familyCardStyle = (active = true): React.CSSProperties => ({
+              padding: "16px 12px", borderRadius: "16px",
+              border: `1.5px solid ${active ? accent + "40" : "#e5e7eb"}`,
+              background: active ? `${accent}06` : "#fafafa",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: "8px",
+            });
+
+            return (
+              <div>
+                <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>¡Creemos el libro de tu familia!</h3>
+                <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>Dinos cuántos hijos tiene la familia para calcular las fotos necesarias.</p>
+
+                {/* Papá + Mamá — siempre fijos */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+                  <div style={familyCardStyle()}>
+                    <MaleSVG color={accent} />
+                    <span style={{ fontSize: "14px", fontWeight: 700, color: accent }}>Papá</span>
+                    <span style={{ fontSize: "12px", color: "#888" }}>2 fotos</span>
+                  </div>
+                  <div style={familyCardStyle()}>
+                    <FemaleSVG color={accent} />
+                    <span style={{ fontSize: "14px", fontWeight: 700, color: accent }}>Mamá</span>
+                    <span style={{ fontSize: "12px", color: "#888" }}>2 fotos</span>
+                  </div>
+                </div>
+
+                {/* Selector de hijos */}
+                <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Cuántos hijos tiene la familia?</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginBottom: "20px" }}>
+                  {([1, 2, 3] as const).map((n) => (
+                    <button key={n} type="button" onClick={() => setNumHijos(n)} style={{ padding: "12px 8px", borderRadius: "12px", border: numHijos === n ? `2px solid ${accent}` : "2px solid #e5e7eb", background: numHijos === n ? `${accent}08` : "#fafafa", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "15px", color: numHijos === n ? accent : "#555", transition: "all 0.2s ease" }}>
+                      {n} {n === 1 ? "hijo" : "hijos"}
                     </button>
+                  ))}
+                </div>
+
+                {/* Hijos dinámicos */}
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${numHijos}, 1fr)`, gap: "12px", marginBottom: "24px" }}>
+                  {Array.from({ length: numHijos }, (_, i) => (
+                    <div key={i} style={familyCardStyle()}>
+                      <div style={{ display: "flex", gap: "4px", alignItems: "flex-end" }}>
+                        <ChildSVG color={accent} />
+                        <ChildSVG color={accent} isFemale />
+                      </div>
+                      <span style={{ fontSize: "13px", fontWeight: 700, color: accent }}>Hijo {i + 1}</span>
+                      <span style={{ fontSize: "12px", color: "#888" }}>2 fotos</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "13px 18px", borderRadius: "12px", background: `${accent}08`, border: `1px solid ${accent}25`, marginBottom: "28px" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={accent}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                  <span style={{ fontSize: "14px", fontWeight: 600, color: accent }}>
+                    Total: {familiaGrupoTotalPhotos} fotos — Papá, Mamá y {numHijos === 1 ? "1 hijo" : `${numHijos} hijos`}
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
+                  {navBtn("Anterior", () => setCurrentStep(0))}
+                  {navBtn("Siguiente", () => setCurrentStep(2), true)}
+                </div>
+              </div>
+            );
+          }
+
+          // ── HERMANOS ──
+          if (wizardMode === "hermanos") {
+            const hermanoGenders = [hermano1Gender, hermano2Gender, hermano3Gender].slice(0, numHermanos);
+            const step1Valid = hermanoGenders.every((g) => g !== "");
+            return (
+              <div>
+                <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>¡Creemos el libro de los hermanos!</h3>
+                <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>Dinos cuántos hermanos hay y el género de cada uno.</p>
+
+                {/* Selector de cantidad */}
+                <p style={{ margin: "0 0 10px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Cuántos hermanos hay?</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "24px" }}>
+                  {([2, 3] as const).map((n) => (
+                    <button key={n} type="button" onClick={() => setNumHermanos(n)} style={{ padding: "13px 8px", borderRadius: "12px", border: numHermanos === n ? `2px solid ${accent}` : "2px solid #e5e7eb", background: numHermanos === n ? `${accent}08` : "#fafafa", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "15px", color: numHermanos === n ? accent : "#555", transition: "all 0.2s ease" }}>
+                      {n} hermanos
+                    </button>
+                  ))}
+                </div>
+
+                {/* Gender picker por hermano */}
+                {Array.from({ length: numHermanos }, (_, i) => {
+                  const currentG = [hermano1Gender, hermano2Gender, hermano3Gender][i];
+                  const setG = [setHermano1Gender, setHermano2Gender, setHermano3Gender][i];
+                  return (
+                    <div key={i} style={{ marginBottom: "20px" }}>
+                      <p style={{ margin: "0 0 10px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>Hermano/Hermana {i + 1}</p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                        {(["M", "F"] as const).map((g) => (
+                          <GenderCard key={`herm${i}-${g}`} id={`herm${i}-${g}`} g={g} isSelected={currentG === g} onClick={() => setG(g)} />
+                        ))}
+                      </div>
+                    </div>
                   );
                 })}
-              </div>
 
-              <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
-                {navBtn("Anterior", () => setCurrentStep(0))}
-                {navBtn("Siguiente", () => setCurrentStep(2), true, genderDirection === "")}
-              </div>
-            </div>
-          )}
+                {step1Valid && summaryBox(`${numHermanos} hermanos: ${hermanoGenders.map((g, i) => (g === "F" ? `Hermana ${i + 1}` : `Hermano ${i + 1}`)).join(", ")}`)}
 
-          {/* ── Step 2: Recipient character card ── */}
-          {currentStep === 2 && (
+                <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
+                  {navBtn("Anterior", () => setCurrentStep(0))}
+                  {navBtn("Siguiente", () => setCurrentStep(2), true, !step1Valid)}
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
+
+          {/* ── Step 2: Fotos ── */}
+          {currentStep === 2 && wizardMode === "hermanos" ? (() => {
+            const genderSvg = (g: "M" | "F" | "") => g === "F"
+              ? <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M8 60L24 30L40 60" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><line x1="8" y1="47" x2="40" y2="47" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>
+              : <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
+
+            const labels = [
+              hermano1Gender === "F" ? "Hermana 1" : "Hermano 1",
+              hermano2Gender === "F" ? "Hermana 2" : "Hermano 2",
+              hermano3Gender === "F" ? "Hermana 3" : "Hermano 3",
+            ];
+            const uploads = [hijo1Upload, hijo2Upload, hijo3Upload];
+            const names = [hijo1Name, hijo2Name, hijo3Name];
+            const setNames = [setHijo1Name, setHijo2Name, setHijo3Name];
+            const genders = [hermano1Gender, hermano2Gender, hermano3Gender];
+
+            const hermanosValid =
+              !!hijo1Name.trim() && hijo1Upload.photos.length >= 1 &&
+              !!hijo2Name.trim() && hijo2Upload.photos.length >= 1 &&
+              (numHermanos < 3 || (!!hijo3Name.trim() && hijo3Upload.photos.length >= 1));
+
+            return (
+              <div>
+                <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>Fotos de los hermanos</h3>
+                <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>Sube hasta 2 fotos por cada hermano. Rostro completo, bien iluminado, sin filtros.</p>
+
+                {Array.from({ length: numHermanos }, (_, i) => (
+                  <MemberSection
+                    key={i}
+                    label={labels[i]}
+                    svgIcon={genderSvg(genders[i])}
+                    name={names[i]}
+                    setName={setNames[i]}
+                    upload={uploads[i]}
+                    accent={accent}
+                    isMobile={isMobile}
+                  />
+                ))}
+
+                <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row", marginTop: "8px" }}>
+                  {navBtn("Anterior", () => setCurrentStep(1))}
+                  {navBtn("Siguiente", () => setCurrentStep(4), true, !hermanosValid)}
+                </div>
+              </div>
+            );
+          })() : currentStep === 2 && wizardMode === "familia-grupo" ? (() => {
+            const familiaGrupoValid =
+              !!papaName.trim() && papaUpload.photos.length >= 1 &&
+              !!mamaName.trim() && mamaUpload.photos.length >= 1 &&
+              !!hijo1Name.trim() && hijo1Upload.photos.length >= 1 &&
+              (numHijos < 2 || (!!hijo2Name.trim() && hijo2Upload.photos.length >= 1)) &&
+              (numHijos < 3 || (!!hijo3Name.trim() && hijo3Upload.photos.length >= 1));
+
+            const maleSvgSm = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
+            const femaleSvgSm = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M8 60L24 30L40 60" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><line x1="8" y1="47" x2="40" y2="47" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
+            const childSvgSm = <svg width="22" height="28" viewBox="0 0 36 48" fill="none"><circle cx="18" cy="10" r="8" stroke={accent} strokeWidth="2.5"/><path d="M2 44 C2 26 34 26 34 44" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
+
+            return (
+              <div>
+                <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>Fotos de la familia</h3>
+                <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>Sube 2 fotos por cada integrante. Rostro completo, bien iluminado, sin filtros.</p>
+
+                <MemberSection label="Papá" svgIcon={maleSvgSm} name={papaName} setName={setPapaName} upload={papaUpload} accent={accent} isMobile={isMobile} />
+                <MemberSection label="Mamá" svgIcon={femaleSvgSm} name={mamaName} setName={setMamaName} upload={mamaUpload} accent={accent} isMobile={isMobile} />
+                <MemberSection label="Hijo 1" svgIcon={childSvgSm} name={hijo1Name} setName={setHijo1Name} upload={hijo1Upload} accent={accent} isMobile={isMobile} />
+                {numHijos >= 2 && <MemberSection label="Hijo 2" svgIcon={childSvgSm} name={hijo2Name} setName={setHijo2Name} upload={hijo2Upload} accent={accent} isMobile={isMobile} />}
+                {numHijos >= 3 && <MemberSection label="Hijo 3" svgIcon={childSvgSm} name={hijo3Name} setName={setHijo3Name} upload={hijo3Upload} accent={accent} isMobile={isMobile} />}
+
+                <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row", marginTop: "8px" }}>
+                  {navBtn("Anterior", () => setCurrentStep(1))}
+                  {navBtn("Siguiente", () => setCurrentStep(4), true, !familiaGrupoValid)}
+                </div>
+              </div>
+            );
+          })() : currentStep === 2 ? (
             <div>
               <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>
-                {genderDirection === "HE_TO_SHE" ? "Datos de ella" : "Datos de él"}
+                {wizardMode === "mascotas" ? "Datos de tu mascota"
+                  : wizardMode === "memorial" ? (recipientGender === "F" ? "Datos de ella" : "Datos de él")
+                  : recipientGender === "F" ? "Datos de ella" : "Datos de él"}
               </h3>
               <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>
-                La persona que recibirá el libro como regalo.
+                {wizardMode === "mascotas" ? "La mascota protagonista del libro."
+                  : wizardMode === "memorial" ? "La persona que siempre estará en tu corazón."
+                  : "La persona que recibirá el libro como regalo."}
               </p>
 
               <CharacterCard
@@ -593,9 +1027,10 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 onNameChange={setRecipientName}
                 onNicknameChange={setRecipientNickname}
                 upload={recipientUpload}
-                maxPhotos={2}
+                maxPhotos={photoConfig.recipient}
                 accent={accent}
                 isMobile={isMobile}
+                namePlaceholder={wizardMode === "mascotas" ? "Nombre de la mascota" : "Nombre del personaje"}
               />
 
               {/* AI disclaimer */}
@@ -613,36 +1048,43 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
                 {navBtn("Anterior", () => setCurrentStep(1))}
-                {navBtn("Siguiente", () => setCurrentStep(3), true, !recipientName.trim() || recipientUpload.photos.length < 1)}
+                {navBtn("Siguiente", () => setCurrentStep(nextAfterRecipient), true, !recipientName.trim() || recipientUpload.photos.length < 1)}
               </div>
             </div>
-          )}
+          ) : null}
 
-          {/* ── Step 3: Dedicator character card ── */}
-          {currentStep === 3 && (
+          {/* ── Step 3: Dedicator character card (no aplica en familia-grupo ni hermanos) ── */}
+          {currentStep === 3 && wizardMode !== "familia-grupo" && wizardMode !== "hermanos" && (
             <div>
               <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>
-                {genderDirection === "HE_TO_SHE" ? "Datos de él" : "Datos de ella"}
+                {wizardMode === "mascotas" ? (dedicatorGender === "M" ? "Datos de él" : "Datos de ella")
+                  : wizardMode === "memorial" ? "¿Quién dedica este libro?"
+                  : dedicatorGender === "M" ? "Datos de él" : "Datos de ella"}
               </h3>
               <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>
-                La persona que hace el regalo — quien dedica el libro.
+                {wizardMode === "memorial"
+                  ? "La persona que hace este homenaje."
+                  : "La persona que hace el regalo — quien dedica el libro."}
               </p>
 
               <CharacterCard
                 role="dedicator"
                 name={dedicatorName}
-                nickname={dedicatorNickname}
+                nickname=""
                 onNameChange={setDedicatorName}
-                onNicknameChange={setDedicatorNickname}
+                onNicknameChange={() => {}}
                 upload={dedicatorUpload}
-                maxPhotos={2}
+                maxPhotos={photoConfig.dedicator}
                 accent={accent}
                 isMobile={isMobile}
+                showNickname={false}
               />
 
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
                 {navBtn("Anterior", () => setCurrentStep(2))}
-                {navBtn("Siguiente", () => setCurrentStep(4), true, !dedicatorName.trim() || dedicatorUpload.photos.length < 1)}
+                {navBtn("Siguiente", () => setCurrentStep(4), true,
+                  !dedicatorName.trim() || (photoConfig.dedicator > 0 && dedicatorUpload.photos.length < 1)
+                )}
               </div>
             </div>
           )}
@@ -650,7 +1092,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           {/* ── Step 4: Templates ── */}
           {currentStep === 4 && (
             <div>
-              <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: 700 }}>4. Elegí 3 escenarios</h3>
+              <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: 700 }}>4. Elige 3 escenarios</h3>
               <p style={{ margin: "0 0 6px 0", fontSize: "14px", color: "#666" }}>
                 Hojea el libro y haz clic en las páginas para seleccionar hasta 3 escenarios.
               </p>
@@ -660,7 +1102,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               </div>
               <TemplateBook templates={templates} selectedIds={selectedTemplates} maxSelections={3} accent={accent} onToggle={toggleTemplate} />
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row", justifyContent: "center", marginTop: "28px" }}>
-                {navBtn("Anterior", () => setCurrentStep(3))}
+                {navBtn("Anterior", () => setCurrentStep((wizardMode === "familia-grupo" || wizardMode === "hermanos") ? 2 : 3))}
                 {navBtn("Siguiente", () => setCurrentStep(5), true, selectedTemplates.length < 3)}
               </div>
             </div>
@@ -775,7 +1217,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               ) : (
                 <div>
                   <div style={{ fontSize: "12px", color: "#888", marginBottom: "10px" }}>
-                    Puedes usar <strong>{recipientNickname || recipientName}</strong> y <strong>{dedicatorNickname || dedicatorName}</strong> para personalizar tu mensaje.
+                    Puedes usar <strong>{recipientNickname || recipientName}</strong> y <strong>{dedicatorName}</strong> para personalizar tu mensaje.
                   </div>
                   <textarea value={customDedication} onChange={(e) => setCustomDedication(e.target.value)} placeholder="Escribe tu dedicatoria personalizada..." rows={5}
                     style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1.5px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", resize: "vertical", lineHeight: 1.7, boxSizing: "border-box" }}
@@ -897,7 +1339,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <div style={{ borderRadius: "14px", border: "1px solid #f0f0f0", overflow: "hidden", marginBottom: "24px" }}>
                   <SummaryRow label="Libro" value={libroNombre} />
                   <SummaryRow label="Para" value={`${recipientName}${recipientNickname ? ` (${recipientNickname})` : ""}`} />
-                  <SummaryRow label="De" value={`${dedicatorName}${dedicatorNickname ? ` (${dedicatorNickname})` : ""}`} />
+                  <SummaryRow label="De" value={dedicatorName} />
                   <SummaryRow label="Fotos" value={`${recipientUpload.photos.length + dedicatorUpload.photos.length} fotos subidas`} />
                   <SummaryRow label="Escenarios" value={selectedTemplates.map((id) => templates.find((t) => t.id === id)?.name ?? `#${id}`).join(", ")} />
                   <SummaryRow label="Tapa" value={selectedVariant?.coverType.replace("TAPA_", "Tapa ") ?? "—"} />
@@ -990,7 +1432,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 // ── Character Card ─────────────────────────────────────────────────────────────
 
 function CharacterCard({
-  role, name, nickname, onNameChange, onNicknameChange, upload, maxPhotos, accent, isMobile,
+  role, name, nickname, onNameChange, onNicknameChange, upload, maxPhotos, accent, isMobile, showNickname = true, namePlaceholder = "Nombre del personaje",
 }: {
   role: "recipient" | "dedicator";
   name: string;
@@ -1001,6 +1443,8 @@ function CharacterCard({
   maxPhotos: number;
   accent: string;
   isMobile?: boolean;
+  showNickname?: boolean;
+  namePlaceholder?: string;
 }) {
   const { photos, uploading, progress, uploadFiles, removePhoto } = upload;
   const primaryPhoto = photos[0];
@@ -1102,7 +1546,7 @@ function CharacterCard({
               letterSpacing: name ? "-0.3px" : "0",
             }}
           >
-            {name || "Nombre del personaje"}
+            {name || namePlaceholder}
           </div>
           {nickname && (
             <div style={{ fontSize: "13px", color: "#999", marginTop: "4px", fontStyle: "italic" }}>
@@ -1121,18 +1565,20 @@ function CharacterCard({
             onChange={onNameChange}
             isMobile={isMobile}
           />
-          <FormField
-            label="Apodo / cómo le llamas (opcional)"
-            value={nickname}
-            onChange={onNicknameChange}
-            isMobile={isMobile}
-          />
+          {showNickname && (
+            <FormField
+              label="Apodo / cómo le llamas (opcional)"
+              value={nickname}
+              onChange={onNicknameChange}
+              isMobile={isMobile}
+            />
+          )}
         </div>
 
         {/* Photos strip */}
         <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: "18px" }}>
           <div style={{ fontSize: "13px", fontWeight: 600, color: "#333", marginBottom: "4px" }}>
-            Fotos (hasta 2) *
+            Fotos (hasta {maxPhotos}) *
           </div>
           <div style={{ fontSize: "12px", color: "#888", marginBottom: "12px" }}>
             La primera foto se usará como avatar. Rostro completo, sin filtros, bien iluminada.

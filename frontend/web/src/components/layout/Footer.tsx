@@ -77,6 +77,103 @@ const LINK_STYLE = {
   transition: "color 0.2s ease",
 };
 
+const C = { c: '#22D3EE', m: '#FBBF24', t: '#14B8A6' };
+const PX = 16; // pixel size
+
+// col()    = stack sólido continuo (niveles 0,1,2...)
+// sparse() = pixels en niveles específicos con gaps entre medio
+function col(x: number, pixels: Array<{ c: string; o: number }>) {
+  return pixels.map((p, i) => ({ x, b: i * PX, c: p.c, o: p.o }));
+}
+function sparse(x: number, entries: Array<{ l: number; c: string; o: number }>) {
+  return entries.map(e => ({ x, b: e.l * PX, c: e.c, o: e.o }));
+}
+
+const FOOTER_PIXELS = [
+  // ── Columnas principales — patrones variados ──
+  ...col(1,    [{ c: C.c, o: 1   }, { c: C.t, o: 0.5  }, { c: C.c, o: 0.18 }]),         // sólido 3
+  ...col(3.5,  [{ c: C.m, o: 0.9 }]),                                                     // single
+  ...sparse(6,    [{ l:0, c:C.t, o:1 },   { l:2, c:C.c, o:0.4  }, { l:3, c:C.t, o:0.14 }]), // gap en 1
+  ...sparse(8.5,  [{ l:1, c:C.m, o:0.65 }, { l:2, c:C.c, o:0.28 }]),                        // arranca en 1
+  ...col(11,   [{ c: C.c, o: 1   }, { c: C.c, o: 0.55 }, { c: C.t, o: 0.22 }, { c: C.m, o: 0.08 }]), // sólido 4
+  ...sparse(13.5, [{ l:0, c:C.t, o:0.9  }, { l:3, c:C.m, o:0.2  }, { l:4, c:C.c, o:0.07 }]), // base + salto alto
+  ...col(16,   [{ c: C.m, o: 1   }, { c: C.c, o: 0.4  }]),                                // sólido 2
+  ...sparse(18.5, [{ l:0, c:C.c, o:0.9 }, { l:2, c:C.t, o:0.32 }]),                         // gap en 1
+  ...col(21,   [{ c: C.t, o: 1   }]),                                                     // single
+  ...col(23.5, [{ c: C.m, o: 0.8 }, { c: C.c, o: 0.45 }, { c: C.m, o: 0.15 }]),         // sólido 3
+  ...sparse(26,   [{ l:0, c:C.c, o:1   }, { l:3, c:C.m, o:0.18 }]),                         // base + salto grande
+  ...col(28.5, [{ c: C.t, o: 0.9 }, { c: C.t, o: 0.35 }]),                               // sólido 2
+  ...sparse(31,   [{ l:0, c:C.m, o:1   }, { l:1, c:C.c, o:0.55 }, { l:3, c:C.m, o:0.18 }, { l:4, c:C.t, o:0.06 }]), // gap en 2
+  ...col(33.5, [{ c: C.c, o: 0.8 }]),                                                     // single
+  ...sparse(36,   [{ l:1, c:C.t, o:0.75 }, { l:2, c:C.m, o:0.38 }, { l:3, c:C.c, o:0.13 }]), // arranca en 1
+  ...sparse(38.5, [{ l:0, c:C.m, o:0.9 }, { l:2, c:C.t, o:0.28 }]),                         // gap en 1
+  ...col(41,   [{ c: C.c, o: 1   }, { c: C.c, o: 0.55 }, { c: C.m, o: 0.2  }]),         // sólido 3
+  ...sparse(43.5, [{ l:0, c:C.t, o:0.75 }, { l:2, c:C.c, o:0.28 }, { l:4, c:C.m, o:0.08 }]), // cada 2
+  ...col(46,   [{ c: C.m, o: 1   }]),                                                     // single
+  ...col(48.5, [{ c: C.c, o: 0.9 }, { c: C.t, o: 0.55 }, { c: C.c, o: 0.22 }, { c: C.m, o: 0.08 }]), // sólido 4
+  ...sparse(51,   [{ l:0, c:C.t, o:1   }, { l:3, c:C.m, o:0.22 }, { l:4, c:C.c, o:0.08 }]), // base + salto alto
+  ...col(53.5, [{ c: C.m, o: 0.8 }, { c: C.c, o: 0.35 }]),                               // sólido 2
+  ...sparse(56,   [{ l:1, c:C.c, o:0.8 }, { l:2, c:C.t, o:0.42 }, { l:3, c:C.m, o:0.15 }]), // arranca en 1
+  ...col(58.5, [{ c: C.t, o: 0.9 }]),                                                     // single
+  ...col(61,   [{ c: C.m, o: 1   }, { c: C.m, o: 0.5  }, { c: C.c, o: 0.2  }]),         // sólido 3
+  ...sparse(63.5, [{ l:0, c:C.c, o:0.8 }, { l:3, c:C.t, o:0.2  }]),                         // base + salto
+  ...col(66,   [{ c: C.t, o: 1   }, { c: C.c, o: 0.55 }]),                               // sólido 2
+  ...sparse(68.5, [{ l:0, c:C.m, o:0.9 }, { l:1, c:C.t, o:0.45 }, { l:3, c:C.c, o:0.15 }]), // gap en 2
+  ...col(71,   [{ c: C.c, o: 1   }]),                                                     // single
+  ...sparse(73.5, [{ l:0, c:C.t, o:0.8 }, { l:2, c:C.m, o:0.3  }, { l:4, c:C.c, o:0.08 }]), // cada 2
+  ...col(76,   [{ c: C.m, o: 1   }, { c: C.c, o: 0.5  }, { c: C.m, o: 0.2  }]),         // sólido 3
+  ...sparse(78.5, [{ l:0, c:C.c, o:0.9 }, { l:2, c:C.t, o:0.32 }]),                         // gap en 1
+  ...col(81,   [{ c: C.t, o: 1   }, { c: C.c, o: 0.6  }, { c: C.t, o: 0.26 }, { c: C.m, o: 0.1 }, { c: C.c, o: 0.04 }]), // sólido 5
+  ...col(83.5, [{ c: C.m, o: 0.8 }]),                                                     // single
+  ...sparse(86,   [{ l:0, c:C.c, o:1   }, { l:2, c:C.m, o:0.38 }, { l:3, c:C.t, o:0.14 }]), // gap en 1
+  ...sparse(88.5, [{ l:1, c:C.t, o:0.72 }, { l:2, c:C.c, o:0.32 }]),                        // arranca en 1
+  ...col(91,   [{ c: C.m, o: 1   }, { c: C.m, o: 0.42 }]),                               // sólido 2
+  ...sparse(93.5, [{ l:0, c:C.c, o:0.8 }, { l:2, c:C.t, o:0.3  }, { l:3, c:C.m, o:0.1 }]), // gap en 1
+  ...col(96,   [{ c: C.t, o: 1   }]),                                                     // single
+  ...sparse(98.5, [{ l:0, c:C.m, o:0.9 }, { l:2, c:C.c, o:0.32 }]),                        // gap en 1
+
+  // ── Gap fillers — entre columnas, baja opacidad ──
+  ...col(2.25,  [{ c: C.m, o: 0.18 }]),
+  ...sparse(4.75,  [{ l:0, c:C.t, o:0.22 }, { l:2, c:C.c, o:0.09 }]),
+  ...col(7.25,  [{ c: C.c, o: 0.15 }]),
+  ...sparse(9.75,  [{ l:0, c:C.m, o:0.2  }, { l:1, c:C.t, o:0.08 }]),
+  ...col(12.25, [{ c: C.t, o: 0.18 }]),
+  ...sparse(14.75, [{ l:0, c:C.c, o:0.25 }, { l:2, c:C.m, o:0.09 }]),
+  ...col(17.25, [{ c: C.m, o: 0.15 }]),
+  ...col(19.75, [{ c: C.t, o: 0.22 }]),
+  ...sparse(22.25, [{ l:0, c:C.c, o:0.2  }, { l:2, c:C.t, o:0.08 }]),
+  ...col(24.75, [{ c: C.m, o: 0.15 }]),
+  ...sparse(27.25, [{ l:0, c:C.t, o:0.25 }, { l:1, c:C.c, o:0.1  }]),
+  ...col(29.75, [{ c: C.c, o: 0.18 }]),
+  ...col(32.25, [{ c: C.m, o: 0.2  }]),
+  ...sparse(34.75, [{ l:0, c:C.t, o:0.22 }, { l:2, c:C.m, o:0.08 }]),
+  ...col(37.25, [{ c: C.c, o: 0.15 }]),
+  ...col(39.75, [{ c: C.m, o: 0.25 }]),
+  ...sparse(42.25, [{ l:0, c:C.t, o:0.18 }, { l:1, c:C.c, o:0.08 }]),
+  ...col(44.75, [{ c: C.c, o: 0.2  }]),
+  ...col(47.25, [{ c: C.m, o: 0.15 }]),
+  ...sparse(49.75, [{ l:0, c:C.t, o:0.22 }, { l:2, c:C.m, o:0.08 }]),
+  ...col(52.25, [{ c: C.c, o: 0.18 }]),
+  ...col(54.75, [{ c: C.m, o: 0.25 }]),
+  ...sparse(57.25, [{ l:0, c:C.t, o:0.15 }, { l:1, c:C.c, o:0.07 }]),
+  ...col(59.75, [{ c: C.c, o: 0.2  }]),
+  ...col(62.25, [{ c: C.m, o: 0.18 }]),
+  ...sparse(64.75, [{ l:0, c:C.t, o:0.22 }, { l:2, c:C.m, o:0.08 }]),
+  ...col(67.25, [{ c: C.c, o: 0.15 }]),
+  ...col(69.75, [{ c: C.m, o: 0.25 }]),
+  ...sparse(72.25, [{ l:0, c:C.t, o:0.18 }, { l:1, c:C.c, o:0.08 }]),
+  ...col(74.75, [{ c: C.c, o: 0.2  }]),
+  ...col(77.25, [{ c: C.m, o: 0.15 }]),
+  ...col(79.75, [{ c: C.t, o: 0.22 }]),
+  ...sparse(82.25, [{ l:0, c:C.c, o:0.18 }, { l:2, c:C.m, o:0.08 }]),
+  ...col(84.75, [{ c: C.m, o: 0.25 }]),
+  ...col(87.25, [{ c: C.t, o: 0.15 }]),
+  ...sparse(89.75, [{ l:0, c:C.c, o:0.22 }, { l:1, c:C.t, o:0.09 }]),
+  ...col(92.25, [{ c: C.m, o: 0.18 }]),
+  ...col(94.75, [{ c: C.t, o: 0.2  }]),
+  ...sparse(97.25, [{ l:0, c:C.c, o:0.15 }, { l:2, c:C.m, o:0.07 }]),
+];
+
 export default function Footer() {
   const logoUrl = getAssetUrl(HOME_ASSET_KEYS.logo);
 
@@ -148,6 +245,36 @@ export default function Footer() {
         }
       `}</style>
       <FooterBackground />
+
+      {/* ── Pixel decoration — bottom edge ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "90px",
+          pointerEvents: "none",
+          zIndex: 1,
+          opacity: 0.25,
+        }}
+      >
+        {FOOTER_PIXELS.map((p, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${p.x}%`,
+              bottom: `${p.b}px`,
+              width: `${PX}px`,
+              height: `${PX}px`,
+              background: p.c,
+              opacity: p.o,
+            }}
+          />
+        ))}
+      </div>
 
       <div
         className="footer-wrap"
@@ -221,7 +348,7 @@ export default function Footer() {
                 +51 941 452 953
               </a>
               <a
-                href="mailto:luccano19@gmail.com"
+                href="mailto:Pix3l4rtperu@gmail.com"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -237,7 +364,7 @@ export default function Footer() {
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="M22 7l-10 6L2 7" />
                 </svg>
-                luccano19@gmail.com
+                Pix3l4rtperu@gmail.com
               </a>
             </div>
           </div>

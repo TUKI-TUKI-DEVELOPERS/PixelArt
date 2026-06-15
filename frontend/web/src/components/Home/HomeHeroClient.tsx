@@ -29,12 +29,7 @@ export default function HomeHeroClient({ slides }: Props) {
   const { isCompact } = useWindowSize();
 
   const currentSlide = useMemo(() => slides[currentIndex], [slides, currentIndex]);
-  const inactiveSlide = useMemo(
-    () => slides[currentIndex === 0 ? 1 : 0],
-    [slides, currentIndex]
-  );
-
-  const isPhotobook = currentSlide.key === "photobook";
+const isPhotobook = currentSlide.key === "photobook";
   const isCustomBook = currentSlide.key === "custom-book";
 
   const goPrev = () => {
@@ -306,41 +301,6 @@ export default function HomeHeroClient({ slides }: Props) {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Preview pequeño del producto inactivo */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`preview-${inactiveSlide.key}`}
-                  initial={{ opacity: 0, scale: 0.8, x: 20, y: 20 }}
-                  animate={{ opacity: 0.85, scale: 1, x: 0, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, x: -20, y: -20 }}
-                  whileHover={{ opacity: 1, scale: 1.05 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  onClick={() => switchToSlide(currentIndex === 0 ? 1 : 0)}
-                  style={{
-                    position: "absolute",
-                    bottom: "-10px",
-                    right: "-10px",
-                    width: "105px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <Image
-                    src={inactiveSlide.sliderUrl}
-                    alt={`Preview de ${inactiveSlide.title}`}
-                    width={105}
-                    height={70}
-                    loading="lazy"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      display: "block",
-                      borderRadius: "12px",
-                      border: "4px solid white",
-                      boxShadow: tokens.shadows.lg,
-                    }}
-                  />
-                </motion.div>
-              </AnimatePresence>
             </div>
 
             {/* CTAs with Hierarchy */}
@@ -393,7 +353,7 @@ export default function HomeHeroClient({ slides }: Props) {
                     ...(isCompact && { width: "100%", maxWidth: "300px" }),
                   }}
                   onClick={() => switchToSlide(currentIndex === 0 ? 1 : 0)}
-                  aria-label={`Ver ${inactiveSlide.title}`}
+                  aria-label={`Ver ${isPhotobook ? "IA Books" : "Photobooks"}`}
                 >
                   {isPhotobook ? "Ver IA Books" : "Ver Photobooks"}
                 </motion.button>

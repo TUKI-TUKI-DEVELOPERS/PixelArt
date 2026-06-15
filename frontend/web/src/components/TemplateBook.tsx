@@ -18,6 +18,7 @@ type Props = {
 const PAGE_W = 360;
 const PAGE_H = 360;
 
+
 export default function TemplateBook({ templates, selectedIds, maxSelections, accent, onToggle }: Props) {
   const { isMobile, isTablet } = useWindowSize();
   const bookRef = useRef<HTMLDivElement>(null);

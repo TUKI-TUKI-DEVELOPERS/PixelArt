@@ -227,11 +227,19 @@ async function fetchTemplates(modelId: number): Promise<{ id: number; name: stri
   const res = await fetch(`${API_BASE}/api/personalized/models/${modelId}/templates`, { next: { revalidate: 300 } });
   if (!res.ok) return [];
   const templates = await res.json();
-  return templates.map((t: { id: string; name: string | null; previewUrl: string }) => ({
-    id: Number(t.id),
-    name: t.name,
-    previewUrl: t.previewUrl,
-  }));
+  return templates
+    .map((t: { id: string; name: string | null; previewUrl: string }) => ({
+      id: Number(t.id),
+      name: t.name,
+      previewUrl: t.previewUrl,
+    }))
+    .sort((a: { previewUrl: string }, b: { previewUrl: string }) => {
+      const n = (url: string) => {
+        const m = url.match(/PLANTILLA_(\d+)_/i);
+        return m ? parseInt(m[1], 10) : 0;
+      };
+      return n(a.previewUrl) - n(b.previewUrl);
+    });
 }
 
 type Props = {

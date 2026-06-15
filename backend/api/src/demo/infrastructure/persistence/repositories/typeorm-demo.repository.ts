@@ -48,6 +48,11 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
         packagePreference: data.packagePreference ?? 'STANDARD',
         wantsCustomDedication: data.wantsCustomDedication,
         dedicationText: data.dedicationText ?? null,
+        recipientName: data.recipientName ?? null,
+        recipientNickname: data.recipientNickname ?? null,
+        dedicatorName: data.dedicatorName ?? null,
+        genderDirection: data.genderDirection ?? null,
+        characterMeta: data.characterMeta ?? null,
         messageOptional: data.messageOptional ?? null,
         status: 'RECEIVED',
       });

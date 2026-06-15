@@ -361,6 +361,296 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         </div>
       </section>
 
+      {/* ═══ CÓMO FUNCIONA ═══ */}
+      <section
+        style={{
+          background: "#f9f7fc",
+          borderTop: "1px solid rgba(128,65,135,0.08)",
+          borderBottom: "1px solid rgba(128,65,135,0.08)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            padding: isMobile ? "52px 24px" : isTablet ? "64px 32px" : "72px 48px",
+          }}
+        >
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <p
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: ACCENT,
+                textTransform: "uppercase" as const,
+                letterSpacing: "3px",
+              }}
+            >
+              Fácil y rápido
+            </p>
+            <h2
+              style={{
+                margin: "0 0 16px 0",
+                fontSize: isMobile ? "28px" : "36px",
+                fontWeight: 900,
+                color: "#111",
+                lineHeight: 1.1,
+                letterSpacing: "-0.5px",
+              }}
+            >
+              ¿Cómo funciona?
+            </h2>
+            <div
+              style={{
+                width: "56px",
+                height: "3px",
+                background: ACCENT,
+                borderRadius: "2px",
+                margin: "0 auto",
+              }}
+            />
+          </div>
+
+          {/* Steps */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr",
+              gap: "20px",
+              position: "relative",
+            }}
+          >
+            {/* Connector line — solo desktop */}
+            {!isMobile && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "44px",
+                  left: "calc(33.33% - 16px)",
+                  right: "calc(33.33% - 16px)",
+                  height: "1px",
+                  background: "rgba(128,65,135,0.15)",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+
+            {/* Step 1 */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                textAlign: "center" as const,
+                padding: "32px 24px",
+                background: "#fff",
+                borderRadius: "20px",
+                border: "1px solid rgba(128,65,135,0.12)",
+                boxShadow: "0 2px 16px rgba(128,65,135,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(128,65,135,0.08)",
+                  border: "1.5px solid rgba(128,65,135,0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "20px",
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="12" cy="13" r="4" stroke={ACCENT} strokeWidth="1.8"/>
+                </svg>
+              </div>
+              <p style={{ margin: "0 0 6px 0", fontSize: "11px", fontWeight: 800, color: ACCENT, textTransform: "uppercase" as const, letterSpacing: "2.5px" }}>
+                Paso 01
+              </p>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: 800, color: "#111", lineHeight: 1.2 }}>
+                Sube tus fotos
+              </h3>
+              <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.65, color: "#666" }}>
+                Selecciona las mejores fotos de tus viajes o momentos especiales. Aceptamos todos los formatos de alta resolución.
+              </p>
+            </div>
+
+            {/* Step 2 — destacado */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                textAlign: "center" as const,
+                padding: "32px 24px",
+                background: ACCENT,
+                borderRadius: "20px",
+                border: "1px solid transparent",
+                boxShadow: "0 8px 32px rgba(128,65,135,0.25)",
+              }}
+            >
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.2)",
+                  border: "1.5px solid rgba(255,255,255,0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "20px",
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 20h9" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p style={{ margin: "0 0 6px 0", fontSize: "11px", fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase" as const, letterSpacing: "2.5px" }}>
+                Paso 02
+              </p>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>
+                Elige tu diseño
+              </h3>
+              <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.65, color: "rgba(255,255,255,0.82)" }}>
+                Escoge entre nuestras plantillas profesionales, elige la tapa y personaliza cada página a tu gusto.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                textAlign: "center" as const,
+                padding: "32px 24px",
+                background: "#fff",
+                borderRadius: "20px",
+                border: "1px solid rgba(128,65,135,0.12)",
+                boxShadow: "0 2px 16px rgba(128,65,135,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(128,65,135,0.08)",
+                  border: "1.5px solid rgba(128,65,135,0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "20px",
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H3l9-9 9 9h-2M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M9 21V12h6v9" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p style={{ margin: "0 0 6px 0", fontSize: "11px", fontWeight: 800, color: ACCENT, textTransform: "uppercase" as const, letterSpacing: "2.5px" }}>
+                Paso 03
+              </p>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: 800, color: "#111", lineHeight: 1.2 }}>
+                Lo recibes en casa
+              </h3>
+              <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.65, color: "#666" }}>
+                Imprimimos con la máxima calidad y te lo enviamos a domicilio en 2 a 5 días hábiles a todo el Perú.
+              </p>
+            </div>
+          </div>
+
+          {/* Trust badges */}
+          <div
+            style={{
+              marginTop: "40px",
+              paddingTop: "32px",
+              borderTop: "1px solid rgba(128,65,135,0.1)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: isMobile ? "16px" : "40px",
+              flexWrap: "wrap" as const,
+            }}
+          >
+            {[
+              {
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
+                text: "Sin cuenta requerida",
+              },
+              {
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="11" width="18" height="11" rx="2" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
+                text: "Pago 100% seguro",
+              },
+              {
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <polyline points="20 6 9 17 4 12" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
+                text: "Satisfacción garantizada",
+              },
+              {
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
+                text: "Calidad de impresión HD",
+              },
+            ].map(({ icon, text }) => (
+              <div
+                key={text}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "#555",
+                }}
+              >
+                <div
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "50%",
+                    background: "rgba(128,65,135,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {icon}
+                </div>
+                {text}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ CATÁLOGO DE PORTADAS ═══ */}
       <section
         id="catalogo-section"

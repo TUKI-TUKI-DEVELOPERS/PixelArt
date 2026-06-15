@@ -18,6 +18,11 @@ export type CreateDemoRequestData = {
   packagePreference?: string;
   wantsCustomDedication: boolean;
   dedicationText?: string | null;
+  recipientName?: string | null;
+  recipientNickname?: string | null;
+  dedicatorName?: string | null;
+  genderDirection?: string | null;
+  characterMeta?: Record<string, unknown> | null;
   messageOptional?: string | null;
   templateIds: number[];
   assetIds: number[];
@@ -28,6 +33,7 @@ export type DemoRequestWithRelations = DemoRequest & {
   templateSelections: { id: number; templateId: number; templateName: string | null; templatePreviewKey: string | null }[];
   assetIds: number[];
   proposals: { id: number; templateId: number; outputStorageKey: string; protectionMode: string }[];
+  // ya incluidos en DemoRequest base: recipientName, recipientNickname, dedicatorName, genderDirection, characterMeta
 };
 
 export type SaveProposalData = {

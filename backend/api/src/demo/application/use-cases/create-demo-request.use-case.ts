@@ -13,8 +13,8 @@ export class CreateDemoRequestUseCase {
     if (data.templateIds.length > 3) {
       throw new BadRequestException('Máximo 3 plantillas permitidas');
     }
-    if (data.assetIds && data.assetIds.length > 5) {
-      throw new BadRequestException('Máximo 5 fotos permitidas');
+    if (data.assetIds && data.assetIds.length > 20) {
+      throw new BadRequestException('Máximo 20 fotos permitidas');
     }
     return this.repo.create(data);
   }

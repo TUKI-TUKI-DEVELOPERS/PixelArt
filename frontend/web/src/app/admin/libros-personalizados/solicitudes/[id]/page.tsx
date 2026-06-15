@@ -32,6 +32,13 @@ async function forceDownload(url: string, filename: string) {
   URL.revokeObjectURL(blobUrl);
 }
 
+type CharacterMember = { name: string; assetIds?: number[] };
+type CharacterMeta =
+  | { mode: "familia-grupo"; papa: CharacterMember; mama: CharacterMember; hijos: CharacterMember[] }
+  | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
+  | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
+  | null;
+
 type DemoDetail = {
   id: number;
   customerFullName: string;
@@ -47,6 +54,11 @@ type DemoDetail = {
   coverType: string | null;
   wantsCustomDedication: boolean;
   dedicationText: string | null;
+  recipientName: string | null;
+  recipientNickname: string | null;
+  dedicatorName: string | null;
+  genderDirection: string | null;
+  characterMeta: CharacterMeta;
   messageOptional: string | null;
   status: string;
   catalogBookVariantId: number;
@@ -176,12 +188,11 @@ export default function SolicitudDetallePage() {
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Datos del cliente</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", padding: "0", borderBottom: "1px solid #f3f4f6" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", padding: "0", borderBottom: "1px solid #f3f4f6" }}>
           {[
-            { label: "Email",         value: data.customerEmail },
-            { label: "Teléfono",      value: data.customerPhone },
-            { label: "Dirección",     value: [data.shippingAddressLine1, data.shippingCity, data.shippingRegion].filter(Boolean).join(", ") },
-            { label: "Fecha entrega", value: data.deliveryDate ?? "—" },
+            { label: "Email",     value: data.customerEmail },
+            { label: "Teléfono",  value: data.customerPhone },
+            { label: "Dirección", value: [data.shippingAddressLine1, data.shippingCity, data.shippingRegion].filter(Boolean).join(", ") },
           ].map((field, i, arr) => (
             <div key={field.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
               <div style={{ fontSize: "11px", fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "5px" }}>{field.label}</div>
@@ -235,11 +246,6 @@ export default function SolicitudDetallePage() {
               value: data.wantsRush ? "Express" : "Normal",
               accent: data.wantsRush,
             },
-            {
-              label: "Fecha deseada",
-              value: data.deliveryDate ?? "—",
-              accent: false,
-            },
           ].map((field, i, arr) => (
             <div key={field.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
               <div style={{ fontSize: "11px", fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "5px" }}>{field.label}</div>
@@ -249,45 +255,236 @@ export default function SolicitudDetallePage() {
         </div>
       </div>
 
-      {/* ── Fotos del cliente ── */}
-      <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", padding: "20px 24px", marginBottom: "24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Fotos del cliente</span>
-            <span style={{ fontSize: "11px", fontWeight: 600, color: "#6b7280", background: "#f3f4f6", borderRadius: "999px", padding: "1px 8px" }}>{data.assetIds.length}</span>
+      {/* ── Personajes del libro — solo para modos con múltiples integrantes ── */}
+      {data.characterMeta && ("papa" in data.characterMeta || "hermanos" in data.characterMeta) && (
+        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", overflow: "hidden" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
+            <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Personajes del libro</span>
           </div>
-          {data.assetIds.length > 0 && (
-            <button
-              onClick={() => data.assetIds.forEach((assetId) => { const url = assetUrls[assetId]; if (url) forceDownload(url, `foto_cliente_${assetId}.jpg`); })}
-              style={{ padding: "5px 12px", borderRadius: "7px", border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "5px" }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Descargar todas
-            </button>
-          )}
+          <div style={{ padding: "16px 20px" }}>
+            {/* Modos simples: amor / mascotas / familia / memorial */}
+            {!data.characterMeta && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
+                {data.recipientName && (
+                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Protagonista</div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{data.recipientName}</div>
+                    {data.recipientNickname && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>"{data.recipientNickname}"</div>}
+                  </div>
+                )}
+                {data.dedicatorName && (
+                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Quién dedica</div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{data.dedicatorName}</div>
+                  </div>
+                )}
+                {data.genderDirection && (
+                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Dirección</div>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#374151" }}>
+                      {data.genderDirection === "HE_TO_SHE" ? "Él → Ella"
+                        : data.genderDirection === "SHE_TO_HE" ? "Ella → Él"
+                        : data.genderDirection === "HE_TO_HE" ? "Él → Él"
+                        : data.genderDirection === "SHE_TO_SHE" ? "Ella → Ella"
+                        : data.genderDirection}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Modo familia-grupo */}
+            {data.characterMeta?.mode === "familia-grupo" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
+                {[
+                  { label: "Papá", name: data.characterMeta.papa.name },
+                  { label: "Mamá", name: data.characterMeta.mama.name },
+                  ...data.characterMeta.hijos.map((h, i) => ({ label: `Hijo ${i + 1}`, name: h.name })),
+                ].map((m) => (
+                  <div key={m.label} style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{m.label}</div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{m.name || "—"}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Modo hermanos */}
+            {data.characterMeta?.mode === "hermanos" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
+                {data.characterMeta.hermanos.map((h, i) => (
+                  <div key={i} style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>
+                      {h.gender === "F" ? `Hermana ${i + 1}` : `Hermano ${i + 1}`}
+                    </div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{h.name || "—"}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        {data.assetIds.length === 0 ? (
-          <div style={{ padding: "20px", textAlign: "center", color: "#9ca3af", fontSize: "13px" }}>Sin fotos</div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "8px" }}>
-            {data.assetIds.map((assetId) => {
-              const url = assetUrls[assetId];
-              return url ? (
-                <div key={assetId} style={{ position: "relative" }}>
-                  <img src={url} alt={`Foto ${assetId}`} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "7px", background: "#f3f4f6", display: "block" }} />
-                  <button onClick={() => forceDownload(url, `foto_cliente_${assetId}.jpg`)}
-                    style={{ position: "absolute", bottom: "4px", right: "4px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}
-                    title="Descargar">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  </button>
-                </div>
-              ) : (
-                <div key={assetId} style={{ width: "100%", aspectRatio: "1", borderRadius: "7px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc", fontSize: "10px" }}>…</div>
-              );
-            })}
+      )}
+
+      {/* ── Fotos del cliente ── */}
+      {(() => {
+        const PhotoStrip = ({ ids, label }: { ids: number[]; label: string }) => (
+          <div style={{ marginBottom: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <span style={{ fontSize: "12px", fontWeight: 700, color: "#374151" }}>{label}</span>
+              <span style={{ fontSize: "11px", color: "#9ca3af", background: "#f3f4f6", borderRadius: "99px", padding: "1px 7px", fontWeight: 600 }}>{ids.length} foto{ids.length !== 1 ? "s" : ""}</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: `repeat(${ids.length}, 120px)`, gap: "8px" }}>
+              {ids.map((assetId) => {
+                const url = assetUrls[assetId];
+                return url ? (
+                  <div key={assetId} style={{ position: "relative" }}>
+                    <img src={url} alt={label} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "8px", display: "block" }} />
+                    <button onClick={() => forceDownload(url, `${label.toLowerCase().replace(/\s+/g, "_")}_${assetId}.jpg`)}
+                      style={{ position: "absolute", bottom: "4px", right: "4px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}
+                      title="Descargar">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div key={assetId} style={{ aspectRatio: "1", borderRadius: "8px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc", fontSize: "10px" }}>…</div>
+                );
+              })}
+            </div>
           </div>
-        )}
-      </div>
+        );
+
+        // Construir grupos desde characterMeta
+        const meta = data.characterMeta;
+        let groups: { label: string; ids: number[] }[] = [];
+
+        if (meta && "papa" in meta) {
+          // familia-grupo
+          groups = [
+            { label: `Papá — ${meta.papa.name || ""}`, ids: meta.papa.assetIds ?? [] },
+            { label: `Mamá — ${meta.mama.name || ""}`, ids: meta.mama.assetIds ?? [] },
+            ...meta.hijos.map((h, i) => ({ label: `Hijo ${i + 1} — ${h.name || ""}`, ids: h.assetIds ?? [] })),
+          ];
+        } else if (meta && "hermanos" in meta) {
+          groups = meta.hermanos.map((h, i) => ({
+            label: `${h.gender === "F" ? "Hermana" : "Hermano"} ${i + 1} — ${h.name || ""}`,
+            ids: h.assetIds ?? [],
+          }));
+        } else if (meta && "recipient" in meta) {
+          groups = [
+            { label: meta.recipient.nickname ? `"${meta.recipient.nickname}"` : meta.recipient.name || "Protagonista", ids: meta.recipient.assetIds ?? [] },
+            ...(meta.dedicator ? [{ label: meta.dedicator.name || "Quien dedica", ids: meta.dedicator.assetIds ?? [] }] : []),
+          ];
+        }
+
+        // Fallback por posición: meta existe pero sin assetIds (registros viejos)
+        const hasGrouped = groups.length > 0 && groups.some((g) => g.ids.length > 0);
+        if (!hasGrouped && meta) {
+          if ("papa" in meta) {
+            // familia-grupo: 2 fotos por integrante en orden
+            const members = [
+              { label: `Papá — ${meta.papa.name || ""}`, count: 2 },
+              { label: `Mamá — ${meta.mama.name || ""}`, count: 2 },
+              ...meta.hijos.map((h, i) => ({ label: `Hijo ${i + 1} — ${h.name || ""}`, count: 2 })),
+            ];
+            let offset = 0;
+            groups = members.map((m) => {
+              const ids = data.assetIds.slice(offset, offset + m.count);
+              offset += m.count;
+              return { label: m.label, ids };
+            }).filter((g) => g.ids.length > 0);
+          } else if ("hermanos" in meta) {
+            // hermanos: 2 fotos por hermano en orden
+            let offset = 0;
+            groups = meta.hermanos.map((h, i) => {
+              const ids = data.assetIds.slice(offset, offset + 2);
+              offset += 2;
+              return { label: `${h.gender === "F" ? "Hermana" : "Hermano"} ${i + 1} — ${h.name || ""}`, ids };
+            }).filter((g) => g.ids.length > 0);
+          } else if ("recipient" in meta) {
+            // simple: todas las fotos bajo el nombre del protagonista
+            const recipLabel = meta.recipient.nickname ? `"${meta.recipient.nickname}"` : meta.recipient.name || "Protagonista";
+            groups = [{ label: recipLabel, ids: data.assetIds }];
+          }
+        }
+
+        const showGrouped = groups.length > 0 && groups.some((g) => g.ids.length > 0);
+
+        return (
+          <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", padding: "20px 24px", marginBottom: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Fotos del cliente</span>
+                <span style={{ fontSize: "11px", fontWeight: 600, color: "#6b7280", background: "#f3f4f6", borderRadius: "999px", padding: "1px 8px" }}>{data.assetIds.length}</span>
+              </div>
+              {data.assetIds.length > 0 && (
+                <button onClick={() => data.assetIds.forEach((id) => { const url = assetUrls[id]; if (url) forceDownload(url, `foto_${id}.jpg`); })}
+                  style={{ padding: "5px 12px", borderRadius: "7px", border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: "5px" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Descargar todas
+                </button>
+              )}
+            </div>
+
+            {data.assetIds.length === 0 ? (
+              <div style={{ padding: "20px", textAlign: "center", color: "#9ca3af", fontSize: "13px" }}>Sin fotos</div>
+            ) : showGrouped ? (
+              // Fotos agrupadas por personaje — grid horizontal para todos los modos
+              (() => {
+                const cols = meta && "papa" in meta ? 4 : groups.length;
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: "10px" }}>
+                    {groups.map((g) => {
+                      const sepIdx = g.label.indexOf(" — ");
+                      const role = sepIdx !== -1 ? g.label.slice(0, sepIdx) : g.label;
+                      const name = sepIdx !== -1 ? g.label.slice(sepIdx + 3) : null;
+                      return (
+                        <div key={g.label} style={{ background: "#f9fafb", borderRadius: "10px", padding: "10px", border: "1px solid #f0f0f0" }}>
+                          <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px" }}>{role}</div>
+                          {name && <div style={{ fontSize: "12px", fontWeight: 700, color: "#111", marginTop: "2px", marginBottom: "8px" }}>{name}</div>}
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "5px", marginTop: name ? 0 : "8px" }}>
+                            {g.ids.map((assetId) => {
+                              const url = assetUrls[assetId];
+                              return url ? (
+                                <div key={assetId} style={{ position: "relative" }}>
+                                  <img src={url} alt={role} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "6px", display: "block" }} />
+                                  <button onClick={() => forceDownload(url, `${role.toLowerCase()}_${assetId}.jpg`)}
+                                    style={{ position: "absolute", bottom: "3px", right: "3px", width: "20px", height: "20px", borderRadius: "4px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}
+                                    title="Descargar">
+                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                  </button>
+                                </div>
+                              ) : (
+                                <div key={assetId} style={{ aspectRatio: "1", borderRadius: "6px", background: "#e5e7eb" }} />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()
+            ) : (
+              // Fallback: grilla plana (registros sin characterMeta)
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "8px" }}>
+                {data.assetIds.map((assetId) => {
+                  const url = assetUrls[assetId];
+                  return url ? (
+                    <div key={assetId} style={{ position: "relative" }}>
+                      <img src={url} alt={`Foto ${assetId}`} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "7px", display: "block" }} />
+                      <button onClick={() => forceDownload(url, `foto_${assetId}.jpg`)}
+                        style={{ position: "absolute", bottom: "4px", right: "4px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div key={assetId} style={{ width: "100%", aspectRatio: "1", borderRadius: "7px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc", fontSize: "10px" }}>…</div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── Propuestas por plantilla (unificado) ── */}
       <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", padding: "20px 24px", marginBottom: "24px" }}>

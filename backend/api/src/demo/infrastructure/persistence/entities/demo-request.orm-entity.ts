@@ -62,6 +62,21 @@ export class DemoRequestOrmEntity {
   @Column({ name: 'dedication_text', type: 'text', nullable: true })
   dedicationText!: string | null;
 
+  @Column({ name: 'recipient_name', type: 'text', nullable: true })
+  recipientName!: string | null;
+
+  @Column({ name: 'recipient_nickname', type: 'text', nullable: true })
+  recipientNickname!: string | null;
+
+  @Column({ name: 'dedicator_name', type: 'text', nullable: true })
+  dedicatorName!: string | null;
+
+  @Column({ name: 'gender_direction', type: 'varchar', length: 20, nullable: true })
+  genderDirection!: string | null;
+
+  @Column({ name: 'character_meta', type: 'jsonb', nullable: true })
+  characterMeta!: Record<string, unknown> | null;
+
   @Column({ name: 'message_optional', type: 'text', nullable: true })
   messageOptional!: string | null;
 

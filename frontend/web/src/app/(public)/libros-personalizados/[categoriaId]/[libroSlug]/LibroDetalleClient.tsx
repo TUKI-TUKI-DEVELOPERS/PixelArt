@@ -27,7 +27,7 @@ const SLUG_THUMBNAIL: Record<string, string> = {
   "gracias-por-tu-amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png",
   "mi-angel-guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
   "siempre-en-mi-corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
-  "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMi_Miniatura.png",
+  "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
 };
 
 /* ── Datos de libros ── */
@@ -520,6 +520,10 @@ export default function LibroDetalleClient({
   return (
     <div>
       <style>{`
+        @keyframes bgZoomIn {
+          0%, 100% { transform: scale(1); }
+          50%      { transform: scale(1.07); }
+        }
         @keyframes subtitleSweep {
           0%   { background-position: 100% center; }
           100% { background-position: -200% center; }
@@ -550,6 +554,7 @@ export default function LibroDetalleClient({
         style={{
           position: "relative",
           width: "100%",
+          overflow: "hidden",
           paddingBottom: isMobile ? "24px" : "36px",
           marginBottom: isMobile ? 0 : "-120px",
         }}
@@ -562,17 +567,11 @@ export default function LibroDetalleClient({
                 position: "absolute",
                 inset: 0,
                 backgroundImage: `url(${backgroundUrl})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                backgroundSize: isMobile ? "cover" : "100% auto",
+                backgroundPosition: isMobile ? "center" : "top center",
                 backgroundRepeat: "no-repeat",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "linear-gradient(to bottom, transparent 30%, #ffffff 80%)",
-                pointerEvents: "none",
+                opacity: libroSlug === "1025-dias-enamorandome-de-ti" ? 0.75 : 1,
+                animation: "bgZoomIn 10s ease-in-out infinite",
               }}
             />
           </>
@@ -604,31 +603,22 @@ export default function LibroDetalleClient({
 
           {/* ── Cabecera de texto centrada ── */}
           <div style={{ textAlign: "center" }}>
-            <p
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "13px",
-                fontWeight: 500,
-                color: "#111",
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-              }}
-            >
-              Libro Personalizado
-            </p>
-            <p
-              style={{
-                margin: "0 0 10px 0",
-                fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
-                fontWeight: 900,
-                color: "#111",
-                textTransform: "uppercase",
-                letterSpacing: "3px",
-                lineHeight: 1.1,
-              }}
-            >
-              {CATEGORIA_LABEL[categoriaSlug] ?? categoriaSlug.replace(/-/g, " ").toUpperCase()}
-            </p>
+            {(() => {
+              const isWhite = ["mi-amor", "1025-dias-enamorandome-de-ti", "aventura-entre-patas", "mi-amigo-miauravilloso", "papa-mi-heroe", "mama-mi-heroina", "te-amo-abuela", "te-amo-abuelo", "el-mejor-equipo", "gracias-por-tu-amor", "mi-angel-guardian"].includes(libroSlug);
+              const outlineShadow = "0.5px 0.5px 0 rgba(0,0,0,0.15), -0.5px -0.5px 0 rgba(0,0,0,0.15), 0.5px -0.5px 0 rgba(0,0,0,0.15), -0.5px 0.5px 0 rgba(0,0,0,0.15)";
+              const textColor = isWhite ? "#fff" : "#111";
+              const categoryColor = libroSlug === "te-amo-abuelo" ? "#fff" : textColor;
+              return (
+                <>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: 500, color: textColor, letterSpacing: "2px", textTransform: "uppercase", textShadow: outlineShadow }}>
+                    Libro Personalizado
+                  </p>
+                  <p style={{ margin: "0 0 10px 0", fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px", fontWeight: 900, color: categoryColor, textTransform: "uppercase", letterSpacing: "3px", lineHeight: 1.1, textShadow: outlineShadow }}>
+                    {CATEGORIA_LABEL[categoriaSlug] ?? categoriaSlug.replace(/-/g, " ").toUpperCase()}
+                  </p>
+                </>
+              );
+            })()}
             <p
               className={`hero-subtitle-animated ${{
                 "libros-de-amor": "hero-subtitle-amor",
@@ -636,12 +626,7 @@ export default function LibroDetalleClient({
                 "libros-de-familia": "hero-subtitle-familia",
                 "libros-de-memorias-familiares": "hero-subtitle-memorias",
               }[categoriaSlug] ?? "hero-subtitle-memorias"}`}
-              style={{
-                margin: 0,
-                fontSize: isMobile ? "15px" : "18px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-              }}
+              style={{ margin: 0, fontSize: isMobile ? "15px" : "18px", fontWeight: 700, letterSpacing: "0.5px" }}
             >
               {CATEGORIA_SUBTITULO_HERO[categoriaSlug] ?? info.subtitulo}
             </p>
@@ -772,10 +757,11 @@ export default function LibroDetalleClient({
                   margin: "0 0 8px 0",
                   fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "36px",
                   fontWeight: isMobile ? 600 : 700,
-                  color: "#111",
+                  color: (["mi-amor", "aventura-entre-patas", "mi-amigo-miauravilloso"].includes(libroSlug)) ? "#fff" : "#111",
                   lineHeight: 1.1,
                   textTransform: "uppercase",
                   textAlign: "center",
+                  textShadow: "0 4px 12px rgba(0,0,0,0.18)",
                 }}
               >
                 {info.nombre}
@@ -784,7 +770,7 @@ export default function LibroDetalleClient({
                 style={{
                   fontSize: "16px",
                   fontWeight: 700,
-                  color: info.accent,
+                  color: ["1025-dias-enamorandome-de-ti", "gracias-por-tu-amor", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug) ? "#fff" : info.accent,
                   marginBottom: "20px",
                   textAlign: "center",
                 }}
@@ -797,7 +783,7 @@ export default function LibroDetalleClient({
                   margin: "0 0 16px 0",
                   fontSize: "18px",
                   fontWeight: 600,
-                  color: "#111",
+                  color: libroSlug === "1025-dias-enamorandome-de-ti" ? info.accent : "#111",
                 }}
               >
                 {info.descripcionCorta}
@@ -819,7 +805,7 @@ export default function LibroDetalleClient({
                     style={{
                       fontSize: "16px",
                       lineHeight: 1.6,
-                      color: "#444",
+                      color: libroSlug === "mi-mejor-amigo-del-mundo" ? "#fff" : "#444",
                       paddingLeft: "28px",
                       position: "relative",
                     }}

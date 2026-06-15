@@ -183,7 +183,7 @@ export async function runSeed(): Promise<void> {
         base: 'IA_Books/Love_Books_Page/Libros/X_Razones_Por_Las_Que_Te_Amo/Plantillas',
         files: [
           'PLANTILLA_1_Despertar_a_Tu_Lado_es_Como_un_Cuento_de_Hadas.png',
-          'PLANTILLA_2_Besarte_es_Como_Comer_Algodón_de_Azucar.png',
+          'PLANTILLA_2_Cepillarnos_los_dientes_juntos_es_como_una_comedia_romantica.png',
           'PLANTILLA_3_Besarte_es_Como_Comer_Algodón_de_Azúca.png',
           'PLANTILLA_4_Cocinar_Contigo_es_Como_un_Show_de_Cocina.png',
           'PLANTILLA_5_Ver_Películas_Juntos_es_Como_Estar_en_el_Cine.png',

@@ -508,6 +508,16 @@ export default async function HomePage() {
           .photobooks-hero-image { display: none !important; }
           .photobooks-hero-left { max-width: 100% !important; }
         }
+        .photobook-cta {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .photobook-cta:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 28px rgba(0,0,0,0.22) !important;
+        }
+        .photobook-cta:active {
+          transform: translateY(-1px);
+        }
         @media (max-width: 767px) {
           .photobooks-hero-grid { padding: 40px 20px !important; }
           .photobook-cta { min-width: unset !important; width: 100% !important; max-width: 340px; }
@@ -723,6 +733,25 @@ export default async function HomePage() {
           }}
         >
           <div className="photobooks-hero-left" style={{ maxWidth: "520px" }}>
+            {/* Eyebrow */}
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "6px 14px",
+                background: "rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.25)",
+                borderRadius: "9999px",
+                marginBottom: "16px",
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "12px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" as const }}>
+                ✦ El favorito de los viajeros
+              </span>
+            </div>
+
             <h2
               style={{
                 margin: `0 0 ${tokens.spacing.component.md} 0`,
@@ -774,7 +803,7 @@ export default async function HomePage() {
                 marginBottom: tokens.spacing.component.md,
               }}
             >
-              {["Alta resolución", "Tapa dura", "24-72 páginas", "Envío a Lima"].map((feat) => (
+              {["Alta resolución", "Tapa dura", "15-50 páginas", "Envío a todo el Perú", "Entrega en casa", "2 a 5 días hábiles"].map((feat) => (
                 <span
                   key={feat}
                   style={{
@@ -800,57 +829,49 @@ export default async function HomePage() {
               ))}
             </div>
 
-            {/* Social counter */}
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "12px",
-                padding: "12px 20px",
-                background: "rgba(255,255,255,0.12)",
-                borderLeft: "3px solid rgba(255,255,255,0.7)",
-                borderRadius: "0 8px 8px 0",
-                marginBottom: tokens.spacing.section.sm,
-              }}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="12" cy="13" r="4" stroke="rgba(255,255,255,0.85)" strokeWidth="1.8"/>
-              </svg>
-              <div>
-                <div style={{ color: "#fff", fontSize: "17px", fontWeight: 800, lineHeight: 1.1 }}>
-                  +2,400 photobooks entregados
-                </div>
-                <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", fontWeight: 500, marginTop: "2px" }}>
-                  y contando — cada uno, un recuerdo único
-                </div>
+            {/* CTA + counter inline */}
+            <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" as const }}>
+              <Link
+                href="/photobooks"
+                className="photobook-cta"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  padding: "0 32px",
+                  minWidth: "260px",
+                  height: "56px",
+                  borderRadius: "14px",
+                  border: "none",
+                  background: "linear-gradient(135deg, #fff 0%, #f0f4f8 100%)",
+                  color: "#1a5f8a",
+                  fontSize: "15px",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                  textDecoration: "none",
+                  whiteSpace: "nowrap" as const,
+                }}
+              >
+                Crear mi Photobook
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="#1a5f8a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+
+              {/* Contador inline */}
+              <div style={{ display: "flex", flexDirection: "column" as const }}>
+                <span style={{ color: "#fff", fontSize: "18px", fontWeight: 800, lineHeight: 1.1 }}>
+                  +2,400
+                </span>
+                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "11px", fontWeight: 500, letterSpacing: "0.3px" }}>
+                  photobooks entregados
+                </span>
               </div>
             </div>
-
-            <Link
-              href="/photobooks"
-              className="photobook-cta"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minWidth: "260px",
-                height: "56px",
-                borderRadius: "12px",
-                border: "none",
-                background: "linear-gradient(135deg, #fff 0%, #f0f4f8 100%)",
-                color: "#1a5f8a",
-                fontSize: "16px",
-                fontWeight: 800,
-                cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-                textDecoration: "none",
-              }}
-            >
-              Comenzar Photobook
-            </Link>
           </div>
 
           <div
@@ -878,303 +899,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* ── Separador visual interno ── */}
-        <div
-          style={{
-            position: "relative",
-            zIndex: 2,
-            width: "100%",
-            maxWidth: "900px",
-            margin: "0 auto",
-            height: "1px",
-            background: "rgba(255,255,255,0.18)",
-          }}
-        />
-
-        {/* ── Como funciona (stepper glassmorphism) ── */}
-        <div
-          style={{
-            position: "relative",
-            zIndex: 2,
-            width: "100%",
-            maxWidth: "1100px",
-            margin: "0 auto",
-            padding: `${tokens.spacing.section.sm} ${tokens.spacing.component.md} ${tokens.spacing.section.lg}`,
-          }}
-        >
-          {/* Header */}
-          <div style={{ textAlign: "center", marginBottom: tokens.spacing.section.xs }}>
-            <p
-              style={{
-                margin: `0 0 ${tokens.spacing.micro.sm} 0`,
-                fontSize: tokens.typography.small.size,
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.55)",
-                textTransform: "uppercase",
-                letterSpacing: "3px",
-              }}
-            >
-              Fácil y rápido
-            </p>
-            <h2
-              style={{
-                margin: `0 0 ${tokens.spacing.component.xs} 0`,
-                fontSize: tokens.typography.h1.size,
-                fontWeight: 900,
-                color: "#ffffff",
-                lineHeight: 1.1,
-                letterSpacing: "-1px",
-                textShadow: "0 2px 16px rgba(0,0,0,0.3)",
-              }}
-            >
-              Cómo funciona
-            </h2>
-            <div
-              style={{
-                width: "64px",
-                height: "3px",
-                background: "rgba(255,255,255,0.5)",
-                borderRadius: "2px",
-                margin: "0 auto",
-              }}
-            />
-          </div>
-
-          {/* Steps grid */}
-          <div
-            className="stepper-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: "24px",
-              position: "relative",
-            }}
-          >
-            {/* Connector line */}
-            <div
-              className="stepper-connector"
-              style={{
-                position: "absolute",
-                top: "44px",
-                left: "calc(33.33% - 16px)",
-                right: "calc(33.33% - 16px)",
-                height: "1px",
-                background: "rgba(255,255,255,0.25)",
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Step 1 */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                padding: `${tokens.spacing.section.xs} ${tokens.spacing.component.md}`,
-                background: "rgba(255,255,255,0.10)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                borderRadius: tokens.borderRadius["2xl"],
-                border: "1px solid rgba(255,255,255,0.18)",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
-              }}
-            >
-              <div
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.15)",
-                  border: "1.5px solid rgba(255,255,255,0.4)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: tokens.spacing.component.md,
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  <circle cx="12" cy="13" r="4" stroke="white" strokeWidth="1.8"/>
-                </svg>
-              </div>
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  color: "rgba(255,255,255,0.5)",
-                  textTransform: "uppercase",
-                  letterSpacing: "2.5px",
-                  marginBottom: tokens.spacing.micro.sm,
-                }}
-              >
-                Paso 01
-              </div>
-              <h3
-                style={{
-                  margin: `0 0 ${tokens.spacing.component.xs} 0`,
-                  fontSize: tokens.typography.h3.size,
-                  fontWeight: 800,
-                  color: "#ffffff",
-                  lineHeight: 1.2,
-                }}
-              >
-                Sube tus fotos
-              </h3>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: tokens.typography.body.size,
-                  lineHeight: 1.6,
-                  color: "rgba(255,255,255,0.72)",
-                }}
-              >
-                Selecciona las mejores fotos de tus viajes o momentos especiales. Aceptamos todos los formatos de alta resolución.
-              </p>
-            </div>
-
-            {/* Step 2 — destacado */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                padding: `${tokens.spacing.section.xs} ${tokens.spacing.component.md}`,
-                background: "rgba(255,255,255,0.22)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                borderRadius: tokens.borderRadius["2xl"],
-                border: "1px solid rgba(255,255,255,0.38)",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.08)",
-              }}
-            >
-              <div
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.25)",
-                  border: "1.5px solid rgba(255,255,255,0.6)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: tokens.spacing.component.md,
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 20h9" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  color: "rgba(255,255,255,0.65)",
-                  textTransform: "uppercase",
-                  letterSpacing: "2.5px",
-                  marginBottom: tokens.spacing.micro.sm,
-                }}
-              >
-                Paso 02
-              </div>
-              <h3
-                style={{
-                  margin: `0 0 ${tokens.spacing.component.xs} 0`,
-                  fontSize: tokens.typography.h3.size,
-                  fontWeight: 800,
-                  color: "#fff",
-                  lineHeight: 1.2,
-                }}
-              >
-                Elige tu diseño
-              </h3>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: tokens.typography.body.size,
-                  lineHeight: 1.6,
-                  color: "rgba(255,255,255,0.82)",
-                }}
-              >
-                Escoge entre nuestras plantillas profesionales, elige la tapa y personaliza cada página a tu gusto.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                padding: `${tokens.spacing.section.xs} ${tokens.spacing.component.md}`,
-                background: "rgba(255,255,255,0.10)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                borderRadius: tokens.borderRadius["2xl"],
-                border: "1px solid rgba(255,255,255,0.18)",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
-              }}
-            >
-              <div
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.15)",
-                  border: "1.5px solid rgba(255,255,255,0.4)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: tokens.spacing.component.md,
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 12H3l9-9 9 9h-2M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 21V12h6v9" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  color: "rgba(255,255,255,0.5)",
-                  textTransform: "uppercase",
-                  letterSpacing: "2.5px",
-                  marginBottom: tokens.spacing.micro.sm,
-                }}
-              >
-                Paso 03
-              </div>
-              <h3
-                style={{
-                  margin: `0 0 ${tokens.spacing.component.xs} 0`,
-                  fontSize: tokens.typography.h3.size,
-                  fontWeight: 800,
-                  color: "#ffffff",
-                  lineHeight: 1.2,
-                }}
-              >
-                Lo recibes en casa
-              </h3>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: tokens.typography.body.size,
-                  lineHeight: 1.6,
-                  color: "rgba(255,255,255,0.72)",
-                }}
-              >
-                Imprimimos con la máxima calidad y te lo enviamos a domicilio en Lima. Tu recuerdo, listo para atesorar.
-              </p>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ═══ WHY CHOOSE US - Icons SVG + Real Copy ═══ */}

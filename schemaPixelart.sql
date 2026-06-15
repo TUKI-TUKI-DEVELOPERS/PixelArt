@@ -198,6 +198,13 @@ CREATE TABLE demo_request (
   wants_custom_dedication BOOLEAN NOT NULL DEFAULT FALSE,
   dedication_text TEXT,
 
+  -- personajes del libro
+  recipient_name     TEXT,
+  recipient_nickname TEXT,
+  dedicator_name     TEXT,
+  gender_direction   VARCHAR(20),
+  character_meta     JSONB,
+
   message_optional TEXT,
 
   status personalized_book_demo_request_status NOT NULL DEFAULT 'RECEIVED',

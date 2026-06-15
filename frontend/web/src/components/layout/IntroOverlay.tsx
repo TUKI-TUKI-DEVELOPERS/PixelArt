@@ -9,19 +9,19 @@ const SLIDE_DURATION_MS = 1300;
 
 export default function IntroOverlay() {
   const [hidden, setHidden]   = useState(false);
-  // Arranca en true (removed) — consistente entre SSR y cliente, sin hydration mismatch.
-  // useEffect opta por mostrarlo solo en la primera visita real.
-  const [removed, setRemoved] = useState(true);
+  // Arranca en false — el overlay está en el HTML desde el primer byte del SSR.
+  // No hay hydration mismatch porque SSR y cliente arrancan con el mismo valor.
+  // useEffect lo quita inmediatamente si ya fue visto (repeat visits: 1 frame imperceptible).
+  const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
-    // Ya vio el telón en esta sesión: no mostrar
+    // Ya vio el telón en esta sesión: quitar de inmediato
     if (sessionStorage.getItem(SESSION_KEY)) {
+      setRemoved(true);
       return;
     }
 
-    // Primera visita: montar el overlay y arrancar el timer
-    setRemoved(false);
-
+    // Primera visita: arrancar el timer de salida
     const slideTimer = setTimeout(() => {
       setHidden(true);
       sessionStorage.setItem(SESSION_KEY, '1');
