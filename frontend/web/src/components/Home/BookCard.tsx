@@ -2,6 +2,7 @@
 
 import type React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { tokens } from '@/lib/design-tokens';
 import type { BookCategory } from './NuestrosLibrosSection';
 
@@ -324,7 +325,7 @@ export default function BookCard({
 
             <div style={{ flex: 1 }} />
 
-            <a
+            <Link
               href={href}
               style={{
                 display:        'inline-flex',
@@ -354,7 +355,7 @@ export default function BookCard({
               }}
             >
               Personalizar
-            </a>
+            </Link>
           </div>
         </div>
       </article>
