@@ -303,47 +303,9 @@ export default function CheckoutPage() {
           <div style={{ padding: "24px", textAlign: "center", color: "#9ca3af", fontSize: "14px", background: "#f9fafb", borderRadius: "12px", border: "1px solid #e5e7eb" }}>
             No hay más plantillas disponibles para este modelo.
           </div>
-        ) : isMobile ? (
-          /* Mobile: grid 2 columnas con estado de selección */
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-            {data.availableTemplates.map((t, idx) => {
-              const isSelected = selectedTemplates.has(t.id);
-              const selIdx = Array.from(selectedTemplates).indexOf(t.id);
-              const isDisabled = !isSelected && selectedTemplates.size >= requiredAdditional;
-              return (
-                <div
-                  key={t.id}
-                  onClick={() => !isDisabled && toggleTemplate(t.id)}
-                  style={{
-                    position: "relative",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    aspectRatio: "3/2",
-                    border: isSelected ? "2px solid #8b5cf6" : "2px solid transparent",
-                    opacity: isDisabled ? 0.4 : 1,
-                    cursor: isDisabled ? "not-allowed" : "pointer",
-                    boxShadow: isSelected ? "0 0 0 2px #8b5cf640" : "0 2px 8px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <img
-                    src={t.previewUrl}
-                    alt={t.name ?? `Plantilla ${idx + 1}`}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
-                  {isSelected && (
-                    <div style={{ position: "absolute", top: "6px", right: "6px", width: "24px", height: "24px", borderRadius: "50%", background: "#8b5cf6", color: "#fff", fontSize: "12px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff" }}>
-                      {selIdx + 1}
-                    </div>
-                  )}
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 8px 6px", background: "linear-gradient(transparent, rgba(0,0,0,0.55))" }}>
-                    <div style={{ fontSize: "11px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>{t.name ?? `Plantilla ${idx + 1}`}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         ) : (
-          /* Desktop: efecto de libro con selección */
+          /* TemplateBook resuelve su propio layout mobile (carrusel) vs. desktop (page-flip) internamente,
+             igual que en el wizard — no hay que ramificar por isMobile acá. */
           <TemplateBook
             templates={data.availableTemplates}
             selectedIds={Array.from(selectedTemplates)}

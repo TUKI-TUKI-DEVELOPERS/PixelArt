@@ -59,18 +59,28 @@ export class GetCheckoutInfoUseCase {
     );
     const alreadySelectedIds = selectionRows.map((r) => Number(r.template_id));
 
-    // All active templates from the same personalized_model, excluding already selected
+    // Customer name, package preference and gender direction from demo request
+    // (gender_direction se consulta ANTES que availableTemplates porque el filtro de abajo la necesita)
+    const [demoRow] = await this.dataSource.query(
+      `SELECT customer_full_name, package_preference, gender_direction FROM demo_request WHERE id = $1`,
+      [demoRequestId],
+    ) as { customer_full_name: string; package_preference: string; gender_direction: string | null }[];
+
+    // All active templates from the same personalized_model Y misma dirección de género
+    // (si el modelo no distingue dirección, gender_direction es NULL en ambos lados y el
+    // filtro sigue funcionando igual).
     const availableRows: { id: string; name: string | null; template_preview_key: string }[] =
       await this.dataSource.query(
         `SELECT id, name, template_preview_key
          FROM personalized_templates
          WHERE model_id = $1
            AND is_active = TRUE
+           AND gender_direction IS NOT DISTINCT FROM $2
            AND id NOT IN (
-             SELECT template_id FROM demo_template_selections WHERE demo_request_id = $2
+             SELECT template_id FROM demo_template_selections WHERE demo_request_id = $3
            )
          ORDER BY id`,
-        [order.personalizedModelId, demoRequestId],
+        [order.personalizedModelId, demoRow?.gender_direction ?? null, demoRequestId],
       );
 
     // Model and book name
@@ -78,12 +88,6 @@ export class GetCheckoutInfoUseCase {
       `SELECT pm.name AS model_name FROM personalized_models pm WHERE pm.id = $1`,
       [order.personalizedModelId],
     ) as { model_name: string }[];
-
-    // Customer name and package preference from demo request
-    const [demoRow] = await this.dataSource.query(
-      `SELECT customer_full_name, package_preference FROM demo_request WHERE id = $1`,
-      [demoRequestId],
-    ) as { customer_full_name: string; package_preference: string }[];
 
     // Check if payment proof already submitted
     const [proofRow] = await this.dataSource.query(
