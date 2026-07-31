@@ -1,0 +1,13 @@
+# Contexto para los Dockerfile.prod (build desde la raíz del monorepo)
+node_modules
+**/node_modules
+.next
+**/.next
+dist
+**/dist
+.git
+*.md
+*.patch
+pixelart_figma.json
+Documentos
+.interface-design

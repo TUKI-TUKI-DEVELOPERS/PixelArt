@@ -84,8 +84,8 @@ services:
   # ─── Aplicaciones ───────────────────────────────────────────────────────────
   api:
     build:
-      context: ../../backend/api
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: backend/api/Dockerfile.prod
       target: prod
     container_name: pixelart_api
     restart: unless-stopped
@@ -114,8 +114,8 @@ services:
 
   web:
     build:
-      context: ../../frontend/web
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: frontend/web/Dockerfile.prod
       target: prod
       args:
         API_INTERNAL_URL: http://api:3001

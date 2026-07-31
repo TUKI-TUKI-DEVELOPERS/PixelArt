@@ -1,0 +1,33 @@
+# Build de producción — contexto: raíz del monorepo (../.. desde infra/docker)
+# Necesario para que npm ci vea el package-lock.json real del workspace
+# (el package-lock.json dentro de backend/api/ es una copia vieja sin mantener).
+
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN apk add --no-cache \
+  dumb-init wget \
+  chromium \
+  harfbuzz \
+  font-noto \
+  ca-certificates
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+FROM base AS build
+COPY package.json package-lock.json ./
+COPY backend/api/package.json ./backend/api/package.json
+COPY frontend/web/package.json ./frontend/web/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+RUN npm ci
+COPY backend/api ./backend/api
+RUN npm run build --workspace=backend/api
+
+FROM base AS prod
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+COPY backend/api/package.json ./backend/api/package.json
+COPY frontend/web/package.json ./frontend/web/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+RUN npm ci --omit=dev
+COPY --from=build /app/backend/api/dist ./backend/api/dist
+EXPOSE 3001
+CMD ["dumb-init", "node", "backend/api/dist/main"]

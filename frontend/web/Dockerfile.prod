@@ -1,0 +1,34 @@
+# Build de producción — contexto: raíz del monorepo (../.. desde infra/docker)
+# Necesario para que npm ci vea el package-lock.json real del workspace
+# (el package-lock.json dentro de frontend/web/ es una copia vieja sin mantener).
+
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN apk add --no-cache dumb-init wget
+
+FROM base AS build
+COPY package.json package-lock.json ./
+COPY backend/api/package.json ./backend/api/package.json
+COPY frontend/web/package.json ./frontend/web/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+RUN npm ci
+COPY frontend/web ./frontend/web
+COPY packages/shared ./packages/shared
+# API_INTERNAL_URL / MINIO_INTERNAL_URL deben estar disponibles en build time
+# para que Next.js standalone baquee correctamente los rewrites /api/* y
+# /assets/* → http://api:3001 y http://minio:9000 (red Docker interna).
+ARG API_INTERNAL_URL=http://api:3001
+ENV API_INTERNAL_URL=${API_INTERNAL_URL}
+ARG MINIO_INTERNAL_URL=http://minio:9000
+ENV MINIO_INTERNAL_URL=${MINIO_INTERNAL_URL}
+# public/ es opcional en Next.js; si no existe, el COPY del stage prod falla
+RUN mkdir -p frontend/web/public
+RUN npm run build --workspace=frontend/web
+
+FROM base AS prod
+ENV NODE_ENV=production
+COPY --from=build /app/frontend/web/public ./frontend/web/public
+COPY --from=build /app/frontend/web/.next/standalone ./
+COPY --from=build /app/frontend/web/.next/static ./frontend/web/.next/static
+EXPOSE 3000
+CMD ["dumb-init", "node", "frontend/web/server.js"]
