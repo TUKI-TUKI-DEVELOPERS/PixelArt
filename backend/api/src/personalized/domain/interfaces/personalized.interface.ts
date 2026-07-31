@@ -16,4 +16,5 @@ export interface PersonalizedTemplateResponse {
   id: string;
   name: string | null;
   previewUrl: string;
+  genderDirection: string | null;
 }

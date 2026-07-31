@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Param, Body, Inject, forwardRef, Logger,
+  Controller, Get, Post, Patch, Delete, Param, Query, Body, Inject, forwardRef, Logger,
   UploadedFile, UseInterceptors, BadRequestException, NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -9,6 +9,7 @@ import { PaymentsService } from '../payments/payments.service';
 import { EmailService } from '../email/email.service';
 import { PhotobookPdfService } from '../photobook/infrastructure/pdf/photobook-pdf.service';
 import { CustomBookPdfService } from './infrastructure/pdf/custom-book-pdf.service';
+import { GenerateOrderTemplateUseCase } from './application/use-cases/generate-order-template.use-case';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 
 @Controller('admin/orders')
@@ -22,6 +23,7 @@ export class OrdersAdminController {
     @Inject(forwardRef(() => PhotobookPdfService))
     private readonly photobookPdfService: PhotobookPdfService,
     private readonly customBookPdfService: CustomBookPdfService,
+    private readonly generateOrderTemplateUseCase: GenerateOrderTemplateUseCase,
     private readonly fileStorage: FileStoragePort,
     private readonly dataSource: DataSource,
   ) {}
@@ -39,10 +41,11 @@ export class OrdersAdminController {
     const paymentProof = await this.paymentsService.findByOrderId(orderId);
 
     // Para libros personalizados: lista de plantillas seleccionadas
-    let templateSelections: { templateId: number; templateName: string | null; slotIndex: number }[] = [];
+    let templateSelections: { templateId: number; templateName: string | null; slotIndex: number; hasPromptContent: boolean }[] = [];
     if (order?.channel === 'CUSTOM_BOOK') {
-      const rows: { template_id: string; name: string | null }[] = await this.dataSource.query(
-        `SELECT ots.template_id, pt.name
+      const rows: { template_id: string; name: string | null; has_prompt_content: boolean }[] = await this.dataSource.query(
+        `SELECT ots.template_id, pt.name,
+                (pt.scene_visual IS NOT NULL AND pt.poem_template IS NOT NULL AND pt.character_roles IS NOT NULL) AS has_prompt_content
          FROM order_template_selections ots
          LEFT JOIN personalized_templates pt ON pt.id = ots.template_id
          WHERE ots.order_id = $1
@@ -53,10 +56,49 @@ export class OrdersAdminController {
         templateId: Number(r.template_id),
         templateName: r.name,
         slotIndex: i,
+        hasPromptContent: r.has_prompt_content,
       }));
     }
 
-    return { ...order, statusEvents: events, paymentProof, templateSelections };
+    // characterMeta + fotos del cliente — necesarios para el selector de fotos
+    // del botón "Generar con IA" (mismo dato que ya usa solicitudes/[id]).
+    let characterMeta: Record<string, unknown> | null = null;
+    let demoAssetIds: number[] = [];
+    let demoDedicationText: string | null = null;
+    if (order?.demoRequestId) {
+      const [demoRow] = await this.dataSource.query(
+        `SELECT character_meta, dedication_text FROM demo_request WHERE id = $1`,
+        [order.demoRequestId],
+      ) as { character_meta: Record<string, unknown> | null; dedication_text: string | null }[];
+      characterMeta = demoRow?.character_meta ?? null;
+      demoDedicationText = demoRow?.dedication_text ?? null;
+
+      const assetRows: { asset_id: string }[] = await this.dataSource.query(
+        `SELECT asset_id FROM demo_request_assets WHERE demo_request_id = $1`,
+        [order.demoRequestId],
+      );
+      demoAssetIds = assetRows.map((r) => Number(r.asset_id));
+    }
+
+    // Diseño del libro (degradado + dedicatoria editable por el admin) — ver
+    // custom-book-pdf.service.ts, que usa estos mismos valores para el PDF.
+    const [designRow] = await this.dataSource.query(
+      `SELECT gradient_color_start, gradient_color_end, dedication_text FROM orders WHERE id = $1`,
+      [orderId],
+    ) as { gradient_color_start: string; gradient_color_end: string; dedication_text: string | null }[];
+
+    return {
+      ...order,
+      statusEvents: events,
+      paymentProof,
+      templateSelections,
+      characterMeta,
+      demoAssetIds,
+      demoDedicationText,
+      dedicationText: designRow?.dedication_text ?? null,
+      gradientColorStart: designRow?.gradient_color_start ?? '#DF1F74',
+      gradientColorEnd: designRow?.gradient_color_end ?? '#804187',
+    };
   }
 
   @Post(':id/review-payment')
@@ -86,6 +128,20 @@ export class OrdersAdminController {
           });
         }
       }
+    } else if (body.action === 'REJECT') {
+      const order = await this.ordersService.findById(Number(id));
+      if (order) {
+        await this.emailService.queue({
+          eventType: 'PAYMENT_REJECTED_TO_CUSTOMER',
+          orderId: order.id,
+          toEmail: order.customerEmail,
+          subject: 'PixelArt — Hubo un problema con tu pago',
+          payload: {
+            customerName: order.customerFullName,
+            rejectionReason: body.rejectionReason ?? 'No especificado',
+          },
+        });
+      }
     }
 
     return result;
@@ -99,20 +155,56 @@ export class OrdersAdminController {
     return this.ordersService.advanceStatus(Number(id), body.newStatus, body.note);
   }
 
+  /**
+   * PATCH /api/admin/orders/:id/print-design
+   * Guarda el "diseño del libro" para el PDF de imprenta — colores del
+   * degradado y el texto final de la dedicatoria (el admin puede editar el
+   * mensaje del cliente antes de que se use, ej. si pidió un cambio de
+   * último momento por fuera del sistema). dedicationText null/vacío borra
+   * el override y vuelve a usar el original del cliente (demo_request).
+   */
+  @Patch(':id/print-design')
+  async savePrintDesign(
+    @Param('id') id: string,
+    @Body() body: { dedicationText?: string | null; gradientColorStart?: string; gradientColorEnd?: string },
+  ) {
+    const orderId = Number(id);
+    await this.dataSource.query(
+      `UPDATE orders SET dedication_text = $1, gradient_color_start = $2, gradient_color_end = $3 WHERE id = $4`,
+      [
+        body.dedicationText?.trim() || null,
+        body.gradientColorStart ?? '#DF1F74',
+        body.gradientColorEnd ?? '#804187',
+        orderId,
+      ],
+    );
+    return { saved: true };
+  }
+
   // ── Print assets (libros personalizados) ──────────────────────────────────
 
   @Get(':id/print-assets')
   async getPrintAssets(@Param('id') id: string) {
-    const rows: { id: string; asset_type: string; template_id: string | null; slot_index: number | null; storage_key: string; original_filename: string | null; uploaded_at: Date }[] =
+    const rows: { id: string; asset_type: string; template_id: string | null; slot_index: number | null; page_part: string; storage_key: string; original_filename: string | null; uploaded_at: Date; status: string }[] =
       await this.dataSource.query(
-        `SELECT pa.id, pa.asset_type, pa.template_id, pa.slot_index, pa.storage_key, pa.original_filename, pa.uploaded_at,
+        `SELECT pa.id, pa.asset_type, pa.template_id, pa.slot_index, pa.page_part, pa.storage_key, pa.original_filename, pa.uploaded_at, pa.status,
                 pt.name AS template_name
          FROM order_print_assets pa
          LEFT JOIN personalized_templates pt ON pt.id = pa.template_id
          WHERE pa.order_id = $1
          ORDER BY
-           CASE pa.asset_type WHEN 'COVER' THEN 0 WHEN 'TEMPLATE' THEN 1 ELSE 2 END,
-           pa.slot_index ASC NULLS LAST`,
+           CASE pa.asset_type
+             WHEN 'COVER'                THEN 0
+             WHEN 'BLANK_PRE_DEDICATION' THEN 1
+             WHEN 'DEDICATION'           THEN 2
+             WHEN 'TEMPLATE'             THEN 3
+             WHEN 'BLANK_PRE_ADDON'      THEN 4
+             WHEN 'ADDON'                THEN 5
+             WHEN 'BACK_COVER'           THEN 6
+             ELSE 7
+           END,
+           pa.slot_index ASC NULLS LAST,
+           pa.page_part ASC`,
         [Number(id)],
       );
     return rows.map((r) => ({
@@ -121,10 +213,16 @@ export class OrdersAdminController {
       templateId: r.template_id ? Number(r.template_id) : null,
       templateName: (r as { template_name?: string }).template_name ?? null,
       slotIndex: r.slot_index,
+      pagePart: r.page_part,
       storageKey: r.storage_key,
       originalFilename: r.original_filename,
-      previewUrl: this.fileStorage.getPublicUrl(r.storage_key),
+      // El storage_key es siempre el mismo por (orden, plantilla, cara) — al
+      // regenerar se pisa el archivo en MinIO pero la URL quedaría idéntica,
+      // así que el navegador serviría la versión vieja cacheada sin este
+      // cache-buster (mismo patrón que ya se usa para el PDF con ?v=).
+      previewUrl: `${this.fileStorage.getPublicUrl(r.storage_key)}?v=${new Date(r.uploaded_at).getTime()}`,
       uploadedAt: r.uploaded_at,
+      status: r.status,
     }));
   }
 
@@ -133,46 +231,120 @@ export class OrdersAdminController {
   async uploadPrintAsset(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { assetType: string; templateId?: string; slotIndex?: string },
+    @Body() body: { assetType: string; templateId?: string; slotIndex?: string; pagePart?: string },
   ) {
     if (!file) throw new BadRequestException('Archivo requerido');
-    if (!['COVER', 'BACK_COVER', 'TEMPLATE'].includes(body.assetType)) {
-      throw new BadRequestException('assetType debe ser COVER, BACK_COVER o TEMPLATE');
+    const VALID_TYPES = ['COVER','BLANK_PRE_DEDICATION','DEDICATION','TEMPLATE','BLANK_PRE_ADDON','ADDON','BACK_COVER'];
+    if (!VALID_TYPES.includes(body.assetType)) {
+      throw new BadRequestException(`assetType debe ser uno de: ${VALID_TYPES.join(', ')}`);
     }
     if (body.assetType === 'TEMPLATE' && !body.templateId) {
       throw new BadRequestException('templateId requerido para TEMPLATE');
+    }
+    if (body.assetType === 'TEMPLATE' && !body.pagePart) {
+      throw new BadRequestException('pagePart requerido para TEMPLATE (A o B)');
     }
 
     const orderId    = Number(id);
     const templateId = body.templateId ? Number(body.templateId) : null;
     const slotIndex  = body.slotIndex  ? Number(body.slotIndex)  : null;
+    const pagePart   = body.pagePart   ?? 'ONLY';
     const ext        = file.mimetype.includes('png') ? 'png' : file.mimetype.includes('pdf') ? 'pdf' : 'jpg';
-    const suffix     = templateId ? `template_${templateId}` : body.assetType.toLowerCase();
+    const suffix     = templateId ? `template_${templateId}_${pagePart.toLowerCase()}` : body.assetType.toLowerCase();
     const storageKey = `custom-books/print-assets/${orderId}/${suffix}.${ext}`;
 
     await this.fileStorage.upload(storageKey, file.buffer, file.mimetype);
 
     if (templateId !== null) {
-      // TEMPLATE: upsert por (order_id, asset_type, template_id)
+      // Si se sube Cara A o B, eliminar la fila 'ONLY' vieja del mismo template (migración de single → double page)
+      if (pagePart === 'A' || pagePart === 'B') {
+        await this.dataSource.query(
+          `DELETE FROM order_print_assets WHERE order_id = $1 AND template_id = $2 AND page_part = 'ONLY'`,
+          [orderId, templateId],
+        );
+      }
+      // TEMPLATE: upsert por (order_id, template_id, page_part) — el upload manual
+      // siempre entra CONFIRMED (un humano ya lo vetó), pisando cualquier
+      // PENDING_REVIEW que hubiera quedado de una generación con IA.
       await this.dataSource.query(
-        `INSERT INTO order_print_assets (order_id, asset_type, template_id, slot_index, storage_key, original_filename, mime_type, size_bytes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT (order_id, asset_type, template_id)
-         DO UPDATE SET storage_key = $5, original_filename = $6, mime_type = $7, size_bytes = $8, uploaded_at = now()`,
-        [orderId, body.assetType, templateId, slotIndex, storageKey, file.originalname, file.mimetype, file.size],
+        `INSERT INTO order_print_assets (order_id, asset_type, template_id, slot_index, page_part, storage_key, original_filename, mime_type, size_bytes, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'CONFIRMED')
+         ON CONFLICT (order_id, template_id, page_part) WHERE template_id IS NOT NULL
+         DO UPDATE SET storage_key = $6, original_filename = $7, mime_type = $8, size_bytes = $9, status = 'CONFIRMED', uploaded_at = now()`,
+        [orderId, body.assetType, templateId, slotIndex, pagePart, storageKey, file.originalname, file.mimetype, file.size],
       );
     } else {
-      // COVER / BACK_COVER: upsert usando el índice parcial (template_id IS NULL)
+      // Páginas simples: upsert por (order_id, asset_type) WHERE template_id IS NULL
       await this.dataSource.query(
-        `INSERT INTO order_print_assets (order_id, asset_type, template_id, slot_index, storage_key, original_filename, mime_type, size_bytes)
-         VALUES ($1, $2, NULL, $3, $4, $5, $6, $7)
+        `INSERT INTO order_print_assets (order_id, asset_type, template_id, slot_index, page_part, storage_key, original_filename, mime_type, size_bytes, status)
+         VALUES ($1, $2, NULL, $3, $4, $5, $6, $7, $8, 'CONFIRMED')
          ON CONFLICT (order_id, asset_type) WHERE template_id IS NULL
-         DO UPDATE SET storage_key = $4, original_filename = $5, mime_type = $6, size_bytes = $7, uploaded_at = now()`,
-        [orderId, body.assetType, slotIndex, storageKey, file.originalname, file.mimetype, file.size],
+         DO UPDATE SET storage_key = $5, original_filename = $6, mime_type = $7, size_bytes = $8, status = 'CONFIRMED', uploaded_at = now()`,
+        [orderId, body.assetType, slotIndex, pagePart, storageKey, file.originalname, file.mimetype, file.size],
       );
     }
 
     return { storageKey, previewUrl: this.fileStorage.getPublicUrl(storageKey) };
+  }
+
+  /**
+   * POST /api/admin/orders/:id/print-assets/backfill-from-demo
+   * Las plantillas del pedido que ya tenían un original limpio generado en la
+   * demo (demo_proposals.original_storage_key) se cargan solas como
+   * PENDING_REVIEW — no hace falta gastar una llamada nueva a OpenAI para algo
+   * que el cliente ya vio y eligió. Idempotente: no toca plantillas que ya
+   * tengan cualquier archivo de imprenta (manual, generado, o backfillado antes).
+   * El frontend la llama sola al abrir la orden.
+   */
+  @Post(':id/print-assets/backfill-from-demo')
+  backfillFromDemo(@Param('id') id: string) {
+    return this.generateOrderTemplateUseCase.backfillFromDemoOriginals(Number(id));
+  }
+
+  /**
+   * POST /api/admin/orders/:id/print-assets/generate
+   * Query: templateId
+   * Body opcional: { selectedAssetIds: { [roleKey]: assetId } }
+   * Genera Cara A y Cara B con IA (mismo prompt/fotos que el demo) y las sube
+   * directo como archivos de imprenta — sin marca de agua, listo para el PDF.
+   */
+  @Post(':id/print-assets/generate')
+  generatePrintAsset(
+    @Param('id') id: string,
+    @Query('templateId') templateId: string,
+    @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+  ) {
+    if (!templateId) throw new BadRequestException('templateId is required');
+    return this.generateOrderTemplateUseCase.execute({
+      orderId: Number(id),
+      templateId: Number(templateId),
+      selectedAssetIds,
+    });
+  }
+
+  /**
+   * POST /api/admin/orders/:id/print-assets/confirm
+   * Pasa TODAS las plantillas generadas con IA que estén PENDING_REVIEW a
+   * CONFIRMED de una — recién ahí cuentan para el checklist y el PDF final.
+   */
+  @Post(':id/print-assets/confirm')
+  async confirmPrintAssets(@Param('id') id: string) {
+    const rows: { id: string }[] = await this.dataSource.query(
+      `UPDATE order_print_assets SET status = 'CONFIRMED' WHERE order_id = $1 AND status = 'PENDING_REVIEW' RETURNING id`,
+      [Number(id)],
+    );
+    return { confirmed: rows.length };
+  }
+
+  @Delete(':id/print-assets/:assetId')
+  async deletePrintAsset(@Param('id') id: string, @Param('assetId') assetId: string) {
+    const rows: { storage_key: string }[] = await this.dataSource.query(
+      `DELETE FROM order_print_assets WHERE id = $1 AND order_id = $2 RETURNING storage_key`,
+      [Number(assetId), Number(id)],
+    );
+    if (rows.length === 0) throw new NotFoundException('Asset no encontrado');
+    try { await this.fileStorage.delete(rows[0].storage_key); } catch { /* ignorar si falla el borrado del archivo */ }
+    return { deleted: true };
   }
 
   @Post(':id/render')

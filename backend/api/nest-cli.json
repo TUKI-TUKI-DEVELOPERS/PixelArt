@@ -5,7 +5,8 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": [
-      { "include": "email/templates/**/*.html", "watchAssets": true }
+      { "include": "email/templates/**/*.html", "watchAssets": true },
+      { "include": "orders/infrastructure/pdf/fonts/**/*.ttf", "watchAssets": true }
     ]
   }
 }

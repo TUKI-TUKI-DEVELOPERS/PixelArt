@@ -133,6 +133,13 @@ CREATE TABLE personalized_templates (
   model_id BIGINT NOT NULL REFERENCES personalized_models(id) ON DELETE CASCADE,
   name TEXT,
   template_preview_key TEXT NOT NULL, -- key/ruta en storage (S3/R2/etc)
+  gender_direction VARCHAR(20), -- HE_TO_SHE/SHE_TO_HE/HE_TO_HE/SHE_TO_SHE; NULL si el modelo no distingue dirección
+  scene_visual TEXT, -- "Escena Visual" + "Sujetos Principales" del prompt maestro; placeholders {NOMBRE_X} para nombres reales del characterMeta
+  background_details TEXT, -- "Fondo y Detalles" del prompt maestro
+  magic_effects TEXT, -- "Efectos Mágicos" del prompt maestro
+  lighting_color TEXT, -- "Iluminación y Color" del prompt maestro
+  poem_template TEXT, -- poema con placeholders {NOMBRE_DESTINATARIO}/{NOMBRE_DEDICANTE}/{APELLIDO}; NULL si el libro usa dedicationText libre del cliente en vez de poema fijo
+  character_roles JSONB, -- roles esperados y cantidad de fotos, ej. [{"key":"hermanos","min":2,"max":3}] -- las keys calzan con characterMeta del wizard (papa/mama/hijos/hermanos/pet/owners/recipient/dedicator)
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -140,6 +147,21 @@ CREATE TABLE personalized_templates (
 
 CREATE INDEX IF NOT EXISTS personalized_templates_model_id_idx
   ON personalized_templates(model_id);
+
+-- =========================================
+-- PROMPT SHARED BLOCKS (bloques reutilizables para generación IA)
+-- =========================================
+-- Texto compartido por TODAS las plantillas (imagen base, anclaje de identidad,
+-- reglas de composición, detalles técnicos, wrapper de diseño editorial) — vive
+-- una sola vez acá, no se duplica por fila de personalized_templates. Editable
+-- sin redeploy. Ver PromptsPixelArtPlantillas/_plantilla-maestra.md v6 (fuente
+-- original de este contenido, validado con piloto real).
+CREATE TABLE prompt_shared_blocks (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  block_key TEXT NOT NULL UNIQUE, -- 'imagen_base' | 'identidad_humano' | 'identidad_mascota' | 'composicion_reglas' | 'diseno_editorial_wrapper' | 'detalles_tecnicos'
+  content TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
 -- =========================================
 -- ASSETS (dedupe por hash)
@@ -257,6 +279,7 @@ CREATE TABLE demo_proposals (
   template_id BIGINT NOT NULL REFERENCES personalized_templates(id),
 
   output_storage_key TEXT NOT NULL, -- archivo generado protegido
+  original_storage_key TEXT, -- archivo SIN proteger (para el libro final impreso); NULL en propuestas subidas a mano
   protection_mode TEXT NOT NULL DEFAULT 'WATERMARK', -- o 'LOW_QUALITY'
   is_watermarked BOOLEAN NOT NULL DEFAULT TRUE,
 
@@ -310,6 +333,14 @@ CREATE TABLE orders (
   cancelled_at TIMESTAMPTZ,
   cancellation_reason TEXT,
   cancelled_by_user_id BIGINT REFERENCES users(id),
+
+  -- Diseño del libro para el PDF de imprenta (páginas de degradado + dedicatoria).
+  -- dedication_text NULL = usar demo_request.dedication_text tal cual (el admin
+  -- todavía no lo editó); no-NULL = versión final que el admin guardó a mano
+  -- (ej. el cliente pidió un cambio de último momento por fuera del sistema).
+  gradient_color_start VARCHAR(9) NOT NULL DEFAULT '#DF1F74',
+  gradient_color_end   VARCHAR(9) NOT NULL DEFAULT '#804187',
+  dedication_text      TEXT,
 
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -819,16 +850,24 @@ CREATE TABLE IF NOT EXISTS promotion_targets (
 CREATE TABLE IF NOT EXISTS order_print_assets (
   id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   order_id          BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  asset_type        TEXT   NOT NULL CHECK (asset_type IN ('COVER', 'BACK_COVER', 'TEMPLATE')),
+  asset_type        TEXT   NOT NULL CHECK (asset_type IN ('COVER','BLANK_PRE_DEDICATION','DEDICATION','TEMPLATE','BLANK_PRE_ADDON','ADDON','BACK_COVER')),
   template_id       BIGINT REFERENCES personalized_templates(id) ON DELETE SET NULL,
   slot_index        INT,   -- orden de la plantilla dentro del libro
+  page_part         TEXT   NOT NULL DEFAULT 'ONLY', -- 'ONLY' para páginas simples, 'A'/'B' para dobles
   storage_key       TEXT   NOT NULL,
   original_filename TEXT,
   mime_type         TEXT,
   size_bytes        BIGINT,
-  uploaded_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (order_id, asset_type, template_id)
+  -- CONFIRMED = listo para el PDF (upload manual siempre entra así).
+  -- PENDING_REVIEW = generado con IA, esperando que el admin lo revise y
+  -- confirme en bloque antes de que cuente para el PDF final.
+  status            VARCHAR(20) NOT NULL DEFAULT 'CONFIRMED',
+  uploaded_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- Páginas simples: una por tipo por orden
+CREATE UNIQUE INDEX IF NOT EXISTS opa_single_key ON order_print_assets(order_id, asset_type) WHERE template_id IS NULL;
+-- Páginas de plantilla: una por (orden, plantilla, cara A o B)
+CREATE UNIQUE INDEX IF NOT EXISTS opa_template_key ON order_print_assets(order_id, template_id, page_part) WHERE template_id IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS order_print_assets_order_id_idx ON order_print_assets(order_id);
 

@@ -5,6 +5,7 @@ import {
   Delete,
   Param,
   Query,
+  Body,
   UploadedFile,
   UseInterceptors,
   BadRequestException,
@@ -49,6 +50,32 @@ export class DemoAdminController {
       protectionMode: mode as 'WATERMARK' | 'LOW_QUALITY',
       buffer: file.buffer,
       mimeType: file.mimetype,
+      generatedByUserId: null,
+    });
+  }
+
+  /**
+   * POST /api/admin/demo/requests/:id/proposals/generate
+   * Query: templateId, protectionMode (WATERMARK | LOW_QUALITY)
+   * Body opcional: { selectedAssetIds: { [roleKey]: assetId } } — qué foto
+   * usar por cada persona cuando subió más de una (por defecto, la primera).
+   * Genera la imagen con IA (fotos reales del cliente) en vez de subirla a mano.
+   */
+  @Post('requests/:id/proposals/generate')
+  generateProposal(
+    @Param('id') id: string,
+    @Query('templateId') templateId: string,
+    @Query('protectionMode') protectionMode: string,
+    @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+  ) {
+    if (!templateId) throw new BadRequestException('templateId is required');
+    const mode = protectionMode === 'LOW_QUALITY' ? 'LOW_QUALITY' : 'WATERMARK';
+
+    return this.demoService.generateProposal({
+      demoRequestId: Number(id),
+      templateId: Number(templateId),
+      protectionMode: mode as 'WATERMARK' | 'LOW_QUALITY',
+      selectedAssetIds,
       generatedByUserId: null,
     });
   }

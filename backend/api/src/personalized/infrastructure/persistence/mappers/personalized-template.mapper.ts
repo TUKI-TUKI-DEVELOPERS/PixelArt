@@ -10,6 +10,7 @@ export class PersonalizedTemplateMapper {
       id: entity.id,
       name: entity.name,
       previewUrl,
+      genderDirection: entity.genderDirection,
     };
   }
 }

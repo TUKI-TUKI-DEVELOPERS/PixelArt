@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { PersonalizedCategoryOrmEntity } from '../entities/personalized-category.orm-entity';
 import { PersonalizedModelOrmEntity } from '../entities/personalized-model.orm-entity';
 import { PersonalizedTemplateOrmEntity } from '../entities/personalized-template.orm-entity';
+import { PromptSharedBlockOrmEntity } from '../entities/prompt-shared-block.orm-entity';
 import { PersonalizedRepositoryPort } from '../../../domain/ports/personalized-repository.port';
 
 @Injectable()
@@ -15,8 +16,19 @@ export class TypeOrmPersonalizedRepository extends PersonalizedRepositoryPort {
     private readonly modelRepo: Repository<PersonalizedModelOrmEntity>,
     @InjectRepository(PersonalizedTemplateOrmEntity)
     private readonly templateRepo: Repository<PersonalizedTemplateOrmEntity>,
+    @InjectRepository(PromptSharedBlockOrmEntity)
+    private readonly sharedBlockRepo: Repository<PromptSharedBlockOrmEntity>,
   ) {
     super();
+  }
+
+  async findTemplateById(id: number): Promise<PersonalizedTemplateOrmEntity | null> {
+    return this.templateRepo.findOne({ where: { id: String(id) } });
+  }
+
+  async findSharedBlocks(): Promise<Record<string, string>> {
+    const blocks = await this.sharedBlockRepo.find();
+    return Object.fromEntries(blocks.map((b) => [b.blockKey, b.content]));
   }
 
   async findAllActiveCategories(): Promise<PersonalizedCategoryOrmEntity[]> {

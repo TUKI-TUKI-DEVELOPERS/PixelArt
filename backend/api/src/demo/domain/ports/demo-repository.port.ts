@@ -40,6 +40,7 @@ export type SaveProposalData = {
   demoRequestId: number;
   templateId: number;
   outputStorageKey: string;
+  originalStorageKey?: string | null;
   protectionMode: string;
   isWatermarked: boolean;
   generatedByUserId: number | null;

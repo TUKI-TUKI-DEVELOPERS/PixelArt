@@ -36,6 +36,9 @@ type CharacterMember = { name: string; assetIds?: number[] };
 type CharacterMeta =
   | { mode: "familia-grupo"; papa: CharacterMember; mama: CharacterMember; hijos: CharacterMember[] }
   | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
+  | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
+  | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
+  | { mode: "memorial-familia"; recipient: CharacterMember & { nickname?: string | null; gender?: string }; familyPhotos: number[] }
   | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
@@ -75,12 +78,17 @@ export default function SolicitudDetallePage() {
   const [data, setData] = useState<DemoDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<number | null>(null);
+  const [generatingSet, setGeneratingSet] = useState<Set<number>>(new Set());
+  const [generateError, setGenerateError] = useState<Record<number, string>>({});
+  const [selectedPhoto, setSelectedPhoto] = useState<Record<number, Record<string, number>>>({});
   const [deletingProposal, setDeletingProposal] = useState<number | null>(null);
   const [assetUrls, setAssetUrls] = useState<Record<number, string>>({});
   const [sendingCheckout, setSendingCheckout] = useState(false);
   const [reissuingCheckout, setReissuingCheckout] = useState(false);
   const [checkoutLink, setCheckoutLink] = useState<{ url: string; orderId: number; expiresAt?: Date } | null>(null);
   const fileRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const generatingRef = useRef<Set<number>>(new Set());
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   function loadDetail() {
     fetch(`${API}/api/admin/demo/requests/${id}`)
@@ -129,6 +137,37 @@ export default function SolicitudDetallePage() {
     }
   }
 
+  async function handleGenerateProposal(templateId: number) {
+    // Guarda SÍNCRONA (no depende de que React re-renderice el disabled del
+    // botón) — evita que un doble click dispare dos pedidos y choque contra
+    // la restricción de "una propuesta por plantilla" de la base.
+    if (generatingRef.current.has(templateId)) return;
+    generatingRef.current.add(templateId);
+
+    setGeneratingSet((prev) => new Set(prev).add(templateId));
+    setGenerateError((prev) => ({ ...prev, [templateId]: "" }));
+    try {
+      const res = await fetch(
+        `${API}/api/admin/demo/requests/${id}/proposals/generate?templateId=${templateId}&protectionMode=WATERMARK`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ selectedAssetIds: selectedPhoto[templateId] ?? {} }),
+        },
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { message?: string }).message ?? "Error al generar");
+      }
+      loadDetail();
+    } catch (err) {
+      setGenerateError((prev) => ({ ...prev, [templateId]: err instanceof Error ? err.message : "Error" }));
+    } finally {
+      generatingRef.current.delete(templateId);
+      setGeneratingSet((prev) => { const next = new Set(prev); next.delete(templateId); return next; });
+    }
+  }
+
   async function handleDeleteProposal(proposalId: number) {
     if (!confirm("¿Eliminar esta propuesta? Se borrará del servidor.")) return;
     setDeletingProposal(proposalId);
@@ -155,6 +194,49 @@ export default function SolicitudDetallePage() {
   const resolvedCheckout = checkoutLink ?? data.checkoutLink;
   const uploadedCount = data.proposals.length;
   const totalCount = data.templateSelections.length;
+
+  // Grupos de fotos con roleKey (calza con characterMeta[roleKey] del backend)
+  // — usado para dejarle elegir al admin qué foto mandar a generar.
+  const photoGroups: { label: string; roleKey: string; ids: number[] }[] = (() => {
+    const meta = data.characterMeta;
+    if (!meta) return [];
+    if ("papa" in meta) {
+      return [
+        { label: `Papá — ${meta.papa.name || ""}`, roleKey: "papa", ids: meta.papa.assetIds ?? [] },
+        { label: `Mamá — ${meta.mama.name || ""}`, roleKey: "mama", ids: meta.mama.assetIds ?? [] },
+        ...meta.hijos.map((h, i) => ({ label: `Hijo ${i + 1} — ${h.name || ""}`, roleKey: `hijos[${i}]`, ids: h.assetIds ?? [] })),
+      ];
+    }
+    if ("hermanos" in meta) {
+      return meta.hermanos.map((h, i) => ({
+        label: `${h.gender === "F" ? "Hermana" : "Hermano"} ${i + 1} — ${h.name || ""}`,
+        roleKey: `hermanos[${i}]`,
+        ids: h.assetIds ?? [],
+      }));
+    }
+    if ("pet" in meta) {
+      return [
+        { label: `Mascota — ${meta.pet.name || ""}`, roleKey: "pet", ids: meta.pet.assetIds ?? [] },
+        ...meta.owners.map((o, i) => ({ label: `Dueño ${i + 1} — ${o.name || ""}`, roleKey: `owners[${i}]`, ids: o.assetIds ?? [] })),
+      ];
+    }
+    if ("recipient" in meta && meta.mode === "memorial-hermanos") {
+      return [
+        { label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] },
+        ...meta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1} — ${s.name || ""}`, roleKey: `livingSiblings[${i}]`, ids: s.assetIds ?? [] })),
+      ];
+    }
+    if ("recipient" in meta && meta.mode === "memorial-familia") {
+      return [{ label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] }];
+    }
+    if ("recipient" in meta) {
+      return [
+        { label: meta.recipient.nickname ? `"${meta.recipient.nickname}"` : meta.recipient.name || "Protagonista", roleKey: "recipient", ids: meta.recipient.assetIds ?? [] },
+        ...(meta.dedicator ? [{ label: meta.dedicator.name || "Quien dedica", roleKey: "dedicator", ids: meta.dedicator.assetIds ?? [] }] : []),
+      ];
+    }
+    return [];
+  })();
 
   return (
     <div style={{ padding: "32px", maxWidth: "1100px" }}>
@@ -255,45 +337,15 @@ export default function SolicitudDetallePage() {
         </div>
       </div>
 
-      {/* ── Personajes del libro — solo para modos con múltiples integrantes ── */}
-      {data.characterMeta && ("papa" in data.characterMeta || "hermanos" in data.characterMeta) && (
+      {/* ── Personajes del libro ── */}
+      {data.characterMeta && (
         <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
             <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Personajes del libro</span>
           </div>
           <div style={{ padding: "16px 20px" }}>
-            {/* Modos simples: amor / mascotas / familia / memorial */}
-            {!data.characterMeta && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
-                {data.recipientName && (
-                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Protagonista</div>
-                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{data.recipientName}</div>
-                    {data.recipientNickname && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>"{data.recipientNickname}"</div>}
-                  </div>
-                )}
-                {data.dedicatorName && (
-                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Quién dedica</div>
-                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{data.dedicatorName}</div>
-                  </div>
-                )}
-                {data.genderDirection && (
-                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
-                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Dirección</div>
-                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#374151" }}>
-                      {data.genderDirection === "HE_TO_SHE" ? "Él → Ella"
-                        : data.genderDirection === "SHE_TO_HE" ? "Ella → Él"
-                        : data.genderDirection === "HE_TO_HE" ? "Él → Él"
-                        : data.genderDirection === "SHE_TO_SHE" ? "Ella → Ella"
-                        : data.genderDirection}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
             {/* Modo familia-grupo */}
-            {data.characterMeta?.mode === "familia-grupo" && (
+            {data.characterMeta.mode === "familia-grupo" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
                 {[
                   { label: "Papá", name: data.characterMeta.papa.name },
@@ -308,7 +360,7 @@ export default function SolicitudDetallePage() {
               </div>
             )}
             {/* Modo hermanos */}
-            {data.characterMeta?.mode === "hermanos" && (
+            {data.characterMeta.mode === "hermanos" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
                 {data.characterMeta.hermanos.map((h, i) => (
                   <div key={i} style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
@@ -318,6 +370,64 @@ export default function SolicitudDetallePage() {
                     <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{h.name || "—"}</div>
                   </div>
                 ))}
+              </div>
+            )}
+            {/* Modo mascotas-aventura */}
+            {data.characterMeta.mode === "mascotas-aventura" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
+                {([
+                  { label: "Mascota", name: data.characterMeta.pet.name, extra: data.characterMeta.pet.nickname },
+                  ...data.characterMeta.owners.map((o, i) => ({ label: `Dueño ${i + 1}`, name: o.name, extra: null as string | null | undefined })),
+                ]).map((m) => (
+                  <div key={m.label} style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{m.label}</div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{m.name || "—"}</div>
+                    {m.extra && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>"{m.extra}"</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Modo memorial-hermanos */}
+            {data.characterMeta.mode === "memorial-hermanos" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px" }}>
+                {([
+                  { label: "Fallecido/a", name: data.characterMeta.recipient.name, extra: data.characterMeta.recipient.nickname },
+                  ...data.characterMeta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1}`, name: s.name, extra: null as string | null | undefined })),
+                ]).map((m) => (
+                  <div key={m.label} style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{m.label}</div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{m.name || "—"}</div>
+                    {m.extra && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>"{m.extra}"</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Modos simples: amor / mascotas / familia / memorial básico / memorial-familia */}
+            {"recipient" in data.characterMeta && data.characterMeta.mode !== "memorial-hermanos" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
+                <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                  <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Protagonista</div>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{data.characterMeta.recipient.name || "—"}</div>
+                  {data.characterMeta.recipient.nickname && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>"{data.characterMeta.recipient.nickname}"</div>}
+                </div>
+                {"dedicator" in data.characterMeta && data.characterMeta.dedicator && (
+                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Quién dedica</div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#111" }}>{data.characterMeta.dedicator.name || "—"}</div>
+                  </div>
+                )}
+                {data.genderDirection && (
+                  <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
+                    <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>Dirección</div>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#374151" }}>
+                      {data.genderDirection === "HE_TO_SHE" ? "Él → Ella"
+                        : data.genderDirection === "SHE_TO_HE" ? "Ella → Él"
+                        : data.genderDirection === "HE_TO_HE" ? "Él → Él"
+                        : data.genderDirection === "SHE_TO_SHE" ? "Ella → Ella"
+                        : data.genderDirection}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -368,6 +478,21 @@ export default function SolicitudDetallePage() {
             label: `${h.gender === "F" ? "Hermana" : "Hermano"} ${i + 1} — ${h.name || ""}`,
             ids: h.assetIds ?? [],
           }));
+        } else if (meta && "pet" in meta) {
+          groups = [
+            { label: `Mascota — ${meta.pet.name || ""}`, ids: meta.pet.assetIds ?? [] },
+            ...meta.owners.map((o, i) => ({ label: `Dueño ${i + 1} — ${o.name || ""}`, ids: o.assetIds ?? [] })),
+          ];
+        } else if (meta && "recipient" in meta && meta.mode === "memorial-hermanos") {
+          groups = [
+            { label: `Fallecido/a — ${meta.recipient.name || ""}`, ids: meta.recipient.assetIds ?? [] },
+            ...meta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1} — ${s.name || ""}`, ids: s.assetIds ?? [] })),
+          ];
+        } else if (meta && "recipient" in meta && meta.mode === "memorial-familia") {
+          groups = [
+            { label: `Fallecido/a — ${meta.recipient.name || ""}`, ids: meta.recipient.assetIds ?? [] },
+            ...(meta.familyPhotos?.length ? [{ label: "Fotos familiares", ids: meta.familyPhotos }] : []),
+          ];
         } else if (meta && "recipient" in meta) {
           groups = [
             { label: meta.recipient.nickname ? `"${meta.recipient.nickname}"` : meta.recipient.name || "Protagonista", ids: meta.recipient.assetIds ?? [] },
@@ -445,7 +570,7 @@ export default function SolicitudDetallePage() {
                               const url = assetUrls[assetId];
                               return url ? (
                                 <div key={assetId} style={{ position: "relative" }}>
-                                  <img src={url} alt={role} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "6px", display: "block" }} />
+                                  <img src={url} alt={role} onClick={() => setZoomedImage(url)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "6px", display: "block", cursor: "zoom-in" }} />
                                   <button onClick={() => forceDownload(url, `${role.toLowerCase()}_${assetId}.jpg`)}
                                     style={{ position: "absolute", bottom: "3px", right: "3px", width: "20px", height: "20px", borderRadius: "4px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}
                                     title="Descargar">
@@ -470,7 +595,7 @@ export default function SolicitudDetallePage() {
                   const url = assetUrls[assetId];
                   return url ? (
                     <div key={assetId} style={{ position: "relative" }}>
-                      <img src={url} alt={`Foto ${assetId}`} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "7px", display: "block" }} />
+                      <img src={url} alt={`Foto ${assetId}`} onClick={() => setZoomedImage(url)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "7px", display: "block", cursor: "zoom-in" }} />
                       <button onClick={() => forceDownload(url, `foto_${assetId}.jpg`)}
                         style={{ position: "absolute", bottom: "4px", right: "4px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}>
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -502,6 +627,7 @@ export default function SolicitudDetallePage() {
           {data.templateSelections.map((ts) => {
             const proposal = data.proposals.find((p) => p.templateId === ts.templateId);
             const isUploading = uploading === ts.templateId;
+            const isGenerating = generatingSet.has(ts.templateId);
             const isDeleting = proposal ? deletingProposal === proposal.id : false;
             return (
               <div key={ts.id}>
@@ -512,7 +638,7 @@ export default function SolicitudDetallePage() {
                 />
                 {proposal ? (
                   <div style={{ border: "2px solid #22c55e", borderRadius: "12px", overflow: "hidden", background: "#f0fdf4", position: "relative" }}>
-                    <img src={proposal.outputUrl} alt={ts.templateName ?? "Propuesta"} style={{ width: "100%", aspectRatio: "2 / 1", objectFit: "cover", display: "block" }} />
+                    <img src={proposal.outputUrl} alt={ts.templateName ?? "Propuesta"} onClick={() => setZoomedImage(proposal.outputUrl)} style={{ width: "100%", aspectRatio: "2 / 1", objectFit: "cover", display: "block", cursor: "zoom-in" }} />
                     {data.status === "RECEIVED" && (
                       <button disabled={isDeleting} onClick={() => handleDeleteProposal(proposal.id)} title="Eliminar propuesta"
                         style={{ position: "absolute", top: "8px", right: "8px", width: "28px", height: "28px", borderRadius: "50%", border: "none", background: "rgba(239,68,68,0.85)", color: "#fff", cursor: isDeleting ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}>
@@ -528,15 +654,52 @@ export default function SolicitudDetallePage() {
                     </div>
                   </div>
                 ) : (
-                  <div onClick={() => !isUploading && fileRefs.current[ts.templateId]?.click()}
-                    style={{ border: "2px dashed #d1d5db", borderRadius: "12px", overflow: "hidden", cursor: isUploading ? "wait" : "pointer" }}>
-                    {ts.templatePreviewUrl && (
-                      <img src={ts.templatePreviewUrl} alt={ts.templateName ?? ""} style={{ width: "100%", aspectRatio: "2 / 1", objectFit: "cover", display: "block", opacity: 0.5 }} />
-                    )}
-                    <div style={{ padding: "12px", textAlign: "center" }}>
-                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#6b7280", marginBottom: "2px" }}>{ts.templateName ?? `Plantilla #${ts.templateId}`}</div>
-                      <div style={{ fontSize: "11px", color: "#9ca3af" }}>{isUploading ? "Subiendo..." : "Clic para subir propuesta"}</div>
+                  <div style={{ border: "2px dashed #d1d5db", borderRadius: "12px", overflow: "hidden" }}>
+                    <div onClick={() => !isUploading && fileRefs.current[ts.templateId]?.click()} style={{ cursor: isUploading ? "wait" : "pointer" }}>
+                      {ts.templatePreviewUrl && (
+                        <img src={ts.templatePreviewUrl} alt={ts.templateName ?? ""} style={{ width: "100%", aspectRatio: "2 / 1", objectFit: "cover", display: "block", opacity: 0.5 }} />
+                      )}
+                      <div style={{ padding: "12px 12px 8px", textAlign: "center" }}>
+                        <div style={{ fontSize: "13px", fontWeight: 600, color: "#6b7280", marginBottom: "2px" }}>{ts.templateName ?? `Plantilla #${ts.templateId}`}</div>
+                        <div style={{ fontSize: "11px", color: "#9ca3af" }}>{isUploading ? "Subiendo..." : "Clic para subir propuesta a mano"}</div>
+                      </div>
                     </div>
+
+                    {photoGroups.length > 0 && (
+                      <div style={{ borderTop: "1px solid #e5e7eb", padding: "10px 12px", background: "#fafafa" }}>
+                        {photoGroups.map((g) => {
+                          const chosen = selectedPhoto[ts.templateId]?.[g.roleKey] ?? g.ids[0];
+                          return (
+                            <div key={g.roleKey} style={{ marginBottom: "6px" }}>
+                              <div style={{ fontSize: "10px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: "4px" }}>{g.label}</div>
+                              <div style={{ display: "flex", gap: "5px" }}>
+                                {g.ids.map((assetId) => {
+                                  const url = assetUrls[assetId];
+                                  const isChosen = assetId === chosen;
+                                  return (
+                                    <button key={assetId} type="button"
+                                      onClick={() => setSelectedPhoto((prev) => ({ ...prev, [ts.templateId]: { ...prev[ts.templateId], [g.roleKey]: assetId } }))}
+                                      style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "36px", height: "36px", overflow: "hidden", flexShrink: 0 }}
+                                      title={`Usar esta foto para ${g.label}`}>
+                                      {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <button
+                          disabled={isGenerating}
+                          onClick={() => handleGenerateProposal(ts.templateId)}
+                          style={{ width: "100%", marginTop: "6px", padding: "8px", borderRadius: "8px", border: "none", background: isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                          {isGenerating ? "Generando… (puede tardar 20s)" : "Generar con IA"}
+                        </button>
+                        {generateError[ts.templateId] && (
+                          <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -688,6 +851,18 @@ export default function SolicitudDetallePage() {
             );
           })()}
         </>
+      )}
+
+      {/* ── Lightbox: ver imagen completa ── */}
+      {zoomedImage && (
+        <div onClick={() => setZoomedImage(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: "40px" }}>
+          <img src={zoomedImage} alt="Vista completa" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "8px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} />
+          <button onClick={() => setZoomedImage(null)}
+            style={{ position: "absolute", top: "20px", right: "20px", width: "40px", height: "40px", borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       )}
     </div>
   );

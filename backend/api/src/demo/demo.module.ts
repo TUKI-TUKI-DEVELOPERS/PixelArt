@@ -4,6 +4,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { AssetsModule } from '../assets/assets.module';
 import { PublicLinksModule } from '../public-links/public-links.module';
 import { EmailModule } from '../email/email.module';
+import { PersonalizedModule } from '../personalized/personalized.module';
 import { DemoPublicController } from './demo-public.controller';
 import { DemoAdminController } from './demo-admin.controller';
 import { DemoService } from './demo.service';
@@ -21,6 +22,8 @@ import { CreateOrderFromDemoUseCase } from './application/use-cases/create-order
 import { SendUnifiedCheckoutUseCase } from './application/use-cases/send-unified-checkout.use-case';
 import { DeleteDemoProposalUseCase } from './application/use-cases/delete-demo-proposal.use-case';
 import { ReissueCheckoutLinkUseCase } from './application/use-cases/reissue-checkout-link.use-case';
+import { GenerateDemoProposalUseCase } from './application/use-cases/generate-demo-proposal.use-case';
+import { ImageProtectionService } from './infrastructure/protection/image-protection.service';
 import { OrdersModule } from '../orders/orders.module';
 
 @Module({
@@ -31,6 +34,7 @@ import { OrdersModule } from '../orders/orders.module';
     PublicLinksModule,
     EmailModule,
     OrdersModule,
+    PersonalizedModule,
   ],
   controllers: [DemoPublicController, DemoAdminController],
   providers: [
@@ -40,6 +44,8 @@ import { OrdersModule } from '../orders/orders.module';
     ListDemoRequestsUseCase,
     GetDemoRequestDetailUseCase,
     UploadDemoProposalUseCase,
+    GenerateDemoProposalUseCase,
+    ImageProtectionService,
     SendDemoProposalsUseCase,
     CreateOrderFromDemoUseCase,
     SendUnifiedCheckoutUseCase,

@@ -30,6 +30,14 @@ export class FeedbackService {
     const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
     const feedbackUrl = `${frontendBase}/feedback/${link.token}`;
 
+    await this.emailService.queue({
+      eventType: 'DELIVERY_FEEDBACK_REQUEST',
+      orderId: order.id,
+      toEmail: order.customerEmail,
+      subject: 'PixelArt — ¿Cómo te fue con tu libro?',
+      payload: { customerName: order.customerFullName, feedbackUrl },
+    });
+
     return { token: link.token, url: feedbackUrl, expiresAt: link.expiresAt };
   }
 

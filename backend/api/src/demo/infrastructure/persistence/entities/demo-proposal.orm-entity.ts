@@ -19,6 +19,9 @@ export class DemoProposalOrmEntity {
   @Column({ name: 'output_storage_key', type: 'text' })
   outputStorageKey!: string;
 
+  @Column({ name: 'original_storage_key', type: 'text', nullable: true })
+  originalStorageKey!: string | null;
+
   @Column({ name: 'protection_mode', type: 'text', default: 'WATERMARK' })
   protectionMode!: string;
 

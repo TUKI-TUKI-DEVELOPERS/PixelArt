@@ -143,6 +143,7 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
       demoRequestId: String(data.demoRequestId),
       templateId: String(data.templateId),
       outputStorageKey: data.outputStorageKey,
+      originalStorageKey: data.originalStorageKey ?? null,
       protectionMode: data.protectionMode,
       isWatermarked: data.isWatermarked,
       generatedByUserId: data.generatedByUserId ? String(data.generatedByUserId) : null,

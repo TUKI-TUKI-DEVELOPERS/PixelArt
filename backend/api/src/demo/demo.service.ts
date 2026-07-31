@@ -3,6 +3,7 @@ import { CreateDemoRequestUseCase } from './application/use-cases/create-demo-re
 import { ListDemoRequestsUseCase } from './application/use-cases/list-demo-requests.use-case';
 import { GetDemoRequestDetailUseCase } from './application/use-cases/get-demo-request-detail.use-case';
 import { UploadDemoProposalUseCase, UploadProposalInput } from './application/use-cases/upload-demo-proposal.use-case';
+import { GenerateDemoProposalUseCase, GenerateProposalInput } from './application/use-cases/generate-demo-proposal.use-case';
 import { SendDemoProposalsUseCase } from './application/use-cases/send-demo-proposals.use-case';
 import { CreateOrderFromDemoUseCase } from './application/use-cases/create-order-from-demo.use-case';
 import { SendUnifiedCheckoutUseCase } from './application/use-cases/send-unified-checkout.use-case';
@@ -17,6 +18,7 @@ export class DemoService {
     private readonly listUseCase: ListDemoRequestsUseCase,
     private readonly detailUseCase: GetDemoRequestDetailUseCase,
     private readonly uploadProposalUseCase: UploadDemoProposalUseCase,
+    private readonly generateProposalUseCase: GenerateDemoProposalUseCase,
     private readonly sendProposalsUseCase: SendDemoProposalsUseCase,
     private readonly createOrderUseCase: CreateOrderFromDemoUseCase,
     private readonly sendUnifiedCheckoutUseCase: SendUnifiedCheckoutUseCase,
@@ -28,6 +30,7 @@ export class DemoService {
   listAll() { return this.listUseCase.execute(); }
   getDetail(id: number) { return this.detailUseCase.execute(id); }
   uploadProposal(input: UploadProposalInput) { return this.uploadProposalUseCase.execute(input); }
+  generateProposal(input: GenerateProposalInput) { return this.generateProposalUseCase.execute(input); }
   sendProposals(id: number) { return this.sendProposalsUseCase.execute(id); }
   createOrder(demoRequestId: number) { return this.createOrderUseCase.execute(demoRequestId); }
   sendUnifiedCheckout(demoRequestId: number) { return this.sendUnifiedCheckoutUseCase.execute(demoRequestId); }

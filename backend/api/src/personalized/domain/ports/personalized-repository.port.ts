@@ -6,4 +6,6 @@ export abstract class PersonalizedRepositoryPort {
   abstract findAllActiveCategories(): Promise<PersonalizedCategoryOrmEntity[]>;
   abstract findModelsByCategory(categoryId: string): Promise<PersonalizedModelOrmEntity[]>;
   abstract findTemplatesByModel(modelId: string): Promise<PersonalizedTemplateOrmEntity[]>;
+  abstract findTemplateById(id: number): Promise<PersonalizedTemplateOrmEntity | null>;
+  abstract findSharedBlocks(): Promise<Record<string, string>>;
 }

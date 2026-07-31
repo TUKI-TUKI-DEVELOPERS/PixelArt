@@ -1,10 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
 const API = "";
+
+/** Resuelve la URL pública de un asset desde su ID */
+async function resolveAssetUrl(assetId: number): Promise<string | null> {
+  try {
+    const res = await fetch(`${API}/api/assets/${assetId}/url`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.url ?? null;
+  } catch {
+    return null;
+  }
+}
+
+type CharacterMember = { name: string; assetIds?: number[] };
+type CharacterMeta =
+  | { mode: "familia-grupo"; papa: CharacterMember; mama: CharacterMember; hijos: CharacterMember[] }
+  | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
+  | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
+  | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
+  | { mode: "memorial-familia"; recipient: CharacterMember & { nickname?: string | null; gender?: string }; familyPhotos: number[] }
+  | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
+  | null;
 
 type OrderDetail = {
   id: number; channel: string; status: string; customerFullName: string; customerEmail: string; customerPhone: string;
@@ -13,12 +35,19 @@ type OrderDetail = {
   photobookProjectId: number | null;
   statusEvents: { id: number; oldStatus: string | null; newStatus: string; note: string | null; createdAt: string }[];
   paymentProof: { id: number; status: string; paymentMethod: string; amountCents: number; voucherUrl: string } | null;
-  templateSelections: { templateId: number; templateName: string | null; slotIndex: number }[];
+  templateSelections: { templateId: number; templateName: string | null; slotIndex: number; hasPromptContent: boolean }[];
+  characterMeta: CharacterMeta;
+  demoAssetIds: number[];
+  dedicationText: string | null;
+  demoDedicationText: string | null;
+  gradientColorStart: string;
+  gradientColorEnd: string;
 };
 
 type PrintAsset = {
   id: number; assetType: string; templateId: number | null; templateName: string | null;
-  slotIndex: number | null; previewUrl: string; originalFilename: string | null;
+  slotIndex: number | null; pagePart: string; previewUrl: string; originalFilename: string | null;
+  status: string; uploadedAt: string;
 };
 
 const STATUS_MAP: Record<string, { bg: string; text: string; label: string; accent: string }> = {
@@ -73,6 +102,23 @@ export default function OrdenDetallePage() {
   const [cbPdfGenerating, setCbPdfGenerating] = useState(false);
   const [cbPdfSuccess, setCbPdfSuccess] = useState(false);
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
+  const [deletingSlot, setDeletingSlot] = useState<string | null>(null);
+  const [confirmingSlot, setConfirmingSlot] = useState<string | null>(null);
+  const [cbPdfGeneratedAt, setCbPdfGeneratedAt] = useState<string | null>(null);
+  const [assetUrls, setAssetUrls] = useState<Record<number, string>>({});
+  const [selectedPhoto, setSelectedPhoto] = useState<Record<number, Record<string, number>>>({});
+  const [generatingSet, setGeneratingSet] = useState<Set<number>>(new Set());
+  const [verifyingSet, setVerifyingSet] = useState<Set<number>>(new Set());
+  const [generateError, setGenerateError] = useState<Record<number, string>>({});
+  const [confirmingAll, setConfirmingAll] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [dedicationDraft, setDedicationDraft] = useState("");
+  const [gradientStartDraft, setGradientStartDraft] = useState("#DF1F74");
+  const [gradientEndDraft, setGradientEndDraft] = useState("#804187");
+  const [savingDesign, setSavingDesign] = useState(false);
+  const [designSaved, setDesignSaved] = useState(false);
+  const generatingRef = useRef<Set<number>>(new Set());
+  const designInitialized = useRef(false);
 
   const PDF_ELIGIBLE_STATUSES = ["PAYMENT_VERIFIED", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
 
@@ -81,16 +127,140 @@ export default function OrdenDetallePage() {
       .then((r) => r.json())
       .then((order: OrderDetail) => {
         setData(order);
+        // Precargar el editor de diseño solo la primera vez — así no se pisan
+        // ediciones del admin en curso cada vez que load() se vuelve a llamar.
+        if (!designInitialized.current) {
+          setDedicationDraft(order.dedicationText ?? order.demoDedicationText ?? "");
+          setGradientStartDraft(order.gradientColorStart);
+          setGradientEndDraft(order.gradientColorEnd);
+          designInitialized.current = true;
+        }
         if (order.channel === "PHOTOBOOK" && order.photobookProjectId && PDF_ELIGIBLE_STATUSES.includes(order.status)) {
           loadPdf(order.photobookProjectId);
         }
         if (order.channel === "CUSTOM_BOOK" && PDF_ELIGIBLE_STATUSES.includes(order.status)) {
-          loadPrintAssets(order.id);
+          // Las plantillas que ya tenían un original limpio de la demo se cargan
+          // solas (sin gastar una llamada nueva a OpenAI) antes de leer los
+          // archivos de imprenta, para que ya aparezcan como pendientes de revisar.
+          fetch(`${API}/api/admin/orders/${order.id}/print-assets/backfill-from-demo`, { method: "POST" })
+            .catch(() => {})
+            .finally(() => loadPrintAssets(order.id));
           loadCbRender(order.id);
         }
+        // Resolver URLs de las fotos del cliente en paralelo — para el selector
+        // de fotos del botón "Generar con IA".
+        Promise.all(
+          (order.demoAssetIds ?? []).map(async (assetId) => {
+            const url = await resolveAssetUrl(assetId);
+            return { assetId, url };
+          })
+        ).then((results) => {
+          const urlMap: Record<number, string> = {};
+          for (const { assetId, url } of results) {
+            if (url) urlMap[assetId] = url;
+          }
+          setAssetUrls(urlMap);
+        });
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+  }
+
+  /** La generación con IA tarda ~1-2 min (llamada a OpenAI). Si el fetch se
+   * corta antes de tiempo (proxy/red), el servidor puede haber terminado
+   * igual — antes de mostrar error, chequeamos si ya apareció el resultado. */
+  async function waitForTemplateResult(orderId: number, templateId: number, startedAt: number): Promise<boolean> {
+    for (let attempt = 0; attempt < 30; attempt++) {
+      await new Promise((r) => setTimeout(r, 4000));
+      try {
+        const res = await fetch(`${API}/api/admin/orders/${orderId}/print-assets`);
+        if (!res.ok) continue;
+        const list: PrintAsset[] = await res.json();
+        const done = list.some(
+          (a) => a.templateId === templateId && a.assetType === "TEMPLATE" && new Date(a.uploadedAt).getTime() >= startedAt,
+        );
+        if (done) return true;
+      } catch { /* seguir intentando */ }
+    }
+    return false;
+  }
+
+  async function handleGenerateTemplate(templateId: number) {
+    if (!data) return;
+    if (generatingRef.current.has(templateId)) return;
+    generatingRef.current.add(templateId);
+
+    setGeneratingSet((prev) => new Set(prev).add(templateId));
+    setGenerateError((prev) => ({ ...prev, [templateId]: "" }));
+    const startedAt = Date.now();
+    try {
+      const res = await fetch(
+        `${API}/api/admin/orders/${data.id}/print-assets/generate?templateId=${templateId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ selectedAssetIds: selectedPhoto[templateId] ?? {} }),
+        },
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { message?: string }).message ?? "Error al generar");
+      }
+      loadPrintAssets(data.id);
+    } catch (err) {
+      // Se cortó la conexión, pero el servidor puede haber terminado igual —
+      // lo dejamos claro en el botón mientras confirmamos, en vez de quedar
+      // en un "Generando…" indistinguible de la espera normal.
+      setVerifyingSet((prev) => new Set(prev).add(templateId));
+      const finishedAnyway = await waitForTemplateResult(data.id, templateId, startedAt);
+      setVerifyingSet((prev) => { const next = new Set(prev); next.delete(templateId); return next; });
+      if (finishedAnyway) {
+        loadPrintAssets(data.id);
+      } else {
+        setGenerateError((prev) => ({ ...prev, [templateId]: err instanceof Error ? err.message : "Error" }));
+      }
+    } finally {
+      generatingRef.current.delete(templateId);
+      setGeneratingSet((prev) => { const next = new Set(prev); next.delete(templateId); return next; });
+    }
+  }
+
+  async function handleConfirmAll() {
+    if (!data) return;
+    setConfirmingAll(true);
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/confirm`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      loadPrintAssets(data.id);
+    } catch {
+      alert("Error al confirmar las imágenes");
+    } finally {
+      setConfirmingAll(false);
+    }
+  }
+
+  async function handleSaveDesign() {
+    if (!data) return;
+    setSavingDesign(true);
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-design`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dedicationText: dedicationDraft,
+          gradientColorStart: gradientStartDraft,
+          gradientColorEnd: gradientEndDraft,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setDesignSaved(true);
+      setTimeout(() => setDesignSaved(false), 3000);
+      load();
+    } catch {
+      alert("Error al guardar el diseño del libro");
+    } finally {
+      setSavingDesign(false);
+    }
   }
 
   function loadPdf(projectId: number) {
@@ -112,8 +282,11 @@ export default function OrdenDetallePage() {
   function loadCbRender(orderId: number) {
     fetch(`${API}/api/admin/orders/${orderId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error(); })
-      .then((r: { pdfUrl: string }) => setCbPdfUrl(r.pdfUrl))
-      .catch(() => setCbPdfUrl(null));
+      .then((r: { pdfUrl: string; generatedAt: string }) => {
+        setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
+        setCbPdfGeneratedAt(r.generatedAt);
+      })
+      .catch(() => { setCbPdfUrl(null); setCbPdfGeneratedAt(null); });
   }
 
   useEffect(() => { load(); }, [id]);
@@ -164,6 +337,49 @@ export default function OrdenDetallePage() {
   const nextSt = NEXT_STATUS[data.status];
   const nextStInfo = nextSt ? STATUS_MAP[nextSt] : null;
   const currentStepIndex = STATUS_ORDER.indexOf(data.status);
+
+  // Grupos de fotos con roleKey (calza con characterMeta[roleKey] del backend)
+  // — mismo patrón que solicitudes/[id], para elegir qué foto mandar a generar.
+  const photoGroups: { label: string; roleKey: string; ids: number[] }[] = (() => {
+    const meta = data.characterMeta;
+    if (!meta) return [];
+    if ("papa" in meta) {
+      return [
+        { label: `Papá — ${meta.papa.name || ""}`, roleKey: "papa", ids: meta.papa.assetIds ?? [] },
+        { label: `Mamá — ${meta.mama.name || ""}`, roleKey: "mama", ids: meta.mama.assetIds ?? [] },
+        ...meta.hijos.map((h, i) => ({ label: `Hijo ${i + 1} — ${h.name || ""}`, roleKey: `hijos[${i}]`, ids: h.assetIds ?? [] })),
+      ];
+    }
+    if ("hermanos" in meta) {
+      return meta.hermanos.map((h, i) => ({
+        label: `${h.gender === "F" ? "Hermana" : "Hermano"} ${i + 1} — ${h.name || ""}`,
+        roleKey: `hermanos[${i}]`,
+        ids: h.assetIds ?? [],
+      }));
+    }
+    if ("pet" in meta) {
+      return [
+        { label: `Mascota — ${meta.pet.name || ""}`, roleKey: "pet", ids: meta.pet.assetIds ?? [] },
+        ...meta.owners.map((o, i) => ({ label: `Dueño ${i + 1} — ${o.name || ""}`, roleKey: `owners[${i}]`, ids: o.assetIds ?? [] })),
+      ];
+    }
+    if ("recipient" in meta && meta.mode === "memorial-hermanos") {
+      return [
+        { label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] },
+        ...meta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1} — ${s.name || ""}`, roleKey: `livingSiblings[${i}]`, ids: s.assetIds ?? [] })),
+      ];
+    }
+    if ("recipient" in meta && meta.mode === "memorial-familia") {
+      return [{ label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] }];
+    }
+    if ("recipient" in meta) {
+      return [
+        { label: meta.recipient.nickname ? `"${meta.recipient.nickname}"` : meta.recipient.name || "Protagonista", roleKey: "recipient", ids: meta.recipient.assetIds ?? [] },
+        ...(meta.dedicator ? [{ label: meta.dedicator.name || "Quien dedica", roleKey: "dedicator", ids: meta.dedicator.assetIds ?? [] }] : []),
+      ];
+    }
+    return [];
+  })();
 
   return (
     <div style={{ padding: "32px" }}>
@@ -388,6 +604,61 @@ export default function OrdenDetallePage() {
         </div>
       )}
 
+      {/* ── 6b. Diseño del libro (degradado + dedicatoria, automáticos) ── */}
+      {data.channel === "CUSTOM_BOOK" && PDF_ELIGIBLE_STATUSES.includes(data.status) && (
+        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", overflow: "hidden" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
+            <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Diseño del libro</span>
+            <div style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
+              Página de degradado + dedicatoria se generan solas — nada de esto se sube a mano. El texto sale del cliente pero podés editarlo antes de mandarlo al PDF.
+            </div>
+          </div>
+          <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "#374151" }}>Dedicatoria</span>
+                {!data.dedicationText && data.demoDedicationText && (
+                  <span style={{ fontSize: "10px", fontWeight: 700, color: "#6b7280", background: "#f3f4f6", borderRadius: "4px", padding: "1px 6px" }}>
+                    Original del cliente
+                  </span>
+                )}
+              </div>
+              <textarea
+                value={dedicationDraft}
+                onChange={(e) => setDedicationDraft(e.target.value)}
+                rows={4}
+                placeholder="El cliente todavía no dejó una dedicatoria — podés escribir una acá."
+                style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e5e7eb", fontFamily: "inherit", fontSize: "13px", color: "#111", resize: "vertical" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "24px", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "#374151" }}>Degradado</span>
+                <input type="color" value={gradientStartDraft} onChange={(e) => setGradientStartDraft(e.target.value)}
+                  style={{ width: "36px", height: "36px", border: "none", borderRadius: "8px", cursor: "pointer", padding: 0 }} />
+                <span style={{ fontSize: "11px", color: "#9ca3af" }}>→</span>
+                <input type="color" value={gradientEndDraft} onChange={(e) => setGradientEndDraft(e.target.value)}
+                  style={{ width: "36px", height: "36px", border: "none", borderRadius: "8px", cursor: "pointer", padding: 0 }} />
+              </div>
+              <div style={{ flex: 1, minWidth: "120px", height: "36px", borderRadius: "8px", background: `linear-gradient(135deg, ${gradientStartDraft}, ${gradientEndDraft})` }} />
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <button
+                disabled={savingDesign}
+                onClick={handleSaveDesign}
+                style={{ padding: "10px 20px", borderRadius: "9px", border: "none", background: savingDesign ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: savingDesign ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                {savingDesign ? "Guardando..." : "Guardar diseño"}
+              </button>
+              {designSaved && (
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "#059669" }}>✓ Guardado — se usa en el próximo &quot;Generar PDF&quot;</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── 7. Archivos para imprenta (solo CUSTOM_BOOK) ── */}
       {data.channel === "CUSTOM_BOOK" && PDF_ELIGIBLE_STATUSES.includes(data.status) && (
         <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", overflow: "hidden" }}>
@@ -395,8 +666,8 @@ export default function OrdenDetallePage() {
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Archivos para imprenta</span>
               {(() => {
-                const total = 2 + (data.templateSelections?.length ?? 0);
-                const uploaded = printAssets.length;
+                const total = 2 + (data.templateSelections?.length ?? 0) * 2;
+                const uploaded = printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length;
                 const allDone = uploaded >= total;
                 return (
                   <span style={{ fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px", background: allDone ? "#d1fae5" : "#fef3c7", color: allDone ? "#065f46" : "#92400e" }}>
@@ -408,56 +679,258 @@ export default function OrdenDetallePage() {
             <span style={{ fontSize: "11px", color: "#9ca3af" }}>20.5 × 29 cm</span>
           </div>
 
+          {/* Generar con IA — solo para plantillas con contenido de prompt cargado.
+              El upload manual de abajo sigue siendo el fallback/corrección. */}
+          {data.templateSelections.some((t) => t.hasPromptContent) && (
+            <div style={{ padding: "16px 24px", borderBottom: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ fontSize: "11px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                Generar con IA
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "12px" }}>
+              {data.templateSelections.filter((t) => t.hasPromptContent).map((t) => {
+                const isGenerating = generatingSet.has(t.templateId);
+                const isVerifying = verifyingSet.has(t.templateId);
+                const pendingPages = printAssets.filter((a) => a.templateId === t.templateId && a.assetType === "TEMPLATE" && a.status === "PENDING_REVIEW");
+                const confirmedPages = printAssets.filter((a) => a.templateId === t.templateId && a.assetType === "TEMPLATE" && a.status === "CONFIRMED");
+                const isPending = pendingPages.length > 0;
+                const isConfirmed = !isPending && confirmedPages.length > 0;
+                const previewPages = isPending ? pendingPages : confirmedPages;
+                return (
+                  <div key={t.templateId} style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "12px 14px", background: "#fafafa" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: photoGroups.length > 0 || previewPages.length > 0 ? "8px" : "0" }}>
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#111" }}>{t.templateName ?? `Plantilla #${t.templateId}`}</span>
+                      {isPending && (
+                        <span style={{ fontSize: "10px", fontWeight: 700, color: "#92400e", background: "#fef3c7", padding: "2px 8px", borderRadius: "999px" }}>
+                          Pendiente de revisión
+                        </span>
+                      )}
+                      {isConfirmed && (
+                        <span style={{ fontSize: "10px", fontWeight: 700, color: "#059669", background: "#d1fae5", padding: "2px 8px", borderRadius: "999px" }}>
+                          Confirmado
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                      {previewPages.length > 0 && (
+                        <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                          {previewPages
+                            .slice()
+                            .sort((a, b) => a.pagePart.localeCompare(b.pagePart))
+                            .map((p) => (
+                              <div key={p.id} style={{ position: "relative" }}>
+                                <img
+                                  src={p.previewUrl}
+                                  alt={`Cara ${p.pagePart}`}
+                                  onClick={() => setZoomedImage(p.previewUrl)}
+                                  style={{ width: "130px", height: "173px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in" }}
+                                />
+                                <span style={{ position: "absolute", bottom: "6px", right: "6px", fontSize: "11px", fontWeight: 700, color: "#fff", background: "rgba(0,0,0,0.6)", borderRadius: "4px", padding: "2px 7px" }}>
+                                  Cara {p.pagePart}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {photoGroups.length > 0 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                            {photoGroups.map((g) => {
+                              const chosen = selectedPhoto[t.templateId]?.[g.roleKey] ?? g.ids[0];
+                              return (
+                                <div key={g.roleKey}>
+                                  <div style={{ fontSize: "9px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: "3px" }}>{g.label}</div>
+                                  <div style={{ display: "flex", gap: "4px" }}>
+                                    {g.ids.map((assetId) => {
+                                      const url = assetUrls[assetId];
+                                      const isChosen = assetId === chosen;
+                                      return (
+                                        <button key={assetId} type="button"
+                                          onClick={() => setSelectedPhoto((prev) => ({ ...prev, [t.templateId]: { ...prev[t.templateId], [g.roleKey]: assetId } }))}
+                                          style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "38px", height: "38px", overflow: "hidden", flexShrink: 0 }}
+                                          title={`Usar esta foto para ${g.label}`}>
+                                          {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        <div>
+                          <button
+                            disabled={isGenerating}
+                            onClick={() => handleGenerateTemplate(t.templateId)}
+                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                            {isVerifying
+                              ? "Se cortó la conexión — verificando si terminó igual…"
+                              : isGenerating
+                              ? "Generando… (puede tardar 1-2 min, no cierres la página)"
+                              : previewPages.length > 0
+                              ? "Regenerar con IA"
+                              : "Generar con IA"}
+                          </button>
+                          {isVerifying && (
+                            <div style={{ marginTop: "6px", fontSize: "11px", color: "#92400e" }}>
+                              El servidor puede haber terminado igual — no vuelvas a apretar el botón, esto se resuelve solo en un momento.
+                            </div>
+                          )}
+                          {generateError[t.templateId] && (
+                            <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[t.templateId]}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              </div>
+
+              {printAssets.some((a) => a.status === "PENDING_REVIEW") && (
+                <button
+                  disabled={confirmingAll}
+                  onClick={handleConfirmAll}
+                  style={{ marginTop: "4px", padding: "12px 16px", borderRadius: "10px", border: "none", background: confirmingAll ? "#a7f3d0" : "#059669", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: confirmingAll ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                  {confirmingAll
+                    ? "Confirmando…"
+                    : `✓ Confirmar y cargar al PDF (${printAssets.filter((a) => a.status === "PENDING_REVIEW").length} imágenes)`}
+                </button>
+              )}
+            </div>
+          )}
+
           <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "8px" }}>
-            {/* Slots: Portada + Plantillas + Contraportada */}
+            {/* Slots: Portada → [degradado + dedicatoria, automáticos] → Plantillas (A+B) → [degradado, automático] → Add-on (opcional) → Contraportada.
+                Las filas "auto" son solo informativas (ver "Diseño del libro" para editarlas) — no tienen upload/delete. */}
             {[
-              { key: "COVER",      label: "Portada",        templateId: null, slotIndex: null },
-              ...(data.templateSelections ?? []).map((t) => ({
-                key: `TEMPLATE_${t.templateId}`,
-                label: t.templateName ?? `Plantilla #${t.templateId}`,
-                templateId: t.templateId,
-                slotIndex: t.slotIndex,
-              })),
-              { key: "BACK_COVER", label: "Contraportada",  templateId: null, slotIndex: null },
+              { key: "COVER",               label: "Portada",                       assetType: "COVER",               templateId: null, slotIndex: null, pagePart: "ONLY", optional: false, auto: false },
+              { key: "AUTO_GRADIENT_PRE",   label: "Página de degradado",           assetType: "AUTO_GRADIENT",       templateId: null, slotIndex: null, pagePart: "ONLY", optional: true,  auto: true },
+              { key: "AUTO_DEDICATION",     label: "Dedicatoria",                   assetType: "AUTO_DEDICATION",     templateId: null, slotIndex: null, pagePart: "ONLY", optional: true,  auto: true },
+              ...(data.templateSelections ?? []).flatMap((t) => [
+                { key: `TEMPLATE_${t.templateId}_A`, label: `${t.templateName ?? `Plantilla #${t.templateId}`} — Cara A`, assetType: "TEMPLATE", templateId: t.templateId, slotIndex: t.slotIndex, pagePart: "A", optional: false, auto: false },
+                { key: `TEMPLATE_${t.templateId}_B`, label: `${t.templateName ?? `Plantilla #${t.templateId}`} — Cara B`, assetType: "TEMPLATE", templateId: t.templateId, slotIndex: t.slotIndex, pagePart: "B", optional: false, auto: false },
+              ]),
+              { key: "AUTO_GRADIENT_POST",  label: "Página de degradado",           assetType: "AUTO_GRADIENT",       templateId: null, slotIndex: null, pagePart: "ONLY", optional: true,  auto: true },
+              { key: "ADDON",              label: "Add-on",                         assetType: "ADDON",               templateId: null, slotIndex: null, pagePart: "ONLY", optional: true,  auto: false },
+              { key: "BACK_COVER",         label: "Contraportada",                 assetType: "BACK_COVER",           templateId: null, slotIndex: null, pagePart: "ONLY", optional: false, auto: false },
             ].map((slot) => {
-              const assetType = slot.templateId !== null ? "TEMPLATE" : slot.key as string;
-              const uploaded = printAssets.find((a) =>
+              if (slot.auto) {
+                const isGradient = slot.assetType === "AUTO_GRADIENT";
+                const gradientSwatch = `linear-gradient(135deg, ${gradientStartDraft}, ${gradientEndDraft})`;
+                return (
+                  <div key={slot.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "8px", background: "#f5f3ff", border: "1px solid #ddd6fe" }}>
+                    <div style={{ width: "44px", height: "44px", borderRadius: "6px", overflow: "hidden", flexShrink: 0, background: gradientSwatch }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#111" }}>{slot.label}</div>
+                      <div style={{ fontSize: "11px", color: "#6b7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {isGradient
+                          ? "Se genera sola con los colores elegidos abajo"
+                          : dedicationDraft
+                          ? `"${dedicationDraft.length > 70 ? dedicationDraft.slice(0, 70) + "…" : dedicationDraft}"`
+                          : "Sin texto todavía — completalo en “Diseño del libro”"}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "10px", fontWeight: 700, color: "#7c3aed", background: "#ede9fe", borderRadius: "999px", padding: "3px 10px", flexShrink: 0 }}>
+                      Automático
+                    </span>
+                  </div>
+                );
+              }
+
+              const assetType = slot.assetType;
+              const matchesSlot = (a: PrintAsset) =>
                 a.assetType === assetType &&
-                (assetType !== "TEMPLATE" || a.templateId === slot.templateId)
-              );
+                (assetType !== "TEMPLATE" || (a.templateId === slot.templateId && a.pagePart === slot.pagePart));
+              const uploaded = printAssets.find((a) => matchesSlot(a) && a.status === "CONFIRMED");
+              const pendingReview = printAssets.find((a) => matchesSlot(a) && a.status === "PENDING_REVIEW");
               const isUploading = uploadingSlot === slot.key;
+              const isDeleting = deletingSlot === slot.key;
+              const isConfirming = confirmingSlot === slot.key;
+              const busy = isUploading || isDeleting;
 
               return (
                 <div key={slot.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "8px", background: uploaded ? "#f0fdf4" : "#f9fafb", border: `1px solid ${uploaded ? "#bbf7d0" : "#e5e7eb"}` }}>
                   {/* Preview o placeholder */}
                   <div style={{ width: "44px", height: "44px", borderRadius: "6px", overflow: "hidden", flexShrink: 0, background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {uploaded
-                      ? <img src={uploaded.previewUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ? <img src={uploaded.previewUrl} alt="" onClick={() => setZoomedImage(uploaded.previewUrl)} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} />
                       : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     }
                   </div>
 
-                  {/* Nombre */}
+                  {/* Nombre + dimensiones */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{slot.label}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{slot.label}</div>
+                      {slot.optional && <span style={{ fontSize: "10px", fontWeight: 700, color: "#6b7280", background: "#f3f4f6", borderRadius: "4px", padding: "1px 6px", flexShrink: 0 }}>Opcional</span>}
+                    </div>
                     {uploaded
                       ? <div style={{ fontSize: "11px", color: "#6b7280" }}>{uploaded.originalFilename ?? "Archivo subido"}</div>
-                      : <div style={{ fontSize: "11px", color: "#9ca3af" }}>Sin archivo</div>
+                      : pendingReview
+                      ? <div style={{ fontSize: "11px", color: "#92400e" }}>Generada con IA, esperando confirmación arriba ⬆</div>
+                      : <div style={{ fontSize: "11px", color: "#9ca3af" }}>{slot.optional ? "Auto-blanco si no se sube" : "Sin archivo"} · <span style={{ color: "#d97706" }}>3425 × 2421 px · 29 × 20.5 cm</span></div>
                     }
                   </div>
 
-                  {/* Badge estado */}
-                  {uploaded && (
+                  {/* Badge ok */}
+                  {uploaded && !busy && (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>
                   )}
 
+                  {/* Botón eliminar / confirmación inline */}
+                  {uploaded && (
+                    isConfirming ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#ef4444" }}>¿Quitar?</span>
+                        <button
+                          disabled={isDeleting}
+                          onClick={async () => {
+                            setDeletingSlot(slot.key);
+                            setConfirmingSlot(null);
+                            try {
+                              const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/${uploaded.id}`, { method: "DELETE" });
+                              if (!res.ok) throw new Error();
+                              loadPrintAssets(data.id);
+                            } catch { alert("Error al eliminar el archivo"); }
+                            finally { setDeletingSlot(null); }
+                          }}
+                          style={{ padding: "4px 10px", borderRadius: "6px", border: "none", background: "#ef4444", color: "#fff", fontSize: "11px", fontWeight: 700, cursor: isDeleting ? "not-allowed" : "pointer", fontFamily: "inherit" }}
+                        >
+                          {isDeleting ? "..." : "Sí"}
+                        </button>
+                        <button
+                          onClick={() => setConfirmingSlot(null)}
+                          style={{ padding: "4px 10px", borderRadius: "6px", border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "11px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        disabled={busy}
+                        onClick={() => setConfirmingSlot(slot.key)}
+                        style={{ flexShrink: 0, width: "30px", height: "30px", borderRadius: "7px", border: "1px solid #fecaca", background: isDeleting ? "#fef2f2" : "#fff", color: "#ef4444", cursor: busy ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
+                        title="Quitar archivo"
+                      >
+                        {isDeleting
+                          ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                          : <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        }
+                      </button>
+                    )
+                  )}
+
                   {/* Upload button */}
-                  <label style={{ flexShrink: 0, cursor: isUploading ? "not-allowed" : "pointer" }}>
+                  <label style={{ flexShrink: 0, cursor: busy ? "not-allowed" : "pointer" }}>
                     <input
                       type="file"
                       accept="image/*,application/pdf"
                       style={{ display: "none" }}
-                      disabled={isUploading}
+                      disabled={busy}
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
@@ -466,6 +939,7 @@ export default function OrdenDetallePage() {
                           const fd = new FormData();
                           fd.append("file", file);
                           fd.append("assetType", assetType);
+                          fd.append("pagePart", slot.pagePart);
                           if (slot.templateId !== null) fd.append("templateId", String(slot.templateId));
                           if (slot.slotIndex !== null) fd.append("slotIndex", String(slot.slotIndex));
                           const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets`, { method: "POST", body: fd });
@@ -475,7 +949,7 @@ export default function OrdenDetallePage() {
                         finally { setUploadingSlot(null); e.target.value = ""; }
                       }}
                     />
-                    <span style={{ padding: "6px 14px", borderRadius: "7px", border: "1px solid #e5e7eb", background: isUploading ? "#f3f4f6" : "#fff", color: isUploading ? "#9ca3af" : "#374151", fontSize: "12px", fontWeight: 600, display: "inline-block" }}>
+                    <span style={{ padding: "6px 14px", borderRadius: "7px", border: "1px solid #e5e7eb", background: busy ? "#f3f4f6" : "#fff", color: busy ? "#9ca3af" : "#374151", fontSize: "12px", fontWeight: 600, display: "inline-block" }}>
                       {isUploading ? "Subiendo..." : uploaded ? "Reemplazar" : "Subir"}
                     </span>
                   </label>
@@ -496,7 +970,11 @@ export default function OrdenDetallePage() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
                 <div>
                   <div style={{ fontSize: "13px", fontWeight: 700, color: "#111", marginBottom: "2px" }}>PDF generado y listo</div>
-                  <div style={{ fontSize: "12px", color: "#6b7280" }}>20.5 × 29 cm</div>
+                  <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                    {cbPdfGeneratedAt
+                      ? `Generado el ${new Date(cbPdfGeneratedAt).toLocaleString("es-PE", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}`
+                      : "20.5 × 29 cm"}
+                  </div>
                 </div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
@@ -504,11 +982,25 @@ export default function OrdenDetallePage() {
                     onClick={async () => {
                       setCbPdfGenerating(true);
                       try {
+                        const startedAt = Date.now();
                         await fetch(`${API}/api/admin/orders/${data.id}/render`, { method: "POST" });
-                        await new Promise((r) => setTimeout(r, 8000));
-                        const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
-                        if (res.ok) { const r = await res.json(); setCbPdfUrl(r.pdfUrl); setCbPdfSuccess(true); setTimeout(() => setCbPdfSuccess(false), 4000); }
-                      } catch { /* silencioso */ }
+                        let found = false;
+                        for (let attempt = 0; attempt < 25; attempt++) {
+                          await new Promise((r) => setTimeout(r, 2000));
+                          const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
+                          if (!res.ok) continue;
+                          const r = await res.json();
+                          if (new Date(r.generatedAt).getTime() > startedAt) {
+                            setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
+                            setCbPdfGeneratedAt(r.generatedAt);
+                            setCbPdfSuccess(true);
+                            setTimeout(() => setCbPdfSuccess(false), 4000);
+                            found = true;
+                            break;
+                          }
+                        }
+                        if (!found) alert("El PDF está tardando demasiado. Recargá la página en un momento.");
+                      } catch { alert("Error al generar el PDF"); }
                       finally { setCbPdfGenerating(false); }
                     }}
                     style={{ padding: "10px 18px", borderRadius: "9px", border: "1px solid #e5e7eb", background: "#fff", color: cbPdfGenerating ? "#9ca3af" : "#374151", fontSize: "13px", fontWeight: 600, cursor: cbPdfGenerating ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
@@ -524,23 +1016,37 @@ export default function OrdenDetallePage() {
             ) : (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}>
                 <div style={{ fontSize: "13px", color: "#6b7280" }}>
-                  {printAssets.length < 2 + (data.templateSelections?.length ?? 0)
+                  {printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2
                     ? "Sube todos los archivos para habilitar la generación del PDF."
                     : "Todos los archivos están listos. Podés generar el PDF."}
                 </div>
                 <button
-                  disabled={cbPdfGenerating || printAssets.length < 2 + (data.templateSelections?.length ?? 0)}
+                  disabled={cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2}
                   onClick={async () => {
                     setCbPdfGenerating(true);
                     try {
+                      const startedAt = Date.now();
                       await fetch(`${API}/api/admin/orders/${data.id}/render`, { method: "POST" });
-                      await new Promise((r) => setTimeout(r, 10000));
-                      const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
-                      if (res.ok) { const r = await res.json(); setCbPdfUrl(r.pdfUrl); setCbPdfSuccess(true); setTimeout(() => setCbPdfSuccess(false), 4000); }
-                    } catch { /* silencioso */ }
+                      let found = false;
+                      for (let attempt = 0; attempt < 25; attempt++) {
+                        await new Promise((r) => setTimeout(r, 2000));
+                        const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
+                        if (!res.ok) continue;
+                        const r = await res.json();
+                        if (new Date(r.generatedAt).getTime() > startedAt) {
+                          setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
+                          setCbPdfGeneratedAt(r.generatedAt);
+                          setCbPdfSuccess(true);
+                          setTimeout(() => setCbPdfSuccess(false), 4000);
+                          found = true;
+                          break;
+                        }
+                      }
+                      if (!found) alert("El PDF está tardando demasiado. Recargá la página en un momento.");
+                    } catch { alert("Error al generar el PDF"); }
                     finally { setCbPdfGenerating(false); }
                   }}
-                  style={{ flexShrink: 0, padding: "12px 24px", borderRadius: "10px", border: "none", background: cbPdfGenerating || printAssets.length < 2 + (data.templateSelections?.length ?? 0) ? "#e5e7eb" : "#2563eb", color: cbPdfGenerating || printAssets.length < 2 + (data.templateSelections?.length ?? 0) ? "#9ca3af" : "#fff", fontSize: "13px", fontWeight: 700, cursor: cbPdfGenerating || printAssets.length < 2 + (data.templateSelections?.length ?? 0) ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                  style={{ flexShrink: 0, padding: "12px 24px", borderRadius: "10px", border: "none", background: cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2 ? "#e5e7eb" : "#2563eb", color: cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2 ? "#9ca3af" : "#fff", fontSize: "13px", fontWeight: 700, cursor: cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2 ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
                   {cbPdfGenerating ? "Generando..." : "Generar PDF"}
                 </button>
               </div>
@@ -595,6 +1101,18 @@ export default function OrdenDetallePage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── Lightbox: ver imagen completa ── */}
+      {zoomedImage && (
+        <div onClick={() => setZoomedImage(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: "40px" }}>
+          <img src={zoomedImage} alt="Vista completa" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "8px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} />
+          <button onClick={() => setZoomedImage(null)}
+            style={{ position: "absolute", top: "20px", right: "20px", width: "40px", height: "40px", borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
       )}
     </div>

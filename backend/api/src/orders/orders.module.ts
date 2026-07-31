@@ -9,10 +9,12 @@ import { OrderStatusEventOrmEntity } from './infrastructure/persistence/entities
 import { TypeOrmOrderRepository } from './infrastructure/persistence/repositories/typeorm-order.repository';
 import { OrderRepositoryPort } from './domain/ports/order-repository.port';
 import { CustomBookPdfService } from './infrastructure/pdf/custom-book-pdf.service';
+import { GenerateOrderTemplateUseCase } from './application/use-cases/generate-order-template.use-case';
 import { PaymentsModule } from '../payments/payments.module';
 import { EmailModule } from '../email/email.module';
 import { PhotobookModule } from '../photobook/photobook.module';
 import { AssetsModule } from '../assets/assets.module';
+import { PersonalizedModule } from '../personalized/personalized.module';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { AssetsModule } from '../assets/assets.module';
     forwardRef(() => PhotobookModule),
     forwardRef(() => AssetsModule),
     EmailModule,
+    PersonalizedModule,
   ],
   controllers: [OrdersAdminController],
   providers: [
@@ -29,6 +32,7 @@ import { AssetsModule } from '../assets/assets.module';
     TypeOrmOrderRepository,
     { provide: OrderRepositoryPort, useExisting: TypeOrmOrderRepository },
     CustomBookPdfService,
+    GenerateOrderTemplateUseCase,
   ],
   exports: [OrdersService],
 })

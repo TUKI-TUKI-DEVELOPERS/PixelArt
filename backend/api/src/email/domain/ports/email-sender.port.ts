@@ -1,2 +1,3 @@
-// TODO: Puerto email sender (Resend/SendGrid)
-export abstract class EmailSenderPort {}
+export abstract class EmailSenderPort {
+  abstract send(to: string, subject: string, html: string, replyTo?: string): Promise<void>;
+}

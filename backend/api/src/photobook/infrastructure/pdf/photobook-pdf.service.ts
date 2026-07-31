@@ -72,7 +72,7 @@ export class PhotobookPdfService {
     const html = this.buildHtml(project, assetMap, widthCm, heightCm, coverBase64, backCoverBase64);
     const pdfBuffer = await this.renderPdf(html, widthCm, heightCm);
 
-    const storageKey = `photobooks/renders/${projectId}.pdf`;
+    const storageKey = `photobook-renders/${projectId}.pdf`;
     await this.fileStorage.upload(storageKey, pdfBuffer, 'application/pdf');
     await this.repo.saveRender(projectId, storageKey);
 
