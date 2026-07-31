@@ -1,5 +1,7 @@
 "use client";
 
+import { tokens } from "@/lib/design-tokens";
+
 import React, { useState, useEffect, useRef } from "react";
 import { usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { CheckCircle2 } from "lucide-react";
@@ -13,7 +15,7 @@ const API_BASE = "";
 
 type ActivePromo = { label: string; targetType: string; targetId: number | null; discountType: string; discountValue: number };
 type VariantProp = { id: number; coverType: string; basePriceCents: number };
-type TemplateProp = { id: number; name: string | null; previewUrl: string };
+type TemplateProp = { id: number; name: string | null; previewUrl: string; genderDirection: string | null };
 type DbIdsProp = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number } | null;
 type GenderDirection = "HE_TO_SHE" | "SHE_TO_HE" | "HE_TO_HE" | "SHE_TO_SHE" | "";
 
@@ -30,360 +32,524 @@ type Props = {
 type DedicationOption = { label: string; HE_TO_SHE: string; SHE_TO_HE: string };
 
 const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
-  "10 o 15 Razones Por Las Que Te Amo": [
+  "10 Razones por las que Te Amo": [
     {
       label: "Romántica",
       HE_TO_SHE:
-        "Para {recipientNickname}, cada día contigo descubro nuevas razones para amarte. " +
-        "Este libro guarda solo algunas de las miles de razones por las que eres el amor de mi vida. " +
-        "Te amo infinitamente. - {dedicatorName}",
+        "Para {recipientNickname}, no hay razón más profunda,\n" +
+        "que amarte cada día, mi historia más rotunda.\n" +
+        "Este libro guarda apenas unas cuantas razones,\n" +
+        "de las miles que laten en mis emociones.\n" +
+        "Eres el amor de mi vida, mi mayor verdad,\n" +
+        "te amo hoy, mañana, por la eternidad.\n" +
+        "- {dedicatorName}",
       SHE_TO_HE:
-        "Para {recipientNickname}, cada día contigo descubro nuevas razones para amarte. " +
-        "Este libro guarda solo algunas de las miles de razones por las que eres el amor de mi vida. " +
-        "Te amo infinitamente. - {dedicatorName}",
+        "Para {recipientNickname}, no hay razón más profunda,\n" +
+        "que amarte cada día, mi historia más rotunda.\n" +
+        "Este libro guarda apenas unas cuantas razones,\n" +
+        "de las miles que laten en mis emociones.\n" +
+        "Eres el amor de mi vida, mi mayor verdad,\n" +
+        "te amo hoy, mañana, por la eternidad.\n" +
+        "- {dedicatorName}",
     },
     {
       label: "Nostálgica",
       HE_TO_SHE:
-        "{recipientNickname}, desde que llegaste a mi vida todo tiene más sentido. " +
-        "Estas páginas cuentan las razones por las que te elegí y te sigo eligiendo cada día. " +
-        "Gracias por ser mi hogar. Con amor, {dedicatorName}",
+        "{recipientNickname}, desde que llegaste todo tuvo más sentido,\n" +
+        "mi vida encontró su rumbo el día en que has venido.\n" +
+        "Estas páginas cuentan por qué te elegí primero,\n" +
+        "y por qué cada día volver a elegirte quiero.\n" +
+        "Gracias por ser mi hogar, mi calma y mi verdad,\n" +
+        "con todo mi amor, {dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, desde que llegaste a mi vida todo tiene más sentido. " +
-        "Estas páginas cuentan las razones por las que te elegí y te sigo eligiendo cada día. " +
-        "Gracias por ser mi hogar. Con amor, {dedicatorName}",
+        "{recipientNickname}, desde que llegaste todo tuvo más sentido,\n" +
+        "mi vida encontró su rumbo el día en que has venido.\n" +
+        "Estas páginas cuentan por qué te elegí primero,\n" +
+        "y por qué cada día volver a elegirte quiero.\n" +
+        "Gracias por ser mi hogar, mi calma y mi verdad,\n" +
+        "con todo mi amor, {dedicatorName}",
     },
     {
       label: "Divertida",
       HE_TO_SHE:
-        "Para mi {recipientNickname}, porque amarte es la mejor aventura. " +
-        "Aquí están algunas razones por las que eres mi persona favorita y mi cómplice de vida. " +
-        "Te amo, bebesita. - {dedicatorName}",
+        "Para mi {recipientNickname}, porque amarte es aventura pura,\n" +
+        "eres mi persona favorita y mi dulce locura.\n" +
+        "Aquí guardo unas cuantas razones de por qué te elegí,\n" +
+        "y por qué cada día vuelvo a decir que sí.\n" +
+        "Te amo, bebesita, hoy, mañana e igual,\n" +
+        "- {dedicatorName}",
       SHE_TO_HE:
-        "Para mi {recipientNickname}, porque amarte es la mejor aventura. " +
-        "Aquí están algunas razones por las que eres mi persona favorita y mi cómplice de vida. " +
-        "Te amo, bebesito. - {dedicatorName}",
+        "Para mi {recipientNickname}, porque amarte es aventura pura,\n" +
+        "eres mi persona favorita y mi dulce locura.\n" +
+        "Aquí guardo unas cuantas razones de por qué te elegí,\n" +
+        "y por qué cada día vuelvo a decir que sí.\n" +
+        "Te amo, bebesito, hoy, mañana e igual,\n" +
+        "- {dedicatorName}",
     },
   ],
-  "1025 Días Enamorándome De Ti": [
+  "1025 Días enamorándome de ti": [
     {
       label: "Romántica",
       HE_TO_SHE:
-        "{recipientNickname}, han pasado {daysCount} días desde que comenzó nuestra historia, " +
-        "y cada uno de ellos me he enamorado más de ti. " +
-        "Este libro celebra nuestro tiempo juntos y todo lo que aún nos falta por vivir. " +
-        "Te amo hoy y siempre. - {dedicatorName}",
+        "{recipientNickname}, van {daysCount} días desde que empezó esta historia,\n" +
+        "y cada uno se guarda en mi corazón como memoria.\n" +
+        "Este libro celebra el tiempo que hemos compartido,\n" +
+        "y todo lo que falta, lo que aún no hemos vivido.\n" +
+        "Te amo hoy, mañana y en cada porvenir,\n" +
+        "- {dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, han pasado {daysCount} días desde que comenzó nuestra historia, " +
-        "y cada uno de ellos me he enamorado más de ti. " +
-        "Este libro celebra nuestro tiempo juntos y todo lo que aún nos falta por vivir. " +
-        "Te amo hoy y siempre. - {dedicatorName}",
+        "{recipientNickname}, van {daysCount} días desde que empezó esta historia,\n" +
+        "y cada uno se guarda en mi corazón como memoria.\n" +
+        "Este libro celebra el tiempo que hemos compartido,\n" +
+        "y todo lo que falta, lo que aún no hemos vivido.\n" +
+        "Te amo hoy, mañana y en cada porvenir,\n" +
+        "- {dedicatorName}",
     },
     {
       label: "Nostálgica",
       HE_TO_SHE:
-        "{daysCount} días a tu lado, {recipientNickname}, y cada uno ha sido un regalo. " +
-        "Desde el {startDate} mi vida cambió para siempre. " +
-        "Gracias por cada momento, cada risa, cada abrazo. Aquí está nuestra historia. " +
-        "Con todo mi amor, {dedicatorName}",
+        "{daysCount} días a tu lado, {recipientNickname}, y no me arrepiento de nada,\n" +
+        "desde el {startDate} mi vida cambió, quedó iluminada.\n" +
+        "Gracias por cada risa, cada abrazo y cada instante,\n" +
+        "aquí está nuestra historia: viva, nuestra, constante.\n" +
+        "Con todo mi amor,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{daysCount} días a tu lado, {recipientNickname}, y cada uno ha sido un regalo. " +
-        "Desde el {startDate} mi vida cambió para siempre. " +
-        "Gracias por cada momento, cada risa, cada abrazo. Aquí está nuestra historia. " +
-        "Con todo mi amor, {dedicatorName}",
+        "{daysCount} días a tu lado, {recipientNickname}, y no me arrepiento de nada,\n" +
+        "desde el {startDate} mi vida cambió, quedó iluminada.\n" +
+        "Gracias por cada risa, cada abrazo y cada instante,\n" +
+        "aquí está nuestra historia: viva, nuestra, constante.\n" +
+        "Con todo mi amor,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Poética",
       HE_TO_SHE:
-        "{daysCount} días no son suficientes, {recipientNickname}. " +
-        "Necesito mil vidas más para amarte como mereces. " +
-        "Este libro es solo el comienzo de nuestra eternidad. Tuya siempre, {dedicatorName}",
+        "{daysCount} días no bastan, {recipientNickname}, para amarte lo bastante,\n" +
+        "necesito mil vidas más, una eternidad constante.\n" +
+        "Este libro es apenas el inicio de lo que siento,\n" +
+        "tuyo por siempre, en cada latido y en cada momento.\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{daysCount} días no son suficientes, {recipientNickname}. " +
-        "Necesito mil vidas más para amarte como mereces. " +
-        "Este libro es solo el comienzo de nuestra eternidad. Tuyo siempre, {dedicatorName}",
+        "{daysCount} días no bastan, {recipientNickname}, para amarte lo bastante,\n" +
+        "necesito mil vidas más, una eternidad constante.\n" +
+        "Este libro es apenas el inicio de lo que siento,\n" +
+        "tuya por siempre, en cada latido y en cada momento.\n" +
+        "{dedicatorName}",
     },
   ],
   "Mi Amor": [
     {
       label: "Romántica",
       HE_TO_SHE:
-        "Para {recipientNickname}, eres todas estas heroínas y más. " +
-        "Eres mi inspiración, mi reina, mi todo. " +
-        "Este libro celebra cada faceta de tu ser que me hace enamorarme más cada día. " +
-        "Con todo mi amor, {dedicatorName}",
+        "Para {recipientNickname}, eres todas estas heroínas y más,\n" +
+        "mi inspiración, mi reina, mi todo, mi paz.\n" +
+        "Este libro celebra cada faceta de tu ser,\n" +
+        "que me enamora un poco más cada amanecer.\n" +
+        "Con todo mi amor,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "Para {recipientNickname}, eres todos estos personajes y más. " +
-        "Eres mi héroe, mi rey, mi todo. " +
-        "Este libro celebra cada faceta de tu ser que me hace enamorarme más cada día. " +
-        "Con todo mi amor, {dedicatorName}",
+        "Para {recipientNickname}, eres todos estos personajes y más,\n" +
+        "mi inspiración, mi rey, mi todo, mi paz.\n" +
+        "Este libro celebra cada faceta de tu ser,\n" +
+        "que me enamora un poco más cada amanecer.\n" +
+        "Con todo mi amor,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Creativa",
       HE_TO_SHE:
-        "Para mi {recipientNickname}, superheroína, princesa, guerrera… " +
-        "eres todo lo que siempre soñé y más. " +
-        "Aquí están todas las razones por las que eres mi personaje favorita en esta historia llamada vida. " +
-        "Tuyo siempre, {dedicatorName}",
+        "Para mi {recipientNickname}: superheroína, princesa, guerrera,\n" +
+        "eres todo lo que soñé, y más, de cualquier manera.\n" +
+        "Aquí están las razones por las que, en esta vida entera,\n" +
+        "eres mi personaje favorito, mi historia verdadera.\n" +
+        "Tuyo siempre,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "Para mi {recipientNickname}, superhéroe, príncipe, guerrero… " +
-        "eres todo lo que siempre soñé y más. " +
-        "Aquí están todas las razones por las que eres mi personaje favorito en esta historia llamada vida. " +
-        "Tuya siempre, {dedicatorName}",
+        "Para mi {recipientNickname}: superhéroe, príncipe, guerrero,\n" +
+        "eres todo lo que soñé, y más, te lo digo sincero.\n" +
+        "Aquí están las razones por las que, en esta vida entera,\n" +
+        "eres mi personaje favorito, mi historia verdadera.\n" +
+        "Tuya siempre,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "{recipientNickname}, en cada página de este libro verás reflejado lo que eres para mí: " +
-        "extraordinaria, poderosa, mágica. " +
-        "Gracias por ser mi amor y mi inspiración. Para siempre tuyo, {dedicatorName}",
+        "{recipientNickname}, en cada página quedó reflejado\n" +
+        "todo lo que eres para mí: extraordinaria a mi lado.\n" +
+        "Poderosa, mágica, mi amor y mi inspiración,\n" +
+        "gracias por ser el latido entero de mi corazón.\n" +
+        "Para siempre tuyo,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, en cada página de este libro verás reflejado lo que eres para mí: " +
-        "extraordinario, poderoso, mágico. " +
-        "Gracias por ser mi amor y mi inspiración. Para siempre tuya, {dedicatorName}",
+        "{recipientNickname}, en cada página quedó reflejado\n" +
+        "todo lo que eres para mí: extraordinario a mi lado.\n" +
+        "Poderoso, mágico, mi amor y mi inspiración,\n" +
+        "gracias por ser el latido entero de mi corazón.\n" +
+        "Para siempre tuya,\n" +
+        "{dedicatorName}",
     },
   ],
   "Papá, Mi Héroe": [
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "{recipientNickname}, desde que era niño supiste enseñarme a levantarme cada vez que caía. " +
-        "Este libro celebra todo lo que haces por mí: tu protección, tus consejos y ese vínculo único entre padre e hijo. " +
-        "Te amo, papá. Tu hijo, {dedicatorName}",
+        "{recipientNickname}, desde niño me enseñaste a levantarme,\n" +
+        "cada caída, una lección para nunca quedarme.\n" +
+        "Este libro celebra tu protección y tus consejos,\n" +
+        "ese lazo único de padre e hijo, sin espejos.\n" +
+        "Te amo, papá. Tu hijo,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, fuiste mi primer héroe y el hombre que me enseñó cuánto vale ser tratada con amor y respeto. " +
-        "Este libro celebra todo lo que haces por mí: tu protección, tus abrazos y ese vínculo único entre padre e hija. " +
-        "Te amo, papá. Tu hija, {dedicatorName}",
+        "{recipientNickname}, fuiste mi primer héroe, en cada gesto,\n" +
+        "el hombre que me enseñó mi valor, sin pretexto.\n" +
+        "Este libro celebra tu protección y tu cuidado,\n" +
+        "ese lazo único de padre e hija, a mi lado.\n" +
+        "Te amo, papá. Tu hija,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Admiración",
       HE_TO_SHE:
-        "Papá, siempre creíste en mí cuando yo dudaba. Me enseñaste a ser fuerte, a no rendirme y a valorar lo que importa. " +
-        "{recipientNickname}, eres y serás siempre mi superhéroe personal. " +
-        "Con todo mi orgullo y mi amor, tu hijo {dedicatorName}",
+        "Papá, creíste en mí cuando yo dudaba,\n" +
+        "me enseñaste a ser fuerte cuando el miedo pesaba.\n" +
+        "Me diste la fuerza de no rendirme jamás,\n" +
+        "y a valorar lo que en esta vida importa más.\n" +
+        "{recipientNickname}, mi héroe personal serás,\n" +
+        "con todo mi orgullo y mi amor. Tu hijo, {dedicatorName}",
       SHE_TO_HE:
-        "Papá, siempre me hiciste sentir especial y protegida. Me enseñaste a ser valiente y nunca me dejaste sola. " +
-        "{recipientNickname}, eres y serás siempre mi superhéroe personal. " +
-        "Con todo mi orgullo y mi amor, tu hija {dedicatorName}",
+        "Papá, me hiciste sentir protegida y especial,\n" +
+        "me enseñaste a ser valiente, fuerte y sin igual.\n" +
+        "Nunca soltaste mi mano, nunca me dejaste sola,\n" +
+        "tu amor fue mi refugio en cada tormenta y ola.\n" +
+        "{recipientNickname}, mi héroe personal serás,\n" +
+        "con todo mi orgullo y mi amor. Tu hija, {dedicatorName}",
     },
     {
       label: "Nostálgica",
       HE_TO_SHE:
-        "Desde que me llevabas en tus hombros hasta hoy, siempre has sido mi héroe. " +
-        "Este libro recuerda nuestras aventuras juntos, tus enseñanzas y cada abrazo que me dio fuerza cuando más lo necesitaba. " +
-        "Gracias por todo, {recipientNickname}. Tu hijo, {dedicatorName}",
+        "Desde que me llevabas en tus hombros, {recipientNickname},\n" +
+        "hasta hoy has sido mi héroe, mi guía y mi contención.\n" +
+        "Este libro recuerda cada aventura y enseñanza,\n" +
+        "cada abrazo que me dio fuerza cuando faltaba esperanza.\n" +
+        "Gracias por todo. Tu hijo,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "Desde que me cargabas en tus hombros hasta hoy, siempre has sido mi héroe. " +
-        "Este libro recuerda nuestras citas de padre e hija, tus intentos de peinarme y cada momento que compartimos. " +
-        "Gracias por todo, {recipientNickname}. Tu hija, {dedicatorName}",
+        "Desde que me cargabas en tus hombros, {recipientNickname},\n" +
+        "hasta hoy has sido mi héroe, mi guía y mi contención.\n" +
+        "Este libro recuerda nuestras citas, tan sencillas,\n" +
+        "tus intentos de peinarme, torpes pero con cariño que brilla.\n" +
+        "Gracias por todo. Tu hija,\n" +
+        "{dedicatorName}",
     },
   ],
   "Mamá, Mi Heroína": [
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "Mamá, desde el primer día me protegiste, me cuidaste y me amaste sin condiciones. " +
-        "Este libro es mi forma de decirte lo que las palabras no alcanzan: eres mi heroína, mi ejemplo y mi mayor orgullo. " +
-        "Tu hijo, {dedicatorName}",
+        "Mamá, desde el primer día me cuidaste sin condición,\n" +
+        "me protegiste con todo tu ser, con todo el corazón.\n" +
+        "Este libro es mi forma de decir lo que no alcanza a expresar:\n" +
+        "eres mi heroína, mi ejemplo, mi lugar.\n" +
+        "Tu hijo,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "Mamá, desde el primer día me protegiste, me cuidaste y me amaste sin condiciones. " +
-        "Este libro es mi forma de decirte lo que las palabras no alcanzan: eres mi heroína, mi ejemplo y mi mayor orgullo. " +
-        "Tu hija, {dedicatorName}",
+        "Mamá, desde el primer día me cuidaste sin condición,\n" +
+        "me protegiste con todo tu ser, con todo el corazón.\n" +
+        "Este libro es mi forma de decir lo que no alcanza a expresar:\n" +
+        "eres mi heroína, mi ejemplo, mi lugar.\n" +
+        "Tu hija,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Homenaje",
       HE_TO_SHE:
-        "{recipientNickname}, me diste la vida y cada día la haces más bella. " +
-        "Fuiste mi refugio cuando tenía miedo, mi fuerza cuando yo no la encontraba, mi superheroína en cada momento difícil. " +
-        "Este libro es para que nunca olvides cuánto te admiro. Con todo mi amor, {dedicatorName}",
+        "{recipientNickname}, me diste la vida y la haces más bella cada día,\n" +
+        "fuiste mi refugio cuando el miedo aparecía.\n" +
+        "Mi fuerza cuando yo ya no podía más,\n" +
+        "mi superheroína en cada tormenta y en cada paz.\n" +
+        "Para que nunca olvides cuánto te admiro,\n" +
+        "con todo mi amor,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, me diste la vida y cada día la haces más bella. " +
-        "Fuiste mi refugio cuando tenía miedo, mi fuerza cuando yo no la encontraba, mi superheroína en cada momento difícil. " +
-        "Este libro es para que nunca olvides cuánto te admiro. Con todo mi amor, {dedicatorName}",
+        "{recipientNickname}, me diste la vida y la haces más bella cada día,\n" +
+        "fuiste mi refugio cuando el miedo aparecía.\n" +
+        "Mi fuerza cuando yo ya no podía más,\n" +
+        "mi superheroína en cada tormenta y en cada paz.\n" +
+        "Para que nunca olvides cuánto te admiro,\n" +
+        "con todo mi amor,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Gratitud",
       HE_TO_SHE:
-        "{recipientNickname}, gracias por cada madrugada, cada sacrificio y cada vez que pusiste mis sueños antes que los tuyos. " +
-        "Este libro no alcanza para devolverlo todo, pero sí para decirte que lo veo, lo siento y lo llevo conmigo siempre. " +
-        "Te amo, mamá. {dedicatorName}",
+        "{recipientNickname}, gracias por cada madrugada sin dormir,\n" +
+        "por cada sacrificio silencioso, sin pedir.\n" +
+        "Por poner mis sueños siempre antes que los tuyos,\n" +
+        "lo veo, lo siento, lo llevo conmigo en todo.\n" +
+        "Te amo, mamá.\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, gracias por cada madrugada, cada sacrificio y cada vez que pusiste mis sueños antes que los tuyos. " +
-        "Este libro no alcanza para devolverlo todo, pero sí para decirte que lo veo, lo siento y lo llevo conmigo siempre. " +
-        "Te amo, mamá. {dedicatorName}",
+        "{recipientNickname}, gracias por cada madrugada sin dormir,\n" +
+        "por cada sacrificio silencioso, sin pedir.\n" +
+        "Por poner mis sueños siempre antes que los tuyos,\n" +
+        "lo veo, lo siento, lo llevo conmigo en todo.\n" +
+        "Te amo, mamá.\n" +
+        "{dedicatorName}",
     },
   ],
-  "Te Amo, Abuela": [
+  "Te amo, abuela": [
     {
       label: "Cariñosa",
       HE_TO_SHE:
-        "Abuela, hay personas que dejan huella para siempre, y tú eres una de ellas. " +
-        "Contigo todo era mejor: tus abrazos, tus historias antes de dormir, esos secretos que solo éramos nosotros. " +
-        "{recipientNickname}, este libro es para decirte cuánto te quiero. Tu nieto, {dedicatorName}",
+        "Abuela, hay quienes dejan huella para siempre en el andar,\n" +
+        "y tú, sin duda, eres de esas, imposible de olvidar.\n" +
+        "Tus abrazos, tus historias antes de dormir,\n" +
+        "esos secretos que solo tú y yo sabíamos decir.\n" +
+        "{recipientNickname}, este libro es para decirte cuánto te quiero,\n" +
+        "tu nieto,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "Abuela, hay personas que dejan huella para siempre, y tú eres una de ellas. " +
-        "Contigo todo era mejor: tus abrazos, tus historias antes de dormir, esos secretos que solo éramos nosotras. " +
-        "{recipientNickname}, este libro es para decirte cuánto te quiero. Tu nieta, {dedicatorName}",
+        "Abuela, hay quienes dejan huella para siempre en el andar,\n" +
+        "y tú, sin duda, eres de esas, imposible de olvidar.\n" +
+        "Tus abrazos, tus historias antes de dormir,\n" +
+        "esos secretos que solo tú y yo sabíamos decir.\n" +
+        "{recipientNickname}, este libro es para decirte cuánto te quiero,\n" +
+        "tu nieta,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Nostálgica",
       HE_TO_SHE:
-        "{recipientNickname}, de niño aprendí que contigo todo era especial: las tardes en tu casa, " +
-        "tu cocina, tus consejos y esa calidez que nadie más puede dar. " +
-        "Gracias por cada uno de esos momentos. Con todo mi amor, tu nieto {dedicatorName}",
+        "De niño aprendí que contigo todo era especial,\n" +
+        "{recipientNickname}: tus tardes, tu cocina, tu calor sin igual.\n" +
+        "Tus consejos, tu casa, esa calidez sin par,\n" +
+        "que nadie más en este mundo me podrá dar.\n" +
+        "Gracias por cada momento. Con amor, tu nieto,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, de niña aprendí que contigo todo era especial: las tardes en tu casa, " +
-        "tu cocina, tus consejos y esa calidez que nadie más puede dar. " +
-        "Gracias por cada uno de esos momentos. Con todo mi amor, tu nieta {dedicatorName}",
+        "De niña aprendí que contigo todo era especial,\n" +
+        "{recipientNickname}: tus tardes, tu cocina, tu calor sin igual.\n" +
+        "Tus consejos, tu casa, esa calidez sin par,\n" +
+        "que nadie más en este mundo me podrá dar.\n" +
+        "Gracias por cada momento. Con amor, tu nieta,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Con orgullo",
       HE_TO_SHE:
-        "{recipientNickname}, lo que eres para mí no cabe en palabras, pero este libro lo intenta. " +
-        "Tu sabiduría, tu ternura y ese amor sin condiciones que llevas en cada gesto " +
-        "son parte de quién soy hoy. Te amo, abuela. {dedicatorName}",
+        "{recipientNickname}, lo que eres para mí no cabe en las palabras,\n" +
+        "pero este libro, con cariño, al menos lo declara.\n" +
+        "Tu sabiduría, tu ternura, tu amor sin condición,\n" +
+        "son parte de quien soy, de mi propio corazón.\n" +
+        "Te amo, abuela,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, lo que eres para mí no cabe en palabras, pero este libro lo intenta. " +
-        "Tu sabiduría, tu ternura y ese amor sin condiciones que llevas en cada gesto " +
-        "son parte de quién soy hoy. Te amo, abuela. {dedicatorName}",
+        "{recipientNickname}, lo que eres para mí no cabe en las palabras,\n" +
+        "pero este libro, con cariño, al menos lo declara.\n" +
+        "Tu sabiduría, tu ternura, tu amor sin condición,\n" +
+        "son parte de quien soy, de mi propio corazón.\n" +
+        "Te amo, abuela,\n" +
+        "{dedicatorName}",
     },
   ],
-  "Te Amo, Abuelo": [
+  "Te amo, abuelo": [
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "{recipientNickname}, desde chico supe que eras especial. " +
-        "Tus aventuras, tu forma de ver el mundo y esa sabiduría que compartiste conmigo " +
-        "son parte de quién soy hoy. Gracias por ser mi héroe y mi cómplice. Tu nieto, {dedicatorName}",
+        "Desde chico supe que eras alguien especial,\n" +
+        "{recipientNickname}: tus aventuras, tu mirada sin igual.\n" +
+        "Esa sabiduría que compartiste conmigo\n" +
+        "es parte de quien soy, mi mejor abrigo.\n" +
+        "Gracias por ser mi héroe y mi cómplice. Tu nieto,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, desde chica supe que eras especial. " +
-        "Tus aventuras, tu forma de ver el mundo y esa sabiduría que compartiste conmigo " +
-        "son parte de quién soy hoy. Gracias por ser mi héroe y mi cómplice. Tu nieta, {dedicatorName}",
+        "Desde chica supe que eras alguien especial,\n" +
+        "{recipientNickname}: tus aventuras, tu mirada sin igual.\n" +
+        "Esa sabiduría que compartiste conmigo\n" +
+        "es parte de quien soy, mi mejor abrigo.\n" +
+        "Gracias por ser mi héroe y mi cómplice. Tu nieta,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Con admiración",
       HE_TO_SHE:
-        "{recipientNickname}, me enseñaste que la verdadera fuerza no hace ruido. " +
-        "En cada consejo, en cada momento que estuviste presente cuando más te necesitaba, " +
-        "demostraste lo que significa ser un abuelo de verdad. Con orgullo, tu nieto {dedicatorName}",
+        "{recipientNickname}, me enseñaste que la fuerza no hace ruido,\n" +
+        "que se mide en los gestos, no en lo presumido.\n" +
+        "En cada consejo, en cada instante compartido,\n" +
+        "demostraste lo que es ser abuelo, de verdad y sentido.\n" +
+        "Con orgullo, tu nieto,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, me enseñaste que la verdadera fuerza no hace ruido. " +
-        "En cada consejo, en cada momento que estuviste presente cuando más te necesitaba, " +
-        "demostraste lo que significa ser un abuelo de verdad. Con orgullo, tu nieta {dedicatorName}",
+        "{recipientNickname}, me enseñaste que la fuerza no hace ruido,\n" +
+        "que se mide en los gestos, no en lo presumido.\n" +
+        "En cada consejo, en cada instante compartido,\n" +
+        "demostraste lo que es ser abuelo, de verdad y sentido.\n" +
+        "Con orgullo, tu nieta,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Gratitud",
       HE_TO_SHE:
-        "{recipientNickname}, hay cosas que nunca te dije pero que llevo siempre en el corazón. " +
-        "Gracias por tu paciencia, por tu ejemplo y por ese amor de abuelo que es único e irremplazable. " +
-        "Te amo mucho. Tu nieto, {dedicatorName}",
+        "{recipientNickname}, hay cosas que nunca alcancé a decir,\n" +
+        "pero que llevo en el pecho, sin dejarlas ir.\n" +
+        "Gracias por tu paciencia, tu ejemplo y tu abrazo,\n" +
+        "por ese amor de abuelo que no tiene reemplazo.\n" +
+        "Te amo mucho. Tu nieto,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, hay cosas que nunca te dije pero que llevo siempre en el corazón. " +
-        "Gracias por tu paciencia, por tu ejemplo y por ese amor de abuelo que es único e irremplazable. " +
-        "Te amo mucho. Tu nieta, {dedicatorName}",
+        "{recipientNickname}, hay cosas que nunca alcancé a decir,\n" +
+        "pero que llevo en el pecho, sin dejarlas ir.\n" +
+        "Gracias por tu paciencia, tu ejemplo y tu abrazo,\n" +
+        "por ese amor de abuelo que no tiene reemplazo.\n" +
+        "Te amo mucho. Tu nieta,\n" +
+        "{dedicatorName}",
     },
   ],
   // ── Memorias Familiares — HE_TO_SHE = fallecido hombre | SHE_TO_HE = fallecida mujer ──────────
-  "Siempre en mi Corazón": [
+  "Siempre en mi corazon": [
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "{recipientNickname}, aunque ya no estés con nosotros, tu presencia sigue viva en cada rincón de esta familia. " +
-        "Tu risa, tus consejos y tu forma de querernos son parte de quiénes somos. " +
-        "Este libro es nuestro homenaje a todo lo que fuiste y todo lo que seguirás siendo. Siempre en nuestro corazón.",
+        "{recipientNickname}, aunque ya no estés entre nosotros aquí,\n" +
+        "tu presencia sigue viva, la sentimos así.\n" +
+        "Tu risa, tus consejos, tu forma única de querer,\n" +
+        "son parte de quienes somos y seguirán siendo, sin desvanecer.\n" +
+        "Este libro es nuestro homenaje. Siempre en nuestro corazón.",
       SHE_TO_HE:
-        "{recipientNickname}, aunque ya no estés con nosotros, tu presencia sigue viva en cada rincón de esta familia. " +
-        "Tu risa, tus consejos y tu forma de querernos son parte de quiénes somos. " +
-        "Este libro es nuestro homenaje a todo lo que fuiste y todo lo que seguirás siendo. Siempre en nuestro corazón.",
+        "{recipientNickname}, aunque ya no estés entre nosotros aquí,\n" +
+        "tu presencia sigue viva, la sentimos así.\n" +
+        "Tu risa, tus consejos, tu forma única de querer,\n" +
+        "son parte de quienes somos y seguirán siendo, sin desvanecer.\n" +
+        "Este libro es nuestro homenaje. Siempre en nuestro corazón.",
     },
     {
       label: "Legado",
       HE_TO_SHE:
-        "Honrar tu memoria es seguir contando tu historia, {recipientNickname}. " +
-        "Este libro nació del amor que te tenemos como familia, para que nadie olvide quién fuiste: " +
-        "un hombre que nos iluminó, nos cuidó y nos dejó una huella que ninguno de nosotros podrá borrar jamás.",
+        "Honrar tu memoria es contar tu historia una y otra vez,\n" +
+        "{recipientNickname}, este libro nace del amor que en ti se ve.\n" +
+        "Fuiste un hombre que nos dio su luz, su guía y su cuidado,\n" +
+        "dejando una huella que el tiempo jamás habrá borrado.\n" +
+        "Vive en nosotros, para siempre, sin final.",
       SHE_TO_HE:
-        "Honrar tu memoria es seguir contando tu historia, {recipientNickname}. " +
-        "Este libro nació del amor que te tenemos como familia, para que nadie olvide quién fuiste: " +
-        "una mujer que nos iluminó, nos cuidó y nos dejó una huella que ninguno de nosotros podrá borrar jamás.",
+        "Honrar tu memoria es contar tu historia una y otra vez,\n" +
+        "{recipientNickname}, este libro nace del amor que en ti se ve.\n" +
+        "Fuiste una mujer que nos dio su luz, su guía y su cuidado,\n" +
+        "dejando una huella que el tiempo jamás habrá borrado.\n" +
+        "Vive en nosotros, para siempre, sin final.",
     },
     {
       label: "Sanadora",
       HE_TO_SHE:
-        "Aprender a caminar sin verte duele, {recipientNickname}. " +
-        "Pero cada vez que abrimos este libro, sentimos que sigues aquí, cuidándonos desde donde estés. " +
-        "Gracias por cada abrazo, cada palabra y cada momento que nos regalaste. Te extrañamos cada día.",
+        "Aprender a vivir sin verte cuesta cada día,\n" +
+        "{recipientNickname}, mas tu amor sigue siendo mi guía.\n" +
+        "Cada vez que abrimos este libro te sentimos presente,\n" +
+        "como si el tiempo y la ausencia no fueran suficiente.\n" +
+        "Gracias por cada abrazo, cada palabra, cada instante,\n" +
+        "tu recuerdo entre nosotros sigue siendo constante.\n" +
+        "Te extrañamos cada día, hoy y siempre, eternamente.",
       SHE_TO_HE:
-        "Aprender a caminar sin verte duele, {recipientNickname}. " +
-        "Pero cada vez que abrimos este libro, sentimos que sigues aquí, cuidándonos desde donde estés. " +
-        "Gracias por cada abrazo, cada palabra y cada momento que nos regalaste. Te extrañamos cada día.",
+        "Aprender a vivir sin verte cuesta cada día,\n" +
+        "{recipientNickname}, mas tu amor sigue siendo mi guía.\n" +
+        "Cada vez que abrimos este libro te sentimos presente,\n" +
+        "como si el tiempo y la ausencia no fueran suficiente.\n" +
+        "Gracias por cada abrazo, cada palabra, cada instante,\n" +
+        "tu recuerdo entre nosotros sigue siendo constante.\n" +
+        "Te extrañamos cada día, hoy y siempre, eternamente.",
     },
   ],
-  "Mi Ángel Guardián": [
+  "Mi angel guardian": [
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "{recipientNickname}, aunque ya no podamos escuchar tu voz, sentimos tu presencia en cada paso que damos juntos. " +
-        "Este libro es nuestra forma de decirte que tu amor no se fue, que sigue vivo en cada uno de nosotros. " +
+        "{recipientNickname}, aunque tu voz ya no podamos escuchar,\n" +
+        "sentimos tu presencia en cada paso al caminar.\n" +
+        "Tu amor no se fue, sigue vivo entre nosotros,\n" +
+        "cuidándonos en silencio, como solo tú sabes hacerlo.\n" +
         "Eres y serás siempre nuestro ángel guardián.",
       SHE_TO_HE:
-        "{recipientNickname}, aunque ya no podamos escuchar tu voz, sentimos tu presencia en cada paso que damos juntos. " +
-        "Este libro es nuestra forma de decirte que tu amor no se fue, que sigue vivo en cada uno de nosotros. " +
+        "{recipientNickname}, aunque tu voz ya no podamos escuchar,\n" +
+        "sentimos tu presencia en cada paso al caminar.\n" +
+        "Tu amor no se fue, sigue vivo entre nosotros,\n" +
+        "cuidándonos en silencio, como solo tú sabes hacerlo.\n" +
         "Eres y serás siempre nuestra ángel guardián.",
     },
     {
       label: "Legado",
       HE_TO_SHE:
-        "{recipientNickname}, honrar tu memoria es seguir adelante con la fuerza que nos enseñaste. " +
-        "Este libro nació del amor que te tenemos, para que todos sepan quién fuiste: " +
-        "un hombre extraordinario que nos lo dio todo sin pedir nada a cambio. Tu legado vive en nosotros.",
+        "{recipientNickname}, honrar tu memoria es seguir hacia adelante,\n" +
+        "con la fuerza que nos diste, viva y constante.\n" +
+        "Fuiste un hombre extraordinario que nos lo dio todo,\n" +
+        "sin pedir nada a cambio, de cualquier modo.\n" +
+        "Tu legado vive en nosotros, para siempre y sin final.",
       SHE_TO_HE:
-        "{recipientNickname}, honrar tu memoria es seguir adelante con la fuerza que nos enseñaste. " +
-        "Este libro nació del amor que te tenemos, para que todos sepan quién fuiste: " +
-        "una mujer extraordinaria que nos lo dio todo sin pedir nada a cambio. Tu legado vive en nosotros.",
+        "{recipientNickname}, honrar tu memoria es seguir hacia adelante,\n" +
+        "con la fuerza que nos diste, viva y constante.\n" +
+        "Fuiste una mujer extraordinaria que nos lo dio todo,\n" +
+        "sin pedir nada a cambio, de cualquier modo.\n" +
+        "Tu legado vive en nosotros, para siempre y sin final.",
     },
     {
       label: "Sanadora",
       HE_TO_SHE:
-        "Hay días que duele más que otros, {recipientNickname}. " +
-        "Pero abrir este libro nos recuerda todo lo hermoso que vivimos juntos como familia: tu risa, tu abrazo, tu forma única de cuidarnos. " +
+        "Hay días que duelen más que otros, {recipientNickname},\n" +
+        "pero abrir este libro nos devuelve tu presencia entera.\n" +
+        "Tu risa, tu abrazo, tu forma única de cuidar,\n" +
+        "viven en cada página, sin nunca terminar.\n" +
         "Gracias por haber sido nuestro ángel, aquí y desde el cielo.",
       SHE_TO_HE:
-        "Hay días que duele más que otros, {recipientNickname}. " +
-        "Pero abrir este libro nos recuerda todo lo hermoso que vivimos juntos como familia: tu risa, tu abrazo, tu forma única de cuidarnos. " +
+        "Hay días que duelen más que otros, {recipientNickname},\n" +
+        "pero abrir este libro nos devuelve tu presencia entera.\n" +
+        "Tu risa, tu abrazo, tu forma única de cuidar,\n" +
+        "viven en cada página, sin nunca terminar.\n" +
         "Gracias por haber sido nuestra ángel, aquí y desde el cielo.",
     },
   ],
-  "Siempre Serás Parte de Mi Corazón": [
+  "Siempre seras parte de mi": [
     {
       label: "Cómplices",
       HE_TO_SHE:
-        "{recipientNickname}, crecimos juntos inventando mundos, haciendo locuras y prometiéndonos que siempre estaríamos el uno para el otro. " +
-        "Este libro es nuestra promesa cumplida: tu historia, tu risa y tu espíritu viven aquí, en cada uno de nosotros, para siempre.",
+        "{recipientNickname}, crecimos juntos inventando mundos enteros,\n" +
+        "haciendo locuras, sin miedo, siendo compañeros.\n" +
+        "Nos prometimos estar siempre el uno para el otro,\n" +
+        "y esa promesa, hoy, la cumplimos con este libro.\n" +
+        "Tu historia, tu risa, tu espíritu viven aquí, para siempre.",
       SHE_TO_HE:
-        "{recipientNickname}, crecimos juntas inventando mundos, haciendo locuras y prometiéndonos que siempre estaríamos la una para la otra. " +
-        "Este libro es nuestra promesa cumplida: tu historia, tu risa y tu espíritu viven aquí, en cada uno de nosotros, para siempre.",
+        "{recipientNickname}, crecimos juntas inventando mundos enteros,\n" +
+        "haciendo locuras, sin miedo, siendo compañeras.\n" +
+        "Nos prometimos estar siempre la una para la otra,\n" +
+        "y esa promesa, hoy, la cumplimos con este libro.\n" +
+        "Tu historia, tu risa, tu espíritu viven aquí, para siempre.",
     },
     {
       label: "Lealtad",
       HE_TO_SHE:
-        "Nadie nos conocía como tú, {recipientNickname}. " +
-        "Compartiste nuestros miedos, nuestros secretos y los mejores momentos de esta familia sin juzgarnos nunca. " +
-        "Este libro es un tributo a tu lealtad, a tu compañía y a ese lazo que ni el tiempo puede romper.",
+        "Nadie nos conocía como tú, {recipientNickname}, tan profundamente,\n" +
+        "compartiste miedos y secretos, siempre presente.\n" +
+        "Los mejores momentos de esta familia los viviste sin juzgar,\n" +
+        "por eso este libro es tributo a tu lealtad, sin par.\n" +
+        "A ese lazo que ni el tiempo logrará cortar.",
       SHE_TO_HE:
-        "Nadie nos conocía como tú, {recipientNickname}. " +
-        "Compartiste nuestros miedos, nuestros secretos y los mejores momentos de esta familia sin juzgarnos nunca. " +
-        "Este libro es un tributo a tu lealtad, a tu compañía y a ese lazo que ni el tiempo puede romper.",
+        "Nadie nos conocía como tú, {recipientNickname}, tan profundamente,\n" +
+        "compartiste miedos y secretos, siempre presente.\n" +
+        "Los mejores momentos de esta familia los viviste sin juzgar,\n" +
+        "por eso este libro es tributo a tu lealtad, sin par.\n" +
+        "A ese lazo que ni el tiempo logrará cortar.",
     },
     {
       label: "Sanadora",
       HE_TO_SHE:
-        "Caminar sin ti nos enseñó lo mucho que valías, {recipientNickname}. " +
-        "Pero cada vez que abrimos estas páginas, volvemos a escuchar tu voz y sentir que sigues cuidando a esta familia desde donde estés. " +
+        "Caminar sin ti nos enseñó cuánto valías, {recipientNickname}, de verdad,\n" +
+        "cada vez que abrimos estas páginas, vuelve tu voz a la mitad.\n" +
+        "Sentimos que sigues cuidando a esta familia, sin cesar,\n" +
+        "guiándonos en silencio, como siempre supiste estar.\n" +
         "Siempre serás parte de nosotros, hermano.",
       SHE_TO_HE:
-        "Caminar sin ti nos enseñó lo mucho que valías, {recipientNickname}. " +
-        "Pero cada vez que abrimos estas páginas, volvemos a escuchar tu voz y sentir que sigues cuidando a esta familia desde donde estés. " +
+        "Caminar sin ti nos enseñó cuánto valías, {recipientNickname}, de verdad,\n" +
+        "cada vez que abrimos estas páginas, vuelve tu voz a la mitad.\n" +
+        "Sentimos que sigues cuidando a esta familia, sin cesar,\n" +
+        "guiándonos en silencio, como siempre supiste estar.\n" +
         "Siempre serás parte de nosotros, hermana.",
     },
   ],
@@ -391,210 +557,286 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
     {
       label: "El alma",
       HE_TO_SHE:
-        "{recipientNickname}, las reuniones ya no son las mismas sin ti. " +
-        "Eras el alma de esta familia: el que hacía reír a todos, el que unía, el que hacía sentir que todo estaba bien con solo estar presente. " +
-        "Este libro es para que nadie te olvide.",
+        "Las reuniones, {recipientNickname}, ya no son las mismas sin tu compañía,\n" +
+        "eras el alma de esta familia, nuestra guía.\n" +
+        "El que hacía reír a todos, el que unía y sostenía,\n" +
+        "el que con solo estar presente, ya alegraba el día.\n" +
+        "Este libro es para que nadie, jamás, te olvide.",
       SHE_TO_HE:
-        "{recipientNickname}, las reuniones ya no son las mismas sin ti. " +
-        "Eras el alma de esta familia: la que hacía reír a todos, la que unía, la que hacía sentir que todo estaba bien con solo estar presente. " +
-        "Este libro es para que nadie te olvide.",
+        "Las reuniones, {recipientNickname}, ya no son las mismas sin tu compañía,\n" +
+        "eras el alma de esta familia, nuestra guía.\n" +
+        "La que hacía reír a todos, la que unía y sostenía,\n" +
+        "la que con solo estar presente, ya alegraba el día.\n" +
+        "Este libro es para que nadie, jamás, te olvide.",
     },
     {
       label: "Gratitud",
       HE_TO_SHE:
-        "Gracias por tu amor, {recipientNickname}. " +
-        "Por cada abrazo en las reuniones, cada consejo en los momentos difíciles y cada vez que nos hiciste sentir que esta familia tenía algo especial. " +
-        "Tu amor nos marcó para siempre y este libro es nuestro homenaje.",
+        "Gracias por tu amor, {recipientNickname}, tan grande y sincero,\n" +
+        "por cada abrazo en las reuniones, por tu consejo certero.\n" +
+        "Por hacernos sentir que esta familia tenía algo real,\n" +
+        "un tesoro compartido, algo único y sin igual.\n" +
+        "Tu amor nos marcó para siempre. Este libro es nuestro homenaje.",
       SHE_TO_HE:
-        "Gracias por tu amor, {recipientNickname}. " +
-        "Por cada abrazo en las reuniones, cada consejo en los momentos difíciles y cada vez que nos hiciste sentir que esta familia tenía algo especial. " +
-        "Tu amor nos marcó para siempre y este libro es nuestro homenaje.",
+        "Gracias por tu amor, {recipientNickname}, tan grande y sincero,\n" +
+        "por cada abrazo en las reuniones, por tu consejo certero.\n" +
+        "Por hacernos sentir que esta familia tenía algo real,\n" +
+        "un tesoro compartido, algo único y sin igual.\n" +
+        "Tu amor nos marcó para siempre. Este libro es nuestro homenaje.",
     },
     {
       label: "Legado",
       HE_TO_SHE:
-        "Tu partida dejó un silencio que todos sentimos, {recipientNickname}. " +
-        "Pero también dejaste algo que nadie puede quitarnos: el recuerdo de cómo se sentía tenerte cerca, tu calor, tu generosidad y ese amor de familia que regalabas sin reservas. " +
-        "Este libro guarda todo eso para siempre.",
+        "Tu partida dejó un silencio que todos sentimos, {recipientNickname}, profundo,\n" +
+        "pero dejaste algo que nadie nos quita en este mundo:\n" +
+        "el recuerdo de tenerte cerca, tu calor, tu compañía,\n" +
+        "tu generosidad sin reservas, presente cada día.\n" +
+        "Este libro guarda todo eso, para siempre.",
       SHE_TO_HE:
-        "Tu partida dejó un silencio que todos sentimos, {recipientNickname}. " +
-        "Pero también dejaste algo que nadie puede quitarnos: el recuerdo de cómo se sentía tenerte cerca, tu calor, tu generosidad y ese amor de familia que regalabas sin reservas. " +
-        "Este libro guarda todo eso para siempre.",
+        "Tu partida dejó un silencio que todos sentimos, {recipientNickname}, profundo,\n" +
+        "pero dejaste algo que nadie nos quita en este mundo:\n" +
+        "el recuerdo de tenerte cerca, tu calor, tu compañía,\n" +
+        "tu generosidad sin reservas, presente cada día.\n" +
+        "Este libro guarda todo eso, para siempre.",
     },
   ],
   "Recuerdos Familiares": [
     {
       label: "Con amor",
       HE_TO_SHE:
-        "{recipientNickname}, este libro nació del deseo de esta familia de guardar todo lo que fuiste para nosotros. " +
-        "Cada foto y cada página son el abrazo colectivo que queremos darte. " +
-        "Gracias por haber sido parte de nuestras vidas. Te amamos y te recordamos siempre.",
+        "{recipientNickname}, este libro nació del deseo de esta familia entera,\n" +
+        "de guardar todo lo que fuiste, de la forma que sea.\n" +
+        "Cada foto, cada página, es el abrazo que queremos dar,\n" +
+        "gracias por haber sido parte de nuestro caminar.\n" +
+        "Te amamos y te recordamos siempre.",
       SHE_TO_HE:
-        "{recipientNickname}, este libro nació del deseo de esta familia de guardar todo lo que fuiste para nosotros. " +
-        "Cada foto y cada página son el abrazo colectivo que queremos darte. " +
-        "Gracias por haber sido parte de nuestras vidas. Te amamos y te recordamos siempre.",
+        "{recipientNickname}, este libro nació del deseo de esta familia entera,\n" +
+        "de guardar todo lo que fuiste, de la forma que sea.\n" +
+        "Cada foto, cada página, es el abrazo que queremos dar,\n" +
+        "gracias por haber sido parte de nuestro caminar.\n" +
+        "Te amamos y te recordamos siempre.",
     },
     {
       label: "Legado",
       HE_TO_SHE:
-        "Tu historia merece ser contada y esta familia se encarga de contarla, {recipientNickname}. " +
-        "Este libro es nuestro tributo conjunto a tu legado: " +
-        "a los valores que nos dejaste, a los momentos que compartimos y al amor que nos une más allá de tu partida.",
+        "Tu historia merece ser contada, {recipientNickname}, y lo haremos con fervor,\n" +
+        "esta familia entera se encarga de honrar tu valor.\n" +
+        "Este libro es tributo a tu legado, a lo que nos dejaste,\n" +
+        "a los momentos compartidos, al amor que sembraste.\n" +
+        "Un amor que nos une, más allá de tu partida.",
       SHE_TO_HE:
-        "Tu historia merece ser contada y esta familia se encarga de contarla, {recipientNickname}. " +
-        "Este libro es nuestro tributo conjunto a tu legado: " +
-        "a los valores que nos dejaste, a los momentos que compartimos y al amor que nos une más allá de tu partida.",
+        "Tu historia merece ser contada, {recipientNickname}, y lo haremos con fervor,\n" +
+        "esta familia entera se encarga de honrar tu valor.\n" +
+        "Este libro es tributo a tu legado, a lo que nos dejaste,\n" +
+        "a los momentos compartidos, al amor que sembraste.\n" +
+        "Un amor que nos une, más allá de tu partida.",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "Hay personas que dejan una huella tan grande que su ausencia se siente en todo, {recipientNickname}. " +
-        "Tú eres una de ellas. " +
-        "Este libro es nuestra forma de decirte, juntos como familia, que siempre estarás con nosotros. Que nunca te olvidaremos.",
+        "Hay quienes dejan una huella tan grande, tan profunda,\n" +
+        "que su ausencia se siente en todo, en cada cosa que nos circunda.\n" +
+        "{recipientNickname}, tú eres una de esas almas especiales,\n" +
+        "y este libro es nuestra forma de decirte, entre risas y señales,\n" +
+        "que siempre estarás con nosotros. Que nunca te olvidaremos.",
       SHE_TO_HE:
-        "Hay personas que dejan una huella tan grande que su ausencia se siente en todo, {recipientNickname}. " +
-        "Tú eres una de ellas. " +
-        "Este libro es nuestra forma de decirte, juntos como familia, que siempre estarás con nosotros. Que nunca te olvidaremos.",
+        "Hay quienes dejan una huella tan grande, tan profunda,\n" +
+        "que su ausencia se siente en todo, en cada cosa que nos circunda.\n" +
+        "{recipientNickname}, tú eres una de esas almas especiales,\n" +
+        "y este libro es nuestra forma de decirte, entre risas y señales,\n" +
+        "que siempre estarás con nosotros. Que nunca te olvidaremos.",
     },
   ],
   // ── Mascotas ─────────────────────────────────────────────────────────────────
   // Mascotas: HE_TO_SHE = mascota macho | SHE_TO_HE = mascota hembra
-  "Mi Mejor Amigo del Mundo": [
+  "Mi mejor amigo del mundo": [
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "Para {recipientNickname}, quien convierte cada día en una aventura llena de amor, lealtad y alegría. " +
-        "Gracias por ser mi mejor amigo incondicional. — {dedicatorName}",
+        "Para {recipientNickname}, que convierte cada día en aventura,\n" +
+        "llena de amor, lealtad y una alegría pura.\n" +
+        "Gracias por ser mi mejor amigo, sin condición,\n" +
+        "mi compañero fiel, mi mayor bendición.\n" +
+        "— {dedicatorName}",
       SHE_TO_HE:
-        "Para {recipientNickname}, quien convierte cada día en una aventura llena de amor, lealtad y alegría. " +
-        "Gracias por ser mi mejor amiga incondicional. — {dedicatorName}",
+        "Para {recipientNickname}, que convierte cada día en aventura,\n" +
+        "llena de amor, lealtad y una alegría pura.\n" +
+        "Gracias por ser mi mejor amiga, sin condición,\n" +
+        "mi compañera fiel, mi mayor bendición.\n" +
+        "— {dedicatorName}",
     },
     {
       label: "Cariñosa",
       HE_TO_SHE:
-        "{recipientNickname}, el compañero más especial del mundo. " +
-        "Este libro es un pequeño homenaje a todo el amor que me das cada día. " +
-        "Con todo mi cariño, {dedicatorName}",
+        "{recipientNickname}, el compañero más especial de mi mundo entero,\n" +
+        "este libro es mi pequeño homenaje, sincero.\n" +
+        "Por todo el amor que me das, día tras día,\n" +
+        "con todo mi cariño,\n" +
+        "{dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, la compañera más especial del mundo. " +
-        "Este libro es un pequeño homenaje a todo el amor que me das cada día. " +
-        "Con todo mi cariño, {dedicatorName}",
+        "{recipientNickname}, la compañera más especial de mi mundo entero,\n" +
+        "este libro es mi pequeño homenaje, sincero.\n" +
+        "Por todo el amor que me das, día tras día,\n" +
+        "con todo mi cariño,\n" +
+        "{dedicatorName}",
     },
     {
       label: "Divertida",
       HE_TO_SHE:
-        "Para {recipientNickname}, mi cómplice de travesuras, mi guardián fiel y mi compañero inseparable. " +
-        "Este libro es mío, tuyo y de nadie más. " +
-        "Te quiero infinito. — {dedicatorName}",
+        "{recipientNickname}, mi cómplice de travesuras sin final,\n" +
+        "mi guardián fiel, mi compañero inseparable, sin igual.\n" +
+        "Este libro es mío, tuyo, y de nadie más,\n" +
+        "te quiero infinito, hoy y siempre, jamás.\n" +
+        "— {dedicatorName}",
       SHE_TO_HE:
-        "Para {recipientNickname}, mi cómplice de travesuras, mi guardiana fiel y mi compañera inseparable. " +
-        "Este libro es mío, tuyo y de nadie más. " +
-        "Te quiero infinito. — {dedicatorName}",
+        "{recipientNickname}, mi cómplice de travesuras sin final,\n" +
+        "mi guardiana fiel, mi compañera inseparable, sin igual.\n" +
+        "Este libro es mío, tuyo, y de nadie más,\n" +
+        "te quiero infinito, hoy y siempre, jamás.\n" +
+        "— {dedicatorName}",
     },
   ],
-  "Mi Amigo Miauravilloso": [
+  "Mi amigo Miauravilloso": [
     {
       label: "Misteriosa",
       HE_TO_SHE:
-        "{recipientNickname}, ningún otro ser en el mundo mezcla tanto misterio con tanta ternura como tú. " +
-        "Eres mi guardián silencioso, mi compañía perfecta y mi mayor alegría felina. " +
+        "{recipientNickname}, ningún ser en el mundo mezcla, como tú,\n" +
+        "tanto misterio con tanta ternura, sin ningún tabú.\n" +
+        "Eres mi guardián silencioso, mi compañía ideal,\n" +
+        "mi mayor alegría felina, mi tesoro sin igual.\n" +
         "— {dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, ningún otro ser en el mundo mezcla tanto misterio con tanta ternura como tú. " +
-        "Eres mi guardiana silenciosa, mi compañía perfecta y mi mayor alegría felina. " +
+        "{recipientNickname}, ningún ser en el mundo mezcla, como tú,\n" +
+        "tanto misterio con tanta ternura, sin ningún tabú.\n" +
+        "Eres mi guardiana silenciosa, mi compañía ideal,\n" +
+        "mi mayor alegría felina, mi tesoro sin igual.\n" +
         "— {dedicatorName}",
     },
     {
       label: "Divertida",
       HE_TO_SHE:
-        "Para {recipientNickname}, que me ignora hasta que abro la comida, tira cosas de la mesa " +
-        "y ronronea cuando menos lo espero. " +
-        "Este libro celebra todas las razones por las que te amo (cuando tú quieres). — {dedicatorName}",
+        "Para {recipientNickname}, que me ignora sin razón,\n" +
+        "hasta que abro la comida, ahí nace la conexión.\n" +
+        "Tiras cosas de la mesa por pura diversión,\n" +
+        "y ronroneas justo cuando baja mi ilusión.\n" +
+        "Este libro celebra cada travesura y ternura,\n" +
+        "te amo, gato loco, ¡aunque seas mi locura!\n" +
+        "— {dedicatorName}",
       SHE_TO_HE:
-        "Para {recipientNickname}, que me ignora hasta que abro la comida, tira cosas de la mesa " +
-        "y ronronea cuando menos lo espero. " +
-        "Este libro celebra todas las razones por las que te amo (cuando tú quieres). — {dedicatorName}",
+        "Para {recipientNickname}, que me ignora sin razón,\n" +
+        "hasta que abro la comida, ahí nace la conexión.\n" +
+        "Tiras cosas de la mesa por pura diversión,\n" +
+        "y ronroneas justo cuando baja mi ilusión.\n" +
+        "Este libro celebra cada travesura y ternura,\n" +
+        "te amo, gata loca, ¡aunque seas mi locura!\n" +
+        "— {dedicatorName}",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "{recipientNickname}, hay algo mágico en la forma en que me elegiste. " +
-        "No sé si fui yo quien te adoptó o fue al revés, " +
-        "pero sé que no querría que fuera de otra manera. Te amo, minino. — {dedicatorName}",
+        "{recipientNickname}, hay algo mágico en cómo me elegiste a mí,\n" +
+        "no sé si te adopté yo, o el destino lo decidió así.\n" +
+        "Pero sé que no querría que fuera de otra manera,\n" +
+        "te amo, minino, mi compañía entera.\n" +
+        "— {dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, hay algo mágico en la forma en que me elegiste. " +
-        "No sé si fui yo quien te adoptó o fue al revés, " +
-        "pero sé que no querría que fuera de otra manera. Te amo, minina. — {dedicatorName}",
+        "{recipientNickname}, hay algo mágico en cómo me elegiste a mí,\n" +
+        "no sé si te adopté yo, o el destino lo decidió así.\n" +
+        "Pero sé que no querría que fuera de otra manera,\n" +
+        "te amo, minina, mi compañía entera.\n" +
+        "— {dedicatorName}",
     },
   ],
-  "Nuestro Ángel de 4 Patas": [
+  "Nuestro Angel de 4 patas": [
     {
       label: "Homenaje",
       HE_TO_SHE:
-        "{recipientNickname}, gracias por cada lamida, cada juego y cada momento de amor puro que me diste. " +
-        "Tu huella en mi corazón no tiene fecha de vencimiento. " +
-        "Te extraño y te llevo siempre conmigo. — {dedicatorName}",
+        "{recipientNickname}, gracias por cada lamida y cada instante de juego,\n" +
+        "por cada momento de amor puro, sin sosiego.\n" +
+        "Tu huella en mi corazón no tiene fecha de vencer,\n" +
+        "te extraño y te llevo conmigo, hoy y siempre, al amanecer.\n" +
+        "— {dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, gracias por cada lamida, cada juego y cada momento de amor puro que me diste. " +
-        "Tu huella en mi corazón no tiene fecha de vencimiento. " +
-        "Te extraño y te llevo siempre conmigo. — {dedicatorName}",
+        "{recipientNickname}, gracias por cada lamida y cada instante de juego,\n" +
+        "por cada momento de amor puro, sin sosiego.\n" +
+        "Tu huella en mi corazón no tiene fecha de vencer,\n" +
+        "te extraño y te llevo conmigo, hoy y siempre, al amanecer.\n" +
+        "— {dedicatorName}",
     },
     {
       label: "Reconfortante",
       HE_TO_SHE:
-        "Este libro es para ti, {recipientNickname}. " +
-        "Para recordar todo lo que vivimos juntos: las aventuras, las travesuras " +
-        "y ese amor incondicional que solo tú sabías dar. " +
-        "Tu amor cruzó el puente arcoíris, pero nunca dejó mi corazón.",
+        "Este libro es para ti, {recipientNickname}, con todo mi querer,\n" +
+        "para recordar las aventuras que solo nosotros pudimos tener.\n" +
+        "Ese amor incondicional que solo tú sabías dar,\n" +
+        "cruzó el puente arcoíris, pero nunca dejó de estar,\n" +
+        "en mi corazón, para siempre.",
       SHE_TO_HE:
-        "Este libro es para ti, {recipientNickname}. " +
-        "Para recordar todo lo que vivimos juntos: las aventuras, las travesuras " +
-        "y ese amor incondicional que solo tú sabías dar. " +
-        "Tu amor cruzó el puente arcoíris, pero nunca dejó mi corazón.",
+        "Este libro es para ti, {recipientNickname}, con todo mi querer,\n" +
+        "para recordar las aventuras que solo nosotros pudimos tener.\n" +
+        "Ese amor incondicional que solo tú sabías dar,\n" +
+        "cruzó el puente arcoíris, pero nunca dejó de estar,\n" +
+        "en mi corazón, para siempre.",
     },
     {
       label: "Gratitud",
       HE_TO_SHE:
-        "{recipientNickname}, me diste algo que pocas cosas en la vida pueden dar: " +
-        "amor sin condiciones, lealtad sin dudas y alegría en cada momento. " +
-        "Este libro es mi forma de decirte gracias, siempre. — {dedicatorName}",
+        "{recipientNickname}, me diste algo que pocas cosas pueden dar:\n" +
+        "amor sin condiciones, un motivo para siempre celebrar.\n" +
+        "Lealtad sin dudas y alegría en cada momento,\n" +
+        "este libro es mi forma de decir gracias, con todo mi sentimiento.\n" +
+        "— {dedicatorName}",
       SHE_TO_HE:
-        "{recipientNickname}, me diste algo que pocas cosas en la vida pueden dar: " +
-        "amor sin condiciones, lealtad sin dudas y alegría en cada momento. " +
-        "Este libro es mi forma de decirte gracias, siempre. — {dedicatorName}",
+        "{recipientNickname}, me diste algo que pocas cosas pueden dar:\n" +
+        "amor sin condiciones, un motivo para siempre celebrar.\n" +
+        "Lealtad sin dudas y alegría en cada momento,\n" +
+        "este libro es mi forma de decir gracias, con todo mi sentimiento.\n" +
+        "— {dedicatorName}",
     },
   ],
-  "Aventura Entre Patas": [
+  "Aventura entre patas": [
     {
       label: "Aventurera",
       HE_TO_SHE:
-        "Porque las mejores aventuras siempre son las que vivimos juntos. " +
-        "Este libro celebra cada locura, cada risa y cada momento que {recipientNickname} y los pequeños de la familia compartieron. " +
-        "Nada mejor que crecer con un amigo peludo al lado.",
+        "Porque las mejores aventuras son las que vivimos en compañía,\n" +
+        "este libro celebra cada locura, cada risa, cada alegría.\n" +
+        "Cada momento que {recipientNickname} y los peques compartieron,\n" +
+        "crecer juntos, con un amigo peludo, fue lo mejor que pudieron.\n" +
+        "Una aventura sin final.",
       SHE_TO_HE:
-        "Porque las mejores aventuras siempre son las que vivimos juntos. " +
-        "Este libro celebra cada locura, cada risa y cada momento que {recipientNickname} y los pequeños de la familia compartieron. " +
-        "Nada mejor que crecer con un amigo peludo al lado.",
+        "Porque las mejores aventuras son las que vivimos en compañía,\n" +
+        "este libro celebra cada locura, cada risa, cada alegría.\n" +
+        "Cada momento que {recipientNickname} y los peques compartieron,\n" +
+        "crecer juntos, con un amigo peludo, fue lo mejor que pudieron.\n" +
+        "Una aventura sin final.",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "Hay algo mágico en ver a {recipientNickname} y a los niños juntos: " +
-        "los secretos que comparten, las carreras que inventan, los abrazos que no terminan. " +
-        "Este libro guarda esos momentos para siempre.",
+        "Hay algo mágico en ver a {recipientNickname} y a los niños jugar,\n" +
+        "los secretos que comparten, las carreras sin parar.\n" +
+        "Los abrazos que no terminan, la complicidad sin final,\n" +
+        "este libro guarda esos momentos, algo tan especial.\n" +
+        "Para siempre.",
       SHE_TO_HE:
-        "Hay algo mágico en ver a {recipientNickname} y a los niños juntos: " +
-        "los secretos que comparten, las carreras que inventan, los abrazos que no terminan. " +
-        "Este libro guarda esos momentos para siempre.",
+        "Hay algo mágico en ver a {recipientNickname} y a los niños jugar,\n" +
+        "los secretos que comparten, las carreras sin parar.\n" +
+        "Los abrazos que no terminan, la complicidad sin final,\n" +
+        "este libro guarda esos momentos, algo tan especial.\n" +
+        "Para siempre.",
     },
     {
       label: "Familiar",
       HE_TO_SHE:
-        "{recipientNickname} llegó a esta familia y la hizo más completa. " +
-        "Este libro es para recordar que los mejores recuerdos siempre tienen patas, risas y mucho amor.",
+        "{recipientNickname} llegó a esta familia para quedarse,\n" +
+        "trayendo su alegría, sin nunca cansarse.\n" +
+        "Este libro es para recordar, con todo el corazón,\n" +
+        "que los mejores recuerdos tienen patas, risas y amor sin condición.",
       SHE_TO_HE:
-        "{recipientNickname} llegó a esta familia y la hizo más completa. " +
-        "Este libro es para recordar que los mejores recuerdos siempre tienen patas, risas y mucho amor.",
+        "{recipientNickname} llegó a esta familia para quedarse,\n" +
+        "trayendo su alegría, sin nunca cansarse.\n" +
+        "Este libro es para recordar, con todo el corazón,\n" +
+        "que los mejores recuerdos tienen patas, risas y amor sin condición.",
     },
   ],
   // ── Hermanos ──────────────────────────────────────────────────────────────────
@@ -602,70 +844,92 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
     {
       label: "Épica",
       HE_TO_SHE:
-        "Porque ser hermanos es la mejor aventura del mundo. " +
-        "Este libro celebra cada momento que compartimos, cada locura inventada, cada risa que no pudimos parar. " +
-        "Juntos somos invencibles. Somos el mejor equipo.",
+        "Porque ser hermanos es la aventura más grande del mundo entero,\n" +
+        "celebramos cada locura, cada risa, cada momento sincero.\n" +
+        "Juntos, nada puede detenernos, nada nos puede frenar,\n" +
+        "porque juntos somos invencibles, imposibles de superar.\n" +
+        "Somos, sin duda, el mejor equipo.",
       SHE_TO_HE:
-        "Porque ser hermanos es la mejor aventura del mundo. " +
-        "Este libro celebra cada momento que compartimos, cada locura inventada, cada risa que no pudimos parar. " +
-        "Juntos somos invencibles. Somos el mejor equipo.",
+        "Porque ser hermanos es la aventura más grande del mundo entero,\n" +
+        "celebramos cada locura, cada risa, cada momento sincero.\n" +
+        "Juntos, nada puede detenernos, nada nos puede frenar,\n" +
+        "porque juntos somos invencibles, imposibles de superar.\n" +
+        "Somos, sin duda, el mejor equipo.",
     },
     {
       label: "Divertida",
       HE_TO_SHE:
-        "Inventamos juegos imposibles, construimos castillos de cojines e hicimos travesuras que nadie más entendería. " +
-        "Eso es lo que nos hace el mejor equipo. " +
-        "Este libro es nuestro. Cada página, una razón para ser hermanos.",
+        "Inventamos juegos que nadie más podría entender,\n" +
+        "construimos castillos de cojines, sin nada que perder.\n" +
+        "Hicimos travesuras que a nadie más le harían sentido,\n" +
+        "por eso somos el mejor equipo que ha existido.\n" +
+        "Este libro es nuestro: cada página, una razón para ser hermanos.",
       SHE_TO_HE:
-        "Inventamos juegos imposibles, construimos castillos de cojines e hicimos travesuras que nadie más entendería. " +
-        "Eso es lo que nos hace el mejor equipo. " +
-        "Este libro es nuestro. Cada página, una razón para ser hermanos.",
+        "Inventamos juegos que nadie más podría entender,\n" +
+        "construimos castillos de cojines, sin nada que perder.\n" +
+        "Hicimos travesuras que a nadie más le harían sentido,\n" +
+        "por eso somos el mejor equipo que ha existido.\n" +
+        "Este libro es nuestro: cada página, una razón para ser hermanos.",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "Quizás peleamos por el control remoto. Quizás nos robamos la ropa. " +
-        "Pero cuando algo importa de verdad, siempre estamos el uno para el otro. " +
+        "Quizás peleamos por el control remoto sin razón,\n" +
+        "quizás nos robamos la ropa, sin ninguna explicación.\n" +
+        "Pero cuando algo de verdad importa, sin dudar,\n" +
+        "siempre estamos el uno para el otro, sin fallar.\n" +
         "Porque más que hermanos, somos el mejor equipo.",
       SHE_TO_HE:
-        "Quizás peleamos por el control remoto. Quizás nos robamos la ropa. " +
-        "Pero cuando algo importa de verdad, siempre estamos el uno para el otro. " +
+        "Quizás peleamos por el control remoto sin razón,\n" +
+        "quizás nos robamos la ropa, sin ninguna explicación.\n" +
+        "Pero cuando algo de verdad importa, sin dudar,\n" +
+        "siempre estamos el uno para el otro, sin fallar.\n" +
         "Porque más que hermanos, somos el mejor equipo.",
     },
   ],
-  "La Familia": [
+  "Mi Familia": [
     {
       label: "Con amor",
       HE_TO_SHE:
-        "Los {familyName} somos nuestro lugar favorito en el mundo. " +
-        "En estas páginas están los momentos, las risas y las aventuras que nos definen. " +
-        "Este libro es para cada uno de nosotros: para recordarnos siempre cuánto nos amamos.",
+        "Los {familyName} somos nuestro lugar favorito, sin dudar,\n" +
+        "en estas páginas viven los momentos que no queremos olvidar.\n" +
+        "Las risas, las aventuras, todo lo que nos hace ser,\n" +
+        "este libro es de todos, para siempre volver a leer.\n" +
+        "Para recordarnos siempre cuánto nos amamos.",
       SHE_TO_HE:
-        "Los {familyName} somos nuestro lugar favorito en el mundo. " +
-        "En estas páginas están los momentos, las risas y las aventuras que nos definen. " +
-        "Este libro es para cada uno de nosotros: para recordarnos siempre cuánto nos amamos.",
+        "Los {familyName} somos nuestro lugar favorito, sin dudar,\n" +
+        "en estas páginas viven los momentos que no queremos olvidar.\n" +
+        "Las risas, las aventuras, todo lo que nos hace ser,\n" +
+        "este libro es de todos, para siempre volver a leer.\n" +
+        "Para recordarnos siempre cuánto nos amamos.",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "No necesitamos ser astronautas ni piratas para vivir una aventura. Nos basta con estar juntos. " +
-        "Este libro es un abrazo para toda la familia {familyName}: " +
-        "por todo lo que fuimos, lo que somos y lo que seguiremos siendo.",
+        "No hace falta ser astronautas ni piratas de verdad,\n" +
+        "nos basta con estar juntos para vivir la aventura de la unidad.\n" +
+        "Este libro es un abrazo para toda la familia {familyName},\n" +
+        "por todo lo que fuimos, lo que somos, lo que será.\n" +
+        "Hoy, mañana y siempre.",
       SHE_TO_HE:
-        "No necesitamos ser astronautas ni piratas para vivir una aventura. Nos basta con estar juntos. " +
-        "Este libro es un abrazo para toda la familia {familyName}: " +
-        "por todo lo que fuimos, lo que somos y lo que seguiremos siendo.",
+        "No hace falta ser astronautas ni piratas de verdad,\n" +
+        "nos basta con estar juntos para vivir la aventura de la unidad.\n" +
+        "Este libro es un abrazo para toda la familia {familyName},\n" +
+        "por todo lo que fuimos, lo que somos, lo que será.\n" +
+        "Hoy, mañana y siempre.",
     },
     {
       label: "Nuestra historia",
       HE_TO_SHE:
-        "Cada familia tiene su propia magia. La de los {familyName} está en las cenas ruidosas, " +
-        "los planes imposibles y ese amor que crece cada día. " +
-        "Este libro es nuestra historia, y la mejor parte es que todavía nos falta mucho por escribir.",
+        "Cada familia guarda su propia magia y su sazón,\n" +
+        "la de los {familyName} vive en cada cena y reunión.\n" +
+        "En los planes imposibles y el amor que no deja de crecer,\n" +
+        "este libro es nuestra historia, con mucho más por escribir y por hacer.",
       SHE_TO_HE:
-        "Cada familia tiene su propia magia. La de los {familyName} está en las cenas ruidosas, " +
-        "los planes imposibles y ese amor que crece cada día. " +
-        "Este libro es nuestra historia, y la mejor parte es que todavía nos falta mucho por escribir.",
+        "Cada familia guarda su propia magia y su sazón,\n" +
+        "la de los {familyName} vive en cada cena y reunión.\n" +
+        "En los planes imposibles y el amor que no deja de crecer,\n" +
+        "este libro es nuestra historia, con mucho más por escribir y por hacer.",
     },
   ],
 };
@@ -689,7 +953,7 @@ function resolveDedicationText(
 }
 
 function getDedicationOptions(libroNombre: string): DedicationOption[] {
-  return DEDICATION_OPTIONS[libroNombre] ?? DEDICATION_OPTIONS["10 o 15 Razones Por Las Que Te Amo"];
+  return DEDICATION_OPTIONS[libroNombre] ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
 }
 
 // HE_TO_HE usa template HE_TO_SHE, SHE_TO_SHE usa template SHE_TO_HE
@@ -712,7 +976,18 @@ function getWizardMode(categoriaSlug: string, libroNombre: string): WizardMode {
 
 // Para "familia" el destinatario está implícito en el nombre del libro
 function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
-  return ["Mamá, Mi Heroína", "Te Amo, Abuela"].includes(libroNombre) ? "F" : "M";
+  return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(libroNombre) ? "F" : "M";
+}
+
+// Libros de familia donde el dedicante solo puede ser un género (el libro está
+// diseñado para una única voz — ej. "Papá, Mi Héroe" = hija dedicando a su papá).
+// Para estos libros el paso 1 (selector Hijo/Hija o Nieto/Nieta) se salta por completo.
+function getFixedDedicatorGender(libroNombre: string): "M" | "F" | null {
+  if (libroNombre === "Papá, Mi Héroe") return "F";       // hija → papá
+  if (libroNombre === "Mamá, Mi Heroína") return "M";      // hijo → mamá
+  if (libroNombre === "Te amo, abuelo") return "M";        // nieto → abuelo
+  if (libroNombre === "Te amo, abuela") return "M";        // nieto → abuela
+  return null;
 }
 
 type PhotoConfig = { recipient: number; dedicator: number };
@@ -849,6 +1124,11 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const photoConfig = PHOTO_CONFIG[wizardMode];
   // Para familia-grupo y hermanos, el step 3 no existe; se salta del 2 al 4
   const nextAfterRecipient = (wizardMode === "familia-grupo" || wizardMode === "hermanos") ? 4 : 3;
+  // Libros de familia con dedicante de género único (ej. Papá Mi Héroe): el paso 1
+  // (selector Hijo/Hija) no tiene sentido y se salta — 0 va directo a 2.
+  const fixedDedicatorGender = wizardMode === "familia" ? getFixedDedicatorGender(libroNombre) : null;
+  // Barra de progreso: sin el círculo "Tipo" cuando ese paso está saltado.
+  const visibleSteps = fixedDedicatorGender ? WIZARD_STEPS.filter((s) => s.number !== 1) : WIZARD_STEPS;
 
   // Step 1 — gender direction
   const [genderDirection, setGenderDirection] = useState<GenderDirection>("");
@@ -864,15 +1144,15 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const [dedicatorName, setDedicatorName] = useState("");
   const dedicatorUpload = usePhotoUpload("uploads/customers");
 
-  // Aventura Entre Patas — múltiples dueños
+  // Aventura entre patas — múltiples dueños
   const [numOwners, setNumOwners] = useState<1 | 2 | 3>(1);
-  // Siempre Serás Parte de Mi Corazón — múltiples hermanos (reusa owner2/owner3)
+  // Siempre seras parte de mi — múltiples hermanos (reusa owner2/owner3)
   const [numSiblings, setNumSiblings] = useState<2 | 3>(2);
   const [owner2Name, setOwner2Name] = useState("");
   const [owner3Name, setOwner3Name] = useState("");
   const owner2Upload = usePhotoUpload("uploads/customers");
   const owner3Upload = usePhotoUpload("uploads/customers");
-  const isAventuraEntrePatas = libroNombre === "Aventura Entre Patas";
+  const isAventuraEntrePatas = libroNombre === "Aventura entre patas";
 
   // Familia-grupo — nombre de la familia y miembros
   const [familyName, setFamilyName] = useState("");
@@ -957,6 +1237,15 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     }
   }, [currentStep]);
 
+  // Libros con dedicante de género único: fija en silencio dedicatorGender/recipientGender
+  // apenas monta, sin que el usuario vea el paso 1 (ver fixedDedicatorGender más arriba).
+  useEffect(() => {
+    if (fixedDedicatorGender) {
+      setDedicatorGender(fixedDedicatorGender);
+      setRecipientGender(getFamiliaRecipientGender(libroNombre));
+    }
+  }, [fixedDedicatorGender, libroNombre]);
+
   useEffect(() => {
     if (dedicatorGender && recipientGender) {
       if (dedicatorGender === "M" && recipientGender === "F") setGenderDirection("HE_TO_SHE");
@@ -967,6 +1256,33 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
       setGenderDirection("");
     }
   }, [dedicatorGender, recipientGender]);
+
+  // Plantillas con protagonista según género — dos mecanismos distintos, cada uno
+  // escopeado explícitamente por wizardMode (nunca confiando en si el dato quedó
+  // no-nulo en la DB, que es incidental):
+  // - Libros de amor: dirección completa dedicante→destinatario (HE_TO_SHE, etc.),
+  //   guardada en gender_direction.
+  // - "Siempre en mi corazon" y "Mi angel guardian" (memorial): dos variantes del
+  //   homenajeado, Abuelo/Abuela y Padre/Madre respectivamente. gender_direction
+  //   guarda simplemente "M" o "F" y se compara contra recipientGender (el género
+  //   del homenajeado, ya recogido en el paso 1 de estos libros).
+  // El resto de libros no-amor/no-memorial siguen sin filtro: sus plantillas están
+  // mezcladas y no tienen protagonista de un género fijo.
+  const availableDirections = new Set(
+    templates.map((t) => t.genderDirection).filter((d): d is string => d !== null),
+  );
+  const usesDirectionTemplates = wizardMode === "amor" && availableDirections.size > 0;
+  const usesMemorialGenderTemplates = wizardMode === "memorial" && availableDirections.size > 0;
+  const directionFor = (ded: "M" | "F", rec: "M" | "F"): GenderDirection =>
+    ded === "M" && rec === "F" ? "HE_TO_SHE"
+    : ded === "F" && rec === "M" ? "SHE_TO_HE"
+    : ded === "M" && rec === "M" ? "HE_TO_HE"
+    : "SHE_TO_SHE";
+  const templatesForWizard = usesDirectionTemplates
+    ? templates.filter((t) => t.genderDirection === null || t.genderDirection === genderDirection)
+    : usesMemorialGenderTemplates
+    ? templates.filter((t) => t.genderDirection === null || t.genderDirection === recipientGender)
+    : templates;
 
   const activeGlobalPromo = promos.find(
     (p) =>
@@ -1048,7 +1364,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             ...(numOwners >= 2 ? owner2Upload.photos.map((p) => p.id) : []),
             ...(numOwners >= 3 ? owner3Upload.photos.map((p) => p.id) : []),
           ]
-        : wizardMode === "memorial" && libroNombre === "Siempre Serás Parte de Mi Corazón"
+        : wizardMode === "memorial" && libroNombre === "Siempre seras parte de mi"
         ? [
             ...recipientUpload.photos.map((p) => p.id),
             ...dedicatorUpload.photos.map((p) => p.id),
@@ -1106,7 +1422,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   ...(numHermanos >= 3 ? [{ name: hijo3Name, gender: hermano3Gender, assetIds: hijo3Upload.photos.map((p) => p.id) }] : []),
                 ],
               }
-            : wizardMode === "memorial" && libroNombre === "Siempre Serás Parte de Mi Corazón"
+            : wizardMode === "memorial" && libroNombre === "Siempre seras parte de mi"
             ? {
                 mode: "memorial-hermanos",
                 totalSiblings: numSiblings,
@@ -1247,7 +1563,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               gap: 0,
             }}
           >
-            {WIZARD_STEPS.map((step, idx) => {
+            {visibleSteps.map((step, idx) => {
               const isActive = currentStep === step.number;
               const isCompleted = currentStep > step.number;
               const circleSize = isMobile ? "26px" : "36px";
@@ -1274,7 +1590,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                       }}
                     >
                       <span style={{ fontSize: isMobile ? "10px" : "12px", fontWeight: 700, color: isActive || isCompleted ? "#fff" : "#aaa" }}>
-                        {isCompleted ? "✓" : step.number}
+                        {isCompleted ? "✓" : idx + 1}
                       </span>
                     </button>
                     {!isMobile && (
@@ -1283,7 +1599,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                       </span>
                     )}
                   </div>
-                  {idx < WIZARD_STEPS.length - 1 && (
+                  {idx < visibleSteps.length - 1 && (
                     <div
                       style={{
                         width: isMobile ? "10px" : "20px",
@@ -1358,8 +1674,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               )}
 
               <button
-                onClick={() => setCurrentStep(1)}
-                style={{ padding: "15px 44px", borderRadius: "14px", border: "none", background: accent, color: "#fff", fontSize: "16px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 6px 24px ${accent}40` }}
+                onClick={() => setCurrentStep(fixedDedicatorGender ? 2 : 1)}
+                style={{ padding: "15px 44px", borderRadius: "9999px", border: "none", background: accent, color: "#fff", fontSize: "16px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 6px 24px ${accent}40` }}
               >
                 Crear mi libro
               </button>
@@ -1369,10 +1685,10 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           {/* ── Step 1: Configuración inicial (varía por modo) ── */}
           {currentStep === 1 && (() => {
             // ── Helper: tarjeta de género reutilizable ──
-            const GenderCard = ({ id, g, isSelected, onClick, label }: { id: string; g: "M"|"F"; isSelected: boolean; onClick: () => void; label?: string }) => {
+            const GenderCard = ({ id, g, isSelected, onClick, label, disabled }: { id: string; g: "M"|"F"; isSelected: boolean; onClick: () => void; label?: string; disabled?: boolean }) => {
               const color = isSelected ? accent : "#bbb";
               return (
-                <button key={id} type="button" onClick={onClick} style={{ padding: isMobile ? "18px 12px" : "22px 16px", borderRadius: "16px", border: isSelected ? `2px solid ${accent}` : "2px solid #e5e7eb", background: isSelected ? `${accent}08` : "#fafafa", cursor: "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", transition: "all 0.2s ease", boxShadow: isSelected ? `0 4px 20px ${accent}20` : "none" }}>
+                <button key={id} type="button" disabled={disabled} onClick={disabled ? undefined : onClick} style={{ padding: isMobile ? "18px 12px" : "22px 16px", borderRadius: "16px", border: isSelected ? `2px solid ${accent}` : "2px solid #e5e7eb", background: isSelected ? `${accent}08` : "#fafafa", cursor: disabled ? "not-allowed" : "pointer", fontFamily: "inherit", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", transition: "all 0.2s ease", boxShadow: isSelected ? `0 4px 20px ${accent}20` : "none", opacity: disabled ? 0.4 : 1 }}>
                   {g === "M" ? (
                     <svg width="48" height="60" viewBox="0 0 48 60" fill="none">
                       <circle cx="24" cy="13" r="10" stroke={color} strokeWidth="2"/>
@@ -1386,6 +1702,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     </svg>
                   )}
                   <span style={{ fontSize: "17px", fontWeight: 700, color: isSelected ? accent : "#444" }}>{label ?? (g === "M" ? "Él" : "Ella")}</span>
+                  {disabled && <span style={{ fontSize: "11px", fontWeight: 600, color: "#999" }}>Próximamente</span>}
                   {isSelected && (
                     <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1407,7 +1724,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               const step1Valid = dedicatorGender !== "" && recipientGender !== "";
               return (
                 <div>
-                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos la dedicatoria</h3>
+                  <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>Personalicemos la dedicatoria</h3>
                   <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>Cuéntanos quién regala y quién recibe el libro.</p>
                   <div style={{ marginBottom: "24px" }}>
                     <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Quién dedica el libro?</p>
@@ -1419,7 +1736,10 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     <div style={{ marginBottom: "28px", animation: "wzSlideIn 0.3s cubic-bezier(0.4,0,0.2,1) both" }}>
                       <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿A quién va dedicado?</p>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                        {(["M", "F"] as const).map((g) => <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} />)}
+                        {(["M", "F"] as const).map((g) => {
+                          const optionDisabled = usesDirectionTemplates && !availableDirections.has(directionFor(dedicatorGender as "M" | "F", g));
+                          return <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} disabled={optionDisabled} />;
+                        })}
                       </div>
                     </div>
                   )}
@@ -1442,12 +1762,12 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 </button>
               );
 
-              // Aventura Entre Patas — sin pregunta de género del dueño, con selector de cantidad
+              // Aventura entre patas — sin pregunta de género del dueño, con selector de cantidad
               if (isAventuraEntrePatas) {
                 const step1Valid = recipientGender !== "";
                 return (
                   <div>
-                    <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos el libro</h3>
+                    <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>Personalicemos el libro</h3>
                     <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>Cuéntanos un poco sobre la mascota y cuántos dueños participan.</p>
                     <div style={{ marginBottom: "24px" }}>
                       <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Tu mascota es...?</p>
@@ -1481,7 +1801,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               const step1Valid = dedicatorGender !== "" && recipientGender !== "";
               return (
                 <div>
-                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos la dedicatoria</h3>
+                  <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>Personalicemos la dedicatoria</h3>
                   <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>Cuéntanos un poco sobre la mascota y quién regala el libro.</p>
                   <div style={{ marginBottom: "24px" }}>
                     <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Tu mascota es...?</p>
@@ -1510,17 +1830,36 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             // ── MEMORIAL ──
             if (wizardMode === "memorial") {
               const step1Valid = recipientGender !== "";
+              // "Siempre en mi corazon" y "Mi angel guardian" tienen dos variantes reales de
+              // plantillas (Abuelo/Abuela, Padre/Madre) — el selector debe nombrarlas tal cual,
+              // no con el genérico Él/Ella que no dice en honor a quién es el libro.
+              // "Siempre seras parte de mi" no tiene plantillas separadas por género,
+              // pero sí cambia el texto de dedicatoria (hermano/hermana) — misma etiqueta clara.
+              const memorialLabels: { m: string; f: string } | null =
+                libroNombre === "Siempre en mi corazon" ? { m: "Abuelo", f: "Abuela" }
+                : libroNombre === "Mi angel guardian" ? { m: "Padre", f: "Madre" }
+                : libroNombre === "Siempre seras parte de mi" ? { m: "Hermano", f: "Hermana" }
+                : null;
+              const recipientWord = (g: "M" | "F") => memorialLabels ? (g === "M" ? memorialLabels.m : memorialLabels.f) : (g === "M" ? "él" : "ella");
               return (
                 <div>
-                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos el libro</h3>
+                  <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>Personalicemos el libro</h3>
                   <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>¿A quién está dedicado este libro?</p>
                   <div style={{ marginBottom: "28px" }}>
-                    <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>La persona que quieres recordar era...</p>
+                    <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>
+                      {memorialLabels ? "Este libro es en honor a tu..." : "La persona que quieres recordar era..."}
+                    </p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                      {(["M", "F"] as const).map((g) => <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} />)}
+                      {(["M", "F"] as const).map((g) => (
+                        <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} label={memorialLabels ? recipientWord(g) : undefined} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} />
+                      ))}
                     </div>
                   </div>
-                  {step1Valid && summaryBox(`Un libro dedicado a ${recipientGender === "M" ? "él" : "ella"}, siempre en tu corazón`)}
+                  {step1Valid && summaryBox(
+                    memorialLabels
+                      ? `Un libro en honor a tu ${recipientWord(recipientGender as "M" | "F").toLowerCase()}, siempre en tu corazón`
+                      : `Un libro dedicado a ${recipientWord(recipientGender as "M" | "F")}, siempre en tu corazón`
+                  )}
                   <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
                     {navBtn("Anterior", () => setCurrentStep(0))}
                     {navBtn("Siguiente", () => setCurrentStep(2), true, !step1Valid)}
@@ -1534,18 +1873,18 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               const recipientG = getFamiliaRecipientGender(libroNombre);
               const recipientLabel = libroNombre === "Papá, Mi Héroe" ? "papá"
                 : libroNombre === "Mamá, Mi Heroína" ? "mamá"
-                : libroNombre === "Te Amo, Abuelo" ? "abuelo"
-                : libroNombre === "Te Amo, Abuela" ? "abuela"
+                : libroNombre === "Te amo, abuelo" ? "abuelo"
+                : libroNombre === "Te amo, abuela" ? "abuela"
                 : recipientG === "M" ? "él" : "ella";
               const step1Valid = dedicatorGender !== "";
               return (
                 <div>
-                  <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>Personalicemos la dedicatoria</h3>
+                  <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>Personalicemos la dedicatoria</h3>
                   <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>Este libro es un regalo para <strong>{libroNombre.toLowerCase().replace(",", "")}</strong>. ¿Quién lo dedica?</p>
                   <div style={{ marginBottom: "28px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                       {(() => {
-                        const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
+                        const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
                         return (["M", "F"] as const).map((g) => (
                           <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g}
                             label={g === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija")}
@@ -1557,7 +1896,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     </div>
                   </div>
                   {(() => {
-                    const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
+                    const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
                     const dedicantLabel = dedicatorGender === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija");
                     return step1Valid && summaryBox(`${dedicantLabel} le dedica el libro a ${recipientLabel}`);
                   })()}
@@ -1607,7 +1946,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
             return (
               <div>
-                <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>¡Creemos el libro de tu familia!</h3>
+                <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>¡Creemos el libro de tu familia!</h3>
                 <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>Dinos cuántos hijos tiene la familia para calcular las fotos necesarias.</p>
 
                 {/* Papá + Mamá — siempre fijos */}
@@ -1670,7 +2009,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             const step1Valid = hermanoGenders.every((g) => g !== "");
             return (
               <div>
-                <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>¡Creemos el libro de los hermanos!</h3>
+                <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>¡Creemos el libro de los hermanos!</h3>
                 <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>Dinos cuántos hermanos hay y el género de cada uno.</p>
 
                 {/* Selector de cantidad */}
@@ -1806,8 +2145,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   : wizardMode === "familia" ? (
                       libroNombre === "Papá, Mi Héroe" ? "Datos del papá"
                       : libroNombre === "Mamá, Mi Heroína" ? "Datos de la mamá"
-                      : libroNombre === "Te Amo, Abuelo" ? "Datos del abuelo"
-                      : libroNombre === "Te Amo, Abuela" ? "Datos de la abuela"
+                      : libroNombre === "Te amo, abuelo" ? "Datos del abuelo"
+                      : libroNombre === "Te amo, abuela" ? "Datos de la abuela"
                       : recipientGender === "F" ? "Datos de ella" : "Datos de él"
                     )
                   : recipientGender === "F" ? "Datos de ella" : "Datos de él"}
@@ -1845,7 +2184,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               </div>
 
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
-                {navBtn("Anterior", () => setCurrentStep(1))}
+                {navBtn("Anterior", () => setCurrentStep(fixedDedicatorGender ? 0 : 1))}
                 {navBtn("Siguiente", () => setCurrentStep(nextAfterRecipient), true, !recipientName.trim() || recipientUpload.photos.length < 1)}
               </div>
             </div>
@@ -1853,12 +2192,13 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
           {/* ── Step 3: Dedicator character card (no aplica en familia-grupo ni hermanos) ── */}
           {currentStep === 3 && wizardMode !== "familia-grupo" && wizardMode !== "hermanos" && (() => {
-            // ── Siempre Serás Parte de Mi Corazón — hermanos sobrevivientes ──
+            // ── Siempre seras parte de mi — hermanos sobrevivientes ──
             // numSiblings = total de hermanos (incluyendo el fallecido ya subido en step 2)
             // Hermanos a subir aquí = numSiblings - 1
-            if (wizardMode === "memorial" && libroNombre === "Siempre Serás Parte de Mi Corazón") {
+            if (wizardMode === "memorial" && libroNombre === "Siempre seras parte de mi") {
               const sibSvg = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
               const livingCount = numSiblings - 1;
+              const deceasedName = recipientNickname.trim() || recipientName.trim() || "tu hermano";
               const siblingsValid =
                 !!dedicatorName.trim() && dedicatorUpload.photos.length >= 1 &&
                 (livingCount < 2 || (!!owner2Name.trim() && owner2Upload.photos.length >= 1));
@@ -1866,14 +2206,14 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <div>
                   <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>Fotos de los hermanos</h3>
                   <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#666" }}>
-                    Las fotos del hermano que se fue ya las subiste. Ahora cuéntanos cuántos hermanos eran en total.
+                    Las fotos de {deceasedName} ya las subiste. Ahora contanos quiénes más aparecen en el libro.
                   </p>
 
-                  <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>¿Cuántos hermanos eran en total?</p>
+                  <p style={{ margin: "0 0 12px 0", fontSize: "15px", fontWeight: 600, color: "#333" }}>Selecciona la cantidad de hermanos.</p>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "24px" }}>
-                    {([2, 3] as const).map((n) => (
-                      <button key={n} type="button" onClick={() => setNumSiblings(n)} style={{ padding: "12px 8px", borderRadius: "12px", border: numSiblings === n ? `2px solid ${accent}` : "2px solid #e5e7eb", background: numSiblings === n ? `${accent}08` : "#fafafa", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "15px", color: numSiblings === n ? accent : "#555", transition: "all 0.2s ease" }}>
-                        {n} hermanos
+                    {([1, 2] as const).map((n) => (
+                      <button key={n} type="button" onClick={() => setNumSiblings((n + 1) as 2 | 3)} style={{ padding: "12px 8px", borderRadius: "12px", border: livingCount === n ? `2px solid ${accent}` : "2px solid #e5e7eb", background: livingCount === n ? `${accent}08` : "#fafafa", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "15px", color: livingCount === n ? accent : "#555", transition: "all 0.2s ease" }}>
+                        {n} hermano{n > 1 ? "s" : ""} más
                       </button>
                     ))}
                   </div>
@@ -1945,7 +2285,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               );
             }
 
-            // ── Aventura Entre Patas — múltiples dueños ──
+            // ── Aventura entre patas — múltiples dueños ──
             if (isAventuraEntrePatas) {
               const ownerSvg = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
               const aventuraValid =
@@ -1976,7 +2316,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   {wizardMode === "mascotas" ? (dedicatorGender === "M" ? "Datos del dueño" : "Datos de la dueña")
                     : wizardMode === "memorial" ? "¿Quién dedica este libro?"
                     : wizardMode === "familia" ? (() => {
-                      const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
+                      const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
                       return dedicatorGender === "M"
                         ? (isAbuelo ? "Datos del nieto" : "Datos del hijo")
                         : (isAbuelo ? "Datos de la nieta" : "Datos de la hija");
@@ -2023,7 +2363,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 {selectedTemplates.length === 3 && <CheckCircle2 size={16} />}
                 {selectedTemplates.length}/3 seleccionadas{selectedTemplates.length === 3 && " — Listo"}
               </div>
-              <TemplateBook templates={templates} selectedIds={selectedTemplates} maxSelections={3} accent={accent} onToggle={toggleTemplate} />
+              <TemplateBook templates={templatesForWizard} selectedIds={selectedTemplates} maxSelections={3} accent={accent} onToggle={toggleTemplate} />
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row", justifyContent: "center", marginTop: "28px" }}>
                 {navBtn("Anterior", () => setCurrentStep((wizardMode === "familia-grupo" || wizardMode === "hermanos") ? 2 : 3))}
                 {navBtn("Siguiente", () => setCurrentStep(5), true, selectedTemplates.length < 3)}
@@ -2035,7 +2375,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           {currentStep === 5 && (() => {
             return (
               <div>
-                <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>5. Tipo de tapa</h3>
+                <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>5. Tipo de tapa</h3>
                 <p style={{ margin: "0 0 28px 0", fontSize: "14px", color: "#666" }}>
                   Elige cómo quieres que sea la tapa de tu libro.
                 </p>
@@ -2052,7 +2392,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                         style={{ borderRadius: "20px", border: isSelected ? `2px solid ${accent}` : "2px solid #e5e7eb", background: isSelected ? `${accent}06` : "#fff", cursor: "pointer", fontFamily: "inherit", overflow: "hidden", transition: "all 0.25s ease", boxShadow: isSelected ? `0 8px 32px ${accent}22` : "0 2px 8px rgba(0,0,0,0.04)", padding: 0, textAlign: "left" }}
                       >
                         {/* Visual area */}
-                        <div style={{ width: "100%", height: "200px", background: isSoft ? "linear-gradient(160deg, #f5eeff 0%, #ede0ff 100%)" : `linear-gradient(160deg, ${accent}20 0%, ${accent}0a 100%)`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                        <div style={{ width: "100%", height: "200px", background: isSoft ? "#f3ecfd" : `linear-gradient(160deg, ${accent}20 0%, ${accent}0a 100%)`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                           {/* Book mockup */}
                           <div style={{ position: "relative", width: isSoft ? "90px" : "100px", height: isSoft ? "120px" : "132px" }}>
                             {/* Spine */}
@@ -2092,7 +2432,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                             {vPromo !== undefined && (
                               <span style={{ fontSize: "12px", color: "#bbb", textDecoration: "line-through" }}>{formatPrice(v.basePriceCents)}</span>
                             )}
-                            <span style={{ fontSize: "28px", fontWeight: 900, color: accent, lineHeight: 1 }}>{formatPrice(displayPrice)}</span>
+                            <span style={{ fontSize: "28px", fontWeight: 800, color: accent, lineHeight: 1 }}>{formatPrice(displayPrice)}</span>
                           </div>
                           <div style={{ fontSize: "11px", color: "#aaa", marginTop: "3px" }}>Precio base del libro</div>
                         </div>
@@ -2115,7 +2455,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: 700 }}>6. Dedicatoria</h3>
               <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>Esta dedicatoria aparecerá en las primeras páginas de tu libro.</p>
 
-              {libroNombre === "1025 Días Enamorándome De Ti" && (
+              {libroNombre === "1025 Días enamorándome de ti" && (
                 <div style={{ marginBottom: "24px", padding: "16px", borderRadius: "12px", background: `${accent}06`, border: `1px solid ${accent}20` }}>
                   <div style={{ fontSize: "12px", fontWeight: 700, color: "#888", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.6px" }}>¿Cuándo comenzó su historia?</div>
                   <input
@@ -2187,7 +2527,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             const totalCents = (promoBase ?? baseCents) + extraCents + (wantsRush ? RUSH_FEE_CENTS : 0);
             return (
               <div>
-                <h3 style={{ margin: "0 0 6px 0", fontSize: "24px", fontWeight: 700 }}>7. Tus datos</h3>
+                <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>7. Tus datos</h3>
                 <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>Elige las opciones de producción y completa tus datos de envío.</p>
 
                 {/* Package */}
@@ -2261,7 +2601,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 {/* Total preview */}
                 <div style={{ padding: "12px 16px", borderRadius: "12px", background: `${accent}06`, border: `1px solid ${accent}20`, marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: "13px", color: "#666" }}>Total estimado</span>
-                  <span style={{ fontSize: "20px", fontWeight: 900, color: accent }}>{formatPrice(totalCents)}</span>
+                  <span style={{ fontSize: "20px", fontWeight: 800, color: accent }}>{formatPrice(totalCents)}</span>
                 </div>
 
                 <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
@@ -2315,7 +2655,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     <span style={{ fontSize: "15px", fontWeight: 700, color: "#333" }}>Total estimado</span>
                     <div style={{ textAlign: "right" }}>
                       {promoBase !== undefined && <div style={{ fontSize: "13px", color: "#aaa", textDecoration: "line-through" }}>{formatPrice(originalTotal)}</div>}
-                      <div style={{ fontSize: "28px", fontWeight: 900, color: accent }}>{formatPrice(totalCents)}</div>
+                      <div style={{ fontSize: "28px", fontWeight: 800, color: accent }}>{formatPrice(totalCents)}</div>
                     </div>
                   </div>
                 </div>
@@ -2345,7 +2685,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexDirection: isMobile ? "column" : "row" }}>
                 {navBtn("Volver", () => setCurrentStep(8))}
                 <button disabled={submitting} onClick={handleSubmit}
-                  style={{ padding: "14px 36px", borderRadius: "10px", border: "none", background: submitting ? "#ccc" : accent, color: "#fff", fontSize: "16px", fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", fontFamily: "inherit" }}
+                  style={{ padding: "14px 36px", borderRadius: "9999px", border: "none", background: submitting ? "#ccc" : accent, color: "#fff", fontSize: "16px", fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer", fontFamily: "inherit" }}
                 >
                   {submitting ? "Enviando..." : "Enviar Solicitud"}
                 </button>
@@ -2428,7 +2768,7 @@ function CharacterCard({
       {/* ── Card header ── */}
       <div
         style={{
-          background: `linear-gradient(160deg, ${accent}18 0%, ${accent}06 100%)`,
+          background: `${accent}10`,
           padding: isMobile ? "28px 20px 24px" : "36px 32px 28px",
           display: "flex",
           flexDirection: "column",
