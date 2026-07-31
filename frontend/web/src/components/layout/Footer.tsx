@@ -394,8 +394,8 @@ export default function Footer() {
             </nav>
             <div style={{ ...LABEL_STYLE, marginTop: "20px" }}>Legal</div>
             <nav style={{ display: "flex", flexDirection: "column" }}>
-              <a href="#" style={LINK_STYLE}>Términos y Condiciones</a>
-              <a href="#" style={LINK_STYLE}>Política de Privacidad</a>
+              <Link href="/terminos-y-condiciones" style={LINK_STYLE}>Términos y Condiciones</Link>
+              <Link href="/politica-de-privacidad" style={LINK_STYLE}>Política de Privacidad</Link>
             </nav>
           </div>
 

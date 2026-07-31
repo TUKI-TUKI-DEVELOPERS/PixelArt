@@ -44,3 +44,6 @@ Thumbs.db
 # Coverage
 coverage/
 .nyc_output/
+
+# Playwright MCP output (screenshots/snapshots/logs from browser testing)
+.playwright-mcp/
