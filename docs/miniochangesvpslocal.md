@@ -45,7 +45,7 @@ mc alias set vps http://localhost:9002 pixelart_access pixelart_secret_key
 
 ### 1. Abrir el túnel SSH
 ```bash
-ssh -f -N -L 9002:172.18.0.2:9000 root@161.132.53.223
+ssh -f -N -L 9002:172.18.0.2:9000 root@161.132.4.27
 ```
 Te pide la contraseña del servidor, la ponés y te devuelve el prompt automáticamente.
 
@@ -96,5 +96,5 @@ Contraseña incorrecta del servidor. Intentá de nuevo.
 ### El comando `mc alias set vps` se cuelga sin responder
 El túnel SSH no está activo. Cerrá y abrilo de nuevo con:
 ```bash
-ssh -f -N -L 9002:172.18.0.2:9000 root@161.132.53.223
+ssh -f -N -L 9002:172.18.0.2:9000 root@161.132.4.27
 ```
