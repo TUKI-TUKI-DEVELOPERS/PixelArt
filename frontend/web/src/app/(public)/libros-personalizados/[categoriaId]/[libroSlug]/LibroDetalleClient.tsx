@@ -1,5 +1,7 @@
 "use client";
 
+import { tokens } from "@/lib/design-tokens";
+
 import { useState } from "react";
 import Link from "next/link";
 import MaternalSkyBackground from "@/components/backgrounds/MaternalSkyBackground";
@@ -468,7 +470,7 @@ const FAQ_BY_CATEGORY: Record<string, CategoryFaq> = {
    ══════════════════════════════════════════ */
 
 type VariantProp = { id: number; coverType: string; basePriceCents: number };
-type TemplateProp = { id: number; name: string | null; previewUrl: string };
+type TemplateProp = { id: number; name: string | null; previewUrl: string; genderDirection: string | null };
 type DbIdsProp = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number } | null;
 
 type Props = {
@@ -537,13 +539,13 @@ export default function LibroDetalleClient({
           animation: subtitleSweep 6s linear infinite;
         }
         .hero-subtitle-amor {
-          background-image: linear-gradient(to right, #e91e8c 25%, #ffffff 50%, #e91e8c 75%);
+          background-image: linear-gradient(to right, #B72020 25%, #ffffff 50%, #B72020 75%);
         }
         .hero-subtitle-mascotas {
-          background-image: linear-gradient(to right, #2196f3 25%, #ffffff 50%, #2196f3 75%);
+          background-image: linear-gradient(to right, #f5a623 25%, #ffffff 50%, #f5a623 75%);
         }
         .hero-subtitle-familia {
-          background-image: linear-gradient(to right, #4caf50 25%, #ffffff 50%, #4caf50 75%);
+          background-image: linear-gradient(to right, #88C343 25%, #ffffff 50%, #88C343 75%);
         }
         .hero-subtitle-memorias {
           background-image: linear-gradient(to right, #8b6bb1 25%, #ffffff 50%, #8b6bb1 75%);
@@ -582,7 +584,7 @@ export default function LibroDetalleClient({
             style={{
               position: "absolute",
               inset: 0,
-              background: `linear-gradient(160deg, ${info.accent}12 0%, #f8f9fa 50%, ${info.accent}08 100%)`,
+              background: `${info.accent}0D`,
             }}
           />
         )}
@@ -610,10 +612,10 @@ export default function LibroDetalleClient({
               const categoryColor = libroSlug === "te-amo-abuelo" ? "#fff" : textColor;
               return (
                 <>
-                  <p style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: 500, color: textColor, letterSpacing: "2px", textTransform: "uppercase", textShadow: outlineShadow }}>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 700, color: textColor, letterSpacing: "0.14em", textTransform: "uppercase", textShadow: outlineShadow }}>
                     Libro Personalizado
                   </p>
-                  <p style={{ margin: "0 0 10px 0", fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px", fontWeight: 900, color: categoryColor, textTransform: "uppercase", letterSpacing: "3px", lineHeight: 1.1, textShadow: outlineShadow }}>
+                  <p style={{ margin: "0 0 10px 0", fontFamily: tokens.fonts.display, fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "38px", fontWeight: 700, color: categoryColor, letterSpacing: "-0.01em", lineHeight: 1.15, textShadow: outlineShadow }}>
                     {CATEGORIA_LABEL[categoriaSlug] ?? categoriaSlug.replace(/-/g, " ").toUpperCase()}
                   </p>
                 </>
@@ -755,11 +757,12 @@ export default function LibroDetalleClient({
               <h1
                 style={{
                   margin: "0 0 8px 0",
-                  fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "36px",
-                  fontWeight: isMobile ? 600 : 700,
+                  fontFamily: tokens.fonts.display,
+                  fontSize: isSmallMobile ? "26px" : isMobile ? "30px" : "38px",
+                  fontWeight: 700,
                   color: (["mi-amor", "aventura-entre-patas", "mi-amigo-miauravilloso"].includes(libroSlug)) ? "#fff" : "#111",
-                  lineHeight: 1.1,
-                  textTransform: "uppercase",
+                  lineHeight: 1.15,
+                  letterSpacing: "-0.01em",
                   textAlign: "center",
                   textShadow: "0 4px 12px rgba(0,0,0,0.18)",
                 }}
@@ -832,15 +835,15 @@ export default function LibroDetalleClient({
                   onClick={() => { setCurrentStep(1); document.getElementById("wizard-section")?.scrollIntoView({ behavior: "smooth" }); }}
                   style={{
                     padding: "14px 40px",
-                    borderRadius: "14px",
+                    borderRadius: "9999px",
                     border: "none",
                     background: info.accent,
                     color: "#fff",
                     fontSize: "16px",
                     fontWeight: 700,
                     cursor: "pointer",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    letterSpacing: "0.01em",
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.16)",
                     width: isMobile ? "100%" : undefined,
                   }}
                 >
@@ -868,7 +871,7 @@ export default function LibroDetalleClient({
                 }),
               }}
             >
-              <div style={{ fontSize: "12px", fontWeight: 500, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px", textAlign: "center" }}>
+              <div style={{ fontSize: "12px", fontWeight: 600, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px", textAlign: "center" }}>
                 Características del Libro
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px" }}>
@@ -927,46 +930,36 @@ export default function LibroDetalleClient({
       </div>
 
       {/* ═══ TAMBIÉN TE PODRÍA INTERESAR ═══ */}
-      <section style={{ background: "#fafafa", padding: isMobile ? "48px 20px 64px" : "72px 48px 96px" }}>
+      <section style={{ background: "#f8f9fa", padding: isMobile ? "48px 20px 64px" : "72px 48px 96px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
 
           {/* Header editorial */}
           <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
-            <p style={{
-              margin: "0 0 12px 0",
-              fontSize: "11px",
-              fontWeight: 700,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: info.accent,
-            }}>
-              Nuestra colección
-            </p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <span style={{ width: "28px", height: "2px", background: info.accent }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: info.accent, lineHeight: 1.1 }}>
+                Nuestra colección
+              </span>
+              <span style={{ width: "28px", height: "2px", background: info.accent }} />
+            </div>
             <h2 style={{
               margin: "0 0 16px 0",
-              fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : "40px",
-              fontWeight: 900,
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(26px, 3.2vw, 42px)",
+              fontWeight: 700,
               color: "#1a1a1a",
-              lineHeight: 1.1,
-              letterSpacing: "-0.5px",
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
             }}>
               {RELATED_SECTION_TITLE[categoriaSlug]?.split(" ").slice(0, -2).join(" ") ?? "También te"}{" "}
               <span style={{
-                background: `linear-gradient(135deg, ${info.accent}, ${info.accent}bb)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                color: info.accent,
+                fontStyle: "italic",
+                fontWeight: 400,
               }}>
                 {RELATED_SECTION_TITLE[categoriaSlug]?.split(" ").slice(-2).join(" ") ?? "podría interesar"}
               </span>
             </h2>
-            <div aria-hidden="true" style={{
-              width: "48px",
-              height: "3px",
-              borderRadius: "9999px",
-              background: `linear-gradient(90deg, ${info.accent}, ${info.accent}99)`,
-              margin: "0 auto 16px",
-            }} />
             <p style={{
               margin: 0,
               fontSize: isMobile ? "14px" : "16px",
@@ -1020,41 +1013,31 @@ export default function LibroDetalleClient({
           >
             {/* Header editorial */}
             <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
-              <p style={{
-                margin: "0 0 12px 0",
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                color: info.accent,
-              }}>
-                Preguntas frecuentes
-              </p>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <span style={{ width: "28px", height: "2px", background: info.accent }} />
+                <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: info.accent, lineHeight: 1.1 }}>
+                  Preguntas frecuentes
+                </span>
+                <span style={{ width: "28px", height: "2px", background: info.accent }} />
+              </div>
               <h2 style={{
                 margin: "0 0 16px 0",
-                fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
-                fontWeight: 900,
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(24px, 3vw, 38px)",
+                fontWeight: 700,
                 color: "#1a1a1a",
                 lineHeight: 1.15,
-                letterSpacing: "-0.5px",
+                letterSpacing: "-0.01em",
               }}>
                 {faq.tituloBase}{" "}
                 <span style={{
-                  background: `linear-gradient(135deg, ${info.accent}, ${info.accent}bb)`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  color: info.accent,
+                  fontStyle: "italic",
+                  fontWeight: 400,
                 }}>
                   {faq.tituloDestacado}
                 </span>
               </h2>
-              <div aria-hidden="true" style={{
-                width: "48px",
-                height: "3px",
-                borderRadius: "9999px",
-                background: `linear-gradient(90deg, ${info.accent}, ${info.accent}99)`,
-                margin: "0 auto 16px",
-              }} />
               <p style={{
                 margin: 0,
                 fontSize: isMobile ? "14px" : "16px",
@@ -1170,7 +1153,7 @@ function StepEscenario({ accent, onNext }: { accent: string; onNext: () => void 
           width: "100%",
           aspectRatio: "16/9",
           maxHeight: "380px",
-          background: `linear-gradient(135deg, ${accent}15 0%, ${accent}08 100%)`,
+          background: `${accent}10`,
           borderRadius: "20px",
           marginBottom: "20px",
           display: "flex",
@@ -1195,7 +1178,7 @@ function StepEscenario({ accent, onNext }: { accent: string; onNext: () => void 
               height: "72px",
               borderRadius: "10px",
               border: selected === i ? `3px solid ${accent}` : "2px solid #e0e0e0",
-              background: `linear-gradient(135deg, ${accent}${selected === i ? "18" : "08"} 0%, #f5f5f5 100%)`,
+              background: `${accent}${selected === i ? "14" : "08"}`,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -1324,7 +1307,7 @@ function StepPortada({
           width: "100%",
           aspectRatio: "5/2",
           maxHeight: "280px",
-          background: `linear-gradient(135deg, ${accent}12 0%, ${accent}06 100%)`,
+          background: `${accent}10`,
           borderRadius: "20px",
           marginBottom: "32px",
           display: "flex",
@@ -1380,7 +1363,7 @@ function StepRevision({ accent, onNext }: { accent: string; onNext: () => void }
           width: "100%",
           aspectRatio: "2/1",
           maxHeight: "400px",
-          background: `linear-gradient(135deg, ${accent}10 0%, #f5f5f5 100%)`,
+          background: `${accent}0D`,
           borderRadius: "20px",
           marginBottom: "20px",
           display: "flex",
@@ -1488,7 +1471,7 @@ function StepEnvio({
             }}
           >
             <div style={{ fontSize: "36px", marginBottom: "8px" }}>{badge.icon}</div>
-            <div style={{ fontSize: "12px", fontWeight: 600, color: "#999", textTransform: "uppercase" }}>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "#888" }}>
               {badge.label}
             </div>
           </div>
@@ -1506,9 +1489,8 @@ function StepEnvio({
             background: accent,
             color: "#fff",
             fontSize: "16px",
-            fontWeight: 800,
+            fontWeight: 700,
             cursor: "pointer",
-            textTransform: "uppercase",
           }}
         >
           Agregar al carrito
@@ -1517,13 +1499,12 @@ function StepEnvio({
           style={{
             padding: "16px 32px",
             borderRadius: "14px",
-            border: `2px solid ${accent}`,
+            border: `1.5px solid ${accent}`,
             background: "#fff",
             color: accent,
             fontSize: "16px",
-            fontWeight: 800,
+            fontWeight: 700,
             cursor: "pointer",
-            textTransform: "uppercase",
           }}
         >
           Editar orden
@@ -1673,7 +1654,7 @@ function TapaOption({
         style={{
           marginTop: "16px",
           height: "100px",
-          background: `linear-gradient(135deg, ${accent}10 0%, #f5f5f5 100%)`,
+          background: `${accent}0D`,
           borderRadius: "12px",
           display: "flex",
           alignItems: "center",

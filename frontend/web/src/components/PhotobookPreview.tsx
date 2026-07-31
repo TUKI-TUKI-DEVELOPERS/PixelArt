@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { PageFlip } from "page-flip";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 type SlotPhoto = { preview: string } | null;
 type PageData = {
@@ -97,6 +98,13 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPfPages, setTotalPfPages] = useState(0);
   const [ready, setReady] = useState(false);
+  const { isCompact } = useWindowSize();
+
+  // En mobile/tablet el libro se muestra de a UNA página (portrait), no como
+  // spread de dos — si no, la librería nunca baja de su ancho mínimo por
+  // página (2x en modo spread) y se desborda del contenedor angosto.
+  const pageW = isCompact ? 220 : PAGE_W;
+  const pageH = isCompact ? 286 : PAGE_H;
 
   // Re-init when photo assignments change, not just page count
   const pagesKey = useMemo(
@@ -111,19 +119,19 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
     if (pageEls.length === 0) return;
 
     const pf = new PageFlip(el, {
-      width: PAGE_W,
-      height: PAGE_H,
+      width: pageW,
+      height: pageH,
       size: "stretch",
-      minWidth: 280,
-      minHeight: 360,
-      maxWidth: 500,
-      maxHeight: 650,
+      minWidth: isCompact ? 200 : 280,
+      minHeight: isCompact ? 260 : 360,
+      maxWidth: isCompact ? 320 : 500,
+      maxHeight: isCompact ? 416 : 650,
       maxShadowOpacity: 0.35,
       showCover: true,
       mobileScrollSupport: false,
       drawShadow: true,
       flippingTime: 800,
-      usePortrait: false,
+      usePortrait: isCompact,
       startZIndex: 0,
       autoSize: true,
       startPage: 0,
@@ -142,7 +150,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
     pf.on("flip", (e) => {
       setCurrentPage(e.data as number);
     });
-  }, [pagesKey]);
+  }, [pagesKey, pageW, pageH, isCompact]);
 
   useEffect(() => {
     const t = setTimeout(init, 200);
@@ -154,15 +162,13 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
   }, [init]);
 
 
-  // Hint: abre la tapa y vuelve usando el flip nativo de la librería
+  // Al abrir el preview, la tapa se abre sola y se queda en la primera
+  // página de contenido (no vuelve a cerrarse) — así el usuario ve de una
+  // que el libro tiene páginas, no solo la portada.
   useEffect(() => {
     if (!ready || !pfRef.current) return;
     const t1 = setTimeout(() => {
-      pfRef.current?.flip(1);
-      const t2 = setTimeout(() => {
-        pfRef.current?.flipPrev();
-      }, 1000);
-      return () => clearTimeout(t2);
+      pfRef.current?.flipNext();
     }, 600);
     return () => clearTimeout(t1);
   }, [ready]);
@@ -180,7 +186,7 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
 
 .photobook-wrap {
           position: relative;
-          max-width: ${PAGE_W * 2 + 80}px;
+          max-width: ${isCompact ? pageW + 48 : PAGE_W * 2 + 80}px;
           margin: 0 auto 24px;
           padding: 0 36px;
         }

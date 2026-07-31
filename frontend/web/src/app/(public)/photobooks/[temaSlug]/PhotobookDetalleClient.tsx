@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { tokens } from "@/lib/design-tokens";
 
 /* ── Datos de todos los temas ── */
 
@@ -67,8 +68,7 @@ const FAQ_ITEMS = [
   { question: "¿Mis fotos están seguras?", answer: "Sí. Tus imágenes se utilizan únicamente para crear tu photobook y se manejan con confidencialidad." },
 ];
 
-const ACCENT = "#804187";
-const ACCENT_LIGHT = "#049eff";
+const ACCENT = "#2d8fd5";
 const INITIAL_VISIBLE = 6;
 
 /* ══════════════════════════════════════════ */
@@ -118,7 +118,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
           position: "relative",
           width: "100%",
           minHeight: "520px",
-          background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 40%, #1a1a2e 100%)",
+          background: "#ffffff",
           overflow: "hidden",
         }}
       >
@@ -130,7 +130,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
             width: "300px",
             height: "300px",
             borderRadius: "50%",
-            background: "rgba(128, 65, 135, 0.15)",
+            background: "rgba(45, 143, 213, 0.10)",
           }}
         />
 
@@ -149,30 +149,30 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
         >
           {/* Left */}
           <div>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "6px 16px",
-                borderRadius: "20px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: ACCENT_LIGHT,
-                fontSize: "12px",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "1.5px",
-                marginBottom: "20px",
-              }}
-            >
-              PHOTOBOOK VIAJE
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+              <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  color: ACCENT,
+                  lineHeight: 1.1,
+                }}
+              >
+                Photobook Viaje
+              </span>
             </div>
             <h1
               style={{
                 margin: "0 0 20px 0",
-                fontSize: "44px",
-                fontWeight: 900,
-                color: "#fff",
-                lineHeight: 1.1,
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(34px, 4vw, 50px)",
+                fontWeight: 700,
+                letterSpacing: "-0.01em",
+                color: "#111",
+                lineHeight: 1.15,
               }}
             >
               {temaNombre}
@@ -183,7 +183,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                   margin: "0 0 16px 0",
                   fontSize: "17px",
                   lineHeight: 1.7,
-                  color: "rgba(255,255,255,0.7)",
+                  color: "#444",
                 }}
               >
                 {currentTheme.description}
@@ -205,7 +205,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     </svg>
                   ))}
                 </div>
-                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+                <span style={{ fontSize: "14px", color: "#888" }}>
                   {currentTheme.reviews} Reviews
                 </span>
               </div>
@@ -218,11 +218,12 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                 justifyContent: "center",
                 gap: "8px",
                 padding: "16px 36px",
-                borderRadius: "14px",
+                borderRadius: "9999px",
                 border: "none",
-                background: `linear-gradient(135deg, ${ACCENT} 0%, ${ACCENT_LIGHT} 100%)`,
+                background: ACCENT,
+                boxShadow: "0 6px 20px rgba(0,0,0,0.16)",
                 color: "#fff",
-                fontSize: "17px",
+                fontSize: "16px",
                 fontWeight: 700,
                 cursor: "pointer",
                 fontFamily: "inherit",
@@ -241,13 +242,13 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
               width: "100%",
               aspectRatio: "3/4",
               maxHeight: "460px",
-              background: "rgba(255,255,255,0.05)",
-              borderRadius: "24px",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "#f8f9fa",
+              borderRadius: "16px",
+              border: "1px solid #e0e0e0",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "rgba(255,255,255,0.3)",
+              color: "#aaa",
               fontSize: "16px",
             }}
           >
@@ -257,18 +258,18 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
       </section>
 
       {/* ═══ PRECIOS ═══ */}
-      <section id="precios" style={{ background: "linear-gradient(160deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%)", padding: "80px 48px" }}>
+      <section id="precios" style={{ background: "#f8f9fa", padding: "80px 48px" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "20px", padding: "6px 16px", marginBottom: "20px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#ffffff", border: "1px solid #e0e0e0", borderRadius: "20px", padding: "6px 16px", marginBottom: "20px" }}>
               <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#4ade80" }} />
-              <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: "2px" }}>Paso 1 de 2</span>
+              <span style={{ fontSize: "12px", fontWeight: 600, color: "#666" }}>Paso 1 de 2</span>
             </div>
-            <h2 style={{ margin: "0 0 14px 0", fontSize: "38px", fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>
+            <h2 style={{ margin: "0 0 14px 0", fontFamily: tokens.fonts.display, fontSize: "clamp(30px, 3.5vw, 44px)", fontWeight: 700, color: "#111", lineHeight: 1.15, letterSpacing: "-0.01em" }}>
               Elige tu tipo de tapa
             </h2>
-            <p style={{ margin: 0, fontSize: "16px", color: "rgba(255,255,255,0.45)", maxWidth: "460px", marginLeft: "auto", marginRight: "auto" }}>
+            <p style={{ margin: 0, fontSize: "16px", color: "#666", maxWidth: "460px", marginLeft: "auto", marginRight: "auto" }}>
               El precio se define por la tapa y la cantidad de hojas. Después eliges cuántas páginas quieres en el editor.
             </p>
           </div>
@@ -281,21 +282,21 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
               onClick={() => setSelectedCover("TAPA_DELGADA")}
               style={{
                 cursor: "pointer",
-                background: selectedCover === "TAPA_DELGADA" ? "rgba(107,159,255,0.12)" : "rgba(255,255,255,0.03)",
-                border: selectedCover === "TAPA_DELGADA" ? "2px solid #6b9fff" : "2px solid rgba(255,255,255,0.12)",
+                background: selectedCover === "TAPA_DELGADA" ? `${ACCENT}0D` : "#ffffff",
+                border: selectedCover === "TAPA_DELGADA" ? `2px solid ${ACCENT}` : "2px solid #e0e0e0",
                 borderRadius: "22px",
                 padding: "28px 24px",
                 position: "relative",
                 userSelect: "none",
               }}
             >
-              <div style={{ position: "absolute", top: "16px", right: "16px", width: "22px", height: "22px", borderRadius: "50%", background: selectedCover === "TAPA_DELGADA" ? "#6b9fff" : "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ position: "absolute", top: "16px", right: "16px", width: "22px", height: "22px", borderRadius: "50%", background: selectedCover === "TAPA_DELGADA" ? ACCENT : "#e0e0e0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {selectedCover === "TAPA_DELGADA" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
               </div>
               <div style={{ marginBottom: "16px", paddingRight: "32px" }}>
-                <div style={{ fontSize: "10px", fontWeight: 700, color: "#6b9fff", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "5px" }}>TAPA DELGADA</div>
-                <div style={{ fontSize: "18px", fontWeight: 800, color: "#fff", marginBottom: "4px" }}>Cartulina estándar</div>
-                <div style={{ fontSize: "11px", color: "#6b9fff", fontWeight: 600 }}>S/ 90 base · +S/ 3 por hoja extra</div>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: ACCENT, marginBottom: "5px" }}>Tapa Delgada</div>
+                <div style={{ fontSize: "18px", fontWeight: 700, color: "#111", marginBottom: "4px" }}>Cartulina estándar</div>
+                <div style={{ fontSize: "11px", color: ACCENT, fontWeight: 600 }}>S/ 90 base · +S/ 3 por hoja extra</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {EXAMPLES_DELGADA.map((ex) => {
@@ -304,12 +305,12 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     <div
                       key={ex.hojas}
                       onClick={(e) => { e.stopPropagation(); setSelectedCover("TAPA_DELGADA"); setSelectedHojasDelgada(ex.hojas); }}
-                      style={{ padding: "10px 14px", borderRadius: "10px", cursor: "pointer", background: isRowSelected ? "rgba(107,159,255,0.22)" : ex.highlight ? "rgba(107,159,255,0.08)" : "rgba(255,255,255,0.04)", border: isRowSelected ? "1px solid #6b9fff" : ex.highlight ? "1px solid rgba(107,159,255,0.3)" : "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", transition: "all 0.15s" }}
+                      style={{ padding: "10px 14px", borderRadius: "10px", cursor: "pointer", background: isRowSelected ? `${ACCENT}1F` : ex.highlight ? `${ACCENT}0D` : "#f8f9fa", border: isRowSelected ? `1px solid ${ACCENT}` : ex.highlight ? `1px solid ${ACCENT}50` : "1px solid #eeeeee", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", transition: "all 0.15s" }}
                     >
-                      {ex.highlight && !isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>}
-                      {isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>}
-                      <span style={{ fontSize: "12px", fontWeight: 600, color: isRowSelected ? "#fff" : "rgba(255,255,255,0.7)" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
-                      <span style={{ fontSize: "18px", fontWeight: 900, color: isRowSelected ? "#6b9fff" : ex.highlight ? "#6b9fff" : "#fff", whiteSpace: "nowrap" }}>{ex.price}</span>
+                      {ex.highlight && !isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>}
+                      {isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>}
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: isRowSelected ? "#111" : "#444" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
+                      <span style={{ fontSize: "18px", fontWeight: 800, color: isRowSelected ? ACCENT : ex.highlight ? ACCENT : "#111", whiteSpace: "nowrap" }}>{ex.price}</span>
                     </div>
                   );
                 })}
@@ -321,8 +322,8 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
               onClick={() => setSelectedCover("TAPA_GRUESA")}
               style={{
                 cursor: "pointer",
-                background: selectedCover === "TAPA_GRUESA" ? "rgba(167,139,250,0.12)" : "rgba(255,255,255,0.03)",
-                border: selectedCover === "TAPA_GRUESA" ? "2px solid #a78bfa" : "2px solid rgba(255,255,255,0.12)",
+                background: selectedCover === "TAPA_GRUESA" ? `${ACCENT}0D` : "#ffffff",
+                border: selectedCover === "TAPA_GRUESA" ? `2px solid ${ACCENT}` : "2px solid #e0e0e0",
                 borderRadius: "22px",
                 padding: "28px 24px",
                 position: "relative",
@@ -331,14 +332,14 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
             >
               <div style={{ position: "absolute", top: "16px", right: "16px" }}>
                 {selectedCover === "TAPA_GRUESA"
-                  ? <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#a78bfa", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
-                  : <span style={{ fontSize: "9px", fontWeight: 700, color: "#a78bfa", background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.35)", padding: "3px 10px", borderRadius: "10px", textTransform: "uppercase" }}>Recomendada</span>
+                  ? <div style={{ width: "22px", height: "22px", borderRadius: "50%", background: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg></div>
+                  : <span style={{ fontSize: "9px", fontWeight: 700, color: ACCENT, background: `${ACCENT}14`, border: `1px solid ${ACCENT}50`, padding: "3px 10px", borderRadius: "10px" }}>Recomendada</span>
                 }
               </div>
               <div style={{ marginBottom: "16px", paddingRight: "32px" }}>
-                <div style={{ fontSize: "10px", fontWeight: 700, color: "#a78bfa", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "5px" }}>TAPA GRUESA</div>
-                <div style={{ fontSize: "18px", fontWeight: 800, color: "#fff", marginBottom: "4px" }}>Tapa dura resistente</div>
-                <div style={{ fontSize: "11px", color: "#a78bfa", fontWeight: 600 }}>S/ 120 base · +S/ 4 por hoja extra</div>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: ACCENT, marginBottom: "5px" }}>Tapa Gruesa</div>
+                <div style={{ fontSize: "18px", fontWeight: 700, color: "#111", marginBottom: "4px" }}>Tapa dura resistente</div>
+                <div style={{ fontSize: "11px", color: ACCENT, fontWeight: 600 }}>S/ 120 base · +S/ 4 por hoja extra</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {EXAMPLES_GRUESA.map((ex) => {
@@ -347,12 +348,12 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     <div
                       key={ex.hojas}
                       onClick={(e) => { e.stopPropagation(); setSelectedCover("TAPA_GRUESA"); setSelectedHojasGruesa(ex.hojas); }}
-                      style={{ padding: "10px 14px", borderRadius: "10px", cursor: "pointer", background: isRowSelected ? "rgba(167,139,250,0.22)" : ex.highlight ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.04)", border: isRowSelected ? "1px solid #a78bfa" : ex.highlight ? "1px solid rgba(167,139,250,0.3)" : "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", transition: "all 0.15s" }}
+                      style={{ padding: "10px 14px", borderRadius: "10px", cursor: "pointer", background: isRowSelected ? `${ACCENT}1F` : ex.highlight ? `${ACCENT}0D` : "#f8f9fa", border: isRowSelected ? `1px solid ${ACCENT}` : ex.highlight ? `1px solid ${ACCENT}50` : "1px solid #eeeeee", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", transition: "all 0.15s" }}
                     >
-                      {ex.highlight && !isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#a78bfa", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>}
-                      {isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#a78bfa", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>}
-                      <span style={{ fontSize: "12px", fontWeight: 600, color: isRowSelected ? "#fff" : "rgba(255,255,255,0.7)" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
-                      <span style={{ fontSize: "18px", fontWeight: 900, color: isRowSelected ? "#a78bfa" : ex.highlight ? "#a78bfa" : "#fff", whiteSpace: "nowrap" }}>{ex.price}</span>
+                      {ex.highlight && !isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</div>}
+                      {isRowSelected && <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>}
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: isRowSelected ? "#111" : "#444" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
+                      <span style={{ fontSize: "18px", fontWeight: 800, color: isRowSelected ? ACCENT : ex.highlight ? ACCENT : "#111", whiteSpace: "nowrap" }}>{ex.price}</span>
                     </div>
                   );
                 })}
@@ -366,9 +367,9 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
             const isDelgada = selectedCover === "TAPA_DELGADA";
             return (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
-                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>
+                <div style={{ fontSize: "13px", color: "#666" }}>
                   {isDelgada ? "Tapa Delgada" : "Tapa Gruesa"} · {selectedHojas} hojas · {selectedHojas * 2} caras →{" "}
-                  <span style={{ color: "#fff", fontWeight: 700 }}>{calcPrice(selectedCover, selectedHojas)}</span>
+                  <span style={{ color: "#111", fontWeight: 700 }}>{calcPrice(selectedCover, selectedHojas)}</span>
                 </div>
                 <button
                   onClick={handleStartEditor}
@@ -378,19 +379,17 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     justifyContent: "center",
                     gap: "10px",
                     padding: "18px 48px",
-                    borderRadius: "16px",
+                    borderRadius: "9999px",
                     border: "none",
-                    background: isDelgada
-                      ? "linear-gradient(135deg, #4a7fff 0%, #6b9fff 100%)"
-                      : "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)",
+                    background: ACCENT,
                     color: "#fff",
-                    fontSize: "18px",
-                    fontWeight: 800,
+                    fontSize: "17px",
+                    fontWeight: 700,
                     cursor: "pointer",
                     fontFamily: "inherit",
-                    boxShadow: isDelgada ? "0 8px 32px rgba(107,159,255,0.4)" : "0 8px 32px rgba(139,92,246,0.4)",
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.16)",
                     transition: "all 0.2s",
-                    letterSpacing: "0.3px",
+                    letterSpacing: "0.01em",
                   }}
                 >
                   Empezar con {isDelgada ? "Tapa Delgada" : "Tapa Gruesa"}
@@ -413,13 +412,16 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
         style={{ maxWidth: "1400px", margin: "0 auto", padding: "72px 48px" }}
       >
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <h2 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 700, color: ACCENT, textTransform: "uppercase", letterSpacing: "2px" }}>
-            RECUERDOS QUE DURARÁN PARA SIEMPRE
-          </h2>
-          <h3 style={{ margin: "0 0 16px 0", fontSize: "32px", fontWeight: 800, color: "#111", textTransform: "uppercase" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+            <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, lineHeight: 1.1 }}>
+              Más destinos
+            </span>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+          </div>
+          <h3 style={{ margin: 0, fontFamily: tokens.fonts.display, fontSize: "clamp(28px, 3.2vw, 40px)", fontWeight: 700, color: "#111", lineHeight: 1.15, letterSpacing: "-0.01em" }}>
             También te podría interesar
           </h3>
-          <div style={{ width: "80px", height: "3px", background: ACCENT, margin: "0 auto", borderRadius: "2px" }} />
         </div>
 
         <div
@@ -452,10 +454,9 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     borderRadius: "20px",
                     background: ACCENT,
                     color: "#fff",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    letterSpacing: "0.02em",
                     marginBottom: "16px",
                   }}
                 >
@@ -466,7 +467,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     width: "100%",
                     height: "220px",
                     borderRadius: "12px",
-                    background: `linear-gradient(135deg, ${ACCENT}12 0%, ${ACCENT}06 100%)`,
+                    background: `${ACCENT}10`,
                     marginBottom: "18px",
                     display: "flex",
                     alignItems: "center",
@@ -489,7 +490,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                 <p style={{ margin: "0 0 14px 0", maxWidth: "360px", fontSize: "13px", lineHeight: 1.4, color: "#666" }}>{theme.description}</p>
                 <div style={{ marginBottom: "14px", textAlign: "center" }}>
                   <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "2px" }}>Desde</div>
-                  <div style={{ fontSize: "22px", fontWeight: 900, color: "#111", lineHeight: 1 }}>S/ 90</div>
+                  <div style={{ fontSize: "22px", fontWeight: 800, color: "#111", lineHeight: 1 }}>S/ 90</div>
                   <div style={{ fontSize: "11px", color: "#aaa", marginTop: "3px" }}>15 hojas · Tapa Delgada</div>
                 </div>
                 <span
@@ -499,12 +500,11 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                     justifyContent: "center",
                     minWidth: "170px",
                     height: "42px",
-                    borderRadius: "14px",
+                    borderRadius: "9999px",
                     background: ACCENT,
                     color: "#fff",
-                    fontSize: "16px",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
+                    fontSize: "15px",
+                    fontWeight: 700,
                   }}
                 >
                   Crear Aquí
@@ -520,16 +520,15 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
               onClick={() => setVisibleCount((prev) => prev + INITIAL_VISIBLE)}
               style={{
                 minWidth: "220px",
-                height: "56px",
-                borderRadius: "18px",
-                border: `2px solid ${ACCENT}`,
+                height: "54px",
+                borderRadius: "9999px",
+                border: `1.5px solid ${ACCENT}`,
                 background: "#fff",
                 color: ACCENT,
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
                 cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
+                letterSpacing: "0.01em",
                 fontFamily: "inherit",
               }}
             >
@@ -557,7 +556,7 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
                   style={{
                     width: "100%",
                     aspectRatio: "4/3",
-                    background: `linear-gradient(135deg, ${ACCENT}12 0%, ${ACCENT}06 100%)`,
+                    background: `${ACCENT}10`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -580,10 +579,16 @@ export default function PhotobookDetalleClient({ temaSlug, temaNombre }: Props) 
       {/* ═══ FAQ ═══ */}
       <section style={{ maxWidth: "900px", margin: "0 auto", padding: "72px 48px" }}>
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <h2 style={{ fontSize: "32px", fontWeight: 700, color: "#111", margin: "0 0 8px 0" }}>
-            PREGUNTAS FRECUENTES
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+            <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, lineHeight: 1.1 }}>
+              Dudas comunes
+            </span>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+          </div>
+          <h2 style={{ fontFamily: tokens.fonts.display, fontSize: "clamp(28px, 3.2vw, 40px)", fontWeight: 700, color: "#111", margin: 0, lineHeight: 1.15, letterSpacing: "-0.01em" }}>
+            Preguntas frecuentes
           </h2>
-          <div style={{ width: "60px", height: "3px", background: ACCENT, margin: "0 auto", borderRadius: "2px" }} />
         </div>
         <div>
           {FAQ_ITEMS.map((item, i) => (

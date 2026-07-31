@@ -7,6 +7,7 @@ import PixelArtLogo from "./PixelArtLogo";
 import HamburgerIcon from "./HamburgerIcon";
 import MobileDrawer from "./MobileDrawer";
 import NavIcon from "./NavIcon";
+import LibrosPersonalizadosMegaMenu from "./LibrosPersonalizadosMegaMenu";
 import { PIXELART_COLORS, BASE_COLORS, COLORS_ARRAY, hexToRgba } from "@/lib/colors";
 
 const NAV_LINKS = [
@@ -31,29 +32,6 @@ const NAV_LINKS = [
     color: PIXELART_COLORS.L_PURPLE,
     icon: "camera",
     glowHue: "295deg",
-  },
-];
-
-const DROPDOWN_ITEMS = [
-  { 
-    label: "Libros de Amor", 
-    href: "/libros-personalizados/libros-de-amor",
-    color: PIXELART_COLORS.R_PINK,
-  },
-  { 
-    label: "Libros de Mascotas", 
-    href: "/libros-personalizados/libros-de-mascotas",
-    color: PIXELART_COLORS.I_ORANGE,
-  },
-  { 
-    label: "Libros de Familia", 
-    href: "/libros-personalizados/libros-de-familia",
-    color: PIXELART_COLORS.E_GREEN,
-  },
-  {
-    label: "Libros de Memorias Familiares",
-    href: "/libros-personalizados/libros-de-memorias-familiares",
-    color: '#8b6bb1',
   },
 ];
 
@@ -154,6 +132,7 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
         }}
       >
         <div
+          ref={dropdownRef}
           style={{
             width: "100%",
             maxWidth: "1600px",
@@ -163,6 +142,7 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
             alignItems: "center",
             justifyContent: "space-between",
             gap: isMobile ? "16px" : "32px",
+            position: "relative",
           }}
         >
           {/* Hamburger Icon - Solo Mobile */}
@@ -207,7 +187,6 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
                   return (
                     <div
                       key={link.label}
-                      ref={dropdownRef}
                       style={{ position: "relative" }}
                       onMouseEnter={handleMouseEnter}
                       onMouseLeave={handleMouseLeave}
@@ -254,45 +233,6 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
                         {link.label}
                         <ChevronIcon open={dropdownOpen} color={isActive ? link.color : BASE_COLORS.inkSepia} />
                       </Link>
-
-                      {/* Dropdown Menu */}
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "calc(100% + 16px)",
-                          left: "50%",
-                          transform: `translateX(-50%) translateY(${dropdownOpen ? "0" : "-8px"})`,
-                          minWidth: "280px",
-                          background: BASE_COLORS.paperCream,
-                          borderRadius: "16px",
-                          boxShadow: "0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)",
-                          padding: "8px 0",
-                          opacity: dropdownOpen ? 1 : 0,
-                          pointerEvents: dropdownOpen ? "auto" : "none",
-                          transition: "opacity 0.2s ease, transform 0.2s ease",
-                          border: `1px solid rgba(0, 0, 0, 0.06)`,
-                        }}
-                      >
-                        {/* Arrow */}
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "-6px",
-                            left: "50%",
-                            transform: "translateX(-50%) rotate(45deg)",
-                            width: "12px",
-                            height: "12px",
-                            background: BASE_COLORS.paperCream,
-                            borderTop: "1px solid rgba(0, 0, 0, 0.06)",
-                            borderLeft: "1px solid rgba(0, 0, 0, 0.06)",
-                          }}
-                        />
-                        <div style={{ padding: "6px 0" }}>
-                          {DROPDOWN_ITEMS.map((item) => (
-                            <DropdownItem key={item.label} label={item.label} href={item.href} color={item.color} onClose={() => setDropdownOpen(false)} />
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   );
                 }
@@ -345,6 +285,32 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
             </nav>
           )}
 
+          {/* Mega Menu de Libros Personalizados */}
+          {!isMobile && (
+            <div
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: "50%",
+                transform: `translateX(-50%) translateY(${dropdownOpen ? "8px" : "0px"})`,
+                maxWidth: "calc(100vw - 48px)",
+                background: BASE_COLORS.paperCreamSolid,
+                borderRadius: "16px",
+                boxShadow: "0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)",
+                opacity: dropdownOpen ? 1 : 0,
+                pointerEvents: dropdownOpen ? "auto" : "none",
+                transition: "opacity 0.2s ease, transform 0.2s ease",
+                border: `1px solid rgba(0, 0, 0, 0.06)`,
+                overflow: "hidden",
+                zIndex: 10,
+              }}
+            >
+              <LibrosPersonalizadosMegaMenu onClose={() => setDropdownOpen(false)} />
+            </div>
+          )}
+
           {/* Iconos sociales - Solo Desktop */}
           {!isMobile && <SocialIcons />}
 
@@ -356,52 +322,8 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         links={NAV_LINKS}
-        dropdownItems={DROPDOWN_ITEMS}
       />
     </header>
-  );
-}
-
-// BUG 2 FIX: onClose cierra el dropdown al navegar desde un ítem
-function DropdownItem({ label, href, color, onClose }: { label: string; href: string; color: string; onClose: () => void }) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <Link
-      href={href}
-      onClick={onClose}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
-        width: "100%",
-        padding: "12px 20px",
-        background: hovered ? hexToRgba(color, 0.1) : "transparent",
-        cursor: "pointer",
-        fontSize: "15px",
-        fontWeight: 400,
-        color: hovered ? color : BASE_COLORS.inkSepia,
-        transition: "background 0.15s ease, color 0.15s ease",
-        textAlign: "left",
-        fontFamily: "inherit",
-        textDecoration: "none",
-      }}
-    >
-      <span
-        style={{
-          width: "8px",
-          height: "8px",
-          borderRadius: "50%",
-          background: color,
-          transition: "transform 0.15s ease",
-          transform: hovered ? "scale(1.3)" : "scale(1)",
-          flexShrink: 0,
-        }}
-      />
-      {label}
-    </Link>
   );
 }
 

@@ -95,7 +95,7 @@ export default function ProductGrid({ books, promos = [] }: Props) {
         paddingTop: "90px",
         maxWidth: "1120px",
         marginInline: "auto",
-        alignItems: "start",
+        alignItems: "stretch",
       }}
     >
       {books.map((book, index) => {

@@ -6,9 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState, useEffect } from "react";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import ModernBackground from "@/components/backgrounds/ModernBackground";
-import TrustBadge from "./TrustBadge";
 import { tokens } from "@/lib/design-tokens";
-import { Star, Truck } from "lucide-react";
 
 type HeroSlide = {
   key: string;
@@ -29,8 +27,7 @@ export default function HomeHeroClient({ slides }: Props) {
   const { isCompact } = useWindowSize();
 
   const currentSlide = useMemo(() => slides[currentIndex], [slides, currentIndex]);
-const isPhotobook = currentSlide.key === "photobook";
-  const isCustomBook = currentSlide.key === "custom-book";
+  const isPhotobook = currentSlide.key === "photobook";
 
   const goPrev = () => {
     setDirection(-1);
@@ -76,36 +73,34 @@ const isPhotobook = currentSlide.key === "photobook";
   const inactiveColor = isPhotobook ? productColors.customBook : productColors.photobook;
 
   const primaryButtonStyle = {
-    width: "248px",
-    height: "52px",
-    borderRadius: "12px",
+    minWidth: "232px",
+    height: "54px",
+    borderRadius: "9999px",
     border: "none",
-    background: activeColor.gradient,
+    background: activeColor.primary,
     color: "#fff",
     fontSize: "16px",
     fontWeight: 700,
     cursor: "pointer",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.5px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-    padding: "0 24px",
+    letterSpacing: "0.01em",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.14)",
+    padding: "0 32px",
     whiteSpace: "nowrap" as const,
   };
 
   const secondaryButtonStyle = {
-    width: "216px",
-    height: "48px",
-    borderRadius: "12px",
-    border: `2px solid ${inactiveColor.primary}`,
-    background: "#fff",
-    color: inactiveColor.primary,
+    minWidth: "200px",
+    height: "50px",
+    borderRadius: "9999px",
+    border: `1.5px solid ${tokens.colors.neutral.text.primary}`,
+    background: "transparent",
+    color: tokens.colors.neutral.text.primary,
     fontSize: "15px",
     fontWeight: 600,
     cursor: "pointer",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.3px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-    padding: "0 20px",
+    letterSpacing: "0.01em",
+    boxShadow: "none",
+    padding: "0 28px",
     whiteSpace: "nowrap" as const,
   };
 
@@ -191,18 +186,17 @@ const isPhotobook = currentSlide.key === "photobook";
                 >
                   <div
                     style={{
-                      width: "4px",
-                      height: "32px",
-                      borderRadius: "2px",
-                      background: activeColor.gradient,
+                      width: "28px",
+                      height: "2px",
+                      background: activeColor.primary,
                     }}
                   />
                   <span
                     style={{
-                      fontSize: tokens.typography.h4.size,
-                      fontWeight: 900,
+                      fontSize: "14px",
+                      fontWeight: 700,
                       textTransform: "uppercase",
-                      letterSpacing: "1px",
+                      letterSpacing: "0.14em",
                       color: activeColor.primary,
                       lineHeight: 1.1,
                     }}
@@ -211,6 +205,29 @@ const isPhotobook = currentSlide.key === "photobook";
                   </span>
                 </div>
               </motion.div>
+            </AnimatePresence>
+
+            {/* Headline editorial */}
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.h1
+                key={`hero-text-${currentSlide.key}`}
+                custom={direction}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -18 }}
+                transition={{ duration: 0.35, ease: "easeOut", delay: 0.08 }}
+                style={{
+                  fontFamily: tokens.fonts.display,
+                  fontSize: "clamp(36px, 4.5vw, 62px)",
+                  lineHeight: 1.12,
+                  fontWeight: 700,
+                  color: tokens.colors.neutral.text.primary,
+                  margin: "0 0 20px 0",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {currentSlide.heroText}
+              </motion.h1>
             </AnimatePresence>
 
             {/* Description */}
@@ -222,86 +239,17 @@ const isPhotobook = currentSlide.key === "photobook";
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.3, ease: "easeOut", delay: 0.15 }}
                 style={{
-                  fontSize: "16px",
-                  lineHeight: 1.6,
+                  fontSize: "18px",
+                  lineHeight: 1.65,
                   fontWeight: 400,
                   color: tokens.colors.neutral.text.secondary,
-                  margin: "0 0 16px 0",
-                  maxWidth: "480px",
+                  margin: "0 0 32px 0",
+                  maxWidth: "460px",
                 }}
               >
                 {currentSlide.description || "Crea recuerdos inolvidables con la mejor calidad"}
               </motion.p>
             </AnimatePresence>
-
-            {/* Trust Badges */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`trust-${currentSlide.key}`}
-                className="hero-trust"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25, ease: "easeOut", delay: 0.2 }}
-                style={{
-                  display: "flex",
-                  gap: tokens.spacing.component.md,
-                  marginBottom: tokens.spacing.section.xs,
-                  flexWrap: "wrap",
-                }}
-              >
-                <TrustBadge icon={Star} text="Alta Calidad" />
-                <TrustBadge icon={Truck} text="Envío Rápido" />
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Main Image with Preview */}
-            <div
-              className="hero-slider-wrap"
-              style={{
-                maxWidth: isCustomBook ? "450px" : "280px",
-                position: "relative",
-                display: "flex",
-                justifyContent: "center",
-                minHeight: isCustomBook ? "160px" : "130px",
-                alignItems: "center",
-                marginBottom: "24px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                transform: "translateX(-56px)",
-              }}
-            >
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={`slider-${currentSlide.key}`}
-                  custom={direction}
-                  initial={{ opacity: 0, x: direction > 0 ? 40 : -40, scale: 0.96 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: direction > 0 ? -40 : 40, scale: 0.96 }}
-                  transition={{ duration: 0.42, ease: "easeOut" }}
-                  style={{
-                    width: "100%",
-                    borderRadius: "16px",
-                    boxShadow: tokens.shadows["2xl"],
-                  }}
-                >
-                  <Image
-                    src={currentSlide.sliderUrl}
-                    alt={currentSlide.title}
-                    width={450}
-                    height={160}
-                    loading="eager"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      display: "block",
-                      borderRadius: "16px",
-                    }}
-                  />
-                </motion.div>
-              </AnimatePresence>
-
-            </div>
 
             {/* CTAs with Hierarchy */}
             <AnimatePresence mode="wait">
@@ -340,12 +288,12 @@ const isPhotobook = currentSlide.key === "photobook";
                   }}
                   aria-label={`Comenzar ${currentSlide.title}`}
                 >
-                  {isPhotobook ? "Comenzar Photobook" : "Comenzar IA Book"}
+                  {isPhotobook ? "Crear mi Photobook" : "Crear mi libro"}
                 </motion.a>
 
                 {/* Secondary Button - Inactive product */}
                 <motion.button
-                  whileHover={{ y: -2, scale: 1.02, borderWidth: "3px" }}
+                  whileHover={{ y: -2, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.18 }}
                   style={{
@@ -353,9 +301,9 @@ const isPhotobook = currentSlide.key === "photobook";
                     ...(isCompact && { width: "100%", maxWidth: "300px" }),
                   }}
                   onClick={() => switchToSlide(currentIndex === 0 ? 1 : 0)}
-                  aria-label={`Ver ${isPhotobook ? "IA Books" : "Photobooks"}`}
+                  aria-label={`Ver ${isPhotobook ? "Libros Personalizados" : "Photobooks"}`}
                 >
-                  {isPhotobook ? "Ver IA Books" : "Ver Photobooks"}
+                  {isPhotobook ? "Ver Libros Personalizados" : "Ver Photobooks"}
                 </motion.button>
               </motion.div>
             </AnimatePresence>
@@ -370,31 +318,6 @@ const isPhotobook = currentSlide.key === "photobook";
               alignItems: "center",
             }}
           >
-            {/* Hero Text */}
-            <AnimatePresence mode="wait" custom={direction}>
-              <motion.h1
-                key={`hero-text-${currentSlide.key}`}
-                custom={direction}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.35, ease: "easeOut", delay: 0.1 }}
-                style={{
-                  fontSize: tokens.typography.display.size,
-                  lineHeight: 1.1,
-                  fontWeight: 900,
-                  color: "#111",
-                  margin: "0 0 20px 0",
-                  textTransform: "uppercase",
-                  textAlign: "center",
-                  letterSpacing: "-0.5px",
-                  textShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                }}
-              >
-                {currentSlide.heroText}
-              </motion.h1>
-            </AnimatePresence>
-
             <div
               className="hero-carousel-wrap"
               style={{
@@ -541,7 +464,7 @@ const isPhotobook = currentSlide.key === "photobook";
           .hero-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
         }
 
-        /* ── Tablet (768–1023px) y Mobile: columna única, derecha primero ── */
+        /* ── Tablet (768–1023px) y Mobile: columna única, imagen primero ── */
         @media (max-width: 1023px) {
           section { min-height: auto; }
           .hero-wrap { padding: 40px 32px !important; }
@@ -558,21 +481,18 @@ const isPhotobook = currentSlide.key === "photobook";
             align-items: center !important;
           }
           .hero-eyebrow-wrap { justify-content: center !important; }
-          .hero-trust { justify-content: center !important; }
           .hero-cta   { justify-content: center !important; width: 100% !important; }
-          .hero-slider-wrap { display: none !important; }
           .hero-carousel-wrap { min-height: 260px !important; }
-          .hero-right-col h1 { font-size: 36px !important; margin-bottom: 12px !important; }
+          .hero-left-col h1 { font-size: 34px !important; margin-bottom: 12px !important; }
         }
 
         /* ── Mobile (<768px) ── */
         @media (max-width: 767px) {
           .hero-wrap { padding: 28px 20px !important; }
           .hero-grid { gap: 16px !important; }
-          .hero-right-col h1 {
-            font-size: 24px !important;
-            line-height: 1.25 !important;
-            letter-spacing: 0 !important;
+          .hero-left-col h1 {
+            font-size: 26px !important;
+            line-height: 1.2 !important;
           }
           .hero-carousel-wrap { min-height: 160px !important; }
           .hero-cta {
@@ -589,7 +509,7 @@ const isPhotobook = currentSlide.key === "photobook";
 
         /* ── Mobile muy pequeño (<480px) ── */
         @media (max-width: 480px) {
-          .hero-right-col h1 { font-size: 20px !important; }
+          .hero-left-col h1 { font-size: 22px !important; }
         }
       `}</style>
     </section>

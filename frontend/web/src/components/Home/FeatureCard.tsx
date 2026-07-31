@@ -8,7 +8,6 @@ type FeatureCardProps = {
   title: string;
   description: string;
   color?: string;
-  alignment?: 'left' | 'right';
 };
 
 export default function FeatureCard({
@@ -16,42 +15,42 @@ export default function FeatureCard({
   title,
   description,
   color = tokens.colors.customBooks.primary,
-  alignment = 'left',
 }: FeatureCardProps) {
-  const isLeft = alignment === 'left';
-
   return (
     <article
       style={{
         display: 'flex',
-        gap: tokens.spacing.component.md,
-        flexDirection: isLeft ? 'row' : 'row-reverse',
+        gap: tokens.spacing.component.sm,
         alignItems: 'flex-start',
-        textAlign: isLeft ? 'left' : 'right',
+        padding: '20px 18px',
+        background: '#fff',
+        border: `1px solid ${color}22`,
+        borderRadius: tokens.borderRadius.xl,
       }}
     >
       <div
         style={{
           flexShrink: 0,
-          width: '56px',
-          height: '56px',
-          borderRadius: tokens.borderRadius.md,
-          background: `${color}10`,
+          width: '46px',
+          height: '46px',
+          borderRadius: '50%',
+          background: `${color}18`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Icon size={28} color={color} strokeWidth={1.8} />
+        <Icon size={32} color={color} strokeWidth={1.75} />
       </div>
 
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <h3
           style={{
-            margin: `0 0 ${tokens.spacing.micro.sm} 0`,
-            fontSize: tokens.typography.h4.size,
-            fontWeight: tokens.typography.h4.weight,
-            lineHeight: tokens.typography.h4.lineHeight,
+            margin: `0 0 ${tokens.spacing.micro.xs} 0`,
+            fontFamily: tokens.fonts.display,
+            fontSize: '18px',
+            fontWeight: 700,
+            lineHeight: 1.3,
             color: tokens.colors.neutral.text.primary,
           }}
         >
@@ -61,8 +60,8 @@ export default function FeatureCard({
         <p
           style={{
             margin: 0,
-            fontSize: tokens.typography.body.size,
-            lineHeight: tokens.typography.body.lineHeight,
+            fontSize: '12px',
+            lineHeight: 1.6,
             color: tokens.colors.neutral.text.secondary,
           }}
         >

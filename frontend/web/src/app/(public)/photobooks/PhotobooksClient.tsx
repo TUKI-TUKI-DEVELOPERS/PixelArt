@@ -6,7 +6,8 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PhotobookThemeApi } from "@/lib/api/photobook";
-import PixelArtLogo from "@/components/layout/PixelArtLogo";
+import { tokens } from "@/lib/design-tokens";
+import { toRelativeAssetUrl } from "@/lib/assetUrl";
 
 /* ── Datos de portadas/temas de photobooks ── */
 
@@ -103,6 +104,51 @@ const PHOTOBOOK_THEMES: Omit<PhotobookTheme, "coverPreviewUrl">[] = [
     badge: "PHOTOBOOK VIAJE",
   },
   {
+    id: "portada-arequipa",
+    dbName: "Arequipa",
+    name: "Portada Arequipa",
+    description:
+      "Un photobook pensado para conservar tus recuerdos en Arequipa con la elegancia serena de la Ciudad Blanca. Sobrio y atemporal, deja que la arquitectura de sillar y el volcán Misti sean los protagonistas de tu historia.",
+    reviews: 120,
+    badge: "PHOTOBOOK VIAJE",
+  },
+  {
+    id: "portada-ayacucho",
+    dbName: "Ayacucho",
+    name: "Portada Ayacucho",
+    description:
+      "Un photobook creado para guardar tus recuerdos en Ayacucho con la calidez de su centro histórico. Elegante y sereno, deja que sus iglesias coloniales y sus plazas sean el marco de tu historia.",
+    reviews: 120,
+    badge: "PHOTOBOOK VIAJE",
+  },
+  {
+    id: "portada-huancayo",
+    dbName: "Huancayo",
+    name: "Portada Huancayo",
+    description:
+      "Un photobook pensado para conservar tus recuerdos en Huancayo con la fuerza serena del valle del Mantaro. Sobrio y auténtico, deja que el paisaje andino sea el protagonista de tu historia.",
+    reviews: 120,
+    badge: "PHOTOBOOK VIAJE",
+  },
+  {
+    id: "portada-puno",
+    dbName: "Puno",
+    name: "Portada Puno",
+    description:
+      "Un photobook creado para guardar tus recuerdos en Puno con la calma del lago Titicaca. Sereno y luminoso, deja que sus aguas y sus islas sean el marco de tu historia.",
+    reviews: 120,
+    badge: "PHOTOBOOK VIAJE",
+  },
+  {
+    id: "portada-cajamarca",
+    dbName: "Cajamarca",
+    name: "Portada Cajamarca",
+    description:
+      "Un photobook pensado para conservar tus recuerdos en Cajamarca con la nobleza de su plaza y sus cerros verdes. Elegante y atemporal, deja que su historia sea el protagonista de la tuya.",
+    reviews: 120,
+    badge: "PHOTOBOOK VIAJE",
+  },
+  {
     id: "portada-punta-cana",
     dbName: "Punta Cana",
     name: "Portada Punta Cana",
@@ -176,8 +222,7 @@ const FAQ_ITEMS = [
   },
 ];
 
-const ACCENT = "#804187";
-const ACCENT_LIGHT = "#049eff";
+const ACCENT = "#2d8fd5";
 const INITIAL_VISIBLE = 6;
 
 /* ══════════════════════════════════════════
@@ -307,17 +352,16 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
             gap: "18px",
           }}
         >
-          <PixelArtLogo width={isMobile ? 180 : 280} animated={false} />
-
           <h1
             style={{
               margin: 0,
-              fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
-              fontWeight: 900,
+              fontFamily: tokens.fonts.display,
+              fontSize: isSmallMobile ? "28px" : isMobile ? "34px" : "50px",
+              fontWeight: 700,
+              letterSpacing: "-0.01em",
               color: "#fff",
-              lineHeight: 1.2,
+              lineHeight: 1.15,
               maxWidth: "820px",
-              textShadow: "0 2px 20px rgba(0,0,0,0.5)",
             }}
           >
             Plasma tus mejores recuerdos<br />en un álbum de calidad, con tan solo unos clicks.
@@ -326,11 +370,10 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           <p
             style={{
               margin: 0,
-              fontSize: "16px",
-              lineHeight: 1.75,
-              color: "rgba(255,255,255,0.82)",
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: "rgba(255,255,255,0.85)",
               maxWidth: "820px",
-              textShadow: "0 1px 10px rgba(0,0,0,0.4)",
             }}
           >
             En su versión de Photobooks, PIXELART permite realizar la impresión de álbumes<br />con fotos que tengas listas para ser subidas de forma digital.
@@ -343,17 +386,16 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
             style={{
               marginTop: "6px",
               padding: "16px 40px",
-              borderRadius: "14px",
-              border: "1.5px solid rgba(255,255,255,0.6)",
-              background: "rgba(255,255,255,0.15)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              color: "#fff",
-              fontSize: "17px",
+              borderRadius: "9999px",
+              border: "none",
+              background: "#ffffff",
+              color: tokens.colors.neutral.text.primary,
+              fontSize: "16px",
               fontWeight: 700,
+              letterSpacing: "0.01em",
               cursor: "pointer",
               fontFamily: "inherit",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
             }}
           >
             Comenzar mi diseño
@@ -364,9 +406,9 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
       {/* ═══ CÓMO FUNCIONA ═══ */}
       <section
         style={{
-          background: "#f9f7fc",
-          borderTop: "1px solid rgba(128,65,135,0.08)",
-          borderBottom: "1px solid rgba(128,65,135,0.08)",
+          background: "#f8f9fa",
+          borderTop: "1px solid rgba(45,143,213,0.08)",
+          borderBottom: "1px solid rgba(45,143,213,0.08)",
         }}
       >
         <div
@@ -378,39 +420,26 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         >
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <p
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "12px",
-                fontWeight: 700,
-                color: ACCENT,
-                textTransform: "uppercase" as const,
-                letterSpacing: "3px",
-              }}
-            >
-              Fácil y rápido
-            </p>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: ACCENT, lineHeight: 1.1 }}>
+                Fácil y rápido
+              </span>
+              <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+            </div>
             <h2
               style={{
-                margin: "0 0 16px 0",
-                fontSize: isMobile ? "28px" : "36px",
-                fontWeight: 900,
+                margin: 0,
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(30px, 3.5vw, 44px)",
+                fontWeight: 700,
                 color: "#111",
-                lineHeight: 1.1,
-                letterSpacing: "-0.5px",
+                lineHeight: 1.15,
+                letterSpacing: "-0.01em",
               }}
             >
               ¿Cómo funciona?
             </h2>
-            <div
-              style={{
-                width: "56px",
-                height: "3px",
-                background: ACCENT,
-                borderRadius: "2px",
-                margin: "0 auto",
-              }}
-            />
           </div>
 
           {/* Steps */}
@@ -431,7 +460,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                   left: "calc(33.33% - 16px)",
                   right: "calc(33.33% - 16px)",
                   height: "1px",
-                  background: "rgba(128,65,135,0.15)",
+                  background: "rgba(45,143,213,0.15)",
                   pointerEvents: "none",
                 }}
               />
@@ -447,8 +476,8 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                 padding: "32px 24px",
                 background: "#fff",
                 borderRadius: "20px",
-                border: "1px solid rgba(128,65,135,0.12)",
-                boxShadow: "0 2px 16px rgba(128,65,135,0.06)",
+                border: "1px solid rgba(45,143,213,0.12)",
+                boxShadow: "0 2px 16px rgba(45,143,213,0.06)",
               }}
             >
               <div
@@ -456,8 +485,8 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                   width: "80px",
                   height: "80px",
                   borderRadius: "50%",
-                  background: "rgba(128,65,135,0.08)",
-                  border: "1.5px solid rgba(128,65,135,0.2)",
+                  background: "rgba(45,143,213,0.08)",
+                  border: "1.5px solid rgba(45,143,213,0.2)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -470,10 +499,10 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                   <circle cx="12" cy="13" r="4" stroke={ACCENT} strokeWidth="1.8"/>
                 </svg>
               </div>
-              <p style={{ margin: "0 0 6px 0", fontSize: "11px", fontWeight: 800, color: ACCENT, textTransform: "uppercase" as const, letterSpacing: "2.5px" }}>
+              <p style={{ margin: "0 0 6px 0", fontSize: "12px", fontWeight: 600, color: ACCENT }}>
                 Paso 01
               </p>
-              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: 800, color: "#111", lineHeight: 1.2 }}>
+              <h3 style={{ margin: "0 0 10px 0", fontFamily: tokens.fonts.display, fontSize: "20px", fontWeight: 700, color: "#111", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
                 Sube tus fotos
               </h3>
               <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.65, color: "#666" }}>
@@ -492,7 +521,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                 background: ACCENT,
                 borderRadius: "20px",
                 border: "1px solid transparent",
-                boxShadow: "0 8px 32px rgba(128,65,135,0.25)",
+                boxShadow: "0 8px 32px rgba(45,143,213,0.25)",
               }}
             >
               <div
@@ -514,10 +543,10 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <p style={{ margin: "0 0 6px 0", fontSize: "11px", fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase" as const, letterSpacing: "2.5px" }}>
+              <p style={{ margin: "0 0 6px 0", fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
                 Paso 02
               </p>
-              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>
+              <h3 style={{ margin: "0 0 10px 0", fontFamily: tokens.fonts.display, fontSize: "20px", fontWeight: 700, color: "#fff", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
                 Elige tu diseño
               </h3>
               <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.65, color: "rgba(255,255,255,0.82)" }}>
@@ -535,8 +564,8 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                 padding: "32px 24px",
                 background: "#fff",
                 borderRadius: "20px",
-                border: "1px solid rgba(128,65,135,0.12)",
-                boxShadow: "0 2px 16px rgba(128,65,135,0.06)",
+                border: "1px solid rgba(45,143,213,0.12)",
+                boxShadow: "0 2px 16px rgba(45,143,213,0.06)",
               }}
             >
               <div
@@ -544,8 +573,8 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                   width: "80px",
                   height: "80px",
                   borderRadius: "50%",
-                  background: "rgba(128,65,135,0.08)",
-                  border: "1.5px solid rgba(128,65,135,0.2)",
+                  background: "rgba(45,143,213,0.08)",
+                  border: "1.5px solid rgba(45,143,213,0.2)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -558,10 +587,10 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                   <path d="M9 21V12h6v9" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <p style={{ margin: "0 0 6px 0", fontSize: "11px", fontWeight: 800, color: ACCENT, textTransform: "uppercase" as const, letterSpacing: "2.5px" }}>
+              <p style={{ margin: "0 0 6px 0", fontSize: "12px", fontWeight: 600, color: ACCENT }}>
                 Paso 03
               </p>
-              <h3 style={{ margin: "0 0 10px 0", fontSize: "20px", fontWeight: 800, color: "#111", lineHeight: 1.2 }}>
+              <h3 style={{ margin: "0 0 10px 0", fontFamily: tokens.fonts.display, fontSize: "20px", fontWeight: 700, color: "#111", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
                 Lo recibes en casa
               </h3>
               <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.65, color: "#666" }}>
@@ -575,7 +604,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
             style={{
               marginTop: "40px",
               paddingTop: "32px",
-              borderTop: "1px solid rgba(128,65,135,0.1)",
+              borderTop: "1px solid rgba(45,143,213,0.1)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -635,7 +664,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                     width: "28px",
                     height: "28px",
                     borderRadius: "50%",
-                    background: "rgba(128,65,135,0.08)",
+                    background: "rgba(45,143,213,0.08)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -661,38 +690,26 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         }}
       >
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <p
-            style={{
-              margin: "0 0 8px 0",
-              fontSize: "14px",
-              fontWeight: 700,
-              color: ACCENT,
-              textTransform: "uppercase",
-              letterSpacing: "2px",
-            }}
-          >
-            RECUERDOS QUE DURARÁN PARA SIEMPRE
-          </p>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+            <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, lineHeight: 1.1 }}>
+              Nuestro catálogo
+            </span>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+          </div>
           <h2
             style={{
-              margin: "0 0 16px 0",
-              fontSize: "36px",
+              margin: 0,
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(30px, 3.5vw, 44px)",
               fontWeight: 700,
               color: "#111",
-              textTransform: "uppercase",
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
             }}
           >
             Escoge el diseño que más te guste
           </h2>
-          <div
-            style={{
-              width: "80px",
-              height: "3px",
-              background: ACCENT,
-              margin: "0 auto",
-              borderRadius: "2px",
-            }}
-          />
         </div>
 
         {/* Grid de portadas */}
@@ -723,15 +740,14 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
               style={{
                 minWidth: "220px",
                 height: "56px",
-                borderRadius: "18px",
-                border: `2px solid ${ACCENT}`,
+                borderRadius: "9999px",
+                border: `1.5px solid ${ACCENT}`,
                 background: "#fff",
                 color: ACCENT,
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
                 cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
+                letterSpacing: "0.01em",
                 fontFamily: "inherit",
               }}
             >
@@ -776,7 +792,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
       `}</style>
       <section
         style={{
-          background: "#fafafa",
+          background: "#f8f9fa",
           padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "72px 48px",
         }}
       >
@@ -784,26 +800,21 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
 
           {/* Título */}
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <div style={{
-              display: "inline-block",
-              padding: "5px 16px",
-              borderRadius: "20px",
-              background: `${ACCENT}18`,
-              color: ACCENT,
-              fontSize: "12px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "2px",
-              marginBottom: "16px",
-            }}>
-              Calidad que se siente
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, lineHeight: 1.1 }}>
+                Calidad que se siente
+              </span>
+              <span style={{ width: "28px", height: "2px", background: ACCENT }} />
             </div>
             <h2 style={{
               margin: 0,
-              fontSize: "36px",
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(30px, 3.5vw, 44px)",
               fontWeight: 700,
               color: "#111",
-              lineHeight: 1.2,
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
             }}>
               Cada detalle importa.
             </h2>
@@ -828,7 +839,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
                         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                       />
                     ) : (
-                      <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${ACCENT}12 0%, ${ACCENT}06 100%)` }} />
+                      <div style={{ width: "100%", height: "100%", background: `${ACCENT}10` }} />
                     )}
                   </div>
                   <div style={{ padding: "24px" }}>
@@ -874,22 +885,15 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
             <h2 style={{
               margin: 0,
-              fontSize: "36px",
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(30px, 3.5vw, 44px)",
               fontWeight: 700,
               color: "#111",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              lineHeight: 1.2,
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
             }}>
               Recuerdos que durarán<br />para siempre
             </h2>
-            <div style={{
-              width: "64px",
-              height: "3px",
-              background: ACCENT,
-              borderRadius: "2px",
-              margin: "20px auto 0",
-            }} />
           </div>
 
           {/* 4 imágenes equidistantes */}
@@ -917,7 +921,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
       </section>
 
       {/* ═══ FAQ ═══ */}
-      <section style={{ background: "#fafafa", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
+      <section style={{ background: "#f8f9fa", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: !isMobile && !isTablet && faqImageUrl ? "1fr 1fr" : "1fr", gap: isMobile ? "40px" : "64px", alignItems: "start" }}>
 
           {/* Imagen izquierda */}
@@ -934,10 +938,15 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           {/* Preguntas */}
           <div>
             <div style={{ marginBottom: "40px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: 700, color: "#111", margin: "0 0 12px 0" }}>
-                PREGUNTAS FRECUENTES
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+                <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, lineHeight: 1.1 }}>
+                  Dudas comunes
+                </span>
+              </div>
+              <h2 style={{ fontFamily: tokens.fonts.display, fontSize: "clamp(30px, 3.5vw, 44px)", fontWeight: 700, color: "#111", margin: 0, lineHeight: 1.15, letterSpacing: "-0.01em" }}>
+                Preguntas frecuentes
               </h2>
-              <div style={{ width: "60px", height: "3px", background: ACCENT, borderRadius: "2px" }} />
             </div>
             {FAQ_ITEMS.map((item, i) => (
               <FaqItem key={i} index={i} question={item.question} answer={item.answer} />
@@ -973,24 +982,23 @@ const EXAMPLES_GRUESA = [
 function PricingSection() {
   const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   return (
-    <section style={{ background: "linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 60%, #1a1a2e 100%)", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
+    <section style={{ background: "#f8f9fa", padding: isMobile ? "48px 24px" : isTablet ? "60px 32px" : "80px 48px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "56px" }}>
-          <div style={{
-            display: "inline-block", padding: "5px 16px", borderRadius: "20px",
-            background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
-            color: ACCENT_LIGHT, fontSize: "12px", fontWeight: 700,
-            textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px",
-          }}>
-            Precios claros, sin sorpresas
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
+            <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: ACCENT, lineHeight: 1.1 }}>
+              Precios claros
+            </span>
+            <span style={{ width: "28px", height: "2px", background: ACCENT }} />
           </div>
-          <h2 style={{ margin: "0 0 12px 0", fontSize: "36px", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>
+          <h2 style={{ margin: "0 0 12px 0", fontFamily: tokens.fonts.display, fontSize: "clamp(30px, 3.5vw, 44px)", fontWeight: 700, color: "#111", lineHeight: 1.15, letterSpacing: "-0.01em" }}>
             Precio por hoja, sin sorpresas
           </h2>
-          <p style={{ margin: 0, fontSize: "16px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>
-            Pagas exactamente por las hojas que usas. Mínimo <strong style={{ color: "#fff" }}>15 hojas (30 caras)</strong>, cada hoja adicional tiene un costo fijo.
+          <p style={{ margin: 0, fontSize: "16px", color: "#444", lineHeight: 1.6 }}>
+            Pagas exactamente por las hojas que usas. Mínimo <strong style={{ color: "#111" }}>15 hojas (30 caras)</strong>, cada hoja adicional tiene un costo fijo.
           </p>
         </div>
 
@@ -1001,9 +1009,9 @@ function PricingSection() {
             subtitle="Cartulina estándar · Ligero y económico"
             formula="S/ 90 base · +S/ 3 por hoja extra"
             examples={EXAMPLES_DELGADA}
-            accentColor="#049eff"
+            accentColor={ACCENT}
             icon={
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#049eff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <line x1="3" y1="9" x2="21" y2="9"/>
                 <line x1="9" y1="21" x2="9" y2="9"/>
@@ -1028,7 +1036,7 @@ function PricingSection() {
 
         {/* Footer note */}
         <div style={{ textAlign: "center", marginTop: "36px" }}>
-          <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>
+          <p style={{ margin: 0, fontSize: "13px", color: "#888", lineHeight: 1.6 }}>
             Los precios incluyen diseño e impresión. Envío se calcula al confirmar el pedido.
           </p>
         </div>
@@ -1052,19 +1060,20 @@ function CoverCard({
 }) {
   return (
     <div style={{
-      background: "rgba(255,255,255,0.05)",
-      border: `1.5px solid ${accentColor}40`,
-      borderRadius: "24px",
+      background: "#ffffff",
+      border: `1px solid ${tokens.colors.neutral.surface.border}`,
+      borderRadius: "16px",
       overflow: "hidden",
       position: "relative",
+      boxShadow: tokens.shadows.sm,
     }}>
       {isPremium && (
         <div style={{
           position: "absolute", top: 0, right: "24px",
-          background: `linear-gradient(135deg, ${ACCENT} 0%, #c471ed 100%)`,
+          background: ACCENT,
           color: "#fff", fontSize: "10px", fontWeight: 700,
           padding: "4px 12px", borderRadius: "0 0 10px 10px",
-          letterSpacing: "0.8px", textTransform: "uppercase",
+          letterSpacing: "0.02em",
         }}>
           Recomendada
         </div>
@@ -1073,7 +1082,7 @@ function CoverCard({
       {/* Card header */}
       <div style={{
         padding: "28px 28px 20px",
-        borderBottom: `1px solid rgba(255,255,255,0.08)`,
+        borderBottom: `1px solid ${tokens.colors.neutral.surface.divider}`,
         display: "flex", alignItems: "flex-start", gap: "14px",
       }}>
         <div style={{
@@ -1086,8 +1095,8 @@ function CoverCard({
           {icon}
         </div>
         <div>
-          <h3 style={{ fontSize: "20px", fontWeight: 600, color: "#fff", marginBottom: "4px", margin: "0 0 4px 0" }}>{title}</h3>
-          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}>{subtitle}</div>
+          <h3 style={{ fontFamily: tokens.fonts.display, fontSize: "22px", fontWeight: 700, color: "#111", letterSpacing: "-0.01em", margin: "0 0 4px 0" }}>{title}</h3>
+          <div style={{ fontSize: "13px", color: "#666", lineHeight: 1.4 }}>{subtitle}</div>
         </div>
       </div>
 
@@ -1106,8 +1115,8 @@ function CoverCard({
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "11px 16px",
               borderRadius: "12px",
-              background: ex.highlight ? `${accentColor}18` : "rgba(255,255,255,0.03)",
-              border: ex.highlight ? `1.5px solid ${accentColor}50` : "1.5px solid rgba(255,255,255,0.07)",
+              background: ex.highlight ? `${accentColor}14` : tokens.colors.neutral.surface.subtle,
+              border: ex.highlight ? `1.5px solid ${accentColor}50` : `1px solid ${tokens.colors.neutral.surface.divider}`,
               position: "relative",
             }}
           >
@@ -1122,10 +1131,10 @@ function CoverCard({
                 MÁS ELEGIDO
               </div>
             )}
-            <div style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "#444" }}>
               {ex.hojas} hojas · {ex.hojas * 2} caras
             </div>
-            <div style={{ fontSize: "20px", fontWeight: 900, color: ex.highlight ? accentColor : "#fff" }}>
+            <div style={{ fontSize: "20px", fontWeight: 800, color: ex.highlight ? accentColor : "#111" }}>
               {ex.price}
             </div>
           </div>
@@ -1137,9 +1146,9 @@ function CoverCard({
 
 /* ── Photobook Card ── */
 
-const CARD_SHADOW       = `0 8px 32px rgba(128, 65, 135, 0.10)`;
-const CARD_SHADOW_HOVER = `0 24px 64px rgba(128, 65, 135, 0.24)`;
-const CARD_GRADIENT     = `linear-gradient(135deg, ${ACCENT} 0%, #c471ed 100%)`;
+const CARD_SHADOW       = `0 8px 32px rgba(0, 0, 0, 0.08)`;
+const CARD_SHADOW_HOVER = `0 24px 64px rgba(0, 0, 0, 0.16)`;
+const CARD_GRADIENT     = ACCENT;
 
 function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
   return (
@@ -1225,11 +1234,11 @@ function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
         >
           {theme.coverPreviewUrl ? (
             <Image
-              src={theme.coverPreviewUrl}
+              src={toRelativeAssetUrl(theme.coverPreviewUrl)}
               alt={theme.name}
-              width={138}
-              height={184}
-              style={{ maxWidth: "100%", maxHeight: "184px", height: "auto", width: "auto", objectFit: "contain" }}
+              width={151}
+              height={202}
+              style={{ maxWidth: "100%", maxHeight: "202px", height: "auto", width: "auto", objectFit: "contain" }}
             />
           ) : (
             <div style={{
@@ -1276,7 +1285,7 @@ function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
           {/* Zona superior tintada */}
           <div style={{
             position:   "relative",
-            background: `linear-gradient(160deg, ${ACCENT}14 0%, ${ACCENT}07 100%)`,
+            background: "#f8f9fa",
             padding:    "124px 16px 16px",
           }}>
             {/* Barra gradiente superior */}
@@ -1288,8 +1297,8 @@ function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
             <div style={{
               display: "inline-block", padding: "5px 14px", borderRadius: "20px",
               background: ACCENT, color: "#fff",
-              fontSize: "11px", fontWeight: 700,
-              textTransform: "uppercase", letterSpacing: "0.5px",
+              fontSize: "12px", fontWeight: 700,
+              letterSpacing: "0.02em",
             }}>
               {theme.badge}
             </div>
@@ -1330,7 +1339,7 @@ function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
             {/* Price */}
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: "12px", color: "#999", marginBottom: "2px" }}>Desde</div>
-              <div style={{ fontSize: "24px", fontWeight: 900, color: "#111", lineHeight: 1 }}>S/ 90</div>
+              <div style={{ fontSize: "24px", fontWeight: 800, color: "#111", lineHeight: 1 }}>S/ 90</div>
               <div style={{ fontSize: "11px", color: "#aaa", marginTop: "4px" }}>15 hojas · Tapa Delgada</div>
             </div>
 

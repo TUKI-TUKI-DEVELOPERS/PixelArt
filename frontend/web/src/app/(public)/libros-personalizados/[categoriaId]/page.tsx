@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import CategoriaClient from "./CategoriaClient";
 import { CATEGORIA_AMOR_ASSET_KEYS } from "@/lib/categoriaAssetKeys";
+import { getAssetUrl } from "@/lib/assetUrl";
 
 const CATEGORIAS_VALIDAS = [
   "libros-de-amor",
@@ -17,12 +18,6 @@ const CATEGORIA_NOMBRES: Record<string, string> = {
 };
 
 const API_BASE = "http://api:3001";
-
-function getAssetUrlDirect(storageKey: string): string {
-  const base = process.env.NEXT_PUBLIC_MINIO_URL ?? 'http://localhost:9000';
-  const bucket = process.env.NEXT_PUBLIC_MINIO_BUCKET ?? 'pixelart-assets';
-  return `${base}/${bucket}/${storageKey}`;
-}
 
 type Props = {
   params: Promise<{ categoriaId: string }>;
@@ -68,14 +63,14 @@ export default async function CategoriaPage({ params }: Props) {
     const K = CATEGORIA_AMOR_ASSET_KEYS;
     const keys = Object.entries(K);
     keys.forEach(([name, storageKey]) => {
-      assetUrls[name] = getAssetUrlDirect(storageKey);
+      assetUrls[name] = getAssetUrl(storageKey);
     });
   } else if (categoriaId === "libros-de-familia") {
-    assetUrls.heroBackground = getAssetUrlDirect('IA_Books/Backgrounds/Background_IA_Books_Family_Book_Page.png');
+    assetUrls.heroBackground = getAssetUrl('IA_Books/Backgrounds/Background_IA_Books_Family_Book_Page.png');
   } else if (categoriaId === "libros-de-mascotas") {
-    assetUrls.heroBackground = getAssetUrlDirect('IA_Books/Backgrounds/Background_IA_Books_Pet_Book_Page.png');
+    assetUrls.heroBackground = getAssetUrl('IA_Books/Backgrounds/Background_IA_Books_Pet_Book_Page.png');
   } else if (categoriaId === "libros-de-memorias-familiares") {
-    assetUrls.heroBackground = getAssetUrlDirect('IA_Books/Backgrounds/Background_IA_Books_Memories_Book_Page.png');
+    assetUrls.heroBackground = getAssetUrl('IA_Books/Backgrounds/Background_IA_Books_Memories_Book_Page.png');
   }
 
   return (

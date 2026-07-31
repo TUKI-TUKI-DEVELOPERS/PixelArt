@@ -1,5 +1,7 @@
 "use client";
 
+import { tokens } from "@/lib/design-tokens";
+
 type Category = {
   id: string;
   name: string;
@@ -27,11 +29,12 @@ export default function Sidebar({
       <h2
         style={{
           margin: "0 0 28px 0",
-          fontSize: "48px",
+          fontFamily: tokens.fonts.display,
+          fontSize: "42px",
           lineHeight: 1.15,
-          fontWeight: 900,
-          color: "#4f97cf",
-          textTransform: "uppercase",
+          fontWeight: 700,
+          letterSpacing: "-0.01em",
+          color: "#111",
         }}
       >
         Nuestros Libros

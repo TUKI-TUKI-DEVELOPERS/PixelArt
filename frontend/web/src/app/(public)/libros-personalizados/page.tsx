@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 
-import ModernBackground from "@/components/backgrounds/ModernBackground";
 import NuestrosLibrosClient from "@/components/NuestrosLibros/NuestrosLibrosClient";
 
 type Variant = {
@@ -56,16 +55,7 @@ export default async function LibrosPersonalizadosPage() {
         flexDirection: "column",
       }}
     >
-      <ModernBackground
-        variant="custom-books"
-        style={{
-          width: "100%",
-          padding: "0",
-          minHeight: "100vh",
-        }}
-      >
-        <NuestrosLibrosClient books={books} categories={categories} />
-      </ModernBackground>
+      <NuestrosLibrosClient books={books} categories={categories} />
     </main>
   );
 }

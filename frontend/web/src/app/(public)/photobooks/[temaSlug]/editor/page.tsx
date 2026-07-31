@@ -13,6 +13,11 @@ const TEMAS_VALIDOS: Record<string, string> = {
   "portada-rio-janeiro": "Portada Rio de Janeiro",
   "portada-iquitos": "Portada de Visita a Iquitos",
   "portada-machu-picchu": "Portada Machu Picchu",
+  "portada-arequipa": "Portada Arequipa",
+  "portada-ayacucho": "Portada Ayacucho",
+  "portada-huancayo": "Portada Huancayo",
+  "portada-puno": "Portada Puno",
+  "portada-cajamarca": "Portada Cajamarca",
   "portada-punta-cana": "Portada Punta Cana",
   "portada-jamaica": "Portada Jamaica",
   "portada-miami": "Portada Miami",
@@ -29,9 +34,14 @@ const SLUG_TO_THEME_NAME: Record<string, string> = {
   "portada-rio-janeiro": "Río de Janeiro",
   "portada-iquitos": "Iquitos",
   "portada-machu-picchu": "Machu Picchu",
+  "portada-arequipa": "Arequipa",
+  "portada-ayacucho": "Ayacucho",
+  "portada-huancayo": "Huancayo",
+  "portada-puno": "Puno",
+  "portada-cajamarca": "Cajamarca",
   "portada-punta-cana": "Punta Cana",
   "portada-jamaica": "Jamaica",
-  "portada-miami": "Bodas",
+  "portada-miami": "Miami",
 };
 
 type Props = {

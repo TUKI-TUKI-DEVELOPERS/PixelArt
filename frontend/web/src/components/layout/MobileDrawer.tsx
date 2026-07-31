@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import PixelArtLogo from './PixelArtLogo';
 import NavIcon from './NavIcon';
+import MobileLibrosAccordion from './MobileLibrosAccordion';
 import { BASE_COLORS, hexToRgba } from '@/lib/colors';
 
 interface NavLink {
@@ -20,7 +21,6 @@ interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
   links: NavLink[];
-  dropdownItems?: { label: string; href: string; color: string }[];
 }
 
 /**
@@ -33,7 +33,6 @@ export default function MobileDrawer({
   open,
   onClose,
   links,
-  dropdownItems = [],
 }: MobileDrawerProps) {
   // BUG 1 FIX: derivar el link activo de la URL real
   const pathname = usePathname();
@@ -198,40 +197,8 @@ export default function MobileDrawer({
                     {link.label}
                   </Link>
                   
-                  {/* Dropdown items si es Libros Personalizados */}
-                  {link.hasDropdown && dropdownItems.length > 0 && (
-                    <div style={{ paddingLeft: '16px' }}>
-                      {dropdownItems.map((item) => (
-                        <Link
-                          key={item.label}
-                          href={item.href}
-                          onClick={onClose}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            padding: '12px 24px',
-                            fontSize: '14px',
-                            fontWeight: 400,
-                            color: BASE_COLORS.inkSepia,
-                            textDecoration: 'none',
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: '8px',
-                              height: '8px',
-                              borderRadius: '50%',
-                              backgroundColor: item.color,
-                              flexShrink: 0,
-                            }}
-                          />
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  {/* Mega menu accordion si es Libros Personalizados */}
+                  {link.hasDropdown && <MobileLibrosAccordion onClose={onClose} />}
                 </div>
               ))}
             </nav>

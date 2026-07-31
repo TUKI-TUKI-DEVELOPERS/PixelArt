@@ -1,11 +1,13 @@
 "use client";
 
+import { tokens } from "@/lib/design-tokens";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import ProductGrid from "../catalog/ProductGrid";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { BLOG_POSTS } from "@/lib/blog-posts";
+import { Heart, Cake, Gem, Shirt, Flower2, TreePine, CalendarHeart, Sparkles, ChevronRight, Image as ImageIcon } from "lucide-react";
 
 type Variant = {
   id: string;
@@ -198,6 +200,17 @@ const FAQ_ITEMS = [
 ];
 
 
+/* ── Ocasiones (sección "Perfecto para") ── */
+const OCCASIONS = [
+  { label: "San Valentín", Icon: Heart, color: "#EC4899" },
+  { label: "Cumpleaños", Icon: Cake, color: "#F59E0B" },
+  { label: "Aniversario", Icon: Gem, color: "#F97316" },
+  { label: "Día del Padre", Icon: Shirt, color: "#3B82F6" },
+  { label: "Día de la Madre", Icon: Flower2, color: "#A855F7" },
+  { label: "Navidad", Icon: TreePine, color: "#22C55E" },
+  { label: "cualquier día del año", Icon: CalendarHeart, color: "#EB4C4C", highlighted: true },
+];
+
 /* ── Rutas de detalle por libro ── */
 const BOOK_HREF: Record<string, string> = {
   "10 Razones por las que Te Amo": "/libros-personalizados/libros-de-amor/10-razones-por-las-que-te-amo",
@@ -271,11 +284,11 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   return (
     <div
       style={{
-        borderBottom: "1px solid rgba(255,255,255,0.10)",
-        borderLeft: open ? "3px solid #e8453c" : "3px solid transparent",
+        borderBottom: "1px solid #e8e8e8",
+        background: open ? "rgba(183,32,32,0.04)" : "transparent",
+        borderRadius: open ? "8px" : "0",
         paddingLeft: open ? "16px" : "0",
-        background: open ? "rgba(255,255,255,0.05)" : "transparent",
-        borderRadius: open ? "0 8px 8px 0" : "0",
+        paddingRight: open ? "16px" : "0",
         transition: "background 0.3s ease, border-color 0.3s ease, padding 0.3s ease",
       }}
     >
@@ -298,7 +311,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           style={{
             fontSize: isMobile ? "15px" : "17px",
             fontWeight: open ? 600 : 500,
-            color: open ? "#fff" : "rgba(255,255,255,0.75)",
+            color: open ? "#111" : "#444",
             transition: "color 0.2s ease",
             lineHeight: 1.4,
           }}
@@ -311,11 +324,11 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
             width: "28px",
             height: "28px",
             borderRadius: "50%",
-            border: "1px solid rgba(255,255,255,0.20)",
+            border: "1px solid #d0d0d0",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: open ? "#e8453c" : "transparent",
+            background: open ? "#B72020" : "transparent",
             transition: "background 0.25s ease, border-color 0.25s ease",
           }}
         >
@@ -324,7 +337,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
             height="14"
             viewBox="0 0 24 24"
             fill="none"
-            stroke={open ? "#fff" : "rgba(255,255,255,0.70)"}
+            stroke={open ? "#fff" : "#888"}
             strokeWidth="2.5"
             strokeLinecap="round"
             xmlns="http://www.w3.org/2000/svg"
@@ -351,7 +364,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
             padding: "0 48px 24px 0",
             fontSize: isMobile ? "14px" : "15px",
             lineHeight: 1.75,
-            color: "rgba(255,255,255,0.60)",
+            color: "#666",
           }}
         >
           {answer}
@@ -410,7 +423,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
     const cRect = container.getBoundingClientRect();
     const bRect = btn.getBoundingClientRect();
     setPillStyle({ left: bRect.left - cRect.left, width: bRect.width });
-  }, [activeFilter]);
+  }, [activeFilter, isMobile, isTablet]);
 
   /* Cerrar lightbox con ESC */
   useEffect(() => {
@@ -555,9 +568,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
               gap: "8px",
               padding: "6px 16px",
               borderRadius: "9999px",
-              background: "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.35)",
-              backdropFilter: "blur(8px)",
+              background: "rgba(0,0,0,0.35)",
+              border: "1px solid rgba(255,255,255,0.30)",
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -580,39 +592,25 @@ export default function NuestrosLibrosClient({ books }: Props) {
           <h1
             style={{
               margin: 0,
-              fontSize: isSmallMobile ? "30px" : isMobile ? "36px" : isTablet ? "48px" : "64px",
-              fontWeight: 900,
+              fontFamily: tokens.fonts.display,
+              fontSize: isSmallMobile ? "32px" : isMobile ? "38px" : isTablet ? "48px" : "60px",
+              fontWeight: 700,
               color: "#fff",
-              textTransform: "uppercase",
-              lineHeight: 1.05,
-              letterSpacing: "-1px",
-              textShadow: "0 2px 16px rgba(0,0,0,0.35)",
+              lineHeight: 1.12,
+              letterSpacing: "-0.01em",
             }}
           >
             Libros
             <br />
             <span
               style={{
-                background: "linear-gradient(90deg, #6bb3e0, #4f97cf, #2d8fd5)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                fontStyle: "italic",
+                fontWeight: 400,
               }}
             >
               Personalizados
             </span>
           </h1>
-
-          {/* Línea decorativa */}
-          <div
-            aria-hidden="true"
-            style={{
-              width: "64px",
-              height: "3px",
-              borderRadius: "9999px",
-              background: "linear-gradient(90deg, #6bb3e0, #2d8fd5)",
-            }}
-          />
 
           {/* Descripción */}
           <p
@@ -622,7 +620,6 @@ export default function NuestrosLibrosClient({ books }: Props) {
               fontWeight: 500,
               color: "rgba(255,255,255,0.88)",
               lineHeight: 1.6,
-              textShadow: "0 1px 4px rgba(0,0,0,0.3)",
               maxWidth: "520px",
             }}
           >
@@ -639,7 +636,6 @@ export default function NuestrosLibrosClient({ books }: Props) {
               background: "rgba(255,255,255,0.10)",
               border: "1px solid rgba(255,255,255,0.25)",
               borderRadius: "12px",
-              backdropFilter: "blur(8px)",
             }}
           >
             <div style={{ display: "flex", gap: "2px" }}>
@@ -674,22 +670,22 @@ export default function NuestrosLibrosClient({ books }: Props) {
               marginTop: "4px",
               padding: isMobile ? "14px 28px" : "16px 36px",
               borderRadius: "9999px",
-              background: "linear-gradient(135deg, #6bb3e0, #2d8fd5)",
+              background: "#B72020",
               color: "#fff",
               fontSize: isMobile ? "14px" : "16px",
               fontWeight: 700,
               textDecoration: "none",
               letterSpacing: "0.02em",
-              boxShadow: "0 4px 20px rgba(45,143,213,0.45)",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.20)",
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 28px rgba(45,143,213,0.55)";
+              e.currentTarget.style.boxShadow = "0 10px 28px rgba(0,0,0,0.28)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 20px rgba(45,143,213,0.45)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.20)";
             }}
           >
             Explorar libros
@@ -703,58 +699,82 @@ export default function NuestrosLibrosClient({ books }: Props) {
       {/* ═══ SECCIÓN 2: INTRODUCCIÓN ═══ */}
       <section
         style={{
-          background: "#faf8f6",
-          padding: isMobile ? "56px 24px" : isTablet ? "64px 40px" : "80px 48px",
+          position: "relative",
+          background: "#FCF9F5",
+          padding: isMobile ? "56px 24px 64px" : isTablet ? "72px 40px 80px" : "88px 48px 104px",
+          overflow: "hidden",
         }}
       >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        {/* Decoración de fondo — corazones y destellos (sólidos, como en el mockup) */}
+        {!isMobile && (
+          <>
+            <Sparkles size={16} fill="#F5A623" color="#F5A623" style={{ position: "absolute", top: "44px", left: "168px", opacity: 0.5 }} />
+            <Heart size={22} fill="#F5AEB4" color="#F5AEB4" style={{ position: "absolute", top: "84px", left: "196px", opacity: 0.85, transform: "rotate(6deg)" }} />
+            <Heart size={46} fill="#F5AEB4" color="#F5AEB4" style={{ position: "absolute", top: "148px", left: "92px", opacity: 0.8, transform: "rotate(-6deg)" }} />
+            <Sparkles size={14} fill="#F5A623" color="#F5A623" style={{ position: "absolute", top: "112px", left: "116px", opacity: 0.55 }} />
+            <Sparkles size={20} fill="#F5A623" color="#F5A623" style={{ position: "absolute", top: "40px", right: "160px", opacity: 0.55 }} />
+            <Sparkles size={12} fill="#F5A623" color="#F5A623" style={{ position: "absolute", top: "80px", right: "128px", opacity: 0.5 }} />
+            <Heart size={40} fill="#F5AEB4" color="#F5AEB4" style={{ position: "absolute", top: "150px", right: "72px", opacity: 0.85, transform: "rotate(-8deg)" }} />
+          </>
+        )}
+
+        <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 1 }}>
 
           {/* ── Header centrado ── */}
           <div style={{ textAlign: "center", marginBottom: isMobile ? "48px" : "64px" }}>
-            <p
-              style={{
-                margin: "0 0 12px 0",
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "#B72020",
-              }}
-            >
-              Para cada momento especial
-            </p>
+            <Heart size={18} fill="#EB4C4C" color="#EB4C4C" style={{ marginBottom: "10px" }} />
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <span style={{ width: "28px", height: "2px", background: "#EB4C4C" }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#EB4C4C", lineHeight: 1.1 }}>
+                Para cada momento especial
+              </span>
+              <span style={{ width: "28px", height: "2px", background: "#EB4C4C" }} />
+            </div>
             <h2
               style={{
                 margin: "0 0 16px 0",
-                fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : isTablet ? "32px" : "40px",
-                fontWeight: 900,
+                fontFamily: tokens.fonts.display,
+                fontWeight: 700,
                 color: "#1a1a1a",
-                lineHeight: 1.1,
-                letterSpacing: "-0.5px",
+                lineHeight: 1.15,
+                letterSpacing: "-0.01em",
               }}
             >
-              Hecho para ti,{" "}
-              <span
-                style={{
-                  background: "linear-gradient(135deg, #B72020, #e8453c)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                entregado con amor
+              <span style={{ display: "block", fontSize: "clamp(32px, 4.8vw, 56px)" }}>
+                Hecho para ti,
+              </span>
+              <span style={{ position: "relative", display: "inline-block", marginTop: "6px" }}>
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "clamp(24px, 3.4vw, 38px)",
+                    color: "#EB4C4C",
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                  }}
+                >
+                  entregado con amor
+                </span>
+                {!isMobile && (
+                  <svg
+                    width="220"
+                    height="48"
+                    viewBox="-65 25 210 45"
+                    fill="none"
+                    style={{ position: "absolute", right: "-44px", bottom: "-40px", pointerEvents: "none" }}
+                  >
+                    <path
+                      d="M-60,35 C-5,62 60,65 128,52 C118,48.1 111.5,40.7 117.1,36.2 C119.5,33.5 121.9,32.9 124.1,36.5 C124.4,32.3 126.8,31.7 130.2,32.9 C137.2,34.2 135,43.8 128,52"
+                      stroke="#EB4C4C"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity="0.7"
+                    />
+                  </svg>
+                )}
               </span>
             </h2>
-            <div
-              aria-hidden="true"
-              style={{
-                width: "48px",
-                height: "3px",
-                borderRadius: "9999px",
-                background: "linear-gradient(90deg, #B72020, #e8453c)",
-                margin: "0 auto",
-              }}
-            />
           </div>
 
           {/* ── 3 pilares ── */}
@@ -762,226 +782,204 @@ export default function NuestrosLibrosClient({ books }: Props) {
             style={{
               display: "grid",
               gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
-              gap: isMobile ? "32px" : "40px",
+              gap: isMobile ? "24px" : "28px",
               marginBottom: isMobile ? "48px" : "64px",
             }}
           >
-            {/* Pilar 1 — Tus fotos */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                gap: "16px",
-              }}
-            >
+            {[
+              {
+                title: "Tus fotos, tu historia",
+                desc: "Subes tus imágenes y nosotros las integramos en escenas únicas diseñadas para cada libro.",
+                icon: <ImageIcon size={26} color="#EB4C4C" strokeWidth={1.5} />,
+              },
+              {
+                title: "Diseñado con IA",
+                desc: "La inteligencia artificial genera escenas narrativas únicas que hacen de cada página un momento irrepetible.",
+                icon: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EB4C4C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                    <path d="M20 3v4" />
+                    <path d="M22 5h-4" />
+                    <path d="M4 17v2" />
+                    <path d="M5 18H3" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Calidad premium",
+                desc: "Impresión profesional en papel 200g, tapa dura y acabado que se siente desde la primera página.",
+                icon: (
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#EB4C4C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="8" r="6" />
+                    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+                  </svg>
+                ),
+              },
+            ].map((pillar) => (
               <div
+                key={pillar.title}
                 style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "16px",
-                  background: "rgba(183,32,32,0.08)",
+                  background: "#FDFCFA",
+                  borderRadius: "24px",
+                  padding: isMobile ? "32px 24px" : "36px 32px",
+                  boxShadow: "0 4px 24px rgba(183,32,32,0.06)",
+                  border: "1px solid rgba(0,0,0,0.03)",
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
+                  textAlign: "center",
+                  gap: "16px",
                 }}
               >
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B72020" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                  <path d="M9 7h6" />
-                  <path d="M9 11h6" />
-                  <path d="M9 15h4" />
-                </svg>
-              </div>
-              <div>
-                <h3
+                <div
                   style={{
-                    margin: "0 0 8px 0",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "#1a1a1a",
-                    lineHeight: 1.2,
+                    width: "64px",
+                    height: "64px",
+                    borderRadius: "50%",
+                    background: "rgba(235,76,76,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
                   }}
                 >
-                  Tus fotos, tu historia
-                </h3>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "15px",
-                    lineHeight: 1.6,
-                    color: "#666",
-                    fontWeight: 400,
-                  }}
-                >
-                  Subes tus imágenes y nosotros las integramos en escenas únicas diseñadas para cada libro.
-                </p>
+                  {pillar.icon}
+                </div>
+                <div>
+                  <h3
+                    style={{
+                      margin: "0 0 8px 0",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "#1a1a1a",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {pillar.title}
+                  </h3>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "15px",
+                      lineHeight: 1.6,
+                      color: "#666",
+                      fontWeight: 400,
+                    }}
+                  >
+                    {pillar.desc}
+                  </p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", marginTop: "4px" }}>
+                  <span style={{ flex: 1, height: "1px", borderTop: "1px dashed rgba(0,0,0,0.12)" }} />
+                  <Heart size={12} fill="#EB4C4C" color="#EB4C4C" />
+                  <span style={{ flex: 1, height: "1px", borderTop: "1px dashed rgba(0,0,0,0.12)" }} />
+                </div>
               </div>
-            </div>
-
-            {/* Pilar 2 — Diseñado con IA */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                gap: "16px",
-              }}
-            >
-              <div
-                style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "16px",
-                  background: "rgba(183,32,32,0.08)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B72020" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
-                  <path d="M20 3v4" />
-                  <path d="M22 5h-4" />
-                  <path d="M4 17v2" />
-                  <path d="M5 18H3" />
-                </svg>
-              </div>
-              <div>
-                <h3
-                  style={{
-                    margin: "0 0 8px 0",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "#1a1a1a",
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Diseñado con IA
-                </h3>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "15px",
-                    lineHeight: 1.6,
-                    color: "#666",
-                    fontWeight: 400,
-                  }}
-                >
-                  La inteligencia artificial genera escenas narrativas únicas que hacen de cada página un momento irrepetible.
-                </p>
-              </div>
-            </div>
-
-            {/* Pilar 3 — Calidad premium */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-                gap: "16px",
-              }}
-            >
-              <div
-                style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "16px",
-                  background: "rgba(183,32,32,0.08)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B72020" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="8" r="6" />
-                  <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
-                </svg>
-              </div>
-              <div>
-                <h3
-                  style={{
-                    margin: "0 0 8px 0",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "#1a1a1a",
-                    lineHeight: 1.2,
-                  }}
-                >
-                  Calidad premium
-                </h3>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "15px",
-                    lineHeight: 1.6,
-                    color: "#666",
-                    fontWeight: 400,
-                  }}
-                >
-                  Impresión profesional en papel 200g, tapa dura y acabado que se siente desde la primera página.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* ── Divisor ── */}
-          <div
-            aria-hidden="true"
-            style={{
-              width: "100%",
-              height: "1px",
-              background: "linear-gradient(90deg, transparent, rgba(183,32,32,0.2), transparent)",
-              marginBottom: isMobile ? "32px" : "40px",
-            }}
-          />
-
           {/* ── Ocasiones ── */}
-          <p
-            style={{
-              textAlign: "center",
-              margin: "0 0 20px 0",
-              fontSize: "11px",
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "#999",
-            }}
-          >
-            Perfecto para
-          </p>
-          <p
-            style={{
-              textAlign: "center",
-              margin: 0,
-              fontSize: isMobile ? "14px" : "16px",
-              fontWeight: 500,
-              color: "#555",
-              lineHeight: 2,
-              letterSpacing: "0.01em",
-            }}
-          >
-            San Valentín{" "}
-            <span aria-hidden="true" style={{ color: "#ccc", margin: "0 8px" }}>·</span>
-            Cumpleaños{" "}
-            <span aria-hidden="true" style={{ color: "#ccc", margin: "0 8px" }}>·</span>
-            Aniversario{" "}
-            <span aria-hidden="true" style={{ color: "#ccc", margin: "0 8px" }}>·</span>
-            Día del Padre{" "}
-            <span aria-hidden="true" style={{ color: "#ccc", margin: "0 8px" }}>·</span>
-            Día de la Madre{" "}
-            <span aria-hidden="true" style={{ color: "#ccc", margin: "0 8px" }}>·</span>
-            Navidad{" "}
-            <span aria-hidden="true" style={{ color: "#ccc", margin: "0 8px" }}>·</span>
-            <span style={{ color: "#B72020", fontWeight: 600 }}>cualquier día del año</span>
-          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginBottom: "24px" }}>
+            <span style={{ width: "40px", height: "1px", background: "#E4D6CD" }} />
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#916949" strokeWidth="1.3">
+              <path d="M12 3l4 9-4 9-4-9z" />
+            </svg>
+            <span style={{ fontSize: "17px", fontWeight: 700, fontFamily: tokens.fonts.display, color: "#916949" }}>
+              Perfecto para
+            </span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#916949" strokeWidth="1.3">
+              <path d="M12 3l4 9-4 9-4-9z" />
+            </svg>
+            <span style={{ width: "40px", height: "1px", background: "#E4D6CD" }} />
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "12px", marginBottom: isMobile ? "40px" : "48px" }}>
+            {OCCASIONS.map(({ label, Icon, color, highlighted }) => (
+              <span
+                key={label}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  borderRadius: "9999px",
+                  border: highlighted ? "1.5px solid #EB4C4C" : "1px solid rgba(0,0,0,0.08)",
+                  background: highlighted ? "rgba(235,76,76,0.06)" : "#fff",
+                  color: highlighted ? "#EB4C4C" : "#444",
+                  fontSize: isMobile ? "13px" : "14px",
+                  fontWeight: highlighted ? 700 : 500,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <Icon size={15} color={highlighted ? "#EB4C4C" : color} />
+                {label}
+              </span>
+            ))}
+          </div>
+
+          {/* ── CTAs ── */}
+          <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
+            <a
+              href="#libros"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("libros")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: isMobile ? "14px 28px" : "16px 32px",
+                borderRadius: "9999px",
+                background: "#EB4C4C",
+                color: "#fff",
+                fontSize: isMobile ? "14px" : "15px",
+                fontWeight: 700,
+                textDecoration: "none",
+                letterSpacing: "0.02em",
+                boxShadow: "0 6px 20px rgba(235,76,76,0.30)",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 10px 26px rgba(235,76,76,0.38)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 6px 20px rgba(235,76,76,0.30)";
+              }}
+            >
+              <Heart size={16} fill="#fff" color="#fff" />
+              Crear mi libro
+            </a>
+            <a
+              href="#libros"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("libros")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: isMobile ? "14px 28px" : "16px 32px",
+                borderRadius: "9999px",
+                background: "transparent",
+                border: "1.5px solid rgba(0,0,0,0.15)",
+                color: "#1a1a1a",
+                fontSize: isMobile ? "14px" : "15px",
+                fontWeight: 700,
+                textDecoration: "none",
+                letterSpacing: "0.02em",
+                transition: "border-color 0.2s ease, background 0.2s ease",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+            >
+              Ver ejemplos
+              <ChevronRight size={16} />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -993,7 +991,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
           style={{
             position: "relative",
             overflow: "hidden",
-            background: "linear-gradient(180deg, rgba(183,32,32,0.10) 0%, rgba(183,32,32,0.04) 60%, transparent 100%)",
+            background: "#ffffff",
             padding: isMobile ? "56px 24px 10px" : isTablet ? "64px 40px 10px" : "80px 48px 12px",
             textAlign: "center",
           }}
@@ -1006,51 +1004,48 @@ export default function NuestrosLibrosClient({ books }: Props) {
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
+              fontFamily: tokens.fonts.display,
+              fontStyle: "italic",
               fontSize: isSmallMobile ? "66px" : isMobile ? "80px" : isTablet ? "120px" : "160px",
-              fontWeight: 900,
+              fontWeight: 700,
               lineHeight: 1,
-              color: "#B72020",
-              opacity: 0.045,
-              letterSpacing: isMobile ? "6px" : "12px",
+              color: "#111111",
+              opacity: 0.04,
+              letterSpacing: "-0.02em",
               userSelect: "none",
               pointerEvents: "none",
               whiteSpace: "nowrap",
-              textTransform: "uppercase",
             }}
           >
-            PIXELART
+            PixelArt
           </span>
 
           {/* Contenido sobre el watermark */}
           <div style={{ position: "relative", zIndex: 1 }}>
 
             {/* Eyebrow */}
-            <p
-              style={{
-                margin: "0 0 20px 0",
-                fontSize: "11px",
-                fontWeight: 700,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "#B72020",
-              }}
-            >
-              Nuestra colección
-            </p>
+<div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#B72020", lineHeight: 1.1 }}>
+                Nuestra colección
+              </span>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+            </div>
 
             {/* Título editorial */}
             <h2
               style={{
                 margin: "0 0 20px 0",
-                lineHeight: 1.0,
-                letterSpacing: isMobile ? "-1px" : "-2px",
-                fontWeight: 900,
+                fontFamily: tokens.fonts.display,
+                lineHeight: 1.1,
+                letterSpacing: "-0.01em",
+                fontWeight: 700,
               }}
             >
               <span
                 style={{
                   display: "block",
-                  fontSize: isSmallMobile ? "40px" : isMobile ? "48px" : isTablet ? "72px" : "96px",
+                  fontSize: isSmallMobile ? "36px" : isMobile ? "44px" : isTablet ? "58px" : "76px",
                   color: "#1a1a1a",
                 }}
               >
@@ -1059,11 +1054,10 @@ export default function NuestrosLibrosClient({ books }: Props) {
               <span
                 style={{
                   display: "block",
-                  fontSize: isSmallMobile ? "40px" : isMobile ? "48px" : isTablet ? "72px" : "96px",
-                  background: "linear-gradient(135deg, #B72020 0%, #e8453c 50%, #c0392b 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  fontSize: isSmallMobile ? "36px" : isMobile ? "44px" : isTablet ? "58px" : "76px",
+                  color: "#B72020",
+                  fontStyle: "italic",
+                  fontWeight: 400,
                 }}
               >
                 perfecto para ti.
@@ -1163,8 +1157,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
                         borderRadius: filterOpen ? "16px 16px 0 0" : "9999px",
                         border: "1px solid rgba(183,32,32,0.18)",
                         background: "rgba(255,255,255,0.92)",
-                        backdropFilter: "blur(12px)",
-                        boxShadow: "0 2px 16px rgba(183,32,32,0.10)",
+                        boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
                         cursor: "pointer",
                         transition: "border-radius 0.2s ease",
                       }}
@@ -1193,7 +1186,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
                         borderBottom: filterOpen ? "1px solid rgba(183,32,32,0.18)" : "none",
                         borderLeft: filterOpen ? "1px solid rgba(183,32,32,0.18)" : "none",
                         background: "rgba(255,255,255,0.95)",
-                        boxShadow: filterOpen ? "0 8px 24px rgba(183,32,32,0.10)" : "none",
+                        boxShadow: filterOpen ? "0 8px 24px rgba(0,0,0,0.10)" : "none",
                       }}
                     >
                       {FILTERS.map(({ key, label, icon }) => {
@@ -1247,8 +1240,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
                     padding: "5px",
                     borderRadius: "9999px",
                     background: "rgba(255,255,255,0.88)",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: "0 2px 20px rgba(183,32,32,0.12), 0 1px 4px rgba(0,0,0,0.06)",
+                    boxShadow: "0 2px 20px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)",
                     border: "1px solid rgba(183,32,32,0.10)",
                   }}
                 >
@@ -1262,8 +1254,8 @@ export default function NuestrosLibrosClient({ books }: Props) {
                         width: `${pillStyle.width}px`,
                         height: "calc(100% - 10px)",
                         borderRadius: "9999px",
-                        background: "linear-gradient(135deg, #B72020, #e8453c)",
-                        boxShadow: "0 2px 12px rgba(183,32,32,0.40)",
+                        background: "#B72020",
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
                         transition: "left 0.28s cubic-bezier(0.4, 0, 0.2, 1), width 0.28s cubic-bezier(0.4, 0, 0.2, 1)",
                         pointerEvents: "none",
                         zIndex: 0,
@@ -1396,50 +1388,16 @@ export default function NuestrosLibrosClient({ books }: Props) {
             </div>
           )}
         </div>
-
-        {/* Onda de transición hacia la sección oscura */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            lineHeight: 0,
-            pointerEvents: "none",
-          }}
-        >
-          <svg
-            viewBox="0 0 1440 72"
-            preserveAspectRatio="none"
-            style={{ width: "100%", height: "72px", display: "block" }}
-          >
-            <path d="M0,72 C360,0 1080,72 1440,16 L1440,72 Z" fill="#1c1917" />
-          </svg>
-        </div>
       </section>
 
       {/* ═══ SECCIÓN 4: FAQ ═══ */}
       <section
         style={{
           position: "relative",
-          background: "#1c1917",
+          background: "#f8f9fa",
           overflow: "hidden",
         }}
       >
-        {/* Grano de textura sutil */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: 0.25,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat",
-            backgroundSize: "256px 256px",
-            pointerEvents: "none",
-          }}
-        />
 
         {/* Glow ambiental rojo — esquina superior derecha */}
         <div
@@ -1471,36 +1429,33 @@ export default function NuestrosLibrosClient({ books }: Props) {
           }}
         >
           {/* Eyebrow */}
-          <p
-            style={{
-              margin: "0 0 16px 0",
-              fontSize: "11px",
-              fontWeight: 700,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: "#e8453c",
-              textAlign: "center",
-            }}
-          >
-            Tus preguntas, respondidas
-          </p>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#B72020", lineHeight: 1.1 }}>
+                Tus preguntas, respondidas
+              </span>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+            </div>
+          </div>
 
           {/* Título unificado */}
           <h2
             style={{
               margin: "0 0 16px 0",
-              fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : isTablet ? "36px" : "44px",
-              fontWeight: 900,
-              color: "#fff",
-              lineHeight: 1.1,
-              letterSpacing: "-0.5px",
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(28px, 3.5vw, 44px)",
+              fontWeight: 700,
+              color: "#1a1a1a",
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
               textAlign: "center",
             }}
           >
             ¿Por qué escoger{" "}
             <span
               style={{
-                background: "linear-gradient(135deg, #e8453c, #B72020)",
+                background: "linear-gradient(135deg, #B72020, #B72020)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -1511,17 +1466,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
             como regalo?
           </h2>
 
-          {/* Línea decorativa */}
-          <div
-            aria-hidden="true"
-            style={{
-              width: "48px",
-              height: "3px",
-              borderRadius: "9999px",
-              background: "linear-gradient(90deg, #e8453c, #B72020)",
-              margin: "0 auto 56px",
-            }}
-          />
+          <div style={{ marginBottom: "40px" }} />
 
           {/* Accordion */}
           <div>
@@ -1544,31 +1489,28 @@ export default function NuestrosLibrosClient({ books }: Props) {
         <div style={{ position: "relative", zIndex: 1, maxWidth: "1200px", margin: "0 auto" }}>
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
-            <p
-              style={{
-                margin: "0 0 16px 0",
-                fontSize: "11px", fontWeight: 700,
-                letterSpacing: "0.16em", textTransform: "uppercase",
-                color: "#e8453c",
-              }}
-            >
-              Historias reales
-            </p>
+<div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#B72020", lineHeight: 1.1 }}>
+                Historias reales
+              </span>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+            </div>
             <h2
               style={{
                 margin: "0 0 16px 0",
-                fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : isTablet ? "36px" : "44px",
-                fontWeight: 900, color: "#1a1a1a",
-                lineHeight: 1.1, letterSpacing: "-0.5px",
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(28px, 3.5vw, 44px)",
+                fontWeight: 700, color: "#1a1a1a",
+                lineHeight: 1.15, letterSpacing: "-0.01em",
               }}
             >
               Blog{" "}
-              <span style={{ background: "linear-gradient(135deg, #e8453c, #B72020)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              <span style={{ color: "#B72020", fontStyle: "italic", fontWeight: 400 }}>
                 PIXELART
               </span>
             </h2>
-            <div aria-hidden="true" style={{ width: "48px", height: "3px", borderRadius: "9999px", background: "linear-gradient(90deg, #e8453c, #B72020)", margin: "0 auto 16px" }} />
-            <p style={{ margin: 0, fontSize: isMobile ? "14px" : "16px", color: "#666", fontWeight: 400, maxWidth: "460px", marginInline: "auto", lineHeight: 1.6 }}>
+                        <p style={{ margin: 0, fontSize: isMobile ? "14px" : "16px", color: "#666", fontWeight: 400, maxWidth: "460px", marginInline: "auto", lineHeight: 1.6 }}>
               Momentos que se volvieron para siempre. Historias de personas reales con sus libros PIXELART.
             </p>
           </div>
@@ -1618,7 +1560,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
 
                   {/* Contenido */}
                   <div style={{ padding: "20px" }}>
-                    <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#e8453c" }}>
+                    <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#B72020" }}>
                       {post.eyebrow}
                     </p>
                     <h3 style={{ margin: "0 0 10px 0", fontSize: "15px", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.3 }}>
@@ -1627,7 +1569,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
                     <p style={{ margin: "0 0 16px 0", fontSize: "13px", lineHeight: 1.65, color: "#666", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                       {post.teaser}
                     </p>
-                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#e8453c" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#B72020" }}>
                       Leer historia →
                     </span>
                   </div>
@@ -1642,19 +1584,10 @@ export default function NuestrosLibrosClient({ books }: Props) {
       <section
         style={{
           position: "relative",
-          background: "#faf8f6",
+          background: "#f8f9fa",
           overflow: "hidden",
         }}
       >
-        {/* Grain sutil */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute", inset: 0, opacity: 0.4,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2020/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat", backgroundSize: "256px 256px", pointerEvents: "none",
-          }}
-        />
 
         <div
           style={{
@@ -1667,26 +1600,30 @@ export default function NuestrosLibrosClient({ books }: Props) {
         >
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
-            <p style={{ margin: "0 0 12px 0", fontSize: "11px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#B72020" }}>
-              Nuestra comunidad
-            </p>
+<div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#B72020", lineHeight: 1.1 }}>
+                Nuestra comunidad
+              </span>
+              <span style={{ width: "28px", height: "2px", background: "#B72020" }} />
+            </div>
             <h2
               style={{
                 margin: "0 0 16px 0",
-                fontSize: isSmallMobile ? "24px" : isMobile ? "28px" : isTablet ? "36px" : "44px",
-                fontWeight: 900,
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(28px, 3.5vw, 44px)",
+                fontWeight: 700,
                 color: "#1a1a1a",
-                lineHeight: 1.1,
-                letterSpacing: "-0.5px",
+                lineHeight: 1.15,
+                letterSpacing: "-0.01em",
               }}
             >
               Historias que{" "}
-              <span style={{ background: "linear-gradient(135deg, #B72020, #e8453c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              <span style={{ color: "#B72020", fontStyle: "italic", fontWeight: 400 }}>
                 inspiran
               </span>
             </h2>
-            <div aria-hidden="true" style={{ width: "48px", height: "3px", borderRadius: "9999px", background: "linear-gradient(90deg, #B72020, #e8453c)", margin: "0 auto 16px" }} />
-            <p style={{ margin: 0, fontSize: isMobile ? "14px" : "16px", color: "#666", fontWeight: 400, maxWidth: "460px", marginInline: "auto", lineHeight: 1.6 }}>
+                        <p style={{ margin: 0, fontSize: isMobile ? "14px" : "16px", color: "#666", fontWeight: 400, maxWidth: "460px", marginInline: "auto", lineHeight: 1.6 }}>
               Personas reales, momentos únicos. Esto es lo que crean con sus libros PIXELART.
             </p>
           </div>

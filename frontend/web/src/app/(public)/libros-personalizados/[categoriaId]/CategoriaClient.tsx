@@ -1,9 +1,11 @@
 "use client";
 
+import { tokens } from "@/lib/design-tokens";
+
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import ProductGrid from "@/components/catalog/ProductGrid";
-import { getAssetUrl } from "@/lib/assetUrl";
+import { getAssetUrl, toRelativeAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
 const API = "";
@@ -42,7 +44,7 @@ const CATEGORY_HERO: Record<
     subtitle: "PARA AQUELLA PERSONA ESPECIAL",
     description:
       "Tu pareja es lo mejor que tienes, y por eso merece un regalo que esté a la altura de lo que sienten el uno por el otro.",
-    accent: "#e74c6f",
+    accent: "#B72020",
   },
   "libros-de-mascotas": {
     title: "LOS MEJORES LIBROS DE MASCOTAS",
@@ -435,24 +437,77 @@ const FAQ_TITLE: Record<string, string> = {
   "libros-de-memorias-familiares": "¿Por qué preservar tus memorias con PIXELART?",
 };
 
-/* ── Testimonios ── */
-const TESTIMONIALS = [
-  {
-    title: "Libro Personalizado para mi héroe",
-    story:
-      'Alondra se acercó en puntitas con el libro entre las manos, como si cargara un tesoro. "Es para ti, papá". Javier lo tomó despacio, leyó el título y se quedó en silencio un segundo. Sonrió sin poder evitarlo; los ojos se le humedecieron. La abrazó fuerte, con el libro pegado al pecho.',
-  },
-  {
-    title: "Un recuerdo de mi mejor amigo",
-    story:
-      'En cuanto abrieron el libro, los dos se juntaron más, hombro con hombro. "Mira… es Rocky", dijo uno, señalando una escena donde parecía estar corriendo con ellos otra vez. Se rieron bajito, y luego se quedaron mirando con esa mezcla de nostalgia y calma.',
-  },
-  {
-    title: "Una propuesta inolvidable",
-    story:
-      'La cena iba tranquila hasta que él sacó el libro, nervioso y sonriendo. Ella lo abrió y empezó a pasar páginas: recuerdos, momentos, pequeñas "razones" que la hicieron reír y luego respirar hondo. Cuando levantó la mirada, él ya estaba de rodillas.',
-  },
-];
+/* ── Testimonios — historias por categoría ── */
+const TESTIMONIALS: Record<string, { title: string; story: string }[]> = {
+  "libros-de-amor": [
+    {
+      title: "Una propuesta inolvidable",
+      story:
+        'La cena iba tranquila hasta que él sacó el libro, nervioso y sonriendo. Ella lo abrió y empezó a pasar páginas: recuerdos, momentos, pequeñas "razones" que la hicieron reír y luego respirar hondo. Cuando levantó la mirada, él ya estaba de rodillas.',
+    },
+    {
+      title: "Tres años en treinta páginas",
+      story:
+        'Lo abrió pensando que era una agenda. En la segunda página se reconoció: el viaje a la playa, la lluvia, el paraguas compartido. "¿En qué momento hiciste esto?", preguntó sin dejar de pasar páginas. No hubo respuesta; no hacía falta.',
+    },
+    {
+      title: "El regalo que cruzó el país",
+      story:
+        "Dos años de videollamadas y un paquete que llegó un jueves. Adentro, un libro con su historia: la del aeropuerto, la de las cartas, la de la espera. Esa noche lo leyeron juntos por teléfono, página por página, cada uno con su copia.",
+    },
+  ],
+  "libros-de-mascotas": [
+    {
+      title: "Un recuerdo de mi mejor amigo",
+      story:
+        'En cuanto abrieron el libro, los dos se juntaron más, hombro con hombro. "Mira… es Rocky", dijo uno, señalando una escena donde parecía estar corriendo con ellos otra vez. Se rieron bajito, y luego se quedaron mirando con esa mezcla de nostalgia y calma.',
+    },
+    {
+      title: "El reino de Michi",
+      story:
+        'Nadie se rió tanto como la abuela al ver a Michi coronado como rey en la portada. "Si en esta casa siempre mandó él", dijo. El libro quedó en la mesa de la sala, y ahora cada visita termina igual: alguien lo abre y alguien se ríe.',
+    },
+    {
+      title: "El cumpleaños de Toby",
+      story:
+        "Le celebraron los diez años con torta para perros y un regalo que no era para él: era para la familia. Un libro con sus travesuras, desde el zapato mordido hasta la vez que se escapó al parque. Toby dormía mientras todos leían sus aventuras.",
+    },
+  ],
+  "libros-de-familia": [
+    {
+      title: "Libro personalizado para mi héroe",
+      story:
+        'Alondra se acercó en puntitas con el libro entre las manos, como si cargara un tesoro. "Es para ti, papá". Javier lo tomó despacio, leyó el título y se quedó en silencio un segundo. Sonrió sin poder evitarlo; los ojos se le humedecieron. La abrazó fuerte, con el libro pegado al pecho.',
+    },
+    {
+      title: "Mamá lloró en la página tres",
+      story:
+        "Era el Día de la Madre y ella esperaba flores. Abrió el paquete, vio su nombre en la portada y frunció el ceño, curiosa. En la página tres —la escena donde aparece cargando a sus hijos bajo la lluvia— ya no pudo seguir leyendo en voz alta.",
+    },
+    {
+      title: "La abuela lo lee todas las noches",
+      story:
+        'Se lo regalaron los nietos por sus ochenta años. Ahora el libro vive en su mesita de noche, junto a los lentes. "Es que aquí salgo yo de heroína", explica a quien la visita, y lo abre de nuevo, como si fuera la primera vez.',
+    },
+  ],
+  "libros-de-memorias-familiares": [
+    {
+      title: "Para seguir contando su historia",
+      story:
+        "El primer aniversario sin el abuelo los encontró alrededor del libro. Cada página traía una anécdota que alguien completaba de memoria: la chacra, el sombrero, su manera de silbar. Esa tarde hubo lágrimas, pero también carcajadas. Él estaba ahí.",
+    },
+    {
+      title: "El abrazo que faltaba",
+      story:
+        'Guardaba las fotos de su madre en una caja que no se animaba a abrir. El libro se las devolvió ordenadas, hermosas, con su historia escrita. "Es como volver a conversar con ella", dijo, y lo dejó en la sala — ya no en una caja.',
+    },
+    {
+      title: "Ahora los nietos lo conocen",
+      story:
+        "Los más pequeños nunca llegaron a conocerlo. Ahora señalan su foto en el libro y preguntan por él. Cada respuesta es una historia nueva, y el bisabuelo vuelve a la mesa cada vez que la familia se junta a leer.",
+    },
+  ],
+};
 
 /* ── Ocasiones perfectas ── */
 const OCCASIONS: Record<string, { subtitle: string; items: string[] }> = {
@@ -505,23 +560,23 @@ const OCCASIONS: Record<string, { subtitle: string; items: string[] }> = {
 /* ── Encabezados del catalogo ── */
 const CATALOG_HEADING: Record<string, { eyebrow: string; title: string; subtitle: string }> = {
   "libros-de-amor": {
-    eyebrow: "LIBROS DE AMOR",
-    title: "ELIGE TU HISTORIA DE AMOR",
+    eyebrow: "Libros de Amor",
+    title: "Elige tu historia de amor",
     subtitle: "Cada libro es tan único como tu relación",
   },
   "libros-de-mascotas": {
-    eyebrow: "LIBROS DE MASCOTAS",
-    title: "CELEBRA A TU COMPAÑERO FIEL",
+    eyebrow: "Libros de Mascotas",
+    title: "Celebra a tu compañero fiel",
     subtitle: "Porque el amor de una mascota merece un libro propio",
   },
   "libros-de-familia": {
-    eyebrow: "LIBROS DE FAMILIA",
-    title: "EL REGALO QUE NUNCA OLVIDARÁN",
+    eyebrow: "Libros de Familia",
+    title: "El regalo que nunca olvidarán",
     subtitle: "Un libro para cada vínculo especial",
   },
   "libros-de-memorias-familiares": {
-    eyebrow: "MEMORIAS FAMILIARES",
-    title: "PRESERVA TU HISTORIA FAMILIAR",
+    eyebrow: "Memorias Familiares",
+    title: "Preserva tu historia familiar",
     subtitle: "Un legado emocional que perdurará en el tiempo",
   },
 };
@@ -549,6 +604,7 @@ export default function CategoriaClient({
   modelCovers = {},
 }: Props) {
   const { isMobile, isSmallMobile, isTablet } = useWindowSize();
+  const reduceMotion = useReducedMotion();
   const hero = CATEGORY_HERO[categoriaSlug];
   const booksRaw = CATEGORY_BOOKS[categoriaSlug] ?? [];
 
@@ -581,7 +637,7 @@ export default function CategoriaClient({
     const realId = catalogIds[b.catalogName] ? String(catalogIds[b.catalogName]) : b.id;
     // Prioridad: API (BD) → COVER_MAP estático (fallback) → null
     const coverImageUrl =
-      modelCovers[b.catalogName] ??
+      (modelCovers[b.catalogName] ? toRelativeAssetUrl(modelCovers[b.catalogName]) : undefined) ??
       (COVER_MAP[b.slug] ? getAssetUrl(COVER_MAP[b.slug]) : null);
     return {
       ...b,
@@ -652,7 +708,7 @@ export default function CategoriaClient({
               style={{
                 position: "absolute",
                 inset: 0,
-                background: `linear-gradient(135deg, ${hero.accent}18 0%, ${hero.accent}08 40%, #f8f9fa 100%)`,
+                background: `${hero.accent}0D`,
                 zIndex: 0,
               }}
             />
@@ -697,9 +753,7 @@ export default function CategoriaClient({
             textAlign: "center",
             borderRadius: "24px",
             ...(hasHeroBg ? {
-              background: "rgba(0, 0, 0, 0.25)",
-              backdropFilter: "blur(4px)",
-              WebkitBackdropFilter: "blur(4px)",
+              background: "rgba(0, 0, 0, 0.45)",
               border: "1px solid rgba(255, 255, 255, 0.10)",
               boxShadow: "0 8px 32px rgba(0,0,0,0.20)",
             } : {
@@ -707,31 +761,32 @@ export default function CategoriaClient({
             }),
           }}
         >
-          <div
-            style={{
-              display: "inline-block",
-              padding: "6px 20px",
-              borderRadius: "20px",
-              background: hero.accent,
-              color: "#fff",
-              fontSize: "12px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              marginBottom: "24px",
-            }}
-          >
-            {categoriaNombre}
+          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "24px" }}>
+            <span style={{ width: "28px", height: "2px", background: hasHeroBg ? "#fff" : hero.accent }} />
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: hasHeroBg ? "#fff" : hero.accent,
+                lineHeight: 1.1,
+              }}
+            >
+              {categoriaNombre}
+            </span>
+            <span style={{ width: "28px", height: "2px", background: hasHeroBg ? "#fff" : hero.accent }} />
           </div>
 
           <h1
             style={{
               margin: "0 0 8px 0",
-              fontSize: isMobile ? "28px" : isTablet ? "36px" : "48px",
-              fontWeight: 900,
+              fontFamily: tokens.fonts.display,
+              fontSize: isMobile ? "30px" : isTablet ? "38px" : "50px",
+              fontWeight: 700,
               color: hasHeroBg ? "#ffffff" : "#111",
-              lineHeight: 1.1,
-              textTransform: "uppercase",
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
             }}
           >
             {hero.title}
@@ -739,11 +794,12 @@ export default function CategoriaClient({
           <h2
             style={{
               margin: "0 0 28px 0",
-              fontSize: isMobile ? "16px" : isTablet ? "22px" : "28px",
-              fontWeight: 600,
-              color: hero.accent,
-              lineHeight: 1.2,
-              textTransform: "uppercase",
+              fontFamily: tokens.fonts.display,
+              fontStyle: "italic",
+              fontSize: isMobile ? "17px" : isTablet ? "22px" : "26px",
+              fontWeight: 400,
+              color: hasHeroBg ? "rgba(255,255,255,0.92)" : hero.accent,
+              lineHeight: 1.3,
             }}
           >
             {hero.subtitle}
@@ -754,7 +810,7 @@ export default function CategoriaClient({
               maxWidth: "480px",
               fontSize: "15px",
               lineHeight: 1.6,
-              color: hasHeroBg ? "#f0e4dc" : "#444",
+              color: hasHeroBg ? "rgba(255,255,255,0.85)" : "#444",
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
@@ -768,6 +824,7 @@ export default function CategoriaClient({
 
       {/* ═══ SECCIÓN CATÁLOGO ═══ */}
       <section
+        id="catalogo-categoria"
         style={{
           maxWidth: "1400px",
           margin: "0 auto",
@@ -775,17 +832,12 @@ export default function CategoriaClient({
         }}
       >
         <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <div
-            style={{
-              margin: "0 0 8px 0",
-              fontSize: "12px",
-              fontWeight: 500,
-              color: hero.accent,
-              textTransform: "uppercase",
-              letterSpacing: "2px",
-            }}
-          >
-            {CATALOG_HEADING[categoriaSlug]?.eyebrow ?? "NUESTROS LIBROS"}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", margin: "0 0 12px 0" }}>
+            <span style={{ width: "28px", height: "2px", background: hero.accent }} />
+            <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: hero.accent, lineHeight: 1.1 }}>
+              {CATALOG_HEADING[categoriaSlug]?.eyebrow ?? "Nuestros libros"}
+            </span>
+            <span style={{ width: "28px", height: "2px", background: hero.accent }} />
           </div>
           <div
             style={{
@@ -802,14 +854,15 @@ export default function CategoriaClient({
             <h3
               style={{
                 margin: 0,
-                fontSize: isMobile ? "22px" : isTablet ? "28px" : "36px",
-                fontWeight: 900,
+                fontFamily: tokens.fonts.display,
+                fontSize: isMobile ? "24px" : isTablet ? "30px" : "40px",
+                fontWeight: 700,
                 color: "#111",
-                textTransform: "uppercase",
-                lineHeight: 1.1,
+                letterSpacing: "-0.01em",
+                lineHeight: 1.15,
               }}
             >
-              {CATALOG_HEADING[categoriaSlug]?.title ?? "ELIGE TU LIBRO PERFECTO"}
+              {CATALOG_HEADING[categoriaSlug]?.title ?? "Elige tu libro perfecto"}
             </h3>
             {!isMobile && !isTablet && (
               <CatalogOrnament accent={hero.accent} category={categoriaSlug} flip />
@@ -825,15 +878,6 @@ export default function CategoriaClient({
           >
             {CATALOG_HEADING[categoriaSlug]?.subtitle ?? ""}
           </p>
-          <div
-            style={{
-              width: "80px",
-              height: "3px",
-              background: hero.accent,
-              margin: "0 auto",
-              borderRadius: "2px",
-            }}
-          />
         </div>
 
         <ProductGrid books={books} promos={promos} />
@@ -850,16 +894,15 @@ export default function CategoriaClient({
               onClick={() => setVisibleCount((prev) => prev + INITIAL_VISIBLE)}
               style={{
                 minWidth: "220px",
-                height: "56px",
-                borderRadius: "18px",
-                border: `2px solid ${hero.accent}`,
+                height: "54px",
+                borderRadius: "9999px",
+                border: `1.5px solid ${hero.accent}`,
                 background: "#fff",
                 color: hero.accent,
-                fontSize: "18px",
+                fontSize: "16px",
                 fontWeight: 700,
                 cursor: "pointer",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
+                letterSpacing: "0.01em",
                 fontFamily: "inherit",
                 transition: "background 0.2s ease, color 0.2s ease",
               }}
@@ -870,10 +913,150 @@ export default function CategoriaClient({
         )}
       </section>
 
+      {/* ═══ CÓMO FUNCIONA — franja compacta para tráfico frío ═══ */}
+      <section
+        style={{
+          background: "#f8f9fa",
+          padding: isMobile ? "36px 20px" : "44px 48px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
+            gap: isMobile ? "20px 12px" : "24px",
+          }}
+        >
+          {[
+            { n: "1", label: "Elige tu libro" },
+            { n: "2", label: "Sube tus fotos" },
+            { n: "3", label: "Recibe tu demo gratis" },
+            { n: "4", label: "Lo recibes en casa" },
+          ].map((step) => (
+            <div
+              key={step.n}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: isMobile ? "flex-start" : "center",
+                gap: "12px",
+              }}
+            >
+              <span
+                style={{
+                  width: "34px",
+                  height: "34px",
+                  borderRadius: "50%",
+                  background: hero.accent,
+                  color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "15px",
+                  fontWeight: 800,
+                  flexShrink: 0,
+                }}
+              >
+                {step.n}
+              </span>
+              <span style={{ fontSize: isMobile ? "13px" : "14px", fontWeight: 600, color: "#444", lineHeight: 1.3 }}>
+                {step.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ HISTORIAS REALES ═══ */}
+      <section
+        style={{
+          background: "#ffffff",
+          padding: isMobile ? "48px 20px" : isTablet ? "64px 32px" : "80px 48px",
+        }}
+      >
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? "36px" : "48px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <span style={{ width: "28px", height: "2px", background: hero.accent }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: hero.accent, lineHeight: 1.1 }}>
+                Historias reales
+              </span>
+              <span style={{ width: "28px", height: "2px", background: hero.accent }} />
+            </div>
+            <h2
+              style={{
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(24px, 3vw, 38px)",
+                fontWeight: 700,
+                color: "#111",
+                margin: 0,
+                lineHeight: 1.2,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Momentos que ya sucedieron
+            </h2>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              gap: isMobile ? "16px" : "24px",
+            }}
+          >
+            {(TESTIMONIALS[categoriaSlug] ?? TESTIMONIALS["libros-de-amor"]).map((t, idx) => (
+              <motion.article
+                key={t.title}
+                initial={reduceMotion ? undefined : { opacity: 0, y: 32 }}
+                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.55, delay: idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "16px",
+                  padding: isMobile ? "24px 20px" : "28px 26px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+                  transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)";
+                  e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.08)";
+                }}
+              >
+                <h3
+                  style={{
+                    margin: "0 0 12px 0",
+                    fontFamily: tokens.fonts.display,
+                    fontSize: "19px",
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                    lineHeight: 1.3,
+                    color: "#111",
+                  }}
+                >
+                  {t.title}
+                </h3>
+                <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.7, color: "#444" }}>
+                  {t.story}
+                </p>
+              </motion.article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ ¿POR QUÉ ESCOGER PIXELART? — FAQ ═══ */}
       <section
         style={{
-          background: "#fafafa",
+          background: "#f8f9fa",
           padding: isMobile ? "48px 20px" : isTablet ? "64px 32px" : "80px 48px",
         }}
       >
@@ -889,13 +1072,22 @@ export default function CategoriaClient({
               marginBottom: "48px",
             }}
           >
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <span style={{ width: "28px", height: "2px", background: hero.accent }} />
+              <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: hero.accent, lineHeight: 1.1 }}>
+                Dudas comunes
+              </span>
+              <span style={{ width: "28px", height: "2px", background: hero.accent }} />
+            </div>
             <h2
               style={{
-                fontSize: isMobile ? "22px" : isTablet ? "28px" : "36px",
+                fontFamily: tokens.fonts.display,
+                fontSize: "clamp(24px, 3vw, 38px)",
                 fontWeight: 700,
                 color: "#111",
                 margin: 0,
-                lineHeight: 1.3,
+                lineHeight: 1.2,
+                letterSpacing: "-0.01em",
               }}
             >
               {FAQ_TITLE[categoriaSlug] ?? "¿Por qué elegir PIXELART?"}
@@ -919,7 +1111,7 @@ export default function CategoriaClient({
       {/* ═══ OCASIONES PERFECTAS ═══ */}
       <section
         style={{
-          background: hero.accent,
+          background: "#ffffff",
           padding: isMobile ? "48px 20px" : isTablet ? "56px 32px" : "72px 48px",
         }}
       >
@@ -935,25 +1127,22 @@ export default function CategoriaClient({
         `}</style>
 
         <div style={{ maxWidth: "860px", margin: "0 auto", textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "rgba(255,255,255,0.75)",
-              textTransform: "uppercase",
-              letterSpacing: "2.5px",
-              marginBottom: "14px",
-            }}
-          >
-            OCASIONES PERFECTAS
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
+            <span style={{ width: "28px", height: "2px", background: hero.accent }} />
+            <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: hero.accent, lineHeight: 1.1 }}>
+              Ocasiones perfectas
+            </span>
+            <span style={{ width: "28px", height: "2px", background: hero.accent }} />
           </div>
           <h3
             style={{
               margin: "0 0 14px 0",
-              fontSize: isSmallMobile ? "22px" : isMobile ? "26px" : "36px",
-              fontWeight: 800,
-              color: "#fff",
-              lineHeight: 1.1,
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(24px, 3vw, 38px)",
+              fontWeight: 700,
+              color: "#111",
+              lineHeight: 1.15,
+              letterSpacing: "-0.01em",
             }}
           >
             ¿Cuándo regalarlo?
@@ -962,7 +1151,7 @@ export default function CategoriaClient({
             style={{
               margin: "0 0 40px 0",
               fontSize: "16px",
-              color: "rgba(255,255,255,0.85)",
+              color: "#666",
               lineHeight: 1.6,
               maxWidth: "520px",
               marginInline: "auto",
@@ -984,9 +1173,9 @@ export default function CategoriaClient({
                 className="occasion-chip-f"
                 style={{
                   padding: "11px 28px",
-                  borderRadius: "100px",
-                  border: "none",
-                  background: "#fff",
+                  borderRadius: "9999px",
+                  border: `1px solid ${hero.accent}40`,
+                  background: `${hero.accent}0A`,
                   color: hero.accent,
                   fontSize: "14px",
                   fontWeight: 700,
@@ -996,6 +1185,80 @@ export default function CategoriaClient({
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ═══ CTA FINAL — la puerta de salida ═══ */}
+      <section
+        style={{
+          background: "#f8f9fa",
+          padding: isMobile ? "56px 20px" : "72px 48px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "640px",
+            margin: "0 auto",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "14px",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(24px, 3vw, 36px)",
+              fontWeight: 700,
+              color: "#111",
+              lineHeight: 1.2,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            ¿Listo para crear el tuyo?
+          </h2>
+          <p style={{ margin: 0, fontSize: "15px", lineHeight: 1.6, color: "#666", maxWidth: "440px" }}>
+            Elige el libro que más te guste y personalízalo en minutos.
+          </p>
+          <a
+            href="#catalogo-categoria"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("catalogo-categoria")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: "8px",
+              height: "54px",
+              padding: "0 36px",
+              borderRadius: "9999px",
+              background: hero.accent,
+              color: "#fff",
+              fontSize: "16px",
+              fontWeight: 700,
+              letterSpacing: "0.01em",
+              textDecoration: "none",
+              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.16)",
+              transition: "transform 0.18s ease, box-shadow 0.18s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-3px)";
+              e.currentTarget.style.boxShadow = "0 10px 28px rgba(0, 0, 0, 0.22)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.16)";
+            }}
+          >
+            Elegir mi libro
+          </a>
+          <span style={{ fontSize: "13px", fontWeight: 500, color: "#888" }}>
+            Sin registro · Recibe tu demo gratis antes de pagar
+          </span>
         </div>
       </section>
 
@@ -1024,7 +1287,6 @@ function FaqItem({
         background: "#fff",
         borderRadius: "16px",
         border: `1px solid ${open ? accent + "40" : "#ebebeb"}`,
-        borderLeft: `4px solid ${open ? accent : "transparent"}`,
         marginBottom: "12px",
         overflow: "hidden",
         transition: "border-color 0.25s ease, box-shadow 0.25s ease",
@@ -1262,7 +1524,7 @@ function MasonryGrid({
             style={{
               aspectRatio: "4/3",
               borderRadius: "16px",
-              background: `linear-gradient(135deg, ${accent}15 0%, ${accent}08 100%)`,
+              background: `${accent}10`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

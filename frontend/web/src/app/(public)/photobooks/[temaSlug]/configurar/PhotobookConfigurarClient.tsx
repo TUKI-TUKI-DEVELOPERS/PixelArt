@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { toRelativeAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
 const ACCENT = "#804187";
@@ -181,7 +182,7 @@ export default function PhotobookConfigurarClient({ temaSlug, temaNombre, coverP
               }}>
                 {coverPreviewUrl ? (
                   <Image
-                    src={coverPreviewUrl}
+                    src={toRelativeAssetUrl(coverPreviewUrl)}
                     alt={temaNombre}
                     fill
                     style={{ objectFit: "contain" }}

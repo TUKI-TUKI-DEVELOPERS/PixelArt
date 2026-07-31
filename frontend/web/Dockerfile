@@ -18,10 +18,13 @@ FROM base AS build
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# API_INTERNAL_URL debe estar disponible en build time para que Next.js standalone
-# baquee correctamente el rewrite /api/* → http://api:3001 (red Docker interna).
+# API_INTERNAL_URL / MINIO_INTERNAL_URL deben estar disponibles en build time
+# para que Next.js standalone baquee correctamente los rewrites /api/* y
+# /assets/* → http://api:3001 y http://minio:9000 (red Docker interna).
 ARG API_INTERNAL_URL=http://api:3001
 ENV API_INTERNAL_URL=${API_INTERNAL_URL}
+ARG MINIO_INTERNAL_URL=http://minio:9000
+ENV MINIO_INTERNAL_URL=${MINIO_INTERNAL_URL}
 # public/ es opcional en Next.js; si no existe el COPY del stage prod falla
 RUN mkdir -p public
 RUN npm run build

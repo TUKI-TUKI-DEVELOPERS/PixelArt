@@ -18,33 +18,53 @@ export const HOME_ASSET_KEYS = {
   heroPhotobookSlider: 'Home/Home-hero/Photobooks/Photobook_home_hero_slider.png',
   heroPhotobookCarousel: 'Home/Home-hero/Photobooks/Photobook_home_hero_carousel.png',
 
+  // HOME HERO - Fondo de seda detrás del texto (HeroBookCarousel, lado izquierdo)
+  heroSilkLeftBackground: 'Home/Home-hero/Home_hero_silk_left.png',
+
   // SECTION IDENTITY
   identityBackground: 'Home/Section_Identity/Section_Profile_Background.png',
 
   // SECTION OUR BOOKS - Love
   ourBooksLove10Razones: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_10RazonesPorLasQueTeAmo_Miniatura.png',
+  ourBooksLove10RazonesHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_10RazonesPorLasQueTeAmo_Miniatura_Home.png',
   ourBooksLove1025Dias: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_xDiasEnamorandomeDeTi_Miniatura.png',
+  ourBooksLove1025DiasHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_xDiasEnamorandomeDeTi_Miniatura_Home.png',
   ourBooksLoveMiAmor: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_Miamor_Miniatura.png',
+  ourBooksLoveMiAmorHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_Miamor_Miniatura_Home.png',
 
   // SECTION OUR BOOKS - Family
   ourBooksFamilyAbuelo: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png',
+  ourBooksFamilyAbueloHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura_Home.png',
   ourBooksFamilyAbuela: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png',
+  ourBooksFamilyAbuelaHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura_Home.png',
   ourBooksFamilyPapaHeroe: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png',
+  ourBooksFamilyPapaHeroeHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura_Home.png',
   ourBooksFamilyMamaHeroina: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png',
+  ourBooksFamilyMamaHeroinaHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura_Home.png',
   ourBooksFamilyLaFamilia: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png',
+  ourBooksFamilyLaFamiliaHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura_Home.png',
   ourBooksFamilyElMejorEquipo: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png',
+  ourBooksFamilyElMejorEquipoHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura_Home.png',
 
   // SECTION OUR BOOKS - Memorias Familiares
   ourBooksMemoriasGracias: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png',
+  ourBooksMemoriasGraciasHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura_Home.png',
   ourBooksMemoriasAngelGuardian: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png',
+  ourBooksMemoriasAngelGuardianHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura_Home.png',
   ourBooksMemoriasSiempreCorazon: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png',
+  ourBooksMemoriasSiempreCorazonHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura_Home.png',
   ourBooksMemoriasSiempreSerás: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png',
+  ourBooksMemoriasSiempreSerásHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura_Home.png',
 
   // SECTION OUR BOOKS - Pets
   ourBooksPetsAngel: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_NuestroAngelde4Patas_Miniatura.png',
+  ourBooksPetsAngelHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_NuestroAngelde4Patas_Miniatura_Home.png',
   ourBooksPetsAventuras: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Miniatura.png',
+  ourBooksPetsAventurasHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Miniatura_Home.png',
   ourBooksPetsMejorAmigo: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png',
+  ourBooksPetsMejorAmigoHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura_Home.png',
   ourBooksPetsMiauravilloso: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png',
+  ourBooksPetsMiauravillosoHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura_Home.png',
 
   // SECTION OUR BOOKS - Photobooks (miniaturas de temas)
   ourBooksPhotobooksTapaDelgada: 'Home/Section_Our_Books/Photobooks/Our_Books_Photobooks_Tapa_Delgada.png',
@@ -68,6 +88,7 @@ export const HOME_ASSET_KEYS = {
   // SECTION PHOTOBOOKS
   photobooksSectionBackground: 'Home/Section_Photobooks/Section_Photobooks_Background.png',
   photobooksExample: 'Home/Section_Photobooks/Section_Photobooks_Photobooks_Example.png',
+  photobooksHeroCutout: 'Home/Section_Photobooks/Section_Photobooks_Hero_Cutout.png',
 
   // SECTION WHY CHOOSE US
   whyChooseUsImage: 'Home/Section_Why_Choose_Us/Section_Why_Choose_Us_Image.png',
@@ -75,23 +96,6 @@ export const HOME_ASSET_KEYS = {
   // SECTION COVER BOOKS
   bookCoverThick: 'Home/Section_Cover_Books/Section_Book_Cover_Thick.png',
   bookCoverSlim:  'Home/Section_Cover_Books/Section_Book_Cover_Slim.png',
-
-  // SECTION CREATE YOUR BOOK - Register Information
-  createBookBoy: 'Home/Section_Create_Your_Book/Register_Information/Section_Create_Your_Book_Boy.png',
-  createBookGirl: 'Home/Section_Create_Your_Book/Register_Information/Section_Create_Your_Book_Girl.png',
-  createBookStage1: 'Home/Section_Create_Your_Book/Register_Information/Section_Create_Your_Book_Stage_1.png',
-  createBookStage2: 'Home/Section_Create_Your_Book/Register_Information/Section_Create_Your_Book_Stage_2.png',
-  createBookResult: 'Home/Section_Create_Your_Book/Register_Information/Section_Create_Your_Book_Result.png',
-
-  // SECTION CREATE YOUR BOOK - Personalized Poem
-  createBookPoemSpace: 'Home/Section_Create_Your_Book/Personalized_Poem/Section_Create_Your_Book_Poem_Space.png',
-
-  // SECTION CREATE YOUR BOOK - Choose Book Cover
-  chooseBookCoverThick: 'Home/Section_Create_Your_Book/Choose_Book_Cover/Section_Choose_Book_Cover_Thick.png',
-  chooseBookCoverPremium: 'Home/Section_Create_Your_Book/Choose_Book_Cover/Section_Choose_Book_Cover_Premium.png',
-
-  // SECTION CREATE YOUR BOOK - Previsualized Results
-  previsualizedResultsCouple: 'Home/Section_Create_Your_Book/Previsualized_Results/Section_Previsualized_Results_Couple.png',
 
   // SECTION OUR CLIENTS
   ourClients1: 'Home/Section_Our_Clients/Section_Our_Clients_1.png',

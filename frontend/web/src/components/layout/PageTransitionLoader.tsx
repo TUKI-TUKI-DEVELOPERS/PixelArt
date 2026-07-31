@@ -17,18 +17,23 @@ const COLORS  = [
   PIXELART_COLORS.T_TURQUOISE,
 ] as const;
 
-// 1400ms visible + 400ms fade-out
-const VISIBLE_MS = 1400;
-const FADE_MS    = 400;
-const TOTAL_MS   = VISIBLE_MS + FADE_MS;
-const V          = Math.round((VISIBLE_MS / TOTAL_MS) * 100); // ~78%
+// Piso mínimo: solo evita que la animación se vea cortada a la mitad en
+// navegaciones instantáneas. NO es una espera artificial larga — el loader
+// se oculta apenas el pathname realmente cambia (navegación terminada).
+const MIN_VISIBLE_MS = 300;
+const FADE_MS        = 200;
+// Duración de una vuelta del barrido — se repite en loop mientras se espera,
+// en vez de una única animación calculada para una duración fija.
+const CYCLE_MS = 900;
+// Corte de seguridad: si el pathname nunca cambia (redirect externo, error),
+// no dejamos el overlay bloqueando la página para siempre.
+const FAILSAFE_MS = 6000;
 
 const KEYFRAMES = [
-  `@keyframes px-ov{0%,${V}%{opacity:1}100%{opacity:0}}`,
-  `@keyframes px-bar{0%{width:0}50%{width:75%}${V}%{width:95%}100%{width:100%}}`,
+  `@keyframes px-bar{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}`,
   ...LETTERS.map((_, i) => {
-    const on = Math.round((i / LETTERS.length) * V * 0.75);
-    return `@keyframes px-l${i}{0%,${on}%{color:#d4d4d4}${on + 6}%,100%{color:${COLORS[i]}}}`;
+    const start = Math.round((i / LETTERS.length) * 100);
+    return `@keyframes px-l${i}{0%,${start}%{color:#d4d4d4}${Math.min(start + 12, 100)}%,100%{color:${COLORS[i]}}}`;
   }),
 ].join('');
 
@@ -36,10 +41,12 @@ export default function PageTransitionLoader() {
   const pathname = usePathname();
 
   const [visible, setVisible] = useState(false);
+  const [hiding, setHiding]   = useState(false);
   const [run, setRun]         = useState(0);
-  const prevPath  = useRef(pathname);
-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startedAt = useRef(0);
+  const prevPath     = useRef(pathname);
+  const startedAt    = useRef(0);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const failsafeRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Inyectar keyframes en <head> una sola vez al montar
   useEffect(() => {
@@ -50,22 +57,28 @@ export default function PageTransitionLoader() {
     document.head.appendChild(s);
   }, []);
 
+  const hideNow = () => {
+    setHiding(true);
+    hideTimerRef.current = setTimeout(() => {
+      setVisible(false);
+      setHiding(false);
+    }, FADE_MS);
+  };
+
   const showLoader = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    if (failsafeRef.current) clearTimeout(failsafeRef.current);
 
     startedAt.current = Date.now();
 
     // flushSync: commitea el div al DOM antes de que Next.js procese la navegación
     flushSync(() => {
+      setHiding(false);
       setVisible(true);
       setRun(r => r + 1);
     });
 
-    // Timer puesto EN EL CLICK — garantiza duración fija sin importar
-    // cuándo cambie el pathname (same-segment navigation es instantáneo)
-    timerRef.current = setTimeout(() => {
-      setVisible(false);
-    }, TOTAL_MS);
+    failsafeRef.current = setTimeout(hideNow, FAILSAFE_MS);
   };
 
   // ─── Interceptar clicks en links internos ───────────────────────────────────
@@ -102,22 +115,22 @@ export default function PageTransitionLoader() {
       document.removeEventListener('click', onClick, true);
       window.removeEventListener('pixelart:nav-start', onNavStart);
       window.removeEventListener('popstate', onNavStart);
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (failsafeRef.current) clearTimeout(failsafeRef.current);
     };
   }, []);
 
-  // Mantener prevPath sincronizado + extender si la navegación fue lenta
+  // Ocultar apenas el pathname realmente cambió (navegación terminada),
+  // respetando solo el piso mínimo para que la animación no se corte.
   useEffect(() => {
     if (pathname === prevPath.current) return;
     prevPath.current = pathname;
+    if (failsafeRef.current) clearTimeout(failsafeRef.current);
 
-    // Si la navegación tardó más que TOTAL_MS (página sin prefetch, conexión lenta),
-    // ya se fue el timer — mostramos brevemente y cerramos
     const elapsed = Date.now() - startedAt.current;
-    if (startedAt.current > 0 && elapsed >= TOTAL_MS) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setVisible(false), 400);
-    }
+    const wait = Math.max(0, MIN_VISIBLE_MS - elapsed);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(hideNow, wait);
   }, [pathname]);
 
   if (!visible) return null;
@@ -137,10 +150,11 @@ export default function PageTransitionLoader() {
         justifyContent: 'center',
         gap: '1rem',
         pointerEvents: 'all',
-        animation: `px-ov ${TOTAL_MS}ms ease forwards`,
+        opacity: hiding ? 0 : 1,
+        transition: `opacity ${FADE_MS}ms ease`,
       }}
     >
-      {/* Letras PIXELART */}
+      {/* Letras PIXELART — barrido en loop mientras se espera la navegación */}
       <div style={{ display: 'flex', gap: '4px' }}>
         {LETTERS.map((letter, i) => (
           <span
@@ -152,7 +166,7 @@ export default function PageTransitionLoader() {
               fontSize: '2rem',
               fontWeight: 900,
               fontFamily: '"Courier New", Courier, monospace',
-              animation: `px-l${i} ${TOTAL_MS}ms ease forwards`,
+              animation: `px-l${i} ${CYCLE_MS}ms ease infinite`,
             }}
           >
             {letter}
@@ -160,7 +174,7 @@ export default function PageTransitionLoader() {
         ))}
       </div>
 
-      {/* Barra de progreso */}
+      {/* Barra de progreso — indeterminada, en loop */}
       <div
         style={{
           width: '300px',
@@ -172,10 +186,11 @@ export default function PageTransitionLoader() {
       >
         <div
           style={{
+            width: '35%',
             height: '100%',
             background: '#333333',
             borderRadius: '2px',
-            animation: `px-bar ${TOTAL_MS}ms cubic-bezier(0.4,0,0.2,1) forwards`,
+            animation: `px-bar ${CYCLE_MS}ms ease-in-out infinite`,
           }}
         />
       </div>

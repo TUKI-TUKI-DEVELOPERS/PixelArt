@@ -6,6 +6,12 @@
  */
 
 export const tokens = {
+  // Sistema tipográfico dual: serif editorial para display, sans para UI/body
+  fonts: {
+    display: "'Libre Caslon Text', Georgia, 'Times New Roman', serif",
+    body: "'Montserrat', -apple-system, sans-serif",
+  },
+
   colors: {
     // Identidad de Custom Books (AI Books)
     customBooks: {

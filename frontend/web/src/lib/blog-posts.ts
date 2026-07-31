@@ -41,8 +41,8 @@ export const BLOG_POSTS: BlogPost[] = [
     image: "IA_Books/Love_Books_Page/Pagina_Libros_Amor_Blog_1.png",
     date: "22 de enero, 2025",
     readTime: "4 min",
-    bookTitle: "Nuestro Angel de 4 patas",
-    bookHref: "/libros-personalizados/libros-de-mascotas/nuestro-angel-de-4-patas",
+    bookTitle: "Mi mejor amigo del mundo",
+    bookHref: "/libros-personalizados/libros-de-mascotas/mi-mejor-amigo-del-mundo",
     content: [
       'Rocky llegó a la familia García cuando los niños tenían cinco y siete años. Un labrador color miel que aprendió rápido que su misión en la vida era correr detrás de una pelota hasta que le temblaran las patas.',
       'Durante nueve años fue la constante de todos los veranos, todos los cumpleaños, todas las tardes de lluvia tirado junto al sofá. Cuando se fue, el silencio que dejó era del tamaño de todo eso.',

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import LibroDetalleClient from "./LibroDetalleClient";
+import { getAssetUrl } from "@/lib/assetUrl";
 
 /* ── Catálogo de libros válidos por categoría ── */
 const LIBROS_VALIDOS: Record<string, Record<string, string>> = {
@@ -144,9 +145,9 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
     "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Libros_Familia_Teamoabuelo_Central_3.png",
   ],
   "gracias-por-tu-amor": [
-    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central.png",
-    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central_2.png",
-    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Siempre_en_mi_corazon_Central_3.png",
+    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Gracias_por_tu_amor_Central.png",
+    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Gracias_por_tu_amor_Central_2.png",
+    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Gracias_por_tu_amor_Central_3.png",
   ],
   "mi-angel-guardian": [
     "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Libros_Memoria_Familiar_Mi_angel_guardian_Central.png",
@@ -166,12 +167,6 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
 };
 
 const API_BASE = "http://api:3001";
-
-function getAssetUrlDirect(storageKey: string): string {
-  const base = process.env.NEXT_PUBLIC_MINIO_URL ?? 'http://localhost:9000';
-  const bucket = process.env.NEXT_PUBLIC_MINIO_BUCKET ?? 'pixelart-assets';
-  return `${base}/${bucket}/${storageKey}`;
-}
 
 type DbIds = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number };
 
@@ -223,15 +218,16 @@ async function fetchVariants(catalogBookId: number): Promise<{ id: number; cover
     }));
 }
 
-async function fetchTemplates(modelId: number): Promise<{ id: number; name: string | null; previewUrl: string }[]> {
+async function fetchTemplates(modelId: number): Promise<{ id: number; name: string | null; previewUrl: string; genderDirection: string | null }[]> {
   const res = await fetch(`${API_BASE}/api/personalized/models/${modelId}/templates`, { next: { revalidate: 300 } });
   if (!res.ok) return [];
   const templates = await res.json();
   return templates
-    .map((t: { id: string; name: string | null; previewUrl: string }) => ({
+    .map((t: { id: string; name: string | null; previewUrl: string; genderDirection: string | null }) => ({
       id: Number(t.id),
       name: t.name,
       previewUrl: t.previewUrl,
+      genderDirection: t.genderDirection,
     }))
     .sort((a: { previewUrl: string }, b: { previewUrl: string }) => {
       const n = (url: string) => {
@@ -259,8 +255,8 @@ export default async function LibroDetallePage({ params }: Props) {
   const bgKey = BACKGROUND_KEYS[libroSlug];
   const carouselKeys = CAROUSEL_KEYS[libroSlug] ?? [];
 
-  const backgroundUrl = bgKey ? getAssetUrlDirect(bgKey) : null;
-  const carouselImageUrls = carouselKeys.map((key) => getAssetUrlDirect(key));
+  const backgroundUrl = bgKey ? getAssetUrl(bgKey) : null;
+  const carouselImageUrls = carouselKeys.map((key) => getAssetUrl(key));
 
   const dbIds = await resolveDbIds(libroSlug);
 
