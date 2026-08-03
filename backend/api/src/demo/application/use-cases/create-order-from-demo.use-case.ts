@@ -52,7 +52,7 @@ export class CreateOrderFromDemoUseCase {
     });
 
     // Queue email
-    const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const paymentUrl = `${frontendBase}/pagar/${link.token}`;
 
     await this.emailService.queue({

@@ -82,7 +82,7 @@ export class PhotobookService {
     await this.repo.updateProjectStatus(projectId, 'CONVERTED_TO_ORDER');
 
     const link = await this.publicLinksService.generate({ linkType: 'PAYMENT_UPLOAD', orderId: order.id });
-    const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const paymentUrl = `${frontendBase}/pagar/${link.token}`;
 
     await this.emailService.queue({

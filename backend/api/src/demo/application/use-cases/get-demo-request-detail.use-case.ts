@@ -33,7 +33,7 @@ export class GetDemoRequestDetailUseCase {
          ORDER BY created_at DESC LIMIT 1`,
         [linkedOrderId],
       );
-      const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+      const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
       if (linkRows.length > 0) {
         checkoutLink = {
           token: linkRows[0].token,

@@ -54,7 +54,7 @@ export class ReissueCheckoutLinkUseCase {
     // Create new link pointing to same order
     const newLink = await this.publicLinksService.reissue({ oldLinkId, orderId });
 
-    const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const checkoutUrl = `${frontendBase}/checkout/${newLink.token}`;
 
     // Queue email notification

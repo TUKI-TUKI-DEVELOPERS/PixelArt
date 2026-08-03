@@ -27,7 +27,7 @@ export class FeedbackService {
 
     const link = await this.publicLinksService.generate({ linkType: 'FEEDBACK', orderId });
 
-    const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const feedbackUrl = `${frontendBase}/feedback/${link.token}`;
 
     await this.emailService.queue({

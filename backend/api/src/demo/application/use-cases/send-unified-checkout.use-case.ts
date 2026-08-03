@@ -52,7 +52,7 @@ export class SendUnifiedCheckoutUseCase {
     });
 
     // Queue email
-    const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const checkoutUrl = `${frontendBase}/checkout/${link.token}`;
 
     await this.emailService.queue({

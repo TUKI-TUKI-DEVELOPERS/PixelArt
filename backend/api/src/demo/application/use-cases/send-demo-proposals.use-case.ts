@@ -34,7 +34,7 @@ export class SendDemoProposalsUseCase {
     }));
 
     // 4. Queue email
-    const frontendBase = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000';
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const demoViewUrl = `${frontendBase}/demo/${link.token}`;
 
     await this.emailService.queue({
