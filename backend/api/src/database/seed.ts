@@ -798,6 +798,16 @@ export async function runSeed(): Promise<void> {
     `);
     console.log('[seed] personalized_templates.gender_direction backfill (Amor) ✓');
 
+    // Bloques de prompt compartidos (prompt_shared_blocks) — mismo problema que el
+    // backfill de abajo: solo vivían en Postgres local, cargados a mano. Sin esto,
+    // buildGenerationPrompt() revienta con "Cannot read properties of undefined
+    // (reading 'replace')" al armar el prompt final, incluso con el contenido de
+    // la plantilla (scene_visual/poem_template) ya cargado.
+    await client.query(
+      readFileSync(join(__dirname, 'content/prompt-shared-blocks.sql'), 'utf8'),
+    );
+    console.log('[seed] prompt_shared_blocks ✓');
+
     // Backfill del contenido de prompt (scene_visual/poem_template/character_roles/etc)
     // para las 120 plantillas activas de Amor. Vivía solo como un .sql suelto generado
     // por el pipeline de PromptsPixelArtPlantillas (carpeta sin trackear en git) y
