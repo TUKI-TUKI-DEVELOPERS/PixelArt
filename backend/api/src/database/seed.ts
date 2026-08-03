@@ -748,9 +748,15 @@ export async function runSeed(): Promise<void> {
     // dos variantes del homenajeado mezcladas en la misma carpeta — se distinguen por el
     // nombre del archivo. gender_direction guarda "M"/"F" y el wizard filtra por el género
     // del homenajeado (recipientGender), ya recogido en el paso 1 de estos dos libros.
+    // Los libros de Amor (10 Razones, 1025 Días, Mi Amor) tienen dos variantes por escena
+    // (dedicante→destinatario), distinguidas por el sufijo "El_a_Ella"/"Ella_a_El" del
+    // nombre de archivo — gender_direction guarda "HE_TO_SHE"/"SHE_TO_HE" y el wizard
+    // filtra por genderDirection (dedicante+destinatario), calculado en el paso previo.
     function fileToGender(filename: string): string | null {
       if (/_(Abuelo|Padre)_/.test(filename)) return 'M';
       if (/_(Abuela|Madre)_/.test(filename)) return 'F';
+      if (/_El_a_Ella\.png$/.test(filename)) return 'HE_TO_SHE';
+      if (/_Ella_a_El\.png$/.test(filename)) return 'SHE_TO_HE';
       return null;
     }
 
@@ -775,6 +781,20 @@ export async function runSeed(): Promise<void> {
       }
     }
     console.log('[seed] personalized_templates ✓');
+
+    // Backfill: filas insertadas antes de que fileToGender() reconociera el sufijo
+    // "El_a_Ella"/"Ella_a_El" de Amor se quedaron con gender_direction NULL para siempre
+    // (el INSERT de arriba usa WHERE NOT EXISTS, así que nunca las vuelve a tocar).
+    // Guardado por "IS NULL" — no pisa nada que ya esté bien, seguro de re-correr.
+    await client.query(`
+      UPDATE personalized_templates SET gender_direction = 'HE_TO_SHE'
+      WHERE gender_direction IS NULL AND template_preview_key LIKE '%\\_El\\_a\\_Ella.png'
+    `);
+    await client.query(`
+      UPDATE personalized_templates SET gender_direction = 'SHE_TO_HE'
+      WHERE gender_direction IS NULL AND template_preview_key LIKE '%\\_Ella\\_a\\_El.png'
+    `);
+    console.log('[seed] personalized_templates.gender_direction backfill (Amor) ✓');
 
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
