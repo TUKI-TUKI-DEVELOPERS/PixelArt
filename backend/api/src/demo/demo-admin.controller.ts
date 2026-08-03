@@ -104,6 +104,31 @@ export class DemoAdminController {
   }
 
   /**
+   * POST /api/admin/demo/requests/:id/replace-photo
+   * Query: oldAssetId
+   * Body: multipart file
+   * Reemplaza una foto del cliente (junction demo_request_assets +
+   * character_meta anidado) sin perder la agrupación por persona.
+   */
+  @Post('requests/:id/replace-photo')
+  @UseInterceptors(FileInterceptor('file'))
+  replacePhoto(
+    @Param('id') id: string,
+    @Query('oldAssetId') oldAssetId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('File is required');
+    if (!oldAssetId) throw new BadRequestException('oldAssetId is required');
+    return this.demoService.replacePhoto({
+      demoRequestId: Number(id),
+      oldAssetId: Number(oldAssetId),
+      buffer: file.buffer,
+      originalFilename: file.originalname,
+      mimeType: file.mimetype,
+    });
+  }
+
+  /**
    * DELETE /api/admin/demo/requests/:id/proposals/:proposalId
    * Elimina una propuesta del admin (DB + MinIO)
    */

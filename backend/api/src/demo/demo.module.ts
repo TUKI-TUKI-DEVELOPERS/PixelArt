@@ -23,6 +23,7 @@ import { SendUnifiedCheckoutUseCase } from './application/use-cases/send-unified
 import { DeleteDemoProposalUseCase } from './application/use-cases/delete-demo-proposal.use-case';
 import { ReissueCheckoutLinkUseCase } from './application/use-cases/reissue-checkout-link.use-case';
 import { GenerateDemoProposalUseCase } from './application/use-cases/generate-demo-proposal.use-case';
+import { ReplaceDemoPhotoUseCase } from './application/use-cases/replace-demo-photo.use-case';
 import { ImageProtectionService } from './infrastructure/protection/image-protection.service';
 import { OrdersModule } from '../orders/orders.module';
 
@@ -51,6 +52,7 @@ import { OrdersModule } from '../orders/orders.module';
     SendUnifiedCheckoutUseCase,
     DeleteDemoProposalUseCase,
     ReissueCheckoutLinkUseCase,
+    ReplaceDemoPhotoUseCase,
     { provide: DemoRepositoryPort, useExisting: TypeOrmDemoRepository },
   ],
   exports: [DemoService],

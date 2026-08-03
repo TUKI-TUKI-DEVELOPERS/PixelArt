@@ -89,6 +89,8 @@ export default function SolicitudDetallePage() {
   const fileRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const generatingRef = useRef<Set<number>>(new Set());
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [replacingPhoto, setReplacingPhoto] = useState<number | null>(null);
+  const photoReplaceRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   function loadDetail() {
     fetch(`${API}/api/admin/demo/requests/${id}`)
@@ -134,6 +136,27 @@ export default function SolicitudDetallePage() {
       alert(err instanceof Error ? err.message : "Error");
     } finally {
       setUploading(null);
+    }
+  }
+
+  async function handleReplacePhoto(oldAssetId: number, file: File) {
+    setReplacingPhoto(oldAssetId);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(
+        `${API}/api/admin/demo/requests/${id}/replace-photo?oldAssetId=${oldAssetId}`,
+        { method: "POST", body: formData },
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: "Error al reemplazar la foto" }));
+        throw new Error(err.message);
+      }
+      loadDetail();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setReplacingPhoto(null);
     }
   }
 
@@ -568,17 +591,30 @@ export default function SolicitudDetallePage() {
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "5px", marginTop: name ? 0 : "8px" }}>
                             {g.ids.map((assetId) => {
                               const url = assetUrls[assetId];
-                              return url ? (
+                              const isReplacing = replacingPhoto === assetId;
+                              return (
                                 <div key={assetId} style={{ position: "relative" }}>
-                                  <img src={url} alt={role} onClick={() => setZoomedImage(url)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "6px", display: "block", cursor: "zoom-in" }} />
-                                  <button onClick={() => forceDownload(url, `${role.toLowerCase()}_${assetId}.jpg`)}
-                                    style={{ position: "absolute", bottom: "3px", right: "3px", width: "20px", height: "20px", borderRadius: "4px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}
-                                    title="Descargar">
-                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                  <input type="file" accept="image/*" style={{ display: "none" }}
+                                    ref={(el) => { photoReplaceRefs.current[assetId] = el; }}
+                                    onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplacePhoto(assetId, file); e.target.value = ""; }} />
+                                  {url ? (
+                                    <img src={url} alt={role} onClick={() => setZoomedImage(url)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "6px", display: "block", cursor: "zoom-in", opacity: isReplacing ? 0.4 : 1 }} />
+                                  ) : (
+                                    <div style={{ width: "100%", aspectRatio: "1", borderRadius: "6px", background: "#e5e7eb" }} />
+                                  )}
+                                  {url && (
+                                    <button onClick={() => forceDownload(url, `${role.toLowerCase()}_${assetId}.jpg`)} disabled={isReplacing}
+                                      style={{ position: "absolute", bottom: "3px", right: "22px", width: "20px", height: "20px", borderRadius: "4px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}
+                                      title="Descargar">
+                                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    </button>
+                                  )}
+                                  <button onClick={() => photoReplaceRefs.current[assetId]?.click()} disabled={isReplacing}
+                                    style={{ position: "absolute", bottom: "3px", right: "3px", width: "20px", height: "20px", borderRadius: "4px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: isReplacing ? "wait" : "pointer", padding: 0 }}
+                                    title="Reemplazar foto">
+                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
                                   </button>
                                 </div>
-                              ) : (
-                                <div key={assetId} style={{ aspectRatio: "1", borderRadius: "6px", background: "#e5e7eb" }} />
                               );
                             })}
                           </div>
@@ -593,16 +629,29 @@ export default function SolicitudDetallePage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "8px" }}>
                 {data.assetIds.map((assetId) => {
                   const url = assetUrls[assetId];
-                  return url ? (
+                  const isReplacing = replacingPhoto === assetId;
+                  return (
                     <div key={assetId} style={{ position: "relative" }}>
-                      <img src={url} alt={`Foto ${assetId}`} onClick={() => setZoomedImage(url)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "7px", display: "block", cursor: "zoom-in" }} />
-                      <button onClick={() => forceDownload(url, `foto_${assetId}.jpg`)}
-                        style={{ position: "absolute", bottom: "4px", right: "4px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      <input type="file" accept="image/*" style={{ display: "none" }}
+                        ref={(el) => { photoReplaceRefs.current[assetId] = el; }}
+                        onChange={(e) => { const file = e.target.files?.[0]; if (file) handleReplacePhoto(assetId, file); e.target.value = ""; }} />
+                      {url ? (
+                        <img src={url} alt={`Foto ${assetId}`} onClick={() => setZoomedImage(url)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: "7px", display: "block", cursor: "zoom-in", opacity: isReplacing ? 0.4 : 1 }} />
+                      ) : (
+                        <div style={{ width: "100%", aspectRatio: "1", borderRadius: "7px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc", fontSize: "10px" }}>…</div>
+                      )}
+                      {url && (
+                        <button onClick={() => forceDownload(url, `foto_${assetId}.jpg`)} disabled={isReplacing}
+                          style={{ position: "absolute", bottom: "4px", right: "26px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", padding: 0 }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </button>
+                      )}
+                      <button onClick={() => photoReplaceRefs.current[assetId]?.click()} disabled={isReplacing}
+                        style={{ position: "absolute", bottom: "4px", right: "4px", width: "24px", height: "24px", borderRadius: "5px", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: isReplacing ? "wait" : "pointer", padding: 0 }}
+                        title="Reemplazar foto">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
                       </button>
                     </div>
-                  ) : (
-                    <div key={assetId} style={{ width: "100%", aspectRatio: "1", borderRadius: "7px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc", fontSize: "10px" }}>…</div>
                   );
                 })}
               </div>

@@ -165,4 +165,52 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
   async updateStatus(id: number, status: string): Promise<void> {
     await this.requestRepo.update(String(id), { status });
   }
+
+  async replaceAsset(demoRequestId: number, oldAssetId: number, newAssetId: number): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      // 1. Relación plana (demo_request_assets) — delete + insert en vez de UPDATE:
+      // si el nuevo asset (por hash duplicado con otra foto de esta misma
+      // solicitud) ya estaba vinculado, un UPDATE directo choca contra el
+      // UNIQUE(demo_request_id, asset_id). ON CONFLICT DO NOTHING lo absorbe.
+      await manager.query(
+        `DELETE FROM demo_request_assets WHERE demo_request_id = $1 AND asset_id = $2`,
+        [demoRequestId, oldAssetId],
+      );
+      await manager.query(
+        `INSERT INTO demo_request_assets (demo_request_id, asset_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [demoRequestId, newAssetId],
+      );
+
+      // 2. character_meta — el mismo asset_id se repite anidado por persona
+      // (papa.assetIds, mama.assetIds, recipient.assetIds, etc. según el modo),
+      // no hay forma genérica de saber en qué rama está sin conocer el shape,
+      // así que se recorre todo el JSON reemplazando el valor donde aparezca.
+      const rows: { character_meta: unknown }[] = await manager.query(
+        `SELECT character_meta FROM demo_request WHERE id = $1`,
+        [demoRequestId],
+      );
+      const meta = rows[0]?.character_meta;
+      if (meta) {
+        const updated = replaceAssetIdDeep(meta, oldAssetId, newAssetId);
+        await manager.query(`UPDATE demo_request SET character_meta = $1 WHERE id = $2`, [
+          JSON.stringify(updated),
+          demoRequestId,
+        ]);
+      }
+    });
+  }
+}
+
+function replaceAssetIdDeep(value: unknown, oldId: number, newId: number): unknown {
+  if (Array.isArray(value)) {
+    return value.map((v) => (v === oldId ? newId : replaceAssetIdDeep(v, oldId, newId)));
+  }
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [key, v] of Object.entries(value as Record<string, unknown>)) {
+      out[key] = replaceAssetIdDeep(v, oldId, newId);
+    }
+    return out;
+  }
+  return value;
 }

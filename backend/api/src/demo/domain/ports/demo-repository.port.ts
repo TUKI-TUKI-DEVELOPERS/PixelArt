@@ -53,4 +53,5 @@ export abstract class DemoRepositoryPort {
   abstract saveProposal(data: SaveProposalData): Promise<{ id: number }>;
   abstract deleteProposal(proposalId: number, demoRequestId: number): Promise<string>;
   abstract updateStatus(id: number, status: string): Promise<void>;
+  abstract replaceAsset(demoRequestId: number, oldAssetId: number, newAssetId: number): Promise<void>;
 }
