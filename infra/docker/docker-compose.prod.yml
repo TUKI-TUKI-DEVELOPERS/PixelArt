@@ -100,10 +100,12 @@ services:
       REDIS_HOST: redis
       MINIO_ENDPOINT: minio
       NODE_ENV: production
-      # URL pública real del sitio — usada para armar links de checkout/feedback/
-      # demo que se mandan por email. Sin esto cae al fallback 'http://localhost:3000'
-      # del código, que solo es válido en dev. DEBE estar seteada en .env.docker.local.
-      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL:-}
+      # NEXT_PUBLIC_URL (URL pública real, para links de checkout/feedback/demo
+      # que se mandan por email) NO va acá — va en .env.docker.local, cargada
+      # por env_file de arriba. Ponerla acá con sintaxis ${VAR:-} es sustitución
+      # de variables del PROPIO archivo compose (shell/.env genérico), un
+      # mecanismo distinto a env_file, y pisa silenciosamente lo que env_file
+      # cargue con un vacío si no hay esa variable exportada en el shell.
     expose:
       - "3001"
     depends_on:
