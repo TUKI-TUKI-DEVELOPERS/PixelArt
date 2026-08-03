@@ -80,14 +80,47 @@ export class UploadAssetUseCase {
       .update(processedBuffer)
       .digest('hex');
 
-    // 2. Verificar si ya existe (deduplicación)
+    // 2. Verificar si ya existe (deduplicación) — pero no confiar ciegamente en
+    // que la fila implica que el archivo sigue en MinIO (puede haberse perdido
+    // por un reset manual del volumen mientras Postgres seguía intacto).
     const existing = await this.assetRepo.findByContentHash(contentHash);
     if (existing) {
+      const objectExists = await this.fileStorage.exists(existing.storageKey);
+      if (objectExists) {
+        const thumbKey = this.buildThumbKey(existing.storageKey);
+        return {
+          asset: existing,
+          url: this.fileStorage.getPublicUrl(existing.storageKey),
+          thumbnailUrl: this.fileStorage.getPublicUrl(thumbKey),
+          wasExisting: true,
+        };
+      }
+      // Fila huérfana: el archivo no está en MinIO. Re-subir al mismo key
+      // determinístico (mismo hash) — se autorepara para toda referencia
+      // existente a este asset, no solo para este request.
+      this.logger.warn(
+        `Asset ${existing.id} referencia un objeto inexistente en MinIO (${existing.storageKey}) — re-subiendo`,
+      );
+      const healMime = existing.mimeType ?? actualMime;
+      await this.fileStorage.upload(existing.storageKey, processedBuffer, healMime);
       const thumbKey = this.buildThumbKey(existing.storageKey);
+      let thumbnailUrl: string | null = null;
+      if (['image/jpeg', 'image/png', 'image/webp'].includes(healMime)) {
+        try {
+          const thumbBuffer = await sharp(processedBuffer)
+            .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+            .webp({ quality: 80 })
+            .toBuffer();
+          await this.fileStorage.upload(thumbKey, thumbBuffer, 'image/webp');
+          thumbnailUrl = this.fileStorage.getPublicUrl(thumbKey);
+        } catch (err) {
+          this.logger.warn(`Thumbnail regeneration failed: ${err}`);
+        }
+      }
       return {
         asset: existing,
         url: this.fileStorage.getPublicUrl(existing.storageKey),
-        thumbnailUrl: this.fileStorage.getPublicUrl(thumbKey),
+        thumbnailUrl,
         wasExisting: true,
       };
     }

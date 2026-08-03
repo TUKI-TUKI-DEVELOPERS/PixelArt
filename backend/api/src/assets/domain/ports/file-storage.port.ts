@@ -10,4 +10,6 @@ export abstract class FileStoragePort {
   abstract getPublicUrl(key: string): string;
 
   abstract download(key: string): Promise<Buffer>;
+
+  abstract exists(key: string): Promise<boolean>;
 }

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { FileStoragePort } from '../../domain/ports/file-storage.port';
@@ -40,6 +40,22 @@ export class MinioStorageService extends FileStoragePort {
     });
     await this.s3.send(command);
     this.logger.log(`Uploaded: ${key} (${buffer.length} bytes)`);
+  }
+
+  /**
+   * Verifica si el objeto realmente existe en MinIO — no confiar ciegamente en
+   * que una fila de `assets` con ese storageKey implica que el archivo está ahí
+   * (puede haberse perdido por un reset manual del volumen de MinIO).
+   */
+  async exists(key: string): Promise<boolean> {
+    try {
+      await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }));
+      return true;
+    } catch (err) {
+      const code = (err as { name?: string; $metadata?: { httpStatusCode?: number } })?.name;
+      if (code === 'NotFound' || code === 'NoSuchKey') return false;
+      throw err;
+    }
   }
 
   async delete(key: string): Promise<void> {
