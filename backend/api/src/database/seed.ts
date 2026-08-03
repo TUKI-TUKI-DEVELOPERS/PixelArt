@@ -10,6 +10,8 @@
  */
 
 import { createHash } from 'crypto';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { Client } from 'pg';
 import * as bcryptjs from 'bcryptjs';
 
@@ -795,6 +797,20 @@ export async function runSeed(): Promise<void> {
       WHERE gender_direction IS NULL AND template_preview_key LIKE '%\\_Ella\\_a\\_El.png'
     `);
     console.log('[seed] personalized_templates.gender_direction backfill (Amor) ✓');
+
+    // Backfill del contenido de prompt (scene_visual/poem_template/character_roles/etc)
+    // para las 120 plantillas activas de Amor. Vivía solo como un .sql suelto generado
+    // por el pipeline de PromptsPixelArtPlantillas (carpeta sin trackear en git) y
+    // corrido a mano contra Postgres local — nunca llegó a ningún otro ambiente.
+    // Matchea por template_preview_key (igual en todo ambiente, viene del mismo
+    // nombre de archivo) en vez de por id (los ids divergen entre bases distintas).
+    // Es un UPDATE incondicional (no "IS NULL") a propósito: si el contenido maestro
+    // se corrige más adelante, este archivo se actualiza y el fix llega solo en el
+    // siguiente boot, sin backfill manual de nuevo.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-amor-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Amor) ✓');
 
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
