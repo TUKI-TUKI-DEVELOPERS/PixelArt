@@ -93,8 +93,13 @@ export class MinioStorageService extends FileStoragePort {
   }
 
   getPublicUrl(storageKey: string): string {
-    const publicHost = process.env.MINIO_PUBLIC_HOST || 'localhost';
-    const publicPort = process.env.MINIO_PUBLIC_PORT || '9000';
+    // Relativa al origen de la app — pasa por el rewrite /assets/:path* de
+    // next.config.ts, que proxea server-side hacia MinIO (interno, nunca
+    // expuesto directo en prod). Antes devolvía una URL absoluta a
+    // MINIO_PUBLIC_HOST:PORT (típicamente "localhost") — funcionaba solo
+    // en la máquina de quien tuviera un MinIO local corriendo en ese puerto,
+    // rota para cualquier otro usuario real, y bloqueada por el navegador
+    // como "mixed content" en páginas HTTPS.
     // Normalizar a NFD (macOS almacena archivos en NFD) y encodear cada segmento
     // para manejar acentos, espacios y caracteres especiales
     const encodedKey = storageKey
@@ -102,6 +107,6 @@ export class MinioStorageService extends FileStoragePort {
       .split('/')
       .map((segment) => encodeURIComponent(segment))
       .join('/');
-    return `http://${publicHost}:${publicPort}/${this.bucket}/${encodedKey}`;
+    return `/assets/${encodedKey}`;
   }
 }
