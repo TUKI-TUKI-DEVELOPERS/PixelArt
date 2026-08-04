@@ -7,6 +7,7 @@ import {
   buildGenerationPrompt,
   fillNamePlaceholders,
   derivePrintedTitle,
+  SPREAD_SIZE,
 } from '../../../personalized/domain/services/build-generation-prompt';
 import { DemoRepositoryPort } from '../../domain/ports/demo-repository.port';
 import { resolveReferencePhotos } from '../../domain/services/resolve-reference-photos';
@@ -16,7 +17,6 @@ import { UploadProposalOutput } from './upload-demo-proposal.use-case';
 export type GenerateProposalInput = {
   demoRequestId: number;
   templateId: number;
-  protectionMode: 'WATERMARK' | 'LOW_QUALITY';
   /** role.key (o "role.key[indice]" para roles de lista) -> assetId elegido
    * por el admin entre las fotos subidas para esa persona. Si no se manda,
    * se usa la primera foto de cada una. */
@@ -100,7 +100,10 @@ export class GenerateDemoProposalUseCase {
       poem,
     });
 
-    const generatedBuffer = await this.imageGeneration.generateWithReferences(prompt, referenceImages);
+    // Mismo tamaño que usa la generación fresca de plantillas de orden — así
+    // el original nace ya con el ratio de imprenta y backfillFromDemoOriginals
+    // lo puede reusar tal cual, sin una segunda llamada a OpenAI.
+    const generatedBuffer = await this.imageGeneration.generateWithReferences(prompt, referenceImages, SPREAD_SIZE);
 
     // Guardamos SIEMPRE el original limpio (para el libro final impreso) y
     // por separado la versión protegida (para la vista previa del cliente) —
@@ -108,10 +111,7 @@ export class GenerateDemoProposalUseCase {
     const originalKey = `generated/originals/${input.demoRequestId}_${input.templateId}.png`;
     await this.fileStorage.upload(originalKey, generatedBuffer, 'image/png');
 
-    const protectedBuffer =
-      input.protectionMode === 'WATERMARK'
-        ? await this.imageProtection.applyWatermark(generatedBuffer)
-        : await this.imageProtection.applyLowQuality(generatedBuffer);
+    const protectedBuffer = await this.imageProtection.applyWatermark(generatedBuffer);
     const protectedKey = `generated/proposals/${input.demoRequestId}_${input.templateId}.jpg`;
     await this.fileStorage.upload(protectedKey, protectedBuffer, 'image/jpeg');
 
@@ -120,8 +120,8 @@ export class GenerateDemoProposalUseCase {
       templateId: input.templateId,
       outputStorageKey: protectedKey,
       originalStorageKey: originalKey,
-      protectionMode: input.protectionMode,
-      isWatermarked: input.protectionMode === 'WATERMARK',
+      protectionMode: 'WATERMARK',
+      isWatermarked: true,
       generatedByUserId: input.generatedByUserId ?? null,
     });
 
@@ -129,7 +129,7 @@ export class GenerateDemoProposalUseCase {
       id: proposal.id,
       storageKey: protectedKey,
       url: this.fileStorage.getPublicUrl(protectedKey),
-      protectionMode: input.protectionMode,
+      protectionMode: 'WATERMARK',
     };
   }
 

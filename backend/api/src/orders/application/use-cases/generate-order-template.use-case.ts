@@ -10,6 +10,7 @@ import {
   buildGenerationPrompt,
   fillNamePlaceholders,
   derivePrintedTitle,
+  SPREAD_SIZE,
 } from '../../../personalized/domain/services/build-generation-prompt';
 import { resolveReferencePhotos } from '../../../demo/domain/services/resolve-reference-photos';
 
@@ -124,10 +125,12 @@ export class GenerateOrderTemplateUseCase {
       poem,
     });
 
-    // Misma llamada/prompt que ya usa el demo (1 sola vez, calidad medium) — el
-    // spread resultante YA está diseñado para partirse al medio (ver
-    // diseno_editorial_wrapper: "mitad izquierda"/"mitad derecha del lienzo").
-    const spread = await this.imageGeneration.generateWithReferences(prompt, referenceImages);
+    // 1 sola llamada, a resolución de spread real (SPREAD_SIZE) — la
+    // continuidad entre Cara A y Cara B viene gratis porque es LA MISMA foto
+    // cortada al medio, no dos generaciones independientes (eso se probó y
+    // no funcionó: con referencia cruzada el modelo clona, sin ella inventa
+    // una escena sin relación).
+    const spread = await this.imageGeneration.generateWithReferences(prompt, referenceImages, SPREAD_SIZE);
 
     return this.processSpread(input.orderId, input.templateId, slotIndex, spread);
   }
@@ -203,7 +206,9 @@ export class GenerateOrderTemplateUseCase {
   }
 
   /** Parte el spread generado al medio (Cara A = mitad izquierda, Cara B = mitad
-   * derecha) y escala cada mitad hacia el techo de resolución de imprenta. */
+   * derecha) y escala cada mitad hacia el techo de resolución de imprenta.
+   * Usado tanto por execute() (generación fresca) como por
+   * backfillFromDemoOriginals (reusa el original del demo). */
   private async splitIntoPrintPages(spread: Buffer): Promise<{ caraA: Buffer; caraB: Buffer }> {
     const meta = await sharp(spread).metadata();
     const width = meta.width ?? 1536;

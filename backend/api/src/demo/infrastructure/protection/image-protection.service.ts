@@ -28,11 +28,4 @@ export class ImageProtectionService {
       .jpeg({ quality: 85 })
       .toBuffer();
   }
-
-  async applyLowQuality(buffer: Buffer): Promise<Buffer> {
-    return sharp(buffer)
-      .resize({ width: 600, withoutEnlargement: true })
-      .jpeg({ quality: 30 })
-      .toBuffer();
-  }
 }

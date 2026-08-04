@@ -29,7 +29,7 @@ export class DemoAdminController {
 
   /**
    * POST /api/admin/demo/requests/:id/proposals
-   * Query: templateId, protectionMode (WATERMARK | LOW_QUALITY)
+   * Query: templateId
    * Body: multipart file
    */
   @Post('requests/:id/proposals')
@@ -37,17 +37,14 @@ export class DemoAdminController {
   uploadProposal(
     @Param('id') id: string,
     @Query('templateId') templateId: string,
-    @Query('protectionMode') protectionMode: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) throw new BadRequestException('File is required');
     if (!templateId) throw new BadRequestException('templateId is required');
-    const mode = protectionMode === 'LOW_QUALITY' ? 'LOW_QUALITY' : 'WATERMARK';
 
     return this.demoService.uploadProposal({
       demoRequestId: Number(id),
       templateId: Number(templateId),
-      protectionMode: mode as 'WATERMARK' | 'LOW_QUALITY',
       buffer: file.buffer,
       mimeType: file.mimetype,
       generatedByUserId: null,
@@ -56,7 +53,7 @@ export class DemoAdminController {
 
   /**
    * POST /api/admin/demo/requests/:id/proposals/generate
-   * Query: templateId, protectionMode (WATERMARK | LOW_QUALITY)
+   * Query: templateId
    * Body opcional: { selectedAssetIds: { [roleKey]: assetId } } — qué foto
    * usar por cada persona cuando subió más de una (por defecto, la primera).
    * Genera la imagen con IA (fotos reales del cliente) en vez de subirla a mano.
@@ -65,16 +62,13 @@ export class DemoAdminController {
   generateProposal(
     @Param('id') id: string,
     @Query('templateId') templateId: string,
-    @Query('protectionMode') protectionMode: string,
     @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
   ) {
     if (!templateId) throw new BadRequestException('templateId is required');
-    const mode = protectionMode === 'LOW_QUALITY' ? 'LOW_QUALITY' : 'WATERMARK';
 
     return this.demoService.generateProposal({
       demoRequestId: Number(id),
       templateId: Number(templateId),
-      protectionMode: mode as 'WATERMARK' | 'LOW_QUALITY',
       selectedAssetIds,
       generatedByUserId: null,
     });

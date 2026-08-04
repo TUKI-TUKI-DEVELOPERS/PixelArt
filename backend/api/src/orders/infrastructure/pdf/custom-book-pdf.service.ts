@@ -7,9 +7,13 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
 
-// Dimensiones para libros personalizados
+// Dimensiones para libros personalizados — libro apaisado (acostado): cada
+// página individual mide WIDTH_CM x HEIGHT_CM completo, más ancha que alta.
+// Confirmado con la imprenta — el `_plantilla-maestra.md` que hablaba de
+// "página vertical" no aplica a este formato, no usar como fuente de tamaño.
 const WIDTH_CM  = 29;
 const HEIGHT_CM = 20.5;
+const PAGE_WIDTH_CM = WIDTH_CM;
 
 const MAX_IMAGE_PX = 2400;
 
@@ -193,12 +197,9 @@ export class CustomBookPdfService {
 
     const templatePages = templateRows
       .map((row) => {
-        const isTemplateHalf = row.page_part === 'A' || row.page_part === 'B';
         const src = assetMap.get(row.storage_key);
-        if (!src) return isTemplateHalf ? `<div class="page-half blank"></div>` : `<div class="page blank"></div>`;
-        return isTemplateHalf
-          ? `<div class="page-half"><img src="${src}" alt="" /></div>`
-          : `<div class="page"><img src="${src}" alt="" /></div>`;
+        if (!src) return `<div class="page blank"></div>`;
+        return `<div class="page"><img src="${src}" alt="" /></div>`;
       })
       .join('\n  ');
 
@@ -225,24 +226,22 @@ export class CustomBookPdfService {
       font-weight: 600;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { margin: 0; size: ${WIDTH_CM}cm ${HEIGHT_CM}cm; }
-    @page half { margin: 0; size: ${WIDTH_CM / 2}cm ${HEIGHT_CM}cm; }
-    .page, .page-half {
+    @page { margin: 0; size: ${PAGE_WIDTH_CM}cm ${HEIGHT_CM}cm; }
+    .page {
+      width: ${PAGE_WIDTH_CM}cm;
       height: ${HEIGHT_CM}cm;
       page-break-after: always;
       overflow: hidden;
       position: relative;
     }
-    .page { width: ${WIDTH_CM}cm; }
-    .page-half { width: ${WIDTH_CM / 2}cm; page: half; }
-    .page:last-child, .page-half:last-child { page-break-after: avoid; }
-    .page img, .page-half img {
+    .page:last-child { page-break-after: avoid; }
+    .page img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
-    .page.blank, .page-half.blank { background: #ffffff; }
+    .page.blank { background: #ffffff; }
     .page-gradient {
       background: linear-gradient(135deg, ${design.gradientStart} 0%, ${design.gradientEnd} 100%);
       display: flex;
@@ -291,8 +290,9 @@ export class CustomBookPdfService {
       await page.evaluateHandle('document.fonts.ready');
       const pdf = await page.pdf({
         printBackground: true,
-        // true: respeta los @page de buildHtml() (spread completo vs. mitad para
-        // Cara A/B) en vez de forzar el mismo tamaño de página en todo el PDF.
+        // true: respeta el @page de buildHtml() (ancho real de una página =
+        // mitad del libro abierto) en vez del tamaño de página por defecto
+        // de Chromium.
         preferCSSPageSize: true,
       });
       return Buffer.from(pdf);

@@ -6,7 +6,6 @@ import { ImageProtectionService } from '../../infrastructure/protection/image-pr
 export type UploadProposalInput = {
   demoRequestId: number;
   templateId: number;
-  protectionMode: 'WATERMARK' | 'LOW_QUALITY';
   buffer: Buffer;
   mimeType: string;
   generatedByUserId?: number | null;
@@ -29,10 +28,7 @@ export class UploadDemoProposalUseCase {
 
   async execute(input: UploadProposalInput): Promise<UploadProposalOutput> {
     // 1. Apply protection
-    const protectedBuffer =
-      input.protectionMode === 'WATERMARK'
-        ? await this.imageProtection.applyWatermark(input.buffer)
-        : await this.imageProtection.applyLowQuality(input.buffer);
+    const protectedBuffer = await this.imageProtection.applyWatermark(input.buffer);
 
     // 2. Generate storage key
     const storageKey = `uploads/proposals/${input.demoRequestId}_${input.templateId}.jpg`;
@@ -45,8 +41,8 @@ export class UploadDemoProposalUseCase {
       demoRequestId: input.demoRequestId,
       templateId: input.templateId,
       outputStorageKey: storageKey,
-      protectionMode: input.protectionMode,
-      isWatermarked: input.protectionMode === 'WATERMARK',
+      protectionMode: 'WATERMARK',
+      isWatermarked: true,
       generatedByUserId: input.generatedByUserId ?? null,
     });
 
@@ -54,7 +50,7 @@ export class UploadDemoProposalUseCase {
       id: proposal.id,
       storageKey,
       url: this.fileStorage.getPublicUrl(storageKey),
-      protectionMode: input.protectionMode,
+      protectionMode: 'WATERMARK',
     };
   }
 }
