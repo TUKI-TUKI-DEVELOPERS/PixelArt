@@ -2067,9 +2067,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             const genders = [hermano1Gender, hermano2Gender, hermano3Gender];
 
             const hermanosValid =
-              !!hijo1Name.trim() && hijo1Upload.photos.length >= 1 &&
-              !!hijo2Name.trim() && hijo2Upload.photos.length >= 1 &&
-              (numHermanos < 3 || (!!hijo3Name.trim() && hijo3Upload.photos.length >= 1));
+              !!hijo1Name.trim() && hijo1Upload.photos.length >= 2 &&
+              !!hijo2Name.trim() && hijo2Upload.photos.length >= 2 &&
+              (numHermanos < 3 || (!!hijo3Name.trim() && hijo3Upload.photos.length >= 2));
 
             return (
               <div>
@@ -2097,11 +2097,11 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             );
           })() : currentStep === 2 && wizardMode === "familia-grupo" ? (() => {
             const familiaGrupoValid =
-              !!papaName.trim() && papaUpload.photos.length >= 1 &&
-              !!mamaName.trim() && mamaUpload.photos.length >= 1 &&
-              !!hijo1Name.trim() && hijo1Upload.photos.length >= 1 &&
-              (numHijos < 2 || (!!hijo2Name.trim() && hijo2Upload.photos.length >= 1)) &&
-              (numHijos < 3 || (!!hijo3Name.trim() && hijo3Upload.photos.length >= 1));
+              !!papaName.trim() && papaUpload.photos.length >= 2 &&
+              !!mamaName.trim() && mamaUpload.photos.length >= 2 &&
+              !!hijo1Name.trim() && hijo1Upload.photos.length >= 2 &&
+              (numHijos < 2 || (!!hijo2Name.trim() && hijo2Upload.photos.length >= 2)) &&
+              (numHijos < 3 || (!!hijo3Name.trim() && hijo3Upload.photos.length >= 2));
 
             const maleSvgSm = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
             const femaleSvgSm = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M8 60L24 30L40 60" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><line x1="8" y1="47" x2="40" y2="47" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
@@ -2200,8 +2200,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               const livingCount = numSiblings - 1;
               const deceasedName = recipientNickname.trim() || recipientName.trim() || "tu hermano";
               const siblingsValid =
-                !!dedicatorName.trim() && dedicatorUpload.photos.length >= 1 &&
-                (livingCount < 2 || (!!owner2Name.trim() && owner2Upload.photos.length >= 1));
+                !!dedicatorName.trim() && dedicatorUpload.photos.length >= 2 &&
+                (livingCount < 2 || (!!owner2Name.trim() && owner2Upload.photos.length >= 2));
               return (
                 <div>
                   <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>Fotos de los hermanos</h3>
@@ -2289,9 +2289,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             if (isAventuraEntrePatas) {
               const ownerSvg = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
               const aventuraValid =
-                !!dedicatorName.trim() && dedicatorUpload.photos.length >= 1 &&
-                (numOwners < 2 || (!!owner2Name.trim() && owner2Upload.photos.length >= 1)) &&
-                (numOwners < 3 || (!!owner3Name.trim() && owner3Upload.photos.length >= 1));
+                !!dedicatorName.trim() && dedicatorUpload.photos.length >= 2 &&
+                (numOwners < 2 || (!!owner2Name.trim() && owner2Upload.photos.length >= 2)) &&
+                (numOwners < 3 || (!!owner3Name.trim() && owner3Upload.photos.length >= 2));
               return (
                 <div>
                   <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>Datos de los dueños</h3>
