@@ -2185,7 +2185,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
                 {navBtn("Anterior", () => setCurrentStep(fixedDedicatorGender ? 0 : 1))}
-                {navBtn("Siguiente", () => setCurrentStep(nextAfterRecipient), true, !recipientName.trim() || recipientUpload.photos.length < 1)}
+                {navBtn("Siguiente", () => setCurrentStep(nextAfterRecipient), true, !recipientName.trim() || recipientUpload.photos.length < photoConfig.recipient)}
               </div>
             </div>
           ) : null}
@@ -2345,7 +2345,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
                   {navBtn("Anterior", () => setCurrentStep(2))}
                   {navBtn("Siguiente", () => setCurrentStep(4), true,
-                    !dedicatorName.trim() || (photoConfig.dedicator > 0 && dedicatorUpload.photos.length < 1)
+                    !dedicatorName.trim() || dedicatorUpload.photos.length < photoConfig.dedicator
                   )}
                 </div>
               </div>
