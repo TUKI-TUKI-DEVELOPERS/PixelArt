@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { resetMobileZoom } from "@/lib/utils/resetMobileZoom";
 
 const API = "";
 
@@ -30,6 +31,11 @@ export default function DemoViewPage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number | null>(null);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+
+  function closeZoom() {
+    resetMobileZoom();
+    setZoomedImage(null);
+  }
 
   useEffect(() => {
     fetch(`${API}/api/demo/view/${token}`)
@@ -271,10 +277,10 @@ export default function DemoViewPage() {
 
       {/* Lightbox: ver imagen completa */}
       {zoomedImage && (
-        <div onClick={() => setZoomedImage(null)}
+        <div onClick={closeZoom}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: "40px" }}>
           <img src={zoomedImage} alt="Vista completa" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "8px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} />
-          <button onClick={() => setZoomedImage(null)}
+          <button onClick={(e) => { e.stopPropagation(); closeZoom(); }}
             style={{ position: "absolute", top: "20px", right: "20px", width: "40px", height: "40px", borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
