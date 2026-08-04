@@ -33,8 +33,9 @@ export class UploadDemoProposalUseCase {
     // 2. Generate storage key
     const storageKey = `uploads/proposals/${input.demoRequestId}_${input.templateId}.jpg`;
 
-    // 3. Upload to MinIO
-    await this.fileStorage.upload(storageKey, protectedBuffer, 'image/jpeg');
+    // 3. Upload to MinIO — cache corto: re-subir pisa la misma key (upsert
+    // en saveProposal), y con cache immutable el navegador nunca vería el cambio.
+    await this.fileStorage.upload(storageKey, protectedBuffer, 'image/jpeg', 'public, max-age=60, must-revalidate');
 
     // 4. Save to DB
     const proposal = await this.demoRepo.saveProposal({

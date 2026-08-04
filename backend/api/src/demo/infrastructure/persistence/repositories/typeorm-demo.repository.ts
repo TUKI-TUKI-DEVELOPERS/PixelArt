@@ -138,18 +138,29 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
     };
   }
 
+  /** Upsert por (demo_request_id, template_id) — regenerar una propuesta ya
+   * no requiere borrarla primero, la nueva generación pisa la fila existente
+   * (y el archivo en storage, que vive en la misma key determinística). */
   async saveProposal(data: SaveProposalData): Promise<{ id: number }> {
-    const entity = this.proposalRepo.create({
-      demoRequestId: String(data.demoRequestId),
-      templateId: String(data.templateId),
-      outputStorageKey: data.outputStorageKey,
-      originalStorageKey: data.originalStorageKey ?? null,
-      protectionMode: data.protectionMode,
-      isWatermarked: data.isWatermarked,
-      generatedByUserId: data.generatedByUserId ? String(data.generatedByUserId) : null,
-    });
-    const saved = await this.proposalRepo.save(entity);
-    return { id: Number(saved.id) };
+    const [row] = await this.dataSource.query(
+      `INSERT INTO demo_proposals
+         (demo_request_id, template_id, output_storage_key, original_storage_key, protection_mode, is_watermarked, generated_by_user_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (demo_request_id, template_id)
+       DO UPDATE SET output_storage_key = $3, original_storage_key = $4, protection_mode = $5,
+                      is_watermarked = $6, generated_by_user_id = $7, generated_at = now()
+       RETURNING id`,
+      [
+        data.demoRequestId,
+        data.templateId,
+        data.outputStorageKey,
+        data.originalStorageKey ?? null,
+        data.protectionMode,
+        data.isWatermarked,
+        data.generatedByUserId,
+      ],
+    );
+    return { id: Number(row.id) };
   }
 
   async deleteProposal(proposalId: number, demoRequestId: number): Promise<string> {

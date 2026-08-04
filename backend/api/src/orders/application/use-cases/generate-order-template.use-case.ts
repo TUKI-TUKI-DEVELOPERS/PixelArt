@@ -189,9 +189,12 @@ export class GenerateOrderTemplateUseCase {
 
     const caraAKey = `custom-books/print-assets/${orderId}/template_${templateId}_a.png`;
     const caraBKey = `custom-books/print-assets/${orderId}/template_${templateId}_b.png`;
+    // Cache corto: "Regenerar con IA" pisa la misma key (upsert en
+    // savePrintAssets), y con cache immutable el navegador seguiría mostrando
+    // la miniatura vieja aunque el archivo en storage haya cambiado.
     await Promise.all([
-      this.fileStorage.upload(caraAKey, caraA, 'image/png'),
-      this.fileStorage.upload(caraBKey, caraB, 'image/png'),
+      this.fileStorage.upload(caraAKey, caraA, 'image/png', 'public, max-age=60, must-revalidate'),
+      this.fileStorage.upload(caraBKey, caraB, 'image/png', 'public, max-age=60, must-revalidate'),
     ]);
 
     await this.savePrintAssets(orderId, templateId, slotIndex, [

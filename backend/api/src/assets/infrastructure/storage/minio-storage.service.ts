@@ -30,13 +30,13 @@ export class MinioStorageService extends FileStoragePort {
   /**
    * Sube un archivo a MinIO.
    */
-  async upload(key: string, buffer: Buffer, mimeType: string): Promise<void> {
+  async upload(key: string, buffer: Buffer, mimeType: string, cacheControl?: string): Promise<void> {
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
       Body: buffer,
       ContentType: mimeType,
-      CacheControl: 'public, max-age=31536000, immutable',
+      CacheControl: cacheControl ?? 'public, max-age=31536000, immutable',
     });
     await this.s3.send(command);
     this.logger.log(`Uploaded: ${key} (${buffer.length} bytes)`);

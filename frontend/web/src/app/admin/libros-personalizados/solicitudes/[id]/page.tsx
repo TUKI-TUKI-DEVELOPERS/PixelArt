@@ -701,6 +701,20 @@ export default function SolicitudDetallePage() {
                       <span style={{ fontSize: "13px", fontWeight: 600, color: "#065f46" }}>{ts.templateName ?? `Plantilla #${ts.templateId}`}</span>
                       <span style={{ fontSize: "11px", color: "#22c55e", background: "#dcfce7", padding: "2px 8px", borderRadius: "99px", fontWeight: 600 }}>Marca de agua</span>
                     </div>
+                    {data.status === "RECEIVED" && (
+                      <div style={{ padding: "0 12px 10px" }}>
+                        <button
+                          disabled={isGenerating}
+                          onClick={() => handleGenerateProposal(ts.templateId)}
+                          title="Vuelve a generar con IA, pisando esta propuesta — no hace falta borrarla antes"
+                          style={{ width: "100%", padding: "7px", borderRadius: "8px", border: "none", background: isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "11px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                          {isGenerating ? "Regenerando… (puede tardar 20s)" : "Regenerar con IA"}
+                        </button>
+                        {generateError[ts.templateId] && (
+                          <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div style={{ border: "2px dashed #d1d5db", borderRadius: "12px", overflow: "hidden" }}>

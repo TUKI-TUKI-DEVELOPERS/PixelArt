@@ -41,12 +41,6 @@ export class GenerateDemoProposalUseCase {
       throw new NotFoundException('Solicitud de demo no encontrada');
     }
 
-    if (request.proposals.some((p) => p.templateId === input.templateId)) {
-      throw new BadRequestException(
-        'Ya existe una propuesta para esta plantilla — borrala primero si querés regenerarla.',
-      );
-    }
-
     const template = await this.personalizedRepo.findTemplateById(input.templateId);
     if (!template) {
       throw new NotFoundException('Plantilla no encontrada');
@@ -108,12 +102,15 @@ export class GenerateDemoProposalUseCase {
     // Guardamos SIEMPRE el original limpio (para el libro final impreso) y
     // por separado la versión protegida (para la vista previa del cliente) —
     // a diferencia del upload manual, que solo tenía la protegida.
+    // Cache corto (no el default de 1 año/immutable): regenerar pisa la misma
+    // key, y con cache immutable el navegador nunca vuelve a pedir el archivo
+    // aunque el contenido en storage haya cambiado.
     const originalKey = `generated/originals/${input.demoRequestId}_${input.templateId}.png`;
-    await this.fileStorage.upload(originalKey, generatedBuffer, 'image/png');
+    await this.fileStorage.upload(originalKey, generatedBuffer, 'image/png', 'public, max-age=60, must-revalidate');
 
     const protectedBuffer = await this.imageProtection.applyWatermark(generatedBuffer);
     const protectedKey = `generated/proposals/${input.demoRequestId}_${input.templateId}.jpg`;
-    await this.fileStorage.upload(protectedKey, protectedBuffer, 'image/jpeg');
+    await this.fileStorage.upload(protectedKey, protectedBuffer, 'image/jpeg', 'public, max-age=60, must-revalidate');
 
     const proposal = await this.demoRepo.saveProposal({
       demoRequestId: input.demoRequestId,
