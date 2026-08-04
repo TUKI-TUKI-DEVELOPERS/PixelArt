@@ -52,6 +52,13 @@ export abstract class DemoRepositoryPort {
   abstract findById(id: number): Promise<DemoRequestWithRelations | null>;
   abstract saveProposal(data: SaveProposalData): Promise<{ id: number }>;
   abstract deleteProposal(proposalId: number, demoRequestId: number): Promise<string>;
+  abstract hasOrder(demoRequestId: number): Promise<boolean>;
+  /** Borra la solicitud entera — cascadea sobre demo_request_assets,
+   * demo_template_selections, demo_proposals, public_links y email_outbox.
+   * No toca los archivos en storage (ni las fotos del cliente en `assets`,
+   * ni los originales/protegidas de `demo_proposals`) — a propósito, queda
+   * como limpieza aparte si alguna vez hace falta. */
+  abstract deleteRequest(demoRequestId: number): Promise<void>;
   abstract updateStatus(id: number, status: string): Promise<void>;
   abstract replaceAsset(demoRequestId: number, oldAssetId: number, newAssetId: number): Promise<void>;
 }

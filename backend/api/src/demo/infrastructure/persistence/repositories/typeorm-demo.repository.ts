@@ -173,6 +173,18 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
     return storageKey;
   }
 
+  async hasOrder(demoRequestId: number): Promise<boolean> {
+    const [row] = await this.dataSource.query(
+      `SELECT 1 FROM orders WHERE demo_request_id = $1 LIMIT 1`,
+      [demoRequestId],
+    );
+    return !!row;
+  }
+
+  async deleteRequest(demoRequestId: number): Promise<void> {
+    await this.dataSource.query(`DELETE FROM demo_request WHERE id = $1`, [demoRequestId]);
+  }
+
   async updateStatus(id: number, status: string): Promise<void> {
     await this.requestRepo.update(String(id), { status });
   }

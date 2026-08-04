@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { ConfirmModal } from "@/components/ui/Modal";
 
 const API = "";
 
@@ -45,6 +46,22 @@ export default function SolicitudesPage() {
   const [modelNames,  setModelNames]  = useState<Record<number, string>>({});
   const [loading,     setLoading]     = useState(true);
   const [filter,      setFilter]      = useState<FilterKey>("all");
+  const [deletingId,  setDeletingId]  = useState<number | null>(null);
+  const [confirmingRequest, setConfirmingRequest] = useState<DemoRequest | null>(null);
+
+  async function handleDeleteRequest(id: number) {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${API}/api/admin/demo/requests/${id}`, { method: "DELETE" });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error al borrar"); }
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      setConfirmingRequest(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error al borrar");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => {
     Promise.all([
@@ -199,7 +216,16 @@ export default function SolicitudesPage() {
                     </td>
                     <td style={{ padding: "14px 16px", fontSize: "12px", fontWeight: 600, color: age.color }}>{age.text}</td>
                     <td style={{ padding: "14px 16px" }}>
-                      <Link href={`/admin/libros-personalizados/solicitudes/${req.id}`} style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", textDecoration: "none" }}>Ver detalle</Link>
+                      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                        <Link href={`/admin/libros-personalizados/solicitudes/${req.id}`} style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", textDecoration: "none" }}>Ver detalle</Link>
+                        <button
+                          disabled={deletingId === req.id}
+                          onClick={() => setConfirmingRequest(req)}
+                          title="Borrar esta solicitud (BD) — no toca archivos en storage"
+                          style={{ border: "none", background: "none", padding: 0, fontSize: "12px", fontWeight: 600, color: "#ef4444", cursor: deletingId === req.id ? "wait" : "pointer", fontFamily: "inherit" }}>
+                          {deletingId === req.id ? "Borrando…" : "Borrar"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -238,6 +264,17 @@ export default function SolicitudesPage() {
           ))}
         </div>
       </div>
+
+      <ConfirmModal
+        open={confirmingRequest !== null}
+        title="¿Borrar esta solicitud?"
+        message={`Se borra la fila entera de "${confirmingRequest?.customerFullName ?? ""}" (fotos y propuestas incluidas de la base de datos) — no se puede deshacer. Las imágenes en storage no se tocan.`}
+        confirmLabel="Borrar"
+        danger
+        busy={deletingId !== null}
+        onConfirm={() => confirmingRequest && handleDeleteRequest(confirmingRequest.id)}
+        onCancel={() => setConfirmingRequest(null)}
+      />
     </div>
   );
 }

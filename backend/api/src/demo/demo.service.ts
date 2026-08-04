@@ -10,6 +10,7 @@ import { SendUnifiedCheckoutUseCase } from './application/use-cases/send-unified
 import { DeleteDemoProposalUseCase } from './application/use-cases/delete-demo-proposal.use-case';
 import { ReissueCheckoutLinkUseCase } from './application/use-cases/reissue-checkout-link.use-case';
 import { ReplaceDemoPhotoUseCase, ReplaceDemoPhotoInput } from './application/use-cases/replace-demo-photo.use-case';
+import { DeleteDemoRequestUseCase } from './application/use-cases/delete-demo-request.use-case';
 import { CreateDemoRequestData } from './domain/ports/demo-repository.port';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class DemoService {
     private readonly deleteProposalUseCase: DeleteDemoProposalUseCase,
     private readonly reissueCheckoutLinkUseCase: ReissueCheckoutLinkUseCase,
     private readonly replacePhotoUseCase: ReplaceDemoPhotoUseCase,
+    private readonly deleteRequestUseCase: DeleteDemoRequestUseCase,
   ) {}
 
   create(data: CreateDemoRequestData) { return this.createUseCase.execute(data); }
@@ -39,4 +41,5 @@ export class DemoService {
   deleteProposal(demoRequestId: number, proposalId: number) { return this.deleteProposalUseCase.execute(demoRequestId, proposalId); }
   reissueCheckoutLink(demoRequestId: number) { return this.reissueCheckoutLinkUseCase.execute(demoRequestId); }
   replacePhoto(input: ReplaceDemoPhotoInput) { return this.replacePhotoUseCase.execute(input); }
+  deleteRequest(demoRequestId: number) { return this.deleteRequestUseCase.execute(demoRequestId); }
 }

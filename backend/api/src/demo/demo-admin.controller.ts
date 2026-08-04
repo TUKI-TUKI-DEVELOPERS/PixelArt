@@ -132,6 +132,17 @@ export class DemoAdminController {
   }
 
   /**
+   * DELETE /api/admin/demo/requests/:id
+   * Borra la solicitud entera (para limpiar la tabla del admin — jodas, spam,
+   * lo que sea). Rechaza si ya generó una orden. No borra los archivos del
+   * cliente ni de las propuestas en storage — solo las filas de la BD.
+   */
+  @Delete('requests/:id')
+  deleteRequest(@Param('id') id: string) {
+    return this.demoService.deleteRequest(Number(id));
+  }
+
+  /**
    * POST /api/admin/demo/requests/:id/reissue-checkout
    * Revoca el link anterior y genera uno nuevo con TTL 7 días
    */
