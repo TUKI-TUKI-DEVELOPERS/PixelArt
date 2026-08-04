@@ -13,7 +13,7 @@ type Proposal = {
 const PAGE_W = 360;
 const PAGE_H = 360;
 
-export default function ProposalBook({ proposals }: { proposals: Proposal[] }) {
+export default function ProposalBook({ proposals, onZoom }: { proposals: Proposal[]; onZoom?: (url: string) => void }) {
   const bookRef = useRef<HTMLDivElement>(null);
   const pfRef = useRef<PageFlip | null>(null);
   const [currentSpread, setCurrentSpread] = useState(0);
@@ -168,6 +168,24 @@ export default function ProposalBook({ proposals }: { proposals: Proposal[] }) {
                       }}>
                         {proposal.protectionMode === "WATERMARK" ? "Marca de agua" : "Baja calidad"}
                       </div>
+                    )}
+
+                    {/* Zoom trigger — bottom right of right page */}
+                    {side === "right" && onZoom && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onZoom(proposal.imageUrl); }}
+                        title="Ver en grande"
+                        style={{
+                          position: "absolute", bottom: "8px", right: "8px", zIndex: 5,
+                          width: "30px", height: "30px", borderRadius: "50%", border: "none",
+                          background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+                          color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                          pointerEvents: "auto",
+                        }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                          <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                        </svg>
+                      </button>
                     )}
 
                     {/* Proposal number badge — top left of left page */}

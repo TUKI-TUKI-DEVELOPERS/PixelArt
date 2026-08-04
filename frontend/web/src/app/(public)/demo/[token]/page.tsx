@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const API = "";
 
@@ -23,10 +24,12 @@ type DemoView = {
 export default function DemoViewPage() {
   const params = useParams();
   const token = params.token as string;
+  const { isMobile } = useWindowSize();
   const [data, setData] = useState<DemoView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API}/api/demo/view/${token}`)
@@ -92,14 +95,12 @@ export default function DemoViewPage() {
 
       {/* Main content */}
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 24px 60px" }}>
-        {/* Proposals grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: data.proposals.length === 1 ? "minmax(0, 500px)" : data.proposals.length === 2 ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
-          gap: "24px",
-          justifyContent: "center",
-          marginBottom: "40px",
-        }}>
+        {/* Proposals — fila fija en desktop, carrusel deslizable en mobile */}
+        <div style={
+          isMobile
+            ? { display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", gap: "16px", padding: "4px 24px 16px", margin: "0 -24px", marginBottom: "24px", WebkitOverflowScrolling: "touch" }
+            : { display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "24px", marginBottom: "40px" }
+        }>
           {data.proposals.map((p, i) => {
             const isSelected = selected === p.templateId;
             return (
@@ -117,6 +118,9 @@ export default function DemoViewPage() {
                   boxShadow: isSelected
                     ? "0 20px 40px -10px rgba(0,0,0,0.15)"
                     : "0 4px 12px rgba(0,0,0,0.04)",
+                  ...(isMobile
+                    ? { flex: "0 0 82%", scrollSnapAlign: "center" }
+                    : { flex: "0 1 320px", maxWidth: "340px" }),
                 }}
               >
                 {/* Proposal image (admin-generated) */}
@@ -135,6 +139,20 @@ export default function DemoViewPage() {
                   }}>
                     Propuesta {i + 1}
                   </div>
+                  {/* Zoom trigger */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setZoomedImage(p.imageUrl); }}
+                    title="Ver en grande"
+                    style={{
+                      position: "absolute", bottom: "12px", right: "12px",
+                      width: "34px", height: "34px", borderRadius: "50%", border: "none",
+                      background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
+                      color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                  </button>
                 </div>
 
                 {/* Template reference + info */}
@@ -250,6 +268,18 @@ export default function DemoViewPage() {
           </p>
         </div>
       </div>
+
+      {/* Lightbox: ver imagen completa */}
+      {zoomedImage && (
+        <div onClick={() => setZoomedImage(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: "40px" }}>
+          <img src={zoomedImage} alt="Vista completa" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "8px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} />
+          <button onClick={() => setZoomedImage(null)}
+            style={{ position: "absolute", top: "20px", right: "20px", width: "40px", height: "40px", borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

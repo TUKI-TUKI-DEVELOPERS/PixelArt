@@ -96,6 +96,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedTotal, setSubmittedTotal] = useState(0);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -203,6 +204,19 @@ export default function CheckoutPage() {
                   <div style={{ position: "absolute", top: "6px", right: "6px", background: "rgba(0,0,0,0.5)", borderRadius: "6px", padding: "2px 7px", fontSize: "10px", color: "#fff" }}>
                     {p.protectionMode === "WATERMARK" ? "Marca de agua" : "Baja calidad"}
                   </div>
+                  <button
+                    onClick={() => setZoomedImage(p.imageUrl)}
+                    title="Ver en grande"
+                    style={{
+                      position: "absolute", bottom: "6px", right: "6px",
+                      width: "26px", height: "26px", borderRadius: "50%", border: "none",
+                      background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)",
+                      color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                  </button>
                 </div>
                 <div style={{ padding: "8px 10px", fontSize: "12px", fontWeight: 500, color: "#374151" }}>
                   {p.templateName ?? `Propuesta ${i + 1}`}
@@ -212,7 +226,7 @@ export default function CheckoutPage() {
           </div>
         ) : (
           /* Desktop: efecto de libro igual que en el wizard */
-          <ProposalBook proposals={data.proposals} />
+          <ProposalBook proposals={data.proposals} onZoom={setZoomedImage} />
         )}
       </section>
 
@@ -464,6 +478,17 @@ export default function CheckoutPage() {
         </button>
       </div>
 
+      {/* Lightbox: ver imagen completa */}
+      {zoomedImage && (
+        <div onClick={() => setZoomedImage(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: "40px" }}>
+          <img src={zoomedImage} alt="Vista completa" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "8px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }} />
+          <button onClick={() => setZoomedImage(null)}
+            style={{ position: "absolute", top: "20px", right: "20px", width: "40px", height: "40px", borderRadius: "50%", border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
