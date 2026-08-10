@@ -38,7 +38,6 @@ type CharacterMeta =
   | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
   | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
   | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
-  | { mode: "memorial-familia"; recipient: CharacterMember & { nickname?: string | null; gender?: string }; familyPhotos: number[] }
   | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
@@ -249,9 +248,6 @@ export default function SolicitudDetallePage() {
         ...meta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1} — ${s.name || ""}`, roleKey: `livingSiblings[${i}]`, ids: s.assetIds ?? [] })),
       ];
     }
-    if ("recipient" in meta && meta.mode === "memorial-familia") {
-      return [{ label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] }];
-    }
     if ("recipient" in meta) {
       return [
         { label: meta.recipient.nickname ? `"${meta.recipient.nickname}"` : meta.recipient.name || "Protagonista", roleKey: "recipient", ids: meta.recipient.assetIds ?? [] },
@@ -425,7 +421,7 @@ export default function SolicitudDetallePage() {
                 ))}
               </div>
             )}
-            {/* Modos simples: amor / mascotas / familia / memorial básico / memorial-familia */}
+            {/* Modos simples: amor / mascotas / familia / memorial básico */}
             {"recipient" in data.characterMeta && data.characterMeta.mode !== "memorial-hermanos" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
                 <div style={{ background: "#f9fafb", borderRadius: "10px", padding: "12px 14px", border: "1px solid #f0f0f0" }}>
@@ -510,11 +506,6 @@ export default function SolicitudDetallePage() {
           groups = [
             { label: `Fallecido/a — ${meta.recipient.name || ""}`, ids: meta.recipient.assetIds ?? [] },
             ...meta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1} — ${s.name || ""}`, ids: s.assetIds ?? [] })),
-          ];
-        } else if (meta && "recipient" in meta && meta.mode === "memorial-familia") {
-          groups = [
-            { label: `Fallecido/a — ${meta.recipient.name || ""}`, ids: meta.recipient.assetIds ?? [] },
-            ...(meta.familyPhotos?.length ? [{ label: "Fotos familiares", ids: meta.familyPhotos }] : []),
           ];
         } else if (meta && "recipient" in meta) {
           groups = [

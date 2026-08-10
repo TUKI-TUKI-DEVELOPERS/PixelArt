@@ -1,0 +1,503 @@
+BEGIN;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss1sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad pura y la certeza de haber sido el mejor equipo del mundo.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos, vestidos con ropa casual aventurera en tonos azul y naranja, saltando dinámicamente en el aire al mismo tiempo, chocando los cinco con expresiones de extrema diversión. Sobre ellos flota una estrella dorada gigante brillante que acaban de alcanzar.$ss1sv$,
+  poem_template = $ss1pm$Saltando en un mundo de magia brillante,
+{NOMBRE_DESTINATARIO}, tú siempre vas adelante.
+Un dúo invencible de gran corazón,
+ganando niveles con mucha pasión.
+
+Tus hermanos te siguen con salto veloz,
+chocando las manos, riendo los dos.
+Mi dulce {APODO_DESTINATARIO}, mi socio ideal,
+jugando a tu lado no existe un rival.
+
+La meta alcanzamos en este gran juego,
+tu luz me ilumina, tu amor es mi fuego.
+El mejor equipo que el mundo ha tenido,
+por siempre en mi alma te llevo prendido.$ss1pm$,
+  background_details = $ss1bg$Paisaje fantástico con colinas onduladas y pequeñas islas de piedra flotando en el aire. Luz de día soleado, vibrante y saturada.$ss1bg$,
+  magic_effects = $ss1fx$Destellos dorados cayendo de la estrella central. Partículas de luz muy sutiles en el aire. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$ss1fx$,
+  lighting_color = $ss1lc$Luz de día soleado y saturada, con azules vibrantes, naranjas cálidos y el destello dorado de la estrella.$ss1lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1718;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss2sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad pícara y la magia entrañable de las travesuras compartidas.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos, vestidos con capas ligeras de exploradores mágicos. Están agachados detrás de una gran estantería de madera tallada, sosteniendo juntos un pergamino antiguo desplegado que brilla con tinta mágica dorada. Todos sostienen pequeñas varitas de madera y se miran con una sonrisa pícara y cómplice, riendo en silencio por una travesura.$ss2sv$,
+  poem_template = $ss2pm$Un mapa secreto y varitas de luz,
+mi gran compañero de juegos eres tú.
+Cuidando pasillos de un viejo castillo,
+haciendo las bromas con mucho nudillo.
+
+Tus hermanos sonríen tramando un buen plan,
+sabiendo que juntos muy lejos irán.
+Mi buen {APODO_DESTINATARIO}, de mente curiosa,
+hiciste mi vida feliz y asombrosa.
+
+La magia no acaba, la broma se queda,
+tu risa me envuelve como una gran seda.
+Cómplices fieles de historia genial,
+tu chispa traviesa es un don inmortal.$ss2pm$,
+  background_details = $ss2bg$Una acogedora biblioteca familiar repleta de libros antiguos, con una escalera de madera y luz cálida de lámparas de mesa.$ss2bg$,
+  magic_effects = $ss2fx$Huellas brillantes moviéndose por el papel del mapa. Pequeñas chispas doradas saltando de las varitas. La magia debe sentirse traviesa y completamente integrada dentro de una fotografía realista.$ss2fx$,
+  lighting_color = $ss2lc$Marrones cálidos de madera, dorado suave y el brillo cálido del mapa mágico.$ss2lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1719;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss3sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ingenio compartido y la certeza de que juntos podían construir cualquier locura.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos en el patio trasero de una casa. {NOMBRE_DESTINATARIO} sostiene un plano azul holográfico brillante en el aire con actitud de inventor genial. Tus hermanos están a su lado sosteniendo herramientas, todos admirando una gigantesca e imposible montaña rusa futurista que acaban de construir, elevándose hacia las nubes.$ss3sv$,
+  poem_template = $ss3pm$Con planos al aire y un gran inventor,
+{NOMBRE_DESTINATARIO}, llenaste mis días de color.
+Creando locuras de hierro y de luz,
+el genio de todas mis tardes eres tú.
+
+Tus hermanos sostienen la llave de tuercas,
+rompiendo los límites, saltando las cercas.
+Mi gran {APODO_DESTINATARIO}, con mente brillante,
+hiciste la vida veloz y vibrante.
+
+La nave despega, el viaje no para,
+tu risa divina es mi joya más rara.
+Nuestras grandes locuras ya son la verdad,
+volando a tu lado en la eternidad.$ss3pm$,
+  background_details = $ss3bg$Patio trasero verde con valla de madera bajo un cielo azul vibrante de verano. Estructura con detalles metálicos brillantes.$ss3bg$,
+  magic_effects = $ss3fx$El plano es transparente y emite luz propia. Chispas sutiles cayendo de la estructura. La magia debe sentirse inventiva y completamente integrada dentro de una fotografía realista.$ss3fx$,
+  lighting_color = $ss3lc$Verde hierba, azul cielo, plata metálica y neón cian del plano.$ss3lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1720;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss4sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite astucia compartida y la certeza de que ningún misterio se les resistía juntos.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos, vestidos como elegantes detectives (gabardinas largas, bufandas a cuadros). Agachados en una calle empedrada; {NOMBRE_DESTINATARIO} examina el suelo con una gran lupa de borde dorado, mientras tus hermanos alumbran la zona con una linterna antigua. En el suelo hay huellas brillantes y mágicas.$ss4sv$,
+  poem_template = $ss4pm$Con lupa en la mano y abrigos de espía,
+{NOMBRE_DESTINATARIO}, a tu lado el misterio caía.
+Buscando las huellas en la oscuridad,
+ganando a las sombras con gran hermandad.
+
+Tus hermanos alumbran con linterna de plata,
+hallando el secreto que el miedo desata.
+Mi astuto {APODO_DESTINATARIO}, de mente tan clara,
+tú hacías posible la cosa más rara.
+
+No quedan secretos ni enigmas sin luz,
+mi gran detective por siempre eres tú.
+Un dúo brillante de historia sin fin,
+cuidando mi vida cual fiel paladín.$ss4pm$,
+  background_details = $ss4bg$Calle adoquinada antigua cubierta por espesa niebla. Faroles de gas emitiendo luz amarilla cálida.$ss4bg$,
+  magic_effects = $ss4fx$Las huellas en el suelo brillan como polvo de estrellas. El cristal de la lupa atrapa y magnifica esa luz. La magia debe sentirse misteriosa y completamente integrada dentro de una fotografía realista.$ss4fx$,
+  lighting_color = $ss4lc$Grises azulados, amarillos cálidos y dorado brillante de las huellas.$ss4lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1721;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss5sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite pura libertad y la emoción de volar juntos más allá de todo límite.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} viste un casco espacial retro transparente con luces y alas desplegadas. Tus hermanos llevan trajes de piloto retro con gafas de aviador. Todos están literalmente flotando sin gravedad en medio de una habitación infantil, tomados de la mano y apuntando hacia adelante, con expresiones de emoción épica.$ss5sv$,
+  poem_template = $ss5pm$Un casco del cosmos, sombrero vaquero,
+{NOMBRE_DESTINATARIO}, tú eres mi guía lucero.
+Volando en un cuarto que se hace galaxia,
+rompiendo los miedos con pura constancia.
+
+Tus hermanos despegan tomando tu mano,
+volando a lo alto del cielo lejano.
+Mi fiel {APODO_DESTINATARIO}, de alma gigante,
+jugar a tu lado es un viaje constante.
+
+Ya no hay gravedad que nos pueda frenar,
+tus alas de luz siempre van a brillar.
+Al cielo infinito y un paso más allá,
+tu abrazo de hermano por siempre estará.$ss5pm$,
+  background_details = $ss5bg$Habitación de juegos transformándose en el espacio exterior. Las paredes se desvanecen mostrando un universo estrellado. Cajas de cartón parecen naves.$ss5bg$,
+  magic_effects = $ss5fx$Estelas de propulsión luminosa saliendo de los trajes. Juguetes flotando sin gravedad. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$ss5fx$,
+  lighting_color = $ss5lc$Púrpuras y azules espaciales, con colores cálidos de los trajes.$ss5lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1722;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss6sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite confianza absoluta y la adrenalina de surcar el espacio codo a codo.
+
+Sujetos Principales
+En la cabina de una nave espacial hiperrealista y detallada, {NOMBRE_DESTINATARIO} y tus hermanos están sentados juntos en los controles. Todos jalan juntos una gran palanca central para saltar al hiperespacio. Miran al frente con una sonrisa de confianza y adrenalina pura.$ss6sv$,
+  poem_template = $ss6pm$A bordo de un viaje que cruza la estrella,
+{NOMBRE_DESTINATARIO}, tu ruta es la luz más bella.
+Jalando palancas de nuestra gran nave,
+surcando los cielos con paso muy suave.
+
+Tus hermanos a tu lado preparan el motor,
+con toda la fuerza, con todo el valor.
+Mi gran {APODO_DESTINATARIO}, mi fiel copiloto,
+venciendo galaxias en cada alboroto.
+
+La nave acelera, dejamos el suelo,
+rompiendo barreras, alzando el gran vuelo.
+Contigo en la nave no existe el temor,
+viajando por siempre impulsados de amor.$ss6pm$,
+  background_details = $ss6bg$Interior de la cabina iluminado por los botones del panel de control. A través de la ventana frontal, el espacio oscuro se deforma: las estrellas se están convirtiendo en largas líneas de luz brillante.$ss6bg$,
+  magic_effects = $ss6fx$El efecto de túnel de luz estelar reflejándose en los rostros de todos. La magia debe sentirse vertiginosa y completamente integrada dentro de una fotografía realista.$ss6fx$,
+  lighting_color = $ss6lc$Negros cósmicos, luces azules, cian y neón blanco de las estrellas.$ss6lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1723;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss7sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite lealtad absoluta y la fuerza inquebrantable de llegar juntos hasta el final.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos escalando una montaña épica y escarpada. Están exhaustos y sucios, vistiendo rústicas capas de viajero. {NOMBRE_DESTINATARIO} apoya firmemente a tus hermanos, dándoles la mano para subir el último gran escalón de piedra. Sus miradas muestran lealtad absoluta.$ss7sv$,
+  poem_template = $ss7pm$Subiendo montañas de fuego y ceniza,
+{NOMBRE_DESTINATARIO}, tu fuerza mi alma suaviza.
+Cargando los miedos, venciendo el dolor,
+guiados por siempre de un gran resplandor.
+
+Tus hermanos caminan sintiendo el cansancio,
+pero a tu lado yo gano el espacio.
+Mi fiel {APODO_DESTINATARIO}, mi noble guerrero,
+cruzaste conmigo el más duro sendero.
+
+Si yo ya no puedo seguir caminando,
+tú cargas mi peso, mi ser abrazando.
+Llegamos al fin de la tierra profunda,
+con una hermandad que en mi pecho se inunda.$ss7pm$,
+  background_details = $ss7bg$Paisaje volcánico oscuro y dramático, pero en el horizonte se abre un cielo amaneciendo con una luz dorada pura y sanadora.$ss7bg$,
+  magic_effects = $ss7fx$Un pequeño frasco en la mano de uno de ellos emite una luz estelar mágica que ilumina sus rostros en la oscuridad. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$ss7fx$,
+  lighting_color = $ss7lc$Grises oscuros de la roca, naranjas ardientes y el destello dorado de la esperanza en el cielo.$ss7lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1724;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss8sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro científico y la certeza de que el tiempo se detenía a su lado.
+
+Sujetos Principales
+Frente a un auto deportivo retro plateado que está levitando a unos centímetros del suelo, {NOMBRE_DESTINATARIO}, con bata de científico o chaleco vintage, y tus hermanos están de pie frente al auto, mirando relojes de pulsera o sosteniendo un control remoto antiguo. Atrás del auto hay dos estelas de fuego brillante en el asfalto.$ss8sv$,
+  poem_template = $ss8pm$Dejando dos huellas de fuego brillante,
+{NOMBRE_DESTINATARIO}, tu mente es un faro gigante.
+Subidos al auto que cruza la historia,
+buscando momentos de luz y victoria.
+
+Tus hermanos se asombran mirando el reloj,
+saltando los años con una gran voz.
+Mi buen {APODO_DESTINATARIO}, viajero genial,
+tu ciencia divina nos hizo inmortal.
+
+No importa el futuro, no importa el ayer,
+contigo el camino es hermoso de ver.
+El tiempo se frena, se rinde a tus pies,
+viviendo recuerdos con gran nitidez.$ss8pm$,
+  background_details = $ss8bg$El estacionamiento de un centro comercial retro por la noche. Atmósfera eléctrica, luces de neón ochentosas.$ss8bg$,
+  magic_effects = $ss8fx$Relámpagos de energía temporal rodeando el contorno del auto flotante. Fuego mágico en las llantas. La magia debe sentirse futurista y completamente integrada dentro de una fotografía realista.$ss8fx$,
+  lighting_color = $ss8lc$Asfalto oscuro, fuego naranja intenso, luces de neón azules y púrpuras, y destellos eléctricos blancos.$ss8lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1725;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss9sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite libertad absoluta y la magia de volar sin miedo alguno.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos, vestidos con ropa cómoda de dormir o ropa casual ligera, volando mágicamente sobre los tejados de una ciudad antigua. Están tomados de la mano, con expresiones de libertad, asombro y felicidad absoluta.$ss9sv$,
+  poem_template = $ss9pm$Cubiertos de polvo de hadas y luz,
+mi eterno niño perdido eres tú.
+{NOMBRE_DESTINATARIO}, cruzamos el cielo estrellado,
+dejando los miedos de todo el pasado.
+
+Tus hermanos a tu lado se niegan a crecer,
+mirando las nubes a un nuevo amanecer.
+Mi dulce {APODO_DESTINATARIO}, volando sin fin,
+hiciste mi vida un hermoso jardín.
+
+Las sombras piratas no pueden vencer,
+si vamos unidos, tenemos poder.
+En Nunca Jamás nuestro lazo se sella,
+siguiendo la luz de la segunda estrella.$ss9pm$,
+  background_details = $ss9bg$Una ciudad antigua vista desde arriba en una noche despejada. Una luna llena gigantesca y brillante domina el cielo nocturno.$ss9bg$,
+  magic_effects = $ss9fx$Estelas de polvo dorado brillante rodeando sus cuerpos y dejando un rastro en el aire mientras vuelan. La magia debe sentirse libre y completamente integrada dentro de una fotografía realista.$ss9fx$,
+  lighting_color = $ss9lc$Azules medianoche profundos, plata lunar y el dorado resplandeciente del polvo mágico.$ss9lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1726;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss10sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite vigilancia mutua y la certeza de que juntos nada podía dañarlos.
+
+Sujetos Principales
+Ligeramente descentrados, {NOMBRE_DESTINATARIO} y tus hermanos, vestidos con trajes elegantes de aventureros nocturnos, capas cortas ondeando suavemente al viento, sin máscaras que oculten sus rostros. Están de pie juntos en la terraza de un edificio, mirando la ciudad iluminada, protegiéndose la espalda mutuamente con confianza.$ss10sv$,
+  poem_template = $ss10pm$Mirando la urbe desde un gran balcón,
+{NOMBRE_DESTINATARIO}, tú eres mi gran protector.
+Con capas oscuras al viento ondeando,
+cuidando la noche, los miedos borrando.
+
+Tus hermanos vigilan la sombra a tu lado,
+un grupo de héroes de pacto sellado.
+Mi fiel {APODO_DESTINATARIO}, murciélago audaz,
+tu sombra en la noche me llena de paz.
+
+Si suena la alarma de gran tempestad,
+juntamos las fuerzas de la hermandad.
+No existen villanos que puedan dañar,
+si somos unidos, listos para saltar.$ss10pm$,
+  background_details = $ss10bg$Una ciudad iluminada de noche, vista serena desde la altura. Nubes suaves iluminadas por la luna llena.$ss10bg$,
+  magic_effects = $ss10fx$Las capas tienen un movimiento dramático casi sobrenatural en el viento. Iluminación cinematográfica heroica en sus rostros. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$ss10fx$,
+  lighting_color = $ss10lc$Azul noche suave, dorado cálido de las luces de la ciudad y la luz plateada de la luna entre las nubes.$ss10lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1727;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss11sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite poder conjunto y la certeza de que juntos podían con todo.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, de pie, espalda con espalda, en una pose triunfal y segura. {NOMBRE_DESTINATARIO} sostiene un gran escudo dorado brillante y tus hermanos tienen las manos abiertas con un suave resplandor de energía dorada. Todos sonríen con confianza, envueltos en un halo de luz protectora.$ss11sv$,
+  poem_template = $ss11pm$Con furia de truenos y escudo en la mano,
+{NOMBRE_DESTINATARIO}, tu paso es de un titán lejano.
+Espalda con espalda, en gran posición,
+venciendo a los monstruos de cada ilusión.
+
+Tus hermanos disparan su rayo de luz,
+sabiendo que el héroe más fuerte eres tú.
+Mi fiel {APODO_DESTINATARIO}, guardián de valor,
+luchamos unidos con mucho honor.
+
+El mundo se salva si estamos los dos,
+nuestra fortaleza se escucha en la voz.
+Vengadores justos de un pacto triunfal,
+unidos por siempre en poder celestial.$ss11pm$,
+  background_details = $ss11bg$Una ciudad bañada por la hermosa luz dorada del amanecer. Nubes suaves iluminadas en el cielo.$ss11bg$,
+  magic_effects = $ss11fx$Un suave resplandor dorado emana de sus manos y del escudo, iluminando el entorno con chispas cinematográficas. La magia debe sentirse triunfal y completamente integrada dentro de una fotografía realista.$ss11fx$,
+  lighting_color = $ss11lc$Naranjas y dorados de victoria, contrastando con el cian de sus poderes.$ss11lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1728;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss12sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad divertida y la certeza de que ningún miedo podía con ellos.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, vestidos con trajes de exploradores nocturnos y linternas mágicas que emiten un haz de luz dorada. Todos sostienen sus linternas apuntando hacia una sombra fantasmagórica verde, translúcida y de aspecto divertido (no aterradora), que queda atrapada en la luz.$ss12sv$,
+  poem_template = $ss12pm$Mochilas extrañas que lanzan un rayo,
+{NOMBRE_DESTINATARIO}, a tu lado yo nunca desmayo.
+Si un miedo aparece en la oscuridad,
+cazamos el susto con gran agilidad.
+
+Tus hermanos encienden la trampa al pasar,
+y el monstruo asustado no puede escapar.
+Mi buen {APODO_DESTINATARIO}, de mente genial,
+hacías que el miedo tuviera final.
+
+No importa qué sombra se quiera asomar,
+cruzamos los rayos y empieza a brillar.
+Los dos atrapamos la pena y el llanto,
+llenando la vida de risa y encanto.$ss12pm$,
+  background_details = $ss12bg$Una biblioteca antigua y desordenada o un ático oscuro, con libros flotando en el aire.$ss12bg$,
+  magic_effects = $ss12fx$Los haces de luz de las linternas crujen con chispas mágicas. El fantasma es luz translúcida y brillante. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$ss12fx$,
+  lighting_color = $ss12lc$Marrones y negros ambientales rotos por el resplandor verde suave del fantasma y la luz dorada de las linternas.$ss12lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1729;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss13sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite equilibrio perfecto entre dos opuestos que se complementan.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, de pie, frente a frente, chocando las palmas en alto. {NOMBRE_DESTINATARIO} emite un aura de luz solar dorada y fuego cálido, mientras tus hermanos emiten un aura de luz lunar plateada y hielo cristalino. Justo donde sus manos chocan, se crea una explosión mágica de equilibrio formando un símbolo sutil del Yin Yang con luces y partículas.$ss13sv$,
+  poem_template = $ss13pm$Tú eres el sol de luz dorada y fuerte,
+{NOMBRE_DESTINATARIO}, mi luna brillante y mi suerte.
+El fuego que abraza, el hielo que sana,
+la mezcla perfecta de cada mañana.
+
+Tus hermanos te toman la mano al volar,
+creando un eclipse de luz sin igual.
+Mi dulce {APODO_DESTINATARIO}, distinto y afín,
+nuestro equilibrio no tiene un gran fin.
+
+Contrarios perfectos, unidos los dos,
+nuestra diferencia es magia y es voz.
+El yin y el yang en un solo corazón,
+hermanos eternos de gran conexión.$ss13pm$,
+  background_details = $ss13bg$Un paisaje celestial partido a la mitad: una mitad es un amanecer cálido dorado y la otra es una noche estrellada brillante.$ss13bg$,
+  magic_effects = $ss13fx$Aura de fuego en uno, aura de nieve/cristales en el otro. El impacto de sus manos crea una onda expansiva de polvo cósmico. La magia debe sentirse equilibrada y completamente integrada dentro de una fotografía realista.$ss13fx$,
+  lighting_color = $ss13lc$Contraste fuerte y hermoso entre naranjas/rojos ardientes y azules/plata glaciales.$ss13lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1730;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss14sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta y la certeza de que su compañía siempre fue un refugio seguro.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, sentados cómodamente en la arena de una playa tropical en la noche. Uno de ellos toca un ukelele mientras los demás escuchan sonrientes y relajados. Junto a ellos, un antiguo tocadiscos portátil y tablas de surf clavadas en la arena.$ss14sv$,
+  poem_template = $ss14pm$La isla tranquila, la arena y el mar,
+{NOMBRE_DESTINATARIO}, a tu lado es un bello lugar.
+Sentados de noche mirando la ola,
+sabiendo que el alma jamás está sola.
+
+Tus hermanos escuchan la vieja canción,
+tocando el ukelele de nuestro rincón.
+Mi dulce {APODO_DESTINATARIO}, ohana de luz,
+el centro de mi universo eres tú.
+
+Si el mundo es ruidoso y hay tempestad,
+yo encuentro la calma en tu gran amistad.
+Mi casa en la playa, mi techo, mi abrigo,
+mi eterno refugio, mi hermano y amigo.$ss14pm$,
+  background_details = $ss14bg$Una playa nocturna. Olas suaves rompiendo en la orilla. Un cielo inmenso y cristalino lleno de estrellas y la Vía Láctea brillando.$ss14bg$,
+  magic_effects = $ss14fx$Estrellas fugaces cruzando el cielo. El ambiente destila paz mágica y conexión emocional pura.$ss14fx$,
+  lighting_color = $ss14lc$Azul medianoche, púrpuras cósmicos, el blanco de la espuma del mar y un fuego de fogata suave iluminándolos.$ss14lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1731;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss15sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad juguetona y la certeza de que hasta las peleas terminaban en risas.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, vestidos con armaduras mitológicas épicas pero modernas. Están chocando lúdicamente sus armas (un mazo dorado brillante y una vara mágica azul), pero en lugar de pelear con furia, todos se están riendo a carcajadas. El choque de sus armas no causa destrucción, sino que genera chispas de luz como fuegos artificiales.$ss15sv$,
+  poem_template = $ss15pm$Peleando y riendo en un gran festival,
+{NOMBRE_DESTINATARIO}, tú eres mi eterno rival.
+Chocando las armas de trueno y de magia,
+nuestra competencia la pena presagia.
+
+Tus hermanos atacan con un gran hechizo,
+y tú te defiendes pisando el granizo.
+Mi fuerte {APODO_DESTINATARIO}, de mente veloz,
+pelearnos un rato es la gracia de Dios.
+
+Al fin de la lucha soltamos la espada,
+la risa termina la fiera cruzada.
+Rivales de broma, hermanos de piel,
+con un lazo mágico, puro y muy fiel.$ss15pm$,
+  background_details = $ss15bg$Una arena de gladiadores mítica o un puente celestial. Luz épica y brillante.$ss15bg$,
+  magic_effects = $ss15fx$Chispas mágicas cayendo de las armas chocadas como si fuera confeti brillante. Relámpagos juguetones. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$ss15fx$,
+  lighting_color = $ss15lc$Rojo poderoso, dorado, azul místico y destellos de relámpagos blancos.$ss15lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1732;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss16sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite despreocupación total y la alegría de cantar sin miedo a los problemas.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, caminando despreocupadamente sobre un gigantesco tronco de árbol caído que sirve como puente sobre un río o cascada. Todos tienen la cabeza levantada hacia el cielo, cantando a todo pulmón con expresiones de felicidad absoluta.$ss16sv$,
+  poem_template = $ss16pm$Caminando juntos por un gran sendero,
+{NOMBRE_DESTINATARIO}, tu paso es de un gran compañero.
+Sin penas, sin miedos y sin precaución,
+los dos a la vez y en la misma canción.
+
+Tus hermanos te siguen cruzando la selva,
+dejando que el ritmo en el aire se envuelva.
+Mi alegre {APODO_DESTINATARIO}, cantando sin par,
+hiciste mi mundo un hermoso lugar.
+
+Problemas se olvidan si alzamos la voz,
+la vida es perfecta si estamos los dos.
+Cantando a la luna, al sol y al mar,
+nuestro coro eterno jamás va a parar.$ss16pm$,
+  background_details = $ss16bg$Una selva tropical vibrante y luminosa. Detrás de ellos cae una cascada cristalina. El sol brillante de la tarde se filtra por las hojas.$ss16bg$,
+  magic_effects = $ss16fx$Notas musicales doradas sutiles flotando en el aire alrededor de sus bocas. Mariposas mágicas revoloteando. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$ss16fx$,
+  lighting_color = $ss16lc$Verdes exuberantes, turquesa del agua y dorado del sol de la tarde.$ss16lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1733;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss17sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro puro ante la magia invernal compartida.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO}, en un paisaje nevado, con los brazos extendidos creando formas mágicas de cristal de hielo en el aire (una pequeña escultura de hielo brillante). Tus hermanos lo observan maravillados con las manos en las mejillas, abrigados con ropa de invierno elegante. Todos sonríen llenos de asombro.$ss17sv$,
+  poem_template = $ss17pm$Construyendo un castillo de hielo brillante,
+{NOMBRE_DESTINATARIO}, tu magia es tan deslumbrante.
+Lanzando cristales que bailan al sol,
+tú pintas de nieve mi buen arrebol.
+
+Tus hermanos te miran hacer un muñeco,
+sintiendo el invierno como un dulce eco.
+Mi frío {APODO_DESTINATARIO}, de gran corazón,
+hiciste del hielo una tibia canción.
+
+No importa si el frío castiga la tierra,
+tu abrazo de hermano la escarcha destierra.
+Un reino nevado de luz sin igual,
+donde nuestra magia se vuelve inmortal.$ss17pm$,
+  background_details = $ss17bg$Un bosque de pinos cubiertos de nieve virgen y un lago congelado. El cielo es de un azul gélido con auroras boreales sutiles al fondo.$ss17bg$,
+  magic_effects = $ss17fx$La magia de hielo en las manos de {NOMBRE_DESTINATARIO} brilla como diamantes bajo la luz de la luna. Polvo de nieve destellando. La magia debe sentirse deslumbrante y completamente integrada dentro de una fotografía realista.$ss17fx$,
+  lighting_color = $ss17lc$Cian puro, blanco nieve, plata y tonos magenta/violeta de la aurora.$ss17lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1734;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss18sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor compartido incluso frente a lo que debería dar miedo.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, cruzando un puente colgante viejo de madera que parece estar a punto de romperse, sobre un río de lava brillante. En lugar de estar aterrorizados, {NOMBRE_DESTINATARIO} está haciendo un chiste o una mueca cómica, y tus hermanos se están riendo a carcajadas agarrándose el estómago, ignorando completamente el "peligro".$ss18sv$,
+  poem_template = $ss18pm$Cruzando un puente sobre fuego y lava,
+{NOMBRE_DESTINATARIO}, a tu lado mi risa no acaba.
+Mirando el peligro con gran diversión,
+sin gota de miedo en el corazón.
+
+Tus hermanos caminan sin ver hacia abajo,
+sabiendo que juntos no existe un atajo.
+Mi loco {APODO_DESTINATARIO}, bromista sin fin,
+hiciste del riesgo un hermoso festín.
+
+Un ogro gigante o un puente que cae,
+tu chiste oportuno la calma nos trae.
+Nos reímos del miedo, del mal y del susto,
+vivir a tu lado fue siempre muy justo.$ss18pm$,
+  background_details = $ss18bg$El interior de un volcán o una fortaleza oscura, iluminada dramáticamente desde abajo por el resplandor de la lava.$ss18bg$,
+  magic_effects = $ss18fx$Chispas de lava saltando como fuegos artificiales cómicos. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$ss18fx$,
+  lighting_color = $ss18lc$Sombras oscuras, piedra negra y la luz roja/naranja vibrante y ardiente desde abajo.$ss18lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1735;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss19sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite un lazo que ni la distancia ni el tiempo pueden romper.
+
+Sujetos Principales
+{NOMBRE_DESTINATARIO} y tus hermanos, caminando sobre el cielo. Cada uno camina sobre un sendero de luz sólida (dorado cálido o azul plateado). Los senderos se entrelazan de forma hermosa formando repetidamente un símbolo del infinito gigante detrás de ellos. Todos caminan en paralelo, mirándose y sonriéndose con profundo amor de hermanos.$ss19sv$,
+  poem_template = $ss19pm$Dos cintas de luz en el cielo bordadas,
+{NOMBRE_DESTINATARIO}, dos almas de forma abrazadas.
+Viajando en la vida por rutas de estrellas,
+dejando por siempre las más grandes huellas.
+
+Tus hermanos te miran en su propio sendero,
+sabiendo que tú eres su faro primero.
+Mi dulce {APODO_DESTINATARIO}, de lazo sin fin,
+formamos un ocho brillante al confín.
+
+Por más que la vida decida apartarnos,
+la luz del destino vuelve a enredarnos.
+Senderos paralelos de un mismo fluir,
+juntos nacimos y juntos vivir.$ss19pm$,
+  background_details = $ss19bg$Un espacio onírico de nubes crepusculares.$ss19bg$,
+  magic_effects = $ss19fx$Los senderos de luz desprenden polvo de estrellas. El símbolo de infinito gigante brilla en el fondo. La magia debe sentirse conceptual y completamente integrada dentro de una fotografía realista.$ss19fx$,
+  lighting_color = $ss19lc$Púrpuras suaves, índigos, y la luz radiante contrastante (oro y plata) de los dos caminos entrelazados.$ss19lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1736;
+
+UPDATE personalized_templates SET
+  scene_visual = $ss20sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta y el amor eterno que trasciende la partida física.
+
+Sujetos Principales
+Un paisaje celestial vibrante. {NOMBRE_DESTINATARIO} aparece en el lado derecho de un puente de luz etéreo, bañado en una luz dorada brillante y translúcida, extendiendo la mano con una sonrisa llena de paz. Tus hermanos están en el lado izquierdo (terrenal) extendiendo sus manos hacia él. El momento antes del toque, con las manos casi entrelazadas, simboliza un amor que cruza dimensiones.$ss20sv$,
+  poem_template = $ss20pm$En puente de colores de un cielo brillante,
+{NOMBRE_DESTINATARIO}, tu luz es mi joya gigante.
+Esperas mi paso con brazos abiertos,
+curando mi alma de mil desconciertos.
+
+Tus hermanos te ven desde el otro extremo,
+venciendo a la muerte, al miedo supremo.
+Mi dulce {APODO_DESTINATARIO}, de aura inmortal,
+nuestro fuerte abrazo no tiene final.
+
+El hilo invisible jamás se cortó,
+la sangre y el alma el amor los unió.
+Hermanos por siempre en la eternidad,
+tu esencia es mi fuerza, mi luz, mi verdad.$ss20pm$,
+  background_details = $ss20bg$Puente de luz vibrante pero elegante. Cielo celestial con nubes doradas y luz divina. El lado terrenal es verde y sereno, el lado de {NOMBRE_DESTINATARIO} es luz pura.$ss20bg$,
+  magic_effects = $ss20fx$El puente emite partículas de luz doradas. Un lazo de energía sutil une sus manos. La magia debe sentirse esperanzadora y completamente integrada dentro de una fotografía realista.$ss20fx$,
+  lighting_color = $ss20lc$Naranja caléndula vibrante, oro divino, cielo crepuscular mágico.$ss20lc$,
+  character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
+WHERE id = 1737;
+
+COMMIT;

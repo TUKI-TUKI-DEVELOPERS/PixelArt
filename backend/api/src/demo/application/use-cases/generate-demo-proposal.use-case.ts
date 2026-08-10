@@ -7,6 +7,9 @@ import {
   buildGenerationPrompt,
   fillNamePlaceholders,
   derivePrintedTitle,
+  resolveSeparator,
+  resolveFamilyGroupNameValues,
+  needsDualIdentity,
   SPREAD_SIZE,
 } from '../../../personalized/domain/services/build-generation-prompt';
 import { DemoRepositoryPort } from '../../domain/ports/demo-repository.port';
@@ -70,28 +73,35 @@ export class GenerateDemoProposalUseCase {
       }),
     );
 
-    const isPetCategory = await this.isPetCategory(request.personalizedCategoryId);
+    const categoryName = await this.getCategoryName(request.personalizedCategoryId);
+    const isPetCategory = (categoryName ?? '').toLowerCase().includes('mascota');
+    const modelName = await this.personalizedRepo.findModelNameById(template.modelId);
     const sharedBlocks = await this.personalizedRepo.findSharedBlocks();
 
-    const nameValues = {
+    const nameValues = resolveFamilyGroupNameValues(request.characterMeta) ?? {
       nombreDestinatario: request.recipientName,
       apodoDestinatario: request.recipientNickname,
       nombreDedicante: request.dedicatorName,
     };
 
-    const poem = request.wantsCustomDedication && request.dedicationText
-      ? request.dedicationText
-      : fillNamePlaceholders(template.poemTemplate, nameValues);
+    // El poema del prompt de generación SIEMPRE es el de la plantilla —
+    // wantsCustomDedication/dedicationText es para la página de dedicatoria
+    // aparte del PDF (custom-book-pdf.service.ts), nunca para el poema
+    // ilustrado. Antes esto pisaba el poema de TODAS las plantillas con el
+    // mismo texto libre del cliente cuando pedía dedicatoria personalizada.
+    const poem = fillNamePlaceholders(template.poemTemplate, nameValues);
 
     const prompt = buildGenerationPrompt({
       sharedBlocks,
       isPetCategory,
+      needsHumanIdentityToo: needsDualIdentity(modelName),
       sceneVisual: fillNamePlaceholders(template.sceneVisual, nameValues),
       backgroundDetails: template.backgroundDetails ?? '',
       magicEffects: template.magicEffects ?? '',
       lightingColor: template.lightingColor ?? '',
       title: derivePrintedTitle(template.name),
       poem,
+      separator: resolveSeparator(categoryName),
     });
 
     // Mismo tamaño que usa la generación fresca de plantillas de orden — así
@@ -130,9 +140,9 @@ export class GenerateDemoProposalUseCase {
     };
   }
 
-  private async isPetCategory(categoryId: number): Promise<boolean> {
+  private async getCategoryName(categoryId: number): Promise<string | null> {
     const categories = await this.personalizedRepo.findAllActiveCategories();
     const category = categories.find((c) => String(c.id) === String(categoryId));
-    return (category?.name ?? '').toLowerCase().includes('mascota');
+    return category?.name ?? null;
   }
 }

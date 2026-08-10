@@ -10,6 +10,9 @@ import {
   buildGenerationPrompt,
   fillNamePlaceholders,
   derivePrintedTitle,
+  resolveSeparator,
+  resolveFamilyGroupNameValues,
+  needsDualIdentity,
   SPREAD_SIZE,
 } from '../../../personalized/domain/services/build-generation-prompt';
 import { resolveReferencePhotos } from '../../../demo/domain/services/resolve-reference-photos';
@@ -24,8 +27,6 @@ type DemoRequestRow = {
   recipient_name: string | null;
   recipient_nickname: string | null;
   dedicator_name: string | null;
-  wants_custom_dedication: boolean;
-  dedication_text: string | null;
 };
 
 export type GenerateOrderTemplateInput = {
@@ -69,7 +70,7 @@ export class GenerateOrderTemplateUseCase {
 
     const [demoRow] = (await this.dataSource.query(
       `SELECT personalized_category_id, character_meta, recipient_name, recipient_nickname,
-              dedicator_name, wants_custom_dedication, dedication_text
+              dedicator_name
        FROM demo_request WHERE id = $1`,
       [order.demoRequestId],
     )) as DemoRequestRow[];
@@ -100,29 +101,35 @@ export class GenerateOrderTemplateUseCase {
       }),
     );
 
-    const isPetCategory = await this.isPetCategory(demoRow.personalized_category_id);
+    const categoryName = await this.getCategoryName(demoRow.personalized_category_id);
+    const isPetCategory = (categoryName ?? '').toLowerCase().includes('mascota');
+    const modelName = await this.personalizedRepo.findModelNameById(template.modelId);
     const sharedBlocks = await this.personalizedRepo.findSharedBlocks();
 
-    const nameValues = {
+    const nameValues = resolveFamilyGroupNameValues(demoRow.character_meta) ?? {
       nombreDestinatario: demoRow.recipient_name,
       apodoDestinatario: demoRow.recipient_nickname,
       nombreDedicante: demoRow.dedicator_name,
     };
 
-    const poem =
-      demoRow.wants_custom_dedication && demoRow.dedication_text
-        ? demoRow.dedication_text
-        : fillNamePlaceholders(template.poemTemplate, nameValues);
+    // El poema del prompt de generación SIEMPRE es el de la plantilla —
+    // wantsCustomDedication/dedicationText es para la página de dedicatoria
+    // aparte del PDF (custom-book-pdf.service.ts), nunca para el poema
+    // ilustrado. Antes esto pisaba el poema de TODAS las plantillas con el
+    // mismo texto libre del cliente cuando pedía dedicatoria personalizada.
+    const poem = fillNamePlaceholders(template.poemTemplate, nameValues);
 
     const prompt = buildGenerationPrompt({
       sharedBlocks,
       isPetCategory,
+      needsHumanIdentityToo: needsDualIdentity(modelName),
       sceneVisual: fillNamePlaceholders(template.sceneVisual, nameValues),
       backgroundDetails: template.backgroundDetails ?? '',
       magicEffects: template.magicEffects ?? '',
       lightingColor: template.lightingColor ?? '',
       title: derivePrintedTitle(template.name),
       poem,
+      separator: resolveSeparator(categoryName),
     });
 
     // 1 sola llamada, a resolución de spread real (SPREAD_SIZE) — la
@@ -266,9 +273,9 @@ export class GenerateOrderTemplateUseCase {
     }
   }
 
-  private async isPetCategory(categoryId: string): Promise<boolean> {
+  private async getCategoryName(categoryId: string): Promise<string | null> {
     const categories = await this.personalizedRepo.findAllActiveCategories();
     const category = categories.find((c) => String(c.id) === String(categoryId));
-    return (category?.name ?? '').toLowerCase().includes('mascota');
+    return category?.name ?? null;
   }
 }
