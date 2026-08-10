@@ -600,53 +600,6 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "Este libro guarda todo eso, para siempre.",
     },
   ],
-  "Recuerdos Familiares": [
-    {
-      label: "Con amor",
-      HE_TO_SHE:
-        "{recipientNickname}, este libro nació del deseo de esta familia entera,\n" +
-        "de guardar todo lo que fuiste, de la forma que sea.\n" +
-        "Cada foto, cada página, es el abrazo que queremos dar,\n" +
-        "gracias por haber sido parte de nuestro caminar.\n" +
-        "Te amamos y te recordamos siempre.",
-      SHE_TO_HE:
-        "{recipientNickname}, este libro nació del deseo de esta familia entera,\n" +
-        "de guardar todo lo que fuiste, de la forma que sea.\n" +
-        "Cada foto, cada página, es el abrazo que queremos dar,\n" +
-        "gracias por haber sido parte de nuestro caminar.\n" +
-        "Te amamos y te recordamos siempre.",
-    },
-    {
-      label: "Legado",
-      HE_TO_SHE:
-        "Tu historia merece ser contada, {recipientNickname}, y lo haremos con fervor,\n" +
-        "esta familia entera se encarga de honrar tu valor.\n" +
-        "Este libro es tributo a tu legado, a lo que nos dejaste,\n" +
-        "a los momentos compartidos, al amor que sembraste.\n" +
-        "Un amor que nos une, más allá de tu partida.",
-      SHE_TO_HE:
-        "Tu historia merece ser contada, {recipientNickname}, y lo haremos con fervor,\n" +
-        "esta familia entera se encarga de honrar tu valor.\n" +
-        "Este libro es tributo a tu legado, a lo que nos dejaste,\n" +
-        "a los momentos compartidos, al amor que sembraste.\n" +
-        "Un amor que nos une, más allá de tu partida.",
-    },
-    {
-      label: "Emotiva",
-      HE_TO_SHE:
-        "Hay quienes dejan una huella tan grande, tan profunda,\n" +
-        "que su ausencia se siente en todo, en cada cosa que nos circunda.\n" +
-        "{recipientNickname}, tú eres una de esas almas especiales,\n" +
-        "y este libro es nuestra forma de decirte, entre risas y señales,\n" +
-        "que siempre estarás con nosotros. Que nunca te olvidaremos.",
-      SHE_TO_HE:
-        "Hay quienes dejan una huella tan grande, tan profunda,\n" +
-        "que su ausencia se siente en todo, en cada cosa que nos circunda.\n" +
-        "{recipientNickname}, tú eres una de esas almas especiales,\n" +
-        "y este libro es nuestra forma de decirte, entre risas y señales,\n" +
-        "que siempre estarás con nosotros. Que nunca te olvidaremos.",
-    },
-  ],
   // ── Mascotas ─────────────────────────────────────────────────────────────────
   // Mascotas: HE_TO_SHE = mascota macho | SHE_TO_HE = mascota hembra
   "Mi mejor amigo del mundo": [
@@ -1191,6 +1144,15 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   // Step 6 — dedication
   const [selectedDedicationIdx, setSelectedDedicationIdx] = useState<number | null>(0);
   const [customDedication, setCustomDedication] = useState("");
+  // Medido contra la tarjeta real de la dedicatoria en el PDF (custom-book-
+  // pdf.service.ts, .dedication-card, con Puppeteer/Chromium headless real):
+  // por caracteres, no por palabras — un límite de palabras deja colar
+  // texto larguísimo si son todas palabras largas. Probado con texto normal
+  // Y con puras palabras largas repetidas (para forzar el peor caso de
+  // ancho): los dos rompen igual, entre 400 y 440 caracteres. 380 deja
+  // margen de sobra.
+  const MAX_DEDICATION_CHARS = 380;
+  const dedicationCharCount = customDedication.length;
   const [relationshipStartDate, setRelationshipStartDate] = useState("");
 
   // Step 7 — contact & shipping
@@ -1268,6 +1230,15 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   //   del homenajeado, ya recogido en el paso 1 de estos libros).
   // El resto de libros no-amor/no-memorial siguen sin filtro: sus plantillas están
   // mezcladas y no tienen protagonista de un género fijo.
+  //
+  // IMPORTANTE: gender_direction === null NUNCA significa "aplica a ambas
+  // direcciones" — en los 3 libros de Amor son 20 plantillas huérfanas por
+  // libro (versión pre-split sin contenido, nunca se les cargó scene_visual/
+  // poem_template). Antes este filtro las incluía con `|| t.genderDirection
+  // === null` como fallback "defensivo", pero en producción eso mezclaba 20
+  // plantillas rotas junto a las 20 reales de cada dirección — el cliente
+  // podía elegirlas sin ningún error hasta que el admin intentaba generar la
+  // IA y recién ahí explotaba. Fix real: null se excluye siempre.
   const availableDirections = new Set(
     templates.map((t) => t.genderDirection).filter((d): d is string => d !== null),
   );
@@ -1279,9 +1250,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     : ded === "M" && rec === "M" ? "HE_TO_HE"
     : "SHE_TO_SHE";
   const templatesForWizard = usesDirectionTemplates
-    ? templates.filter((t) => t.genderDirection === null || t.genderDirection === genderDirection)
+    ? templates.filter((t) => t.genderDirection === genderDirection)
     : usesMemorialGenderTemplates
-    ? templates.filter((t) => t.genderDirection === null || t.genderDirection === recipientGender)
+    ? templates.filter((t) => t.genderDirection === recipientGender)
     : templates;
 
   const activeGlobalPromo = promos.find(
@@ -1431,12 +1402,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   { name: dedicatorName, assetIds: dedicatorUpload.photos.map((p) => p.id) },
                   ...(numSiblings >= 3 ? [{ name: owner2Name, assetIds: owner2Upload.photos.map((p) => p.id) }] : []),
                 ],
-              }
-            : wizardMode === "memorial" && libroNombre === "Gracias por tu amor"
-            ? {
-                mode: "memorial-familia",
-                recipient: { name: recipientName, nickname: recipientNickname || null, gender: recipientGender, assetIds: recipientUpload.photos.map((p) => p.id) },
-                familyPhotos: dedicatorUpload.photos.map((p) => p.id),
               }
             : isAventuraEntrePatas
             ? {
@@ -2175,9 +2140,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                   <span style={{ fontSize: "16px", flexShrink: 0 }}>⚠️</span>
                   <div>
-                    <div style={{ fontSize: "12px", fontWeight: 700, color: "#92400e", marginBottom: "4px" }}>Sobre las ilustraciones con inteligencia artificial</div>
+                    <div style={{ fontSize: "12px", fontWeight: 700, color: "#92400e", marginBottom: "4px" }}>Importante: son ilustraciones con IA, no fotos editadas</div>
                     <p style={{ margin: 0, fontSize: "12px", color: "#78350f", lineHeight: 1.6 }}>
-                      Las imágenes son generadas por IA a partir de las fotos. Los resultados pueden variar en exactitud de rasgos. Para mejores resultados: fotos individuales, bien iluminadas, rostro completo y visible, sin filtros. PixelArt no garantiza una reproducción exacta.
+                      La IA interpreta tus fotos para crear una ilustración — no es una copia exacta. Rasgos, proporciones y detalles pueden variar respecto a la foto original. Para el mejor resultado: fotos individuales, bien iluminadas, rostro completo y visible, sin filtros. Es una obra de arte inspirada en tus fotos, no un retrato fiel.
                     </p>
                   </div>
                 </div>
@@ -2224,62 +2189,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row", marginTop: "8px" }}>
                     {navBtn("Anterior", () => setCurrentStep(2))}
                     {navBtn("Siguiente", () => setCurrentStep(4), true, !siblingsValid)}
-                  </div>
-                </div>
-              );
-            }
-
-            // ── Gracias por tu amor — fotos familiares grupales ──
-            if (wizardMode === "memorial" && libroNombre === "Gracias por tu amor") {
-              const maxGroupPhotos = 3;
-              const atLimit = dedicatorUpload.photos.length >= maxGroupPhotos;
-              function openGroupPicker() {
-                if (atLimit) return;
-                const input = document.createElement("input");
-                input.type = "file"; input.accept = "image/*"; input.multiple = true; input.style.display = "none";
-                document.body.appendChild(input);
-                input.onchange = (e) => {
-                  const files = (e.target as HTMLInputElement).files;
-                  if (files) dedicatorUpload.uploadFiles(Array.from(files).slice(0, maxGroupPhotos - dedicatorUpload.photos.length));
-                  input.remove();
-                };
-                input.click();
-              }
-              return (
-                <div>
-                  <h3 style={{ margin: "0 0 4px 0", fontSize: "22px", fontWeight: 700 }}>Fotos familiares</h3>
-                  <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "#666" }}>
-                    Sube hasta 3 fotos grupales — reuniones, momentos compartidos con la persona que recuerdan.
-                  </p>
-
-                  <div style={{ borderRadius: "16px", border: `1.5px solid ${accent}20`, background: "#fafafa", padding: "20px" }}>
-                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "12px" }}>
-                      {dedicatorUpload.photos.map((p) => (
-                        <div key={p.id} style={{ position: "relative", width: "100px", height: "100px", borderRadius: "12px", overflow: "hidden", border: `2px solid ${accent}40` }}>
-                          <img src={p.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          <button onClick={() => dedicatorUpload.removePhoto(p.id)} style={{ position: "absolute", top: "4px", right: "4px", width: "20px", height: "20px", borderRadius: "50%", background: "rgba(0,0,0,0.6)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                          </button>
-                        </div>
-                      ))}
-                      {dedicatorUpload.uploading && (
-                        <div style={{ width: "100px", height: "100px", borderRadius: "12px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <span style={{ fontSize: "12px", color: "#999" }}>{dedicatorUpload.progress}%</span>
-                        </div>
-                      )}
-                      {!atLimit && (
-                        <button onClick={openGroupPicker} style={{ width: "100px", height: "100px", borderRadius: "12px", border: `2px dashed ${accent}40`, background: "transparent", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span style={{ fontSize: "10px", fontWeight: 700, color: accent }}>AGREGAR</span>
-                        </button>
-                      )}
-                    </div>
-                    <p style={{ margin: 0, fontSize: "12px", color: "#999" }}>{dedicatorUpload.photos.length}/{maxGroupPhotos} fotos grupales</p>
-                  </div>
-
-                  <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row", marginTop: "24px" }}>
-                    {navBtn("Anterior", () => setCurrentStep(2))}
-                    {navBtn("Siguiente", () => setCurrentStep(4), true, dedicatorUpload.photos.length < 1)}
                   </div>
                 </div>
               );
@@ -2506,9 +2415,21 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ fontSize: "12px", color: "#888", marginBottom: "10px" }}>
                     Puedes usar <strong>{recipientNickname || recipientName}</strong> y <strong>{dedicatorName}</strong> para personalizar tu mensaje.
                   </div>
-                  <textarea value={customDedication} onChange={(e) => setCustomDedication(e.target.value)} placeholder="Escribe tu dedicatoria personalizada..." rows={5}
+                  <textarea
+                    value={customDedication}
+                    onChange={(e) => {
+                      if (e.target.value.length <= MAX_DEDICATION_CHARS) {
+                        setCustomDedication(e.target.value);
+                      }
+                    }}
+                    maxLength={MAX_DEDICATION_CHARS}
+                    placeholder="Escribe tu dedicatoria personalizada..."
+                    rows={5}
                     style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1.5px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", resize: "vertical", lineHeight: 1.7, boxSizing: "border-box" }}
                   />
+                  <div style={{ marginTop: "6px", fontSize: "12px", color: dedicationCharCount >= MAX_DEDICATION_CHARS ? "#dc2626" : "#9ca3af", textAlign: "right" }}>
+                    {dedicationCharCount} / {MAX_DEDICATION_CHARS} caracteres
+                  </div>
                 </div>
               )}
 

@@ -7,4 +7,9 @@ export abstract class ImageGenerationPort {
      * arbitrarias (múltiplo de 16, ratio entre 1:3 y 3:1). */
     size?: string,
   ): Promise<Buffer>;
+
+  /** Texto→imagen puro (sin fotos de referencia) — usado por la contratapa,
+   * que no lleva personas reales, a diferencia de generateWithReferences
+   * (pensado para SIEMPRE anclar identidad a al menos una foto real). */
+  abstract generate(prompt: string, size?: string): Promise<Buffer>;
 }

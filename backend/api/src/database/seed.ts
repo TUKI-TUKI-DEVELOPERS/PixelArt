@@ -147,6 +147,17 @@ export async function runSeed(): Promise<void> {
         ON order_print_assets(order_id, template_id, page_part) WHERE template_id IS NOT NULL
     `);
 
+    // 0k. Tapa, contratapa y venta cruzada — contenido de prompt + slugs para QR
+    await client.query(`ALTER TABLE personalized_models ADD COLUMN IF NOT EXISTS cover_scene_visual TEXT`);
+    await client.query(`ALTER TABLE personalized_models ADD COLUMN IF NOT EXISTS back_cover_tagline TEXT`);
+    await client.query(`ALTER TABLE personalized_categories ADD COLUMN IF NOT EXISTS back_cover_hashtag TEXT`);
+    await client.query(`ALTER TABLE personalized_categories ADD COLUMN IF NOT EXISTS slug TEXT`);
+    await client.query(`ALTER TABLE personalized_categories DROP CONSTRAINT IF EXISTS personalized_categories_slug_key`);
+    await client.query(`ALTER TABLE personalized_categories ADD CONSTRAINT personalized_categories_slug_key UNIQUE (slug)`);
+    await client.query(`ALTER TABLE personalized_models ADD COLUMN IF NOT EXISTS slug TEXT`);
+    await client.query(`ALTER TABLE personalized_models DROP CONSTRAINT IF EXISTS personalized_models_category_id_slug_key`);
+    await client.query(`ALTER TABLE personalized_models ADD CONSTRAINT personalized_models_category_id_slug_key UNIQUE (category_id, slug)`);
+
     console.log('[seed] schema migrations ✓');
 
     // ── 1. personalized_categories ──────────────────────────────────────────
@@ -185,7 +196,6 @@ export async function runSeed(): Promise<void> {
       { categoryId: cat['Libros de Familia'], name: 'El Mejor Equipo' },
       { categoryId: cat['Libros de Familia'], name: 'Mi Familia' },
       // Libros de Memorias Familiares
-      { categoryId: cat['Libros de Memorias Familiares'], name: 'Recuerdos Familiares' },
       { categoryId: cat['Libros de Memorias Familiares'], name: 'Gracias por tu amor' },
       { categoryId: cat['Libros de Memorias Familiares'], name: 'Mi angel guardian' },
       { categoryId: cat['Libros de Memorias Familiares'], name: 'Siempre en mi corazon' },
@@ -798,6 +808,27 @@ export async function runSeed(): Promise<void> {
     `);
     console.log('[seed] personalized_templates.gender_direction backfill (Amor) ✓');
 
+    // Las filas que a esta altura SIGUEN con gender_direction NULL son las 20
+    // por libro (60 en total) del formato viejo sin sufijo de género —
+    // huérfanas de antes del split "_El_a_Ella"/"_Ella_a_El", sin contenido
+    // de prompt y nunca alcanzadas por el backfill de arriba (su
+    // template_preview_key no matchea ningún LIKE). El wizard filtraba
+    // "gender_direction === null" como "aplica a ambas direcciones" —
+    // pensado para memorial, pero en Amor mezclaba estas 20 plantillas
+    // rotas junto a las 20 reales de cada dirección en el paso de elegir
+    // plantillas: el cliente podía elegirlas sin error, y recién explotaba
+    // en el backoffice al generar la imagen. No se pueden borrar (hay una
+    // orden y una demo históricas con selecciones apuntando a estos ids),
+    // así que se desactivan: is_active=false ya está excluido del listado
+    // de plantillas por modelo (WHERE isActive = TRUE), sin afectar las
+    // vistas de admin ni la regeneración, que buscan por id sin ese filtro.
+    await client.query(`
+      UPDATE personalized_templates SET is_active = false
+      WHERE gender_direction IS NULL
+        AND model_id IN (SELECT id FROM personalized_models WHERE category_id = $1)
+    `, [cat['Libros de Amor']]);
+    console.log('[seed] personalized_templates huérfanas de Amor desactivadas ✓');
+
     // Bloques de prompt compartidos (prompt_shared_blocks) — mismo problema que el
     // backfill de abajo: solo vivían en Postgres local, cargados a mano. Sin esto,
     // buildGenerationPrompt() revienta con "Cannot read properties of undefined
@@ -821,6 +852,108 @@ export async function runSeed(): Promise<void> {
       readFileSync(join(__dirname, 'content/backfill-amor-content.sql'), 'utf8'),
     );
     console.log('[seed] personalized_templates content backfill (Amor) ✓');
+
+    // Backfill del contenido de prompt para los 6 libros de Familia (díada:
+    // Mamá/Papá/Abuela/Abuelo; reparto variable: Mi Familia/El Mejor Equipo).
+    // Mismo patrón que Amor: matchea por template_preview_key, idempotente
+    // (UPDATE incondicional). Generado desde el .md del catálogo con las
+    // limpiezas de size/edad/identidad; las poses íntimas (abrazo/beso) se
+    // dejan intactas a pedido.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-familia-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Familia) ✓');
+
+    // Backfill del contenido de prompt para los 3 libros díada de Mascotas
+    // (Mi Amigo Miau-ravilloso, El Mejor Amigo del Mundo, Nuestro Ángel de 4
+    // Patas — 60 plantillas). Mismo patrón: matchea por template_preview_key,
+    // idempotente.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-mascotas-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Mascotas) ✓');
+
+    // Backfill de Aventuras Entre Patas (20 plantillas) — reparto variable de
+    // 1 a 3 hermanos (numOwners del wizard, sin edad fija), a diferencia del
+    // resto del catálogo de Mascotas que trae reparto fijo. El elenco se
+    // colectiviza ("los niños") en vez de nombrar individuos, mismo patrón
+    // que Mi Familia/El Mejor Equipo — necesario porque character_roles=
+    // "owners" siempre manda TODAS las fotos de referencia reales, sin
+    // importar cuántas sean.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-aventuras-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Aventuras Entre Patas) ✓');
+
+    // Backfill de Gracias por tu amor (Memorias Familiares, 20 plantillas) —
+    // díada estándar tía fallecida (recipient) + sobrino/a que dedica
+    // (dedicator), ambos humanos con identidad real. No necesita
+    // needsDualIdentity: a diferencia de Mascotas (mascota+humano usan
+    // bloques de identidad DISTINTOS), acá los dos personajes son humanos y
+    // el bloque identidad_humano ya es genérico para N personas. Apodo
+    // cariñoso de los poemas ("Sil") -> {APODO_DESTINATARIO}.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-gracias-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Gracias por tu amor) ✓');
+
+    // Backfill de Siempre Serás Parte de Mí (Memorias Familiares, 20
+    // plantillas) — hermano/a fallecido (recipient, siempre 1) + hermano/a(s)
+    // vivo/s que dedican (livingSiblings, array de 1 o 2 según numSiblings
+    // del wizard). Mismo mismatch que Aventuras Entre Patas: el .md original
+    // asumía fijo a un solo hermano vivo nombrado (Emiliano); se colectivizó
+    // a "tus hermanos" porque livingSiblings siempre se resuelve completo,
+    // sin importar cuántos sean.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-siempre-seras-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Siempre Serás Parte de Mí) ✓');
+
+    // Backfill de Mi Ángel Guardián (Memorias Familiares, 40 plantillas = 20
+    // Padre + 20 Madre, distinguidas por gender_direction M/F). Reparto FIJO
+    // en ambos archivos fuente (padre/madre fallecido + un solo hijo/a que
+    // dedica) — a diferencia de los 2 libros anteriores de esta categoría,
+    // acá no hay selector de cantidad variable en el wizard, así que el
+    // backfill es sustitución mecánica de nombres, no colectivización.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-angel-guardian-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Mi Ángel Guardián) ✓');
+
+    // Backfill de Siempre en mi Corazón (Memorias Familiares, 40 plantillas
+    // = 20 Abuela + 20 Abuelo, gender_direction F/M). Misma arquitectura
+    // fija que Mi Ángel Guardián: abuelo/a fallecido + un solo nieto/a que
+    // dedica, sustitución mecánica de nombres.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-siempre-corazon-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Siempre en mi Corazón) ✓');
+
+    // Slugs reales de categorías/modelos (para las URLs de los QR de la
+    // página de venta cruzada) — copiados 1:1 del mapa LIBRO_NAMES que hoy
+    // vive hardcodeado en el frontend.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-slugs.sql'), 'utf8'),
+    );
+    console.log('[seed] slugs de categorías/modelos ✓');
+
+    // Contenido de tapa/contratapa del libro piloto de Fase B/C ("10 Razones
+    // por las que Te Amo") — el resto del catálogo se backfillea aparte
+    // (Fase D), una vez validado el flujo end-to-end con este libro.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-cover-content.sql'), 'utf8'),
+    );
+    console.log('[seed] contenido de tapa/contratapa (piloto) ✓');
+
+    // Fase D: resto del catálogo — contratapa completa (16 libros + 3
+    // categorías), tapa solo para los 10 libros sin tratamiento especial de
+    // identidad (ver comentario en el .sql para los 6 casos que quedan
+    // pendientes: Mi Amor, Nuestro Angel de 4 patas, y las 4 de Memorias
+    // Familiares).
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-tapa-contratapa-resto.sql'), 'utf8'),
+    );
+    console.log('[seed] contenido de tapa/contratapa (resto del catálogo) ✓');
 
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada

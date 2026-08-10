@@ -6,6 +6,7 @@ export class PersonalizedModelMapper {
     return {
       id: entity.id,
       name: entity.name,
+      slug: entity.slug,
       templateCount: (entity.templates ?? []).filter((t) => t.isActive).length,
       coverImageUrl,
     };

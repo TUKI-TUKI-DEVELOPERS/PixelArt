@@ -10,6 +10,8 @@ import { EmailService } from '../email/email.service';
 import { PhotobookPdfService } from '../photobook/infrastructure/pdf/photobook-pdf.service';
 import { CustomBookPdfService } from './infrastructure/pdf/custom-book-pdf.service';
 import { GenerateOrderTemplateUseCase } from './application/use-cases/generate-order-template.use-case';
+import { GenerateOrderCoverUseCase } from './application/use-cases/generate-order-cover.use-case';
+import { GenerateOrderAddonUseCase } from './application/use-cases/generate-order-addon.use-case';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 
 @Controller('admin/orders')
@@ -24,6 +26,8 @@ export class OrdersAdminController {
     private readonly photobookPdfService: PhotobookPdfService,
     private readonly customBookPdfService: CustomBookPdfService,
     private readonly generateOrderTemplateUseCase: GenerateOrderTemplateUseCase,
+    private readonly generateOrderCoverUseCase: GenerateOrderCoverUseCase,
+    private readonly generateOrderAddonUseCase: GenerateOrderAddonUseCase,
     private readonly fileStorage: FileStoragePort,
     private readonly dataSource: DataSource,
   ) {}
@@ -320,6 +324,134 @@ export class OrdersAdminController {
       templateId: Number(templateId),
       selectedAssetIds,
     });
+  }
+
+  /**
+   * POST /api/admin/orders/:id/print-assets/generate-cover
+   * Body opcional: { selectedAssetIds: { [roleKey]: assetId } }
+   * Genera la TAPA con IA (fotos reales del cliente) y la sube directo como
+   * archivo de imprenta, PENDING_REVIEW. Mismo patrón que .../generate para TEMPLATE.
+   */
+  @Post(':id/print-assets/generate-cover')
+  generateCover(
+    @Param('id') id: string,
+    @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+  ) {
+    return this.generateOrderCoverUseCase.generateCover({ orderId: Number(id), selectedAssetIds });
+  }
+
+  /**
+   * POST /api/admin/orders/:id/print-assets/generate-back-cover
+   * Genera la CONTRATAPA con IA (sin fotos reales, solo diseño/copy) y la
+   * sube directo como archivo de imprenta, PENDING_REVIEW.
+   */
+  @Post(':id/print-assets/generate-back-cover')
+  generateBackCover(@Param('id') id: string) {
+    return this.generateOrderCoverUseCase.generateBackCover({ orderId: Number(id) });
+  }
+
+  /**
+   * GET /api/admin/orders/:id/cross-sell-candidates
+   * Lista todos los libros elegibles para la página de venta cruzada (activo,
+   * con miniatura y slug cargados, excluye el libro de esta orden) — para que
+   * el admin elija hasta 3 en vez de dejarlo al azar.
+   */
+  @Get(':id/cross-sell-candidates')
+  listCrossSellCandidates(@Param('id') id: string) {
+    return this.generateOrderAddonUseCase.listCandidates(Number(id));
+  }
+
+  /**
+   * POST /api/admin/orders/:id/print-assets/generate-addon
+   * Body opcional: { selectedModelIds: number[] } — hasta 3, elegidos por el
+   * admin. Sin body, cae al azar (comportamiento original).
+   * Genera la página de venta cruzada SIN IA (maquetación con miniaturas y
+   * slugs de otros libros del catálogo) y la sube como PENDING_REVIEW. Si la
+   * orden ya tiene un ADDON subido manualmente, esto lo reemplaza.
+   */
+  @Post(':id/print-assets/generate-addon')
+  generateAddon(@Param('id') id: string, @Body('selectedModelIds') selectedModelIds?: number[]) {
+    return this.generateOrderAddonUseCase.generateAddon(Number(id), selectedModelIds);
+  }
+
+  /**
+   * POST /api/admin/orders/:id/character-photos
+   * Body: { roleKey: string; oldAssetId?: number; newAssetId: number }
+   * Con oldAssetId: reemplaza ESA foto puntual del rol por newAssetId (las
+   * demás fotos del rol quedan intactas). Sin oldAssetId: agrega newAssetId
+   * como opción nueva (para roles que se quedaron con menos fotos de las
+   * que deberían — ej. por un reemplazo viejo que pisaba el array entero).
+   * La foto vieja no se borra de la tabla assets, solo deja de estar
+   * referenciada acá. Afecta a todas las plantillas de la orden que usen
+   * ese rol, no solo la que se esté generando en el momento.
+   */
+  @Post(':id/character-photos')
+  async replaceCharacterPhoto(
+    @Param('id') id: string,
+    @Body('roleKey') roleKey: string,
+    @Body('oldAssetId') oldAssetId: number | undefined,
+    @Body('newAssetId') newAssetId: number,
+  ) {
+    if (!roleKey || !newAssetId) {
+      throw new BadRequestException('roleKey y newAssetId son requeridos');
+    }
+
+    const order = await this.ordersService.findById(Number(id));
+    if (!order?.demoRequestId) throw new BadRequestException('Orden sin demo request asociada');
+
+    const [assetRow] = await this.dataSource.query(`SELECT id FROM assets WHERE id = $1`, [newAssetId]);
+    if (!assetRow) throw new NotFoundException('No se encontró la foto subida');
+
+    const [demoRow] = (await this.dataSource.query(
+      `SELECT character_meta FROM demo_request WHERE id = $1`,
+      [order.demoRequestId],
+    )) as { character_meta: Record<string, unknown> | null }[];
+    const characterMeta = demoRow?.character_meta ?? {};
+
+    const target = this.resolveCharacterMetaTarget(characterMeta, roleKey);
+    if (!target) throw new BadRequestException(`No se encontró el rol "${roleKey}" en esta orden`);
+
+    target.assetIds = target.assetIds ?? [];
+    if (oldAssetId) {
+      const index = target.assetIds.indexOf(oldAssetId);
+      if (index === -1) throw new BadRequestException('Esa foto ya no pertenece a este rol — refrescá la página e intentá de nuevo');
+      target.assetIds[index] = newAssetId;
+    } else if (!target.assetIds.includes(newAssetId)) {
+      target.assetIds.push(newAssetId);
+    }
+
+    await this.dataSource.query(`UPDATE demo_request SET character_meta = $1 WHERE id = $2`, [
+      JSON.stringify(characterMeta),
+      order.demoRequestId,
+    ]);
+
+    // demoAssetIds (para resolver la URL del thumbnail en el admin) sale de
+    // esta tabla, no de character_meta directamente.
+    await this.dataSource.query(
+      `INSERT INTO demo_request_assets (demo_request_id, asset_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [order.demoRequestId, newAssetId],
+    );
+
+    return { characterMeta };
+  }
+
+  /** roleKey plano ("papa", "pet", "recipient") apunta directo a
+   * characterMeta[roleKey]; indexado ("hijos[0]", "owners[1]") apunta a un
+   * elemento de una lista — mismo formato que ya arma el frontend en
+   * ordenes/[id]/page.tsx al construir los roleKey de photoGroups. */
+  private resolveCharacterMetaTarget(
+    characterMeta: Record<string, unknown>,
+    roleKey: string,
+  ): { name?: string; assetIds?: number[] } | null {
+    const match = roleKey.match(/^([a-zA-Z]+)\[(\d+)\]$/);
+    if (match) {
+      const [, listKey, indexStr] = match;
+      const list = characterMeta[listKey];
+      if (!Array.isArray(list)) return null;
+      return (list[Number(indexStr)] as { name?: string; assetIds?: number[] } | undefined) ?? null;
+    }
+    const value = characterMeta[roleKey];
+    return value && typeof value === 'object' ? (value as { name?: string; assetIds?: number[] }) : null;
   }
 
   /**

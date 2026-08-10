@@ -2,36 +2,6 @@ import { notFound } from "next/navigation";
 import LibroDetalleClient from "./LibroDetalleClient";
 import { getAssetUrl } from "@/lib/assetUrl";
 
-/* ── Catálogo de libros válidos por categoría ── */
-const LIBROS_VALIDOS: Record<string, Record<string, string>> = {
-  "libros-de-amor": {
-    "10-razones-por-las-que-te-amo": "10 o 15 Razones Por Las Que Te Amo",
-    "mi-amor": "Mi Amor",
-    "1025-dias-enamorandome-de-ti": "1025 Días Enamorándome De Ti",
-  },
-  "libros-de-mascotas": {
-    "nuestro-angel-de-4-patas": "Nuestro Ángel de 4 Patas",
-    "aventura-entre-patas": "Aventura Entre Patas",
-    "mi-amigo-miauravilloso": "Mi Amigo Miauravilloso",
-    "mi-mejor-amigo-del-mundo": "Mi Mejor Amigo del Mundo",
-  },
-  "libros-de-familia": {
-    "papa-mi-heroe": "Papá, Mi Héroe",
-    "te-amo-abuelo": "Te Amo, Abuelo",
-    "el-mejor-equipo": "El Mejor Equipo",
-    "la-familia": "La Familia",
-    "te-amo-abuela": "Te Amo, Abuela",
-    "mama-mi-heroina": "Mamá, Mi Heroína",
-  },
-  "libros-de-memorias-familiares": {
-    "recuerdos-familiares": "Recuerdos Familiares",
-    "gracias-por-tu-amor": "Gracias por tu amor",
-    "mi-angel-guardian": "Mi Ángel Guardián",
-    "siempre-en-mi-corazon": "Siempre en mi Corazón",
-    "siempre-seras-parte-de-mi": "Siempre Serás Parte de Mi Corazón",
-  },
-};
-
 /* ── Mapa slug → storage_key del background en MinIO ── */
 const BACKGROUND_KEYS: Record<string, string> = {
   "mi-amor": "IA_Books/Backgrounds/Backgrounds_Libros_Amor_Mi_Amor.png",
@@ -51,28 +21,6 @@ const BACKGROUND_KEYS: Record<string, string> = {
   "mi-angel-guardian": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Mi_angel_guardian.png",
   "siempre-en-mi-corazon": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_en_mi_corazon.png",
   "siempre-seras-parte-de-mi": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon.png",
-};
-
-/* ── Mapa slug → nombres en BD (para lookup dinámico de IDs) ── */
-const LIBRO_NAMES: Record<string, { modelName: string; catalogBookName: string }> = {
-  "10-razones-por-las-que-te-amo": { modelName: "10 Razones por las que Te Amo", catalogBookName: "10 Razones por las que Te Amo" },
-  "mi-amor": { modelName: "Mi Amor", catalogBookName: "Mi Amor" },
-  "1025-dias-enamorandome-de-ti": { modelName: "1025 Días enamorándome de ti", catalogBookName: "1025 Días enamorándome de ti" },
-  "nuestro-angel-de-4-patas": { modelName: "Nuestro Angel de 4 patas", catalogBookName: "Nuestro Angel de 4 patas" },
-  "aventura-entre-patas": { modelName: "Aventura entre patas", catalogBookName: "Aventura entre patas" },
-  "mi-amigo-miauravilloso": { modelName: "Mi amigo Miauravilloso", catalogBookName: "Mi amigo Miauravilloso" },
-  "mi-mejor-amigo-del-mundo": { modelName: "Mi mejor amigo del mundo", catalogBookName: "Mi mejor amigo del mundo" },
-  "papa-mi-heroe": { modelName: "Papá, Mi Héroe", catalogBookName: "Papá, Mi Héroe" },
-  "mama-mi-heroina": { modelName: "Mamá, Mi Heroína", catalogBookName: "Mamá, Mi Heroína" },
-  "te-amo-abuelo": { modelName: "Te amo, abuelo", catalogBookName: "Te amo, abuelo" },
-  "te-amo-abuela": { modelName: "Te amo, abuela", catalogBookName: "Te amo, abuela" },
-  "el-mejor-equipo": { modelName: "El Mejor Equipo", catalogBookName: "El Mejor Equipo" },
-  "la-familia": { modelName: "Mi Familia", catalogBookName: "Mi Familia" },
-  "recuerdos-familiares": { modelName: "Recuerdos Familiares", catalogBookName: "Mi Familia" },
-  "gracias-por-tu-amor": { modelName: "Gracias por tu amor", catalogBookName: "Gracias por tu amor" },
-  "mi-angel-guardian": { modelName: "Mi angel guardian", catalogBookName: "Mi angel guardian" },
-  "siempre-en-mi-corazon": { modelName: "Siempre en mi corazon", catalogBookName: "Siempre en mi corazon" },
-  "siempre-seras-parte-de-mi": { modelName: "Siempre seras parte de mi", catalogBookName: "Siempre seras parte de mi" },
 };
 
 /* ── Mapa slug → storage_keys de imágenes centrales del carousel ── */
@@ -170,38 +118,35 @@ const API_BASE = "http://api:3001";
 
 type DbIds = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number };
 
-async function resolveDbIds(slug: string): Promise<DbIds | null> {
-  const names = LIBRO_NAMES[slug];
-  if (!names) return null;
-
+/** Resuelve categoría+libro por slug REAL (personalized_categories.slug /
+ * personalized_models.slug), reemplazando los mapas LIBROS_VALIDOS/
+ * LIBRO_NAMES que antes vivían hardcodeados acá — cualquier libro nuevo
+ * agregado por el admin aparece solo, sin tocar código. Devuelve null si el
+ * slug no matchea ninguna categoría/modelo real (equivale al notFound() de
+ * antes). catalog_books todavía no tiene su propio slug — se resuelve por
+ * nombre exacto contra el modelo YA encontrado por slug real (no un string
+ * hardcodeado a mano); si ese bridge puntual falla, degrada con dbIds=null
+ * en vez de 404 (mismo comportamiento que ya tenía el código anterior). */
+async function resolveBookBySlug(categoriaSlug: string, libroSlug: string): Promise<{ libroNombre: string; dbIds: DbIds | null } | null> {
   const [catRes, booksRes] = await Promise.all([
     fetch(`${API_BASE}/api/personalized/categories`, { next: { revalidate: 300 } }),
     fetch(`${API_BASE}/api/catalog/books`, { next: { revalidate: 300 } }),
   ]);
-
   if (!catRes.ok || !booksRes.ok) return null;
 
-  const categories: { id: string; name: string; models: { id: string; name: string }[] }[] = await catRes.json();
-  const books: { id: string; name: string; variants: { id: string; coverType: string; basePriceCents: number }[] }[] = await booksRes.json();
+  const categories: { id: string; slug: string | null; name: string; models: { id: string; slug: string | null; name: string }[] }[] = await catRes.json();
+  const books: { id: string; name: string }[] = await booksRes.json();
 
-  let personalizedModelId: number | null = null;
-  let personalizedCategoryId: number | null = null;
+  const category = categories.find((c) => c.slug === categoriaSlug);
+  const model = category?.models.find((m) => m.slug === libroSlug);
+  if (!category || !model) return null;
 
-  for (const cat of categories) {
-    const model = cat.models.find((m) => m.name === names.modelName);
-    if (model) {
-      personalizedModelId = Number(model.id);
-      personalizedCategoryId = Number(cat.id);
-      break;
-    }
-  }
+  const catalogBook = books.find((b) => b.name === model.name);
+  const dbIds: DbIds | null = catalogBook
+    ? { catalogBookId: Number(catalogBook.id), personalizedModelId: Number(model.id), personalizedCategoryId: Number(category.id) }
+    : null;
 
-  const catalogBook = books.find((b) => b.name === names.catalogBookName);
-  const catalogBookId = catalogBook ? Number(catalogBook.id) : null;
-
-  if (!personalizedModelId || !personalizedCategoryId || !catalogBookId) return null;
-
-  return { catalogBookId, personalizedModelId, personalizedCategoryId };
+  return { libroNombre: model.name, dbIds };
 }
 
 async function fetchVariants(catalogBookId: number): Promise<{ id: number; coverType: string; basePriceCents: number }[]> {
@@ -245,20 +190,16 @@ type Props = {
 export default async function LibroDetallePage({ params }: Props) {
   const { categoriaId, libroSlug } = await params;
 
-  const categoriaLibros = LIBROS_VALIDOS[categoriaId];
-  if (!categoriaLibros) notFound();
+  const resolved = await resolveBookBySlug(categoriaId, libroSlug);
+  if (!resolved) notFound();
+  const { libroNombre, dbIds } = resolved;
 
-  const libroNombre = categoriaLibros[libroSlug];
-  if (!libroNombre) notFound();
-
-  // Fetch in parallel: background + carousel images + DB IDs (dynamic)
+  // Fetch in parallel: background + carousel images + datos dependientes de DB
   const bgKey = BACKGROUND_KEYS[libroSlug];
   const carouselKeys = CAROUSEL_KEYS[libroSlug] ?? [];
 
   const backgroundUrl = bgKey ? getAssetUrl(bgKey) : null;
   const carouselImageUrls = carouselKeys.map((key) => getAssetUrl(key));
-
-  const dbIds = await resolveDbIds(libroSlug);
 
   const [variants, templates] = await Promise.all([
     dbIds ? fetchVariants(dbIds.catalogBookId) : Promise.resolve([]),
@@ -272,7 +213,7 @@ export default async function LibroDetallePage({ params }: Props) {
       libroNombre={libroNombre}
       backgroundUrl={backgroundUrl}
       carouselImageUrls={carouselImageUrls}
-      dbIds={dbIds ?? null}
+      dbIds={dbIds}
       variants={variants}
       templates={templates}
     />

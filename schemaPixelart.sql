@@ -187,6 +187,37 @@ ADD COLUMN cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL;
 
 ALTER TABLE catalog_books
 ADD COLUMN cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL;
+
+-- personalized_models.cover_asset_id ya existía en la BD real (agregada a
+-- mano en algún momento, mismo tipo de drift ya visto con gender_direction)
+-- pero nunca había quedado capturada acá — sin esto, un `docker compose
+-- down -v` la pierde y una instalación nueva nunca la tiene.
+ALTER TABLE personalized_models
+ADD COLUMN cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL;
+-- =========================================
+-- TAPA, CONTRATAPA Y VENTA CRUZADA
+-- =========================================
+-- Contenido de prompt para tapa/contratapa con fotos reales — mismo patrón
+-- que scene_visual/poem_template de personalized_templates, pero a nivel de
+-- LIBRO: hay una sola tapa/contratapa por libro, no una por plantilla.
+ALTER TABLE personalized_models
+ADD COLUMN cover_scene_visual TEXT,
+ADD COLUMN back_cover_tagline TEXT;
+
+-- Hashtag de contratapa: vive por CATEGORÍA (ej. "#AmorPixelArt" para todo
+-- Amor), no por libro — evita repetir el mismo valor en cada fila.
+ALTER TABLE personalized_categories
+ADD COLUMN back_cover_hashtag TEXT;
+
+-- Slugs reales para armar /libros-personalizados/{categoriaSlug}/{libroSlug}
+-- — usados por los QR de la página de venta cruzada. Reemplazan el mapa
+-- LIBRO_NAMES hardcodeado que hoy solo vive en el frontend.
+ALTER TABLE personalized_categories
+ADD COLUMN slug TEXT UNIQUE;
+
+ALTER TABLE personalized_models
+ADD COLUMN slug TEXT,
+ADD CONSTRAINT personalized_models_category_id_slug_key UNIQUE (category_id, slug);
 -- =========================================
 -- DEMO REQUEST (CUSTOM BOOK)
 -- =========================================

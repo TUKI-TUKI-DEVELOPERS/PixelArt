@@ -11,6 +11,7 @@ export class PersonalizedCategoryMapper {
     return {
       id: entity.id,
       name: entity.name,
+      slug: entity.slug,
       coverImageUrl,
       models: (entity.models ?? [])
         .filter((m) => m.isActive)

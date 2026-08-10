@@ -24,7 +24,6 @@ type CharacterMeta =
   | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
   | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
   | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
-  | { mode: "memorial-familia"; recipient: CharacterMember & { nickname?: string | null; gender?: string }; familyPhotos: number[] }
   | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
@@ -110,9 +109,35 @@ export default function OrdenDetallePage() {
   const [generatingSet, setGeneratingSet] = useState<Set<number>>(new Set());
   const [verifyingSet, setVerifyingSet] = useState<Set<number>>(new Set());
   const [generateError, setGenerateError] = useState<Record<number, string>>({});
+  // Tapa/contratapa: una sola por orden (a diferencia de las plantillas, no
+  // hace falta un Set/Record keyed por id).
+  const [coverGenerating, setCoverGenerating] = useState(false);
+  const [coverGenerateError, setCoverGenerateError] = useState("");
+  const [coverVerifying, setCoverVerifying] = useState(false);
+  const [backCoverGenerating, setBackCoverGenerating] = useState(false);
+  const [backCoverGenerateError, setBackCoverGenerateError] = useState("");
+  const [backCoverVerifying, setBackCoverVerifying] = useState(false);
+  // Add-on: sin IA (maquetación local con Puppeteer), no necesita el
+  // mecanismo de "verificando" de Portada/Contraportada — no depende de una
+  // API externa lenta.
+  const [addonGenerating, setAddonGenerating] = useState(false);
+  const [addonGenerateError, setAddonGenerateError] = useState("");
+  const [addonPickerOpen, setAddonPickerOpen] = useState(false);
+  const [addonCandidates, setAddonCandidates] = useState<{ id: number; name: string; thumbnailUrl: string | null }[]>([]);
+  const [addonCandidatesLoading, setAddonCandidatesLoading] = useState(false);
+  const [selectedCrossSellIds, setSelectedCrossSellIds] = useState<number[]>([]);
+  // Reemplazo: se guarda el assetId de la foto que se está pisando. Agregado
+  // (sin foto vieja que pisar): se guarda el roleKey como string.
+  const [uploadingAssetId, setUploadingAssetId] = useState<number | string | null>(null);
+  const [uploadPhotoError, setUploadPhotoError] = useState<Record<number, string>>({});
   const [confirmingAll, setConfirmingAll] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [dedicationDraft, setDedicationDraft] = useState("");
+  // Mismo límite y misma razón que el wizard del cliente — medido con
+  // Chromium real contra .dedication-card (custom-book-pdf.service.ts): por
+  // caracteres, no por palabras (una palabra larga rompe igual que muchas
+  // cortas), corta entre 400-440, 380 deja margen.
+  const MAX_DEDICATION_CHARS = 380;
   const [gradientStartDraft, setGradientStartDraft] = useState("#DF1F74");
   const [gradientEndDraft, setGradientEndDraft] = useState("#804187");
   const [savingDesign, setSavingDesign] = useState(false);
@@ -185,6 +210,64 @@ export default function OrdenDetallePage() {
     return false;
   }
 
+  /** Mismo mecanismo que waitForTemplateResult, para COVER/BACK_COVER —
+   * estos no tienen templateId (template_id es NULL), así que matchea por
+   * assetType nomás. */
+  async function waitForCoverResult(orderId: number, assetType: "COVER" | "BACK_COVER", startedAt: number): Promise<boolean> {
+    for (let attempt = 0; attempt < 30; attempt++) {
+      await new Promise((r) => setTimeout(r, 4000));
+      try {
+        const res = await fetch(`${API}/api/admin/orders/${orderId}/print-assets`);
+        if (!res.ok) continue;
+        const list: PrintAsset[] = await res.json();
+        const done = list.some(
+          (a) => a.assetType === assetType && a.templateId === null && new Date(a.uploadedAt).getTime() >= startedAt,
+        );
+        if (done) return true;
+      } catch { /* seguir intentando */ }
+    }
+    return false;
+  }
+
+  /** Sube una foto nueva (ej. el cliente mandó una de mala calidad y el admin
+   * le pidió otra). Con oldAssetId: REEMPLAZA esa foto puntual del rol, las
+   * demás quedan intactas. Sin oldAssetId: AGREGA una opción nueva al rol
+   * (para cuando quedó con menos fotos de las que debería). Afecta a todas
+   * las plantillas de la orden que usen ese rol, no solo la que se esté
+   * generando en el momento. */
+  async function handleReplaceCharacterPhoto(templateId: number, roleKey: string, oldAssetId: number | undefined, file: File) {
+    if (!data) return;
+    setUploadingAssetId(oldAssetId ?? roleKey);
+    setUploadPhotoError((prev) => ({ ...prev, [templateId]: "" }));
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      // /api/assets/upload del backend exige JWT vía header Authorization —
+      // el token vive en una cookie httpOnly (inaccesible para fetch desde
+      // acá a propósito), así que pasa por este proxy server-side de Next.js
+      // que sí puede leerla.
+      const uploadRes = await fetch(`/api/admin/upload-asset?folder=uploads/customers`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error("No se pudo subir la foto");
+      const uploaded = await uploadRes.json();
+
+      const linkRes = await fetch(`${API}/api/admin/orders/${data.id}/character-photos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roleKey, oldAssetId, newAssetId: uploaded.id }),
+      });
+      if (!linkRes.ok) throw new Error("No se pudo asociar la foto a esta orden");
+
+      load();
+    } catch (err) {
+      setUploadPhotoError((prev) => ({ ...prev, [templateId]: err instanceof Error ? err.message : "Error al subir la foto" }));
+    } finally {
+      setUploadingAssetId(null);
+    }
+  }
+
   async function handleGenerateTemplate(templateId: number) {
     if (!data) return;
     if (generatingRef.current.has(templateId)) return;
@@ -223,6 +306,114 @@ export default function OrdenDetallePage() {
       generatingRef.current.delete(templateId);
       setGeneratingSet((prev) => { const next = new Set(prev); next.delete(templateId); return next; });
     }
+  }
+
+  /** Sin selector de fotos propio — usa la primera foto de cada rol (mismo
+   * default que el backend aplica si no se manda selectedAssetIds). Si el
+   * admin necesita elegir otra foto, el upload manual sigue disponible como
+   * fallback en la fila de abajo. */
+  async function handleGenerateCover() {
+    if (!data) return;
+    setCoverGenerating(true);
+    setCoverGenerateError("");
+    const startedAt = Date.now();
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-cover`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selectedAssetIds: selectedPhoto[COVER_PHOTO_KEY] ?? {} }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { message?: string }).message ?? "Error al generar la tapa");
+      }
+      loadPrintAssets(data.id);
+    } catch (err) {
+      // Se cortó la conexión, pero el servidor puede haber terminado igual
+      // (images.edit con referencias tarda bastante) — mismo mecanismo que
+      // handleGenerateTemplate, evita un error falso.
+      setCoverVerifying(true);
+      const finishedAnyway = await waitForCoverResult(data.id, "COVER", startedAt);
+      setCoverVerifying(false);
+      if (finishedAnyway) {
+        loadPrintAssets(data.id);
+      } else {
+        setCoverGenerateError(err instanceof Error ? err.message : "Error al generar la tapa");
+      }
+    } finally {
+      setCoverGenerating(false);
+    }
+  }
+
+  async function handleGenerateBackCover() {
+    if (!data) return;
+    setBackCoverGenerating(true);
+    setBackCoverGenerateError("");
+    const startedAt = Date.now();
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { message?: string }).message ?? "Error al generar la contratapa");
+      }
+      loadPrintAssets(data.id);
+    } catch (err) {
+      setBackCoverVerifying(true);
+      const finishedAnyway = await waitForCoverResult(data.id, "BACK_COVER", startedAt);
+      setBackCoverVerifying(false);
+      if (finishedAnyway) {
+        loadPrintAssets(data.id);
+      } else {
+        setBackCoverGenerateError(err instanceof Error ? err.message : "Error al generar la contratapa");
+      }
+    } finally {
+      setBackCoverGenerating(false);
+    }
+  }
+
+  async function handleGenerateAddon() {
+    if (!data) return;
+    setAddonGenerating(true);
+    setAddonGenerateError("");
+    try {
+      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-addon`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ selectedModelIds: selectedCrossSellIds }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { message?: string }).message ?? "Error al generar el add-on");
+      }
+      loadPrintAssets(data.id);
+    } catch (err) {
+      setAddonGenerateError(err instanceof Error ? err.message : "Error al generar el add-on");
+    } finally {
+      setAddonGenerating(false);
+    }
+  }
+
+  async function toggleAddonPicker() {
+    if (!data) return;
+    const opening = !addonPickerOpen;
+    setAddonPickerOpen(opening);
+    if (opening && addonCandidates.length === 0) {
+      setAddonCandidatesLoading(true);
+      try {
+        const res = await fetch(`${API}/api/admin/orders/${data.id}/cross-sell-candidates`);
+        if (res.ok) setAddonCandidates(await res.json());
+      } finally {
+        setAddonCandidatesLoading(false);
+      }
+    }
+  }
+
+  function toggleCrossSellId(id: number) {
+    setSelectedCrossSellIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 3) return prev; // máximo 3 — la página solo tiene lugar para eso
+      return [...prev, id];
+    });
   }
 
   async function handleConfirmAll() {
@@ -338,6 +529,12 @@ export default function OrdenDetallePage() {
   const nextStInfo = nextSt ? STATUS_MAP[nextSt] : null;
   const currentStepIndex = STATUS_ORDER.indexOf(data.status);
 
+  // Cover no tiene templateId propio (1 por pedido, no por plantilla) — usa
+  // esta key ficticia para reusar selectedPhoto/uploadPhotoError (Record
+  // keyed by number) sin necesitar estado nuevo. El backend nunca ve este
+  // número, es solo la clave local del bucket de selección de fotos.
+  const COVER_PHOTO_KEY = -1;
+
   // Grupos de fotos con roleKey (calza con characterMeta[roleKey] del backend)
   // — mismo patrón que solicitudes/[id], para elegir qué foto mandar a generar.
   const photoGroups: { label: string; roleKey: string; ids: number[] }[] = (() => {
@@ -368,9 +565,6 @@ export default function OrdenDetallePage() {
         { label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] },
         ...meta.livingSiblings.map((s, i) => ({ label: `Hermano ${i + 1} — ${s.name || ""}`, roleKey: `livingSiblings[${i}]`, ids: s.assetIds ?? [] })),
       ];
-    }
-    if ("recipient" in meta && meta.mode === "memorial-familia") {
-      return [{ label: `Fallecido/a — ${meta.recipient.name || ""}`, roleKey: "recipient", ids: meta.recipient.assetIds ?? [] }];
     }
     if ("recipient" in meta) {
       return [
@@ -625,11 +819,17 @@ export default function OrdenDetallePage() {
               </div>
               <textarea
                 value={dedicationDraft}
-                onChange={(e) => setDedicationDraft(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value.length <= MAX_DEDICATION_CHARS) setDedicationDraft(e.target.value);
+                }}
+                maxLength={MAX_DEDICATION_CHARS}
                 rows={4}
                 placeholder="El cliente todavía no dejó una dedicatoria — podés escribir una acá."
                 style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e5e7eb", fontFamily: "inherit", fontSize: "13px", color: "#111", resize: "vertical" }}
               />
+              <div style={{ marginTop: "4px", fontSize: "11px", color: dedicationDraft.length >= MAX_DEDICATION_CHARS ? "#dc2626" : "#9ca3af", textAlign: "right" }}>
+                {dedicationDraft.length} / {MAX_DEDICATION_CHARS} caracteres
+              </div>
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "24px", flexWrap: "wrap" }}>
@@ -679,12 +879,238 @@ export default function OrdenDetallePage() {
             <span style={{ fontSize: "11px", color: "#9ca3af" }}>20.5 × 29 cm</span>
           </div>
 
+          {/* Generar con IA — Tapa, Contraportada y Add-on. Sección separada
+              de "Páginas interiores" (más abajo) porque son partes distintas
+              del libro: 1 por pedido (no por plantilla), y la Tapa es la
+              única que usa fotos de referencia reales — la Contraportada es
+              fondo+texto sin personas, y el Add-on no tiene generación con
+              IA (es automático con QR o upload manual). */}
+          {(() => {
+            const coverPending = printAssets.find((a) => a.assetType === "COVER" && a.status === "PENDING_REVIEW");
+            const coverConfirmed = printAssets.find((a) => a.assetType === "COVER" && a.status === "CONFIRMED");
+            const coverPreview = coverPending ?? coverConfirmed;
+            const backCoverPending = printAssets.find((a) => a.assetType === "BACK_COVER" && a.status === "PENDING_REVIEW");
+            const backCoverConfirmed = printAssets.find((a) => a.assetType === "BACK_COVER" && a.status === "CONFIRMED");
+            const backCoverPreview = backCoverPending ?? backCoverConfirmed;
+            const addonAsset = printAssets.find((a) => a.assetType === "ADDON");
+
+            const StatusBadge = ({ pending, confirmed }: { pending: boolean; confirmed: boolean }) =>
+              pending ? (
+                <span style={{ fontSize: "10px", fontWeight: 700, color: "#92400e", background: "#fef3c7", padding: "2px 8px", borderRadius: "999px" }}>Pendiente de revisión</span>
+              ) : confirmed ? (
+                <span style={{ fontSize: "10px", fontWeight: 700, color: "#059669", background: "#d1fae5", padding: "2px 8px", borderRadius: "999px" }}>Confirmado</span>
+              ) : null;
+
+            return (
+              <div style={{ padding: "16px 24px", borderBottom: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                  Generar con IA — Tapa y Contraportada
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "12px" }}>
+                  {/* ── Portada ── */}
+                  <div style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "12px 14px", background: "#fafafa" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#111" }}>Portada</span>
+                      <StatusBadge pending={!!coverPending} confirmed={!!coverConfirmed} />
+                    </div>
+                    <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                      {coverPreview && (
+                        <img
+                          src={coverPreview.previewUrl}
+                          alt="Portada"
+                          onClick={() => setZoomedImage(coverPreview.previewUrl)}
+                          style={{ width: "130px", height: "92px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
+                        />
+                      )}
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {photoGroups.length > 0 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                            {photoGroups.map((g) => {
+                              const chosen = selectedPhoto[COVER_PHOTO_KEY]?.[g.roleKey] ?? g.ids[0];
+                              return (
+                                <div key={g.roleKey}>
+                                  <div style={{ fontSize: "9px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: "3px" }}>{g.label}</div>
+                                  <div style={{ display: "flex", gap: "4px" }}>
+                                    {g.ids.map((assetId) => {
+                                      const url = assetUrls[assetId];
+                                      const isChosen = assetId === chosen;
+                                      const isReplacing = uploadingAssetId === assetId;
+                                      return (
+                                        <div key={assetId} style={{ position: "relative", width: "38px", height: "38px", flexShrink: 0 }}>
+                                          <button type="button"
+                                            onClick={() => setSelectedPhoto((prev) => ({ ...prev, [COVER_PHOTO_KEY]: { ...prev[COVER_PHOTO_KEY], [g.roleKey]: assetId } }))}
+                                            style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "38px", height: "38px", overflow: "hidden", display: "block" }}
+                                            title={`Usar esta foto para ${g.label}`}>
+                                            {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
+                                          </button>
+                                          <label
+                                            style={{ position: "absolute", bottom: "-4px", right: "-4px", width: "16px", height: "16px", borderRadius: "50%", background: "#111", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", cursor: isReplacing ? "wait" : "pointer", border: "1.5px solid #fff" }}
+                                            title="Reemplazar esta foto puntual por una nueva">
+                                            {isReplacing ? "…" : "↻"}
+                                            <input type="file" accept="image/*" style={{ display: "none" }} disabled={isReplacing}
+                                              onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) handleReplaceCharacterPhoto(COVER_PHOTO_KEY, g.roleKey, assetId, file);
+                                                e.target.value = "";
+                                              }} />
+                                          </label>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {uploadPhotoError[COVER_PHOTO_KEY] && (
+                          <div style={{ fontSize: "11px", color: "#dc2626" }}>{uploadPhotoError[COVER_PHOTO_KEY]}</div>
+                        )}
+                        <div>
+                          <button
+                            disabled={coverGenerating}
+                            onClick={handleGenerateCover}
+                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: coverVerifying ? "#f59e0b" : coverGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: coverGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                            {coverVerifying
+                              ? "Se cortó la conexión — verificando…"
+                              : coverGenerating
+                              ? "Generando… (puede tardar 1-2 min)"
+                              : coverPreview
+                              ? "Regenerar con IA"
+                              : "Generar con IA"}
+                          </button>
+                          {coverGenerateError && (
+                            <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{coverGenerateError}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Contraportada — sin selector de fotos, no usa referencias reales ── */}
+                  <div style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "12px 14px", background: "#fafafa" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#111" }}>Contraportada</span>
+                      <StatusBadge pending={!!backCoverPending} confirmed={!!backCoverConfirmed} />
+                    </div>
+                    <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                      {backCoverPreview && (
+                        <img
+                          src={backCoverPreview.previewUrl}
+                          alt="Contraportada"
+                          onClick={() => setZoomedImage(backCoverPreview.previewUrl)}
+                          style={{ width: "130px", height: "92px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
+                        />
+                      )}
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={{ fontSize: "11px", color: "#9ca3af" }}>Fondo + texto — no lleva fotos reales, no hay nada que elegir acá.</div>
+                        <div>
+                          <button
+                            disabled={backCoverGenerating}
+                            onClick={handleGenerateBackCover}
+                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: backCoverVerifying ? "#f59e0b" : backCoverGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: backCoverGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                            {backCoverVerifying
+                              ? "Se cortó la conexión — verificando…"
+                              : backCoverGenerating
+                              ? "Generando… (puede tardar 1-2 min)"
+                              : backCoverPreview
+                              ? "Regenerar con IA"
+                              : "Generar con IA"}
+                          </button>
+                          {backCoverGenerateError && (
+                            <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{backCoverGenerateError}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Add-on — página de venta cruzada, SIN IA (maquetación
+                    local con datos del catálogo). El botón la materializa
+                    como imagen para revisar antes de confirmar; si preferís
+                    subir algo manual, ese upload sigue abajo y tiene
+                    prioridad sobre esto. ── */}
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.4px", marginTop: "4px" }}>
+                  Add-on — Página de venta cruzada
+                </div>
+                <div style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "12px 14px", background: "#fafafa", maxWidth: "420px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#111" }}>Add-on</span>
+                    {addonAsset && <StatusBadge pending={addonAsset.status === "PENDING_REVIEW"} confirmed={addonAsset.status === "CONFIRMED"} />}
+                  </div>
+                  <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                    {addonAsset && (
+                      <img
+                        src={addonAsset.previewUrl}
+                        alt="Add-on"
+                        onClick={() => setZoomedImage(addonAsset.previewUrl)}
+                        style={{ width: "130px", height: "92px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
+                      />
+                    )}
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <div style={{ fontSize: "11px", color: "#9ca3af" }}>
+                        {addonAsset?.originalFilename
+                          ? "Archivo subido manualmente — tiene prioridad, generar acá lo reemplaza."
+                          : "Sin IA: arma la página con miniaturas y links de otros libros del catálogo."}
+                      </div>
+                      <div>
+                        <button
+                          type="button"
+                          onClick={toggleAddonPicker}
+                          style={{ background: "none", border: "none", padding: 0, fontSize: "11px", fontWeight: 600, color: "#7c3aed", cursor: "pointer", textDecoration: "underline" }}>
+                          {addonPickerOpen
+                            ? "Ocultar selección"
+                            : selectedCrossSellIds.length > 0
+                            ? `Elegir libros (${selectedCrossSellIds.length}/3 elegidos)`
+                            : "Elegir libros (opcional — si no, va al azar)"}
+                        </button>
+                      </div>
+                      {addonPickerOpen && (
+                        <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", padding: "8px", maxHeight: "220px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          {addonCandidatesLoading ? (
+                            <span style={{ fontSize: "11px", color: "#9ca3af" }}>Cargando libros…</span>
+                          ) : (
+                            addonCandidates.map((c) => {
+                              const checked = selectedCrossSellIds.includes(c.id);
+                              const disabled = !checked && selectedCrossSellIds.length >= 3;
+                              return (
+                                <label key={c.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "3px 4px", borderRadius: "6px", cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1, background: checked ? "#f5f3ff" : "transparent" }}>
+                                  <input type="checkbox" checked={checked} disabled={disabled} onChange={() => toggleCrossSellId(c.id)} />
+                                  {c.thumbnailUrl && (
+                                    <img src={c.thumbnailUrl} alt="" style={{ width: "24px", height: "24px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }} />
+                                  )}
+                                  <span style={{ fontSize: "11px", color: "#374151" }}>{c.name}</span>
+                                </label>
+                              );
+                            })
+                          )}
+                        </div>
+                      )}
+                      <div>
+                        <button
+                          disabled={addonGenerating}
+                          onClick={handleGenerateAddon}
+                          style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: addonGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: addonGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                          {addonGenerating ? "Generando…" : addonAsset ? "Regenerar" : "Generar"}
+                        </button>
+                        {addonGenerateError && (
+                          <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{addonGenerateError}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Generar con IA — solo para plantillas con contenido de prompt cargado.
               El upload manual de abajo sigue siendo el fallback/corrección. */}
           {data.templateSelections.some((t) => t.hasPromptContent) && (
             <div style={{ padding: "16px 24px", borderBottom: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: "10px" }}>
               <div style={{ fontSize: "11px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.4px" }}>
-                Generar con IA
+                Generar con IA — Páginas interiores
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "12px" }}>
               {data.templateSelections.filter((t) => t.hasPromptContent).map((t) => {
@@ -745,20 +1171,48 @@ export default function OrdenDetallePage() {
                                     {g.ids.map((assetId) => {
                                       const url = assetUrls[assetId];
                                       const isChosen = assetId === chosen;
+                                      const isReplacing = uploadingAssetId === assetId;
                                       return (
-                                        <button key={assetId} type="button"
-                                          onClick={() => setSelectedPhoto((prev) => ({ ...prev, [t.templateId]: { ...prev[t.templateId], [g.roleKey]: assetId } }))}
-                                          style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "38px", height: "38px", overflow: "hidden", flexShrink: 0 }}
-                                          title={`Usar esta foto para ${g.label}`}>
-                                          {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
-                                        </button>
+                                        <div key={assetId} style={{ position: "relative", width: "38px", height: "38px", flexShrink: 0 }}>
+                                          <button type="button"
+                                            onClick={() => setSelectedPhoto((prev) => ({ ...prev, [t.templateId]: { ...prev[t.templateId], [g.roleKey]: assetId } }))}
+                                            style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "38px", height: "38px", overflow: "hidden", display: "block" }}
+                                            title={`Usar esta foto para ${g.label}`}>
+                                            {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
+                                          </button>
+                                          <label
+                                            style={{ position: "absolute", bottom: "-4px", right: "-4px", width: "16px", height: "16px", borderRadius: "50%", background: "#111", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", cursor: isReplacing ? "wait" : "pointer", border: "1.5px solid #fff" }}
+                                            title="Reemplazar esta foto puntual por una nueva (ej. si el cliente mandó una de mala calidad)">
+                                            {isReplacing ? "…" : "↻"}
+                                            <input type="file" accept="image/*" style={{ display: "none" }} disabled={isReplacing}
+                                              onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) handleReplaceCharacterPhoto(t.templateId, g.roleKey, assetId, file);
+                                                e.target.value = "";
+                                              }} />
+                                          </label>
+                                        </div>
                                       );
                                     })}
+                                    <label
+                                      style={{ width: "38px", height: "38px", borderRadius: "6px", border: "2px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", cursor: uploadingAssetId === g.roleKey ? "wait" : "pointer", fontSize: "16px", fontWeight: 700, color: "#9ca3af", flexShrink: 0 }}
+                                      title="Agregar una foto nueva como opción extra para este rol">
+                                      {uploadingAssetId === g.roleKey ? "…" : "+"}
+                                      <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploadingAssetId === g.roleKey}
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) handleReplaceCharacterPhoto(t.templateId, g.roleKey, undefined, file);
+                                          e.target.value = "";
+                                        }} />
+                                    </label>
                                   </div>
                                 </div>
                               );
                             })}
                           </div>
+                        )}
+                        {uploadPhotoError[t.templateId] && (
+                          <div style={{ fontSize: "11px", color: "#dc2626" }}>{uploadPhotoError[t.templateId]}</div>
                         )}
 
                         <div>
@@ -852,12 +1306,15 @@ export default function OrdenDetallePage() {
               const isConfirming = confirmingSlot === slot.key;
               const busy = isUploading || isDeleting;
 
+              const previewAsset = uploaded ?? pendingReview;
               return (
-                <div key={slot.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "8px", background: uploaded ? "#f0fdf4" : "#f9fafb", border: `1px solid ${uploaded ? "#bbf7d0" : "#e5e7eb"}` }}>
-                  {/* Preview o placeholder */}
+                <div key={slot.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "8px", background: uploaded ? "#f0fdf4" : pendingReview ? "#fffbeb" : "#f9fafb", border: `1px solid ${uploaded ? "#bbf7d0" : pendingReview ? "#fde68a" : "#e5e7eb"}` }}>
+                  {/* Preview o placeholder — se muestra tanto en PENDING_REVIEW como en
+                      CONFIRMED (antes solo mostraba confirmado, dejando al admin sin forma
+                      de ver la tapa/contratapa recién generada por IA antes de confirmarla). */}
                   <div style={{ width: "44px", height: "44px", borderRadius: "6px", overflow: "hidden", flexShrink: 0, background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {uploaded
-                      ? <img src={uploaded.previewUrl} alt="" onClick={() => setZoomedImage(uploaded.previewUrl)} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} />
+                    {previewAsset
+                      ? <img src={previewAsset.previewUrl} alt="" onClick={() => setZoomedImage(previewAsset.previewUrl)} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} />
                       : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     }
                   </div>
@@ -871,7 +1328,7 @@ export default function OrdenDetallePage() {
                     {uploaded
                       ? <div style={{ fontSize: "11px", color: "#6b7280" }}>{uploaded.originalFilename ?? "Archivo subido"}</div>
                       : pendingReview
-                      ? <div style={{ fontSize: "11px", color: "#92400e" }}>Generada con IA, esperando confirmación arriba ⬆</div>
+                      ? <div style={{ fontSize: "11px", color: "#92400e" }}>Generada con IA, esperando confirmación arriba ⬆ (click en la miniatura para verla grande)</div>
                       : <div style={{ fontSize: "11px", color: "#9ca3af" }}>{slot.optional ? "Auto-blanco si no se sube" : "Sin archivo"} · <span style={{ color: "#d97706" }}>3425 × 2421 px · 29 × 20.5 cm</span></div>
                     }
                   </div>
@@ -923,6 +1380,10 @@ export default function OrdenDetallePage() {
                       </button>
                     )
                   )}
+
+                  {/* Generar con IA para Portada/Contraportada vive en la sección de
+                      arriba ("Tapa y Contraportada"), con selector de fotos — acá
+                      solo queda upload manual / eliminar, mismo trato que Plantillas. */}
 
                   {/* Upload button */}
                   <label style={{ flexShrink: 0, cursor: busy ? "not-allowed" : "pointer" }}>

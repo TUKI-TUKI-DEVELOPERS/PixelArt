@@ -33,6 +33,15 @@ export class PersonalizedModelOrmEntity {
   @JoinColumn({ name: 'cover_asset_id' })
   coverAsset!: AssetOrmEntity | null;
 
+  @Column({ type: 'text', nullable: true })
+  slug!: string | null;
+
+  @Column({ name: 'cover_scene_visual', type: 'text', nullable: true })
+  coverSceneVisual!: string | null;
+
+  @Column({ name: 'back_cover_tagline', type: 'text', nullable: true })
+  backCoverTagline!: string | null;
+
   @ManyToOne(() => PersonalizedCategoryOrmEntity, (c) => c.models)
   @JoinColumn({ name: 'category_id' })
   category!: PersonalizedCategoryOrmEntity;

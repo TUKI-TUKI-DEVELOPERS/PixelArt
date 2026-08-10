@@ -38,7 +38,24 @@ export class OpenAiImageGenerationAdapter extends ImageGenerationPort {
       quality: 'medium',
     });
 
-    this.logGenerationCost(size, response.usage);
+    this.logGenerationCost('images.edit', size, response.usage);
+
+    const b64 = response.data?.[0]?.b64_json;
+    if (!b64) {
+      throw new Error('OpenAI no devolvió una imagen (b64_json vacío)');
+    }
+    return Buffer.from(b64, 'base64');
+  }
+
+  async generate(prompt: string, size = '1536x1024'): Promise<Buffer> {
+    const response = await this.client.images.generate({
+      model: 'gpt-image-2',
+      prompt,
+      size,
+      quality: 'medium',
+    });
+
+    this.logGenerationCost('images.generate', size, response.usage);
 
     const b64 = response.data?.[0]?.b64_json;
     if (!b64) {
@@ -50,9 +67,9 @@ export class OpenAiImageGenerationAdapter extends ImageGenerationPort {
   /** El dashboard de OpenAI solo agrega por día, no por llamada — esto deja
    * en el log el consumo real de tokens de ESTA generación puntual, con un
    * estimado en USD (aproximado, no el monto exacto que factura OpenAI). */
-  private logGenerationCost(size: string, usage: OpenAI.Images.ImagesResponse['usage']): void {
+  private logGenerationCost(method: string, size: string, usage: OpenAI.Images.ImagesResponse['usage']): void {
     if (!usage) {
-      this.logger.warn(`gpt-image-2 (${size}): la respuesta no trajo "usage" — no se puede estimar el costo de esta llamada`);
+      this.logger.warn(`gpt-image-2 ${method} (${size}): la respuesta no trajo "usage" — no se puede estimar el costo de esta llamada`);
       return;
     }
     const { input_tokens_details, output_tokens, total_tokens } = usage;
@@ -62,7 +79,7 @@ export class OpenAiImageGenerationAdapter extends ImageGenerationPort {
         output_tokens * OUTPUT_IMAGE_USD_PER_M_TOKENS) /
       1_000_000;
     this.logger.log(
-      `gpt-image-2 (${size}): ${total_tokens} tokens totales ` +
+      `gpt-image-2 ${method} (${size}): ${total_tokens} tokens totales ` +
         `(entrada: ${input_tokens_details.image_tokens} img + ${input_tokens_details.text_tokens} texto, salida: ${output_tokens} img) ` +
         `— estimado ~$${estimatedUsd.toFixed(4)} USD (verificar costo real en platform.openai.com/usage)`,
     );

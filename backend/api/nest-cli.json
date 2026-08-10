@@ -7,6 +7,9 @@
     "assets": [
       { "include": "email/templates/**/*.html", "watchAssets": true },
       { "include": "orders/infrastructure/pdf/fonts/**/*.ttf", "watchAssets": true },
+      { "include": "orders/infrastructure/pdf/fonts/**/*.woff2", "watchAssets": true },
+      { "include": "orders/infrastructure/pdf/branding/**/*.svg", "watchAssets": true },
+      { "include": "orders/infrastructure/pdf/branding/**/*.png", "watchAssets": true },
       { "include": "database/content/**/*.sql", "watchAssets": true }
     ]
   }

@@ -29,6 +29,12 @@ export class PersonalizedCategoryOrmEntity {
   @JoinColumn({ name: 'cover_asset_id' })
   coverAsset!: AssetOrmEntity | null;
 
+  @Column({ type: 'text', nullable: true })
+  slug!: string | null;
+
+  @Column({ name: 'back_cover_hashtag', type: 'text', nullable: true })
+  backCoverHashtag!: string | null;
+
   @OneToMany(() => PersonalizedModelOrmEntity, (m) => m.category)
   models!: PersonalizedModelOrmEntity[];
 

@@ -31,6 +31,19 @@ export class TypeOrmPersonalizedRepository extends PersonalizedRepositoryPort {
     return Object.fromEntries(blocks.map((b) => [b.blockKey, b.content]));
   }
 
+  async findModelNameById(modelId: string): Promise<string | null> {
+    const model = await this.modelRepo.findOne({ where: { id: modelId } });
+    return model?.name ?? null;
+  }
+
+  async findModelById(modelId: string): Promise<PersonalizedModelOrmEntity | null> {
+    return this.modelRepo.findOne({ where: { id: modelId } });
+  }
+
+  async findCategoryById(categoryId: string): Promise<PersonalizedCategoryOrmEntity | null> {
+    return this.categoryRepo.findOne({ where: { id: categoryId } });
+  }
+
   async findAllActiveCategories(): Promise<PersonalizedCategoryOrmEntity[]> {
     return this.categoryRepo.find({
       where: { isActive: true },

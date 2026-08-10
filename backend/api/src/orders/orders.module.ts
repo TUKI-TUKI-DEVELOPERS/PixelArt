@@ -10,6 +10,8 @@ import { TypeOrmOrderRepository } from './infrastructure/persistence/repositorie
 import { OrderRepositoryPort } from './domain/ports/order-repository.port';
 import { CustomBookPdfService } from './infrastructure/pdf/custom-book-pdf.service';
 import { GenerateOrderTemplateUseCase } from './application/use-cases/generate-order-template.use-case';
+import { GenerateOrderCoverUseCase } from './application/use-cases/generate-order-cover.use-case';
+import { GenerateOrderAddonUseCase } from './application/use-cases/generate-order-addon.use-case';
 import { PaymentsModule } from '../payments/payments.module';
 import { EmailModule } from '../email/email.module';
 import { PhotobookModule } from '../photobook/photobook.module';
@@ -33,6 +35,8 @@ import { PersonalizedModule } from '../personalized/personalized.module';
     { provide: OrderRepositoryPort, useExisting: TypeOrmOrderRepository },
     CustomBookPdfService,
     GenerateOrderTemplateUseCase,
+    GenerateOrderCoverUseCase,
+    GenerateOrderAddonUseCase,
   ],
   exports: [OrdersService],
 })
