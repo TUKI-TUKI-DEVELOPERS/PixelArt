@@ -275,7 +275,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "El homenaje más hermoso para quien fue tu guía y tu fuerza:",
     bullets: [
       "Un libro que celebra a esa persona especial que te protegió, te guió y dejó una huella imborrable en tu corazón.",
-      "Cada página honra quién fue, todo lo que significó para vos y el amor que sigue vivo en cada recuerdo.",
+      "Cada página honra quién fue, todo lo que significó para ti y el amor que sigue vivo en cada recuerdo.",
     ],
     caracteristicas: [
       { label: "Páginas", value: "10 a 15" },
@@ -295,7 +295,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
       "El homenaje más hermoso para quien nunca olvidarás:",
     bullets: [
       "Un libro que honra los momentos únicos que compartieron juntos: las risas, las aventuras y el amor que dejó una huella imborrable.",
-      "Cada página celebra quién fue esa persona especial y lo que significó para vos.",
+      "Cada página celebra quién fue esa persona especial y lo que significó para ti.",
     ],
     caracteristicas: [
       { label: "Páginas", value: "10 a 15" },

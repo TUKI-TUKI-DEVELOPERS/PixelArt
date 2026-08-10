@@ -727,7 +727,7 @@ En el centro de la composición aparece una pareja dentro de una acogedora sala 
   background_details = $t41b$La habitación posee una decoración cálida y elegante con muebles de madera, textiles suaves y plantas naturales distribuidas alrededor del ambiente. Grandes ventanas permiten el ingreso de abundantes rayos de sol dorados que llenan completamente el espacio de luz cálida. Toda la habitación refleja armonía, comodidad y la sensación de sentirse verdaderamente en casa.$t41b$,
   magic_effects = $t41c$La luz que emana de {NOMBRE_DESTINATARIO} se integra perfectamente con la luz natural del sol. Pequeñas partículas luminosas flotan delicadamente en el aire. Las plantas cercanas reflejan suavemente esa energía luminosa, mostrando un brillo cálido que simboliza vida, esperanza y crecimiento. La magia debe sentirse sutil, elegante y completamente integrada dentro de una fotografía realista.$t41c$,
   lighting_color = $t41d$Iluminación cinematográfica cálida, envolvente y altamente natural. La escena está dominada por rayos de sol intensos que ingresan desde las ventanas e iluminan toda la habitación. Predominan tonos: dorado intenso, amarillo cálido, crema luminoso, reflejos ámbar ligeros, tonos miel. La iluminación genera una atmósfera reconfortante, romántica y llena de energía positiva.$t41d$,
-  poem_template = $t41e$100 días amándote como si fueras el sol, {NOMBRE_DESTINATARIO}, iluminas mi vida desde el rol.
+  poem_template = $t41e$Amándote como si fueras el sol, {NOMBRE_DESTINATARIO}, iluminas mi vida desde el rol.
 Tu presencia calienta cada rincón, Donde la oscuridad ya no tiene razón.
 Cada día contigo es un amanecer, Donde tu luz me hace renacer.
 Eres mi sol personal y real, Mi amor, mi amor, mi luz vital.$t41e$,
@@ -741,7 +741,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t42b$Alrededor de la pareja flotan estrellas y lunas brillantes de distintos tamaños, en un cielo nocturno onírico y surrealista. Los colores del ambiente se mezclan suavemente como acuarela en el aire, creando un espacio sin límites definidos, propio de un sueño lúcido.$t42b$,
   magic_effects = $t42c$Burbujas transparentes y brillantes flotan alrededor de la pareja, cada una conteniendo pequeñas siluetas luminosas de recuerdos vividos juntos. Partículas de polvo estelar se desplazan lentamente por el aire. La magia debe sentirse serena, delicada y completamente integrada dentro de una fotografía realista.$t42c$,
   lighting_color = $t42d$Iluminación suave y difusa, similar a la luz de luna llena filtrada entre nubes. Predominan tonos pasteles: azul cielo, rosa pálido, lila suave y destellos plateados. La atmósfera es etérea, tranquila y profundamente romántica.$t42d$,
-  poem_template = $t42e$100 días viviendo este sueño contigo,
+  poem_template = $t42e$Viviendo este sueño contigo,
 {NOMBRE_DESTINATARIO}, cada momento es mi abrigo.
 Tu amor es tan perfecto que parece irreal,
 Donde cada día es algo especial.
@@ -759,7 +759,7 @@ En el centro de la composición aparece una pareja dentro de un ambiente cálido
   background_details = $t43b$Alrededor de la pareja flotan instrumentos musicales luminosos (guitarra, piano, violín) de forma etérea y decorativa, junto con ondas de sonido visibles en colores vibrantes que se expanden suavemente por el ambiente. El entorno evoca un escenario de concierto íntimo y mágico, cálido y acogedor.$t43b$,
   magic_effects = $t43c$Las notas musicales que emergen de la risa de {NOMBRE_DESTINATARIO} brillan con tonos dorados y pastel, flotando en espiral hacia el techo. Pequeños destellos de luz laten al ritmo de la música invisible. La magia debe sentirse alegre, luminosa y perfectamente integrada dentro de una fotografía realista.$t43c$,
   lighting_color = $t43d$Iluminación cálida y vibrante, tipo escenario de concierto íntimo. Predominan tonos alegres y luminosos: amarillo brillante, naranja suave, rosa vibrante y toques dorados. La atmósfera transmite pura felicidad y energía positiva.$t43d$,
-  poem_template = $t43e$100 días escuchando tu risa perfecta,
+  poem_template = $t43e$Escuchando tu risa perfecta,
 {NOMBRE_DESTINATARIO}, es la melodía más directa.
 Tu carcajada alegra mi existir,
 Donde cada sonido me hace vivir.
@@ -777,7 +777,7 @@ La imagen es un macro fotográfico extremo del rostro de {NOMBRE_DESTINATARIO}, 
   background_details = $t44b$Fuera del área de los ojos, el resto del encuadre se difumina intencionalmente en un bokeh oscuro y neutro, casi nocturno, de manera que no compita visualmente con el "portal" luminoso de la mirada. Esta oscuridad envolvente resalta aún más el contraste con los colores vívidos del paraíso reflejado.$t44b$,
   magic_effects = $t44c$En el borde del iris se percibe una leve distorsión óptica tipo lente, como si el paraíso realmente existiera al otro lado de un cristal curvo. Diminutas partículas de luz dorada escapan sutilmente del contorno de la pupila y se disuelven en el aire oscuro que rodea el rostro, sugiriendo que ese mundo interior se filtra hacia la realidad. Dentro del reflejo del paraíso, una silueta lejana y borrosa —apenas insinuada entre las palmeras— recuerda la figura de Diego caminando por la orilla, integrando a la pareja incluso dentro del "mundo" contenido en la mirada.$t44c$,
   lighting_color = $t44d$Iluminación dividida: el rostro se mantiene en penumbra suave y cálida, mientras que el interior de los ojos irradia luz propia. Predominan tonos turquesa intenso, dorado de atardecer, verde palmera y destellos ámbar, en fuerte contraste con la oscuridad neutra del entorno.$t44d$,
-  poem_template = $t44e$100 días mirando tus ojos de paraíso,
+  poem_template = $t44e$Mirando tus ojos de paraíso,
 {NOMBRE_DESTINATARIO}, en tu mirada encuentro mi piso.
 Tus ojos guardan mundos de belleza,
 Donde cada destello es certeza.
@@ -795,7 +795,7 @@ De perfil, {NOMBRE_DESTINATARIO} habla suavemente con los labios entreabiertos; 
   background_details = $t45b$El entorno es una acogedora cabaña de madera oscura con vigas a la vista, ramilletes de flores secas colgando del techo y un estante con tarros de miel artesanal iluminados por la luz del atardecer que entra por una ventana lateral. Fragmentos de panal translúcido flotan suspendidos en el aire como pequeñas esculturas de luz ámbar.$t45b$,
   magic_effects = $t45c$Dentro de la cinta de miel líquida que fluye de los labios de {NOMBRE_DESTINATARIO} se insinúan, por un instante, formas delicadas —una paloma, un corazón— antes de disolverse en un fino polvo dorado. Pequeñas abejas mágicas de luz bioluminiscente dorada orbitan lentamente alrededor de la cinta de miel sin nunca tocarla, dejando estelas luminosas breves a su paso. La magia debe sentirse artesanal, cálida y perfectamente integrada dentro de una fotografía realista.$t45c$,
   lighting_color = $t45d$Luz de atardecer entrando en ángulo bajo por la ventana lateral, cálida y dorada, con la cinta de miel como fuente de luz secundaria. Predominan tonos miel dorado, ámbar profundo, marrón madera y destellos crema. Atmósfera reconfortante, artesanal y serena.$t45d$,
-  poem_template = $t45e$100 días escuchando tu voz de miel,
+  poem_template = $t45e$Escuchando tu voz de miel,
 {NOMBRE_DESTINATARIO}, cada palabra es mi laurel.
 Tu voz calma mis tormentas internas,
 Donde cada sonido son luces eternas.
@@ -813,7 +813,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t46b$Fuera de la burbuja se desata una tormenta intensa: lluvia oblicua, nubes grises y densas, ráfagas de viento que agitan la vegetación cercana al acantilado. El paisaje exterior está desaturado, en tonos grises y azulados fríos, mientras que el interior de la burbuja conserva colores cálidos y vívidos, creando un contraste dramático entre ambos mundos.$t46b$,
   magic_effects = $t46c$La superficie de la burbuja protectora tiene un leve brillo dorado tipo escudo mágico, con ondulaciones sutiles al ritmo del viento exterior, como si repeliera activamente la tormenta sin romperse. Gotas de lluvia que impactan la burbuja se deslizan y se transforman en pequeñas chispas doradas antes de caer. La magia debe sentirse sólida, protectora y perfectamente integrada dentro de una fotografía realista.$t46c$,
   lighting_color = $t46d$Contraste lumínico marcado: luz cálida y dorada dentro de la burbuja frente a luz fría, grisácea y tormentosa en el exterior. Predominan tonos dorado suave y ámbar cálido dentro; gris plomo, azul tormenta y blanco lluvia afuera.$t46d$,
-  poem_template = $t46e$100 días refugiándome en tus brazos,
+  poem_template = $t46e$Refugiándome en tus brazos,
 {NOMBRE_DESTINATARIO}, eres mis mejores lazos.
 Tu abrazo me protege del mundo exterior,
 Donde cada apretón es mi mejor.
@@ -831,7 +831,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} está de pie en el balcó
   background_details = $t47b$El piso de madera del balcón está mojado y refleja tenuemente los colores del arcoíris como un espejo difuso. Gotas de lluvia residuales caen lentamente desde el borde del techo. A lo lejos, la ciudad o el paisaje se ve parcialmente iluminado por rayos de sol que atraviesan las nubes rotas.$t47b$,
   magic_effects = $t47c$Cada gota de lluvia, al tocar el suelo del balcón, se transforma instantáneamente en una pequeña chispa de luz de color (siguiendo la paleta del arcoíris) que se eleva brevemente antes de desvanecerse, como si la tristeza se convirtiera en luz al contacto con la sonrisa de {NOMBRE_DESTINATARIO}. El arcoíris tiene un brillo ligeramente sobrenatural, más intenso que uno real, pero manteniendo el fotorrealismo.$t47c$,
   lighting_color = $t47d$Luz de sol filtrada y difusa entre nubes rotas, con rayos visibles atravesando el ambiente húmedo. Predominan los siete colores del arcoíris (rojo, naranja, amarillo, verde, azul, índigo, violeta) contra un cielo que transiciona de gris tormenta a celeste despejado. Atmósfera fresca, luminosa y esperanzadora.$t47d$,
-  poem_template = $t47e$100 días viendo tu sonrisa brillar,
+  poem_template = $t47e$Viendo tu sonrisa brillar,
 {NOMBRE_DESTINATARIO}, como arcoíris sin cesar.
 Tu sonrisa ilumina mis días grises,
 Donde cada gesto son matices.
@@ -849,7 +849,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t48b$Una lluvia de estrellas fugaces cruza el cielo detrás de ellos, sus estelas curvándose sutilmente hasta insinuar, sin ser literal ni geométrica, la forma de un corazón en el firmamento. Las luces de los edificios de la ciudad titilan suavemente en la distancia, difuminadas por la altura.$t48b$,
   magic_effects = $t48c$Alrededor de la pareja ascienden lentamente farolillos de papel dorados, con una luz cálida propia en su interior; al mirar de cerca, dentro de cada uno se insinúa tenuemente, como una ventana translúcida, la silueta dorada de ese mismo beso, sin literalidad de "repetición en bucle", solo una sugerencia suave y elegante. La magia se siente cálida, festiva y perfectamente integrada dentro de una fotografía realista.$t48c$,
   lighting_color = $t48d$Iluminación nocturna cálida, con los fuegos artificiales y los farolillos como fuentes principales de luz dorada y ámbar, contra un cielo azul oscuro profundo y el brillo lejano del skyline. Predominan tonos dorado brillante, ámbar cálido, azul noche profundo y toques rosados de los fuegos artificiales.$t48d$,
-  poem_template = $t48e$100 días desde aquel primer beso mágico,
+  poem_template = $t48e$Desde aquel primer beso mágico,
 {NOMBRE_DESTINATARIO}, momento tan categórico.
 Tus labios tocaron los míos con pasión,
 Donde el tiempo paró sin razón.
@@ -867,7 +867,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t49b$El campo de trigo se extiende hasta el horizonte, dorado y en movimiento constante por el viento, bajo un cielo de atardecer en tonos naranja profundo y rosado. A lo lejos, el sol se oculta justo detrás de la pareja, generando un contraluz cálido que perfila sus siluetas.$t49b$,
   magic_effects = $t49c$Pequeños corazones de luz dorada, del tamaño de luciérnagas, flotan y parpadean suavemente alrededor de las palabras suspendidas, como si emanaran de ellas. Las letras doradas de "TE AMO" tienen un brillo interno pulsante, suave, sin sentirse artificial. Diminutas partículas de polvo dorado se desprenden lentamente de las letras y se mezclan con las espigas de trigo cercanas.$t49c$,
   lighting_color = $t49d$Luz de atardecer intensa y cálida a contraluz, con destellos dorados atravesando el campo de trigo. Predominan tonos dorado profundo, naranja atardecer, ámbar y toques rosados suaves en el cielo.$t49d$,
-  poem_template = $t49e$100 días desde que dijiste "te amo",
+  poem_template = $t49e$Desde que dijiste "te amo",
 {NOMBRE_DESTINATARIO}, palabras que siempre reclamo.
 Esas dos palabras cambiaron mi vida,
 Donde cada letra fue bienvenida.
@@ -885,7 +885,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t50b$Las "paredes" del fuerte están hechas de mantas colgantes suaves sostenidas por cojines, iluminadas por delicadas luces tipo guirnalda cálida entrelazadas en la estructura. Frente a la pareja, suspendidas en el aire como si fueran proyecciones holográficas, flotan pequeñas escenas translúcidas y luminosas de películas clásicas románticas, brillando con luz propia como pantallas mágicas en miniatura.$t50b$,
   magic_effects = $t50c$Las palomitas que flotan alrededor del bol brillan tenuemente como si estuvieran hechas de luz dorada suave. Las proyecciones holográficas de películas parpadean con un resplandor azulado y cálido alternado, como fotogramas vivos, sin llegar a ser nítidas ni legibles, solo sugerentes. La magia se siente hogareña, suave y perfectamente integrada dentro de una fotografía realista.$t50c$,
   lighting_color = $t50d$Iluminación nocturna íntima, dominada por la luz cálida de las guirnaldas y el resplandor azulado de las proyecciones holográficas. Predominan tonos ámbar suave, dorado tenue, azul proyector y blanco cálido de las luces.$t50d$,
-  poem_template = $t50e$100 días de películas a tu lado,
+  poem_template = $t50e$De películas a tu lado,
 {NOMBRE_DESTINATARIO}, mi momento más amado.
 Tu compañía hace cada escena especial,
 Donde cada abrazo es celestial.
@@ -903,7 +903,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t51b$Alrededor del marco de la cama y sobre las mesas de noche, flores mágicas crecen y florecen en tiempo acelerado, como si el amanecer las hiciera brotar en ese instante: enredaderas floridas trepan suavemente por los postes de la cama, pétalos abriéndose delicadamente. En el alféizar de la ventana, pequeños pájaros de plumaje brillante y bioluminiscente cantan, con diminutas espirales de luz dorada elevándose de sus picos al ritmo del canto.$t51b$,
   magic_effects = $t51c$Motas de polen dorado y luminoso flotan suavemente en el aire iluminado por los rayos de sol, como polvo de hadas natural. Las flores que florecen alrededor de la cama dejan un rastro tenue de brillo dorado en el aire al abrirse. La magia se siente fresca, viva y perfectamente integrada dentro de una fotografía realista.$t51c$,
   lighting_color = $t51d$Luz de amanecer dorada y suave entrando en ángulo bajo por la ventana, con motas de polvo doradas suspendidas en los rayos de luz. Predominan tonos dorado pastel, rosa amanecer suave, blanco cálido de las sábanas y verde tierno de las flores nuevas.$t51d$,
-  poem_template = $t51e$100 días despertando junto a ti,
+  poem_template = $t51e$Despertando junto a ti,
 {NOMBRE_DESTINATARIO}, cada mañana es para mí.
 Tu rostro es lo primero que veo al despertar,
 Donde cada día vuelve a empezar.
@@ -921,7 +921,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t52b$Alrededor de la pareja, flotando a distintas alturas como esferas de recuerdo translúcidas, aparecen viñetas circulares de aventuras pasadas: una playa de arena blanca y mar turquesa, una ciudad iluminada de noche, un bosque frondoso al amanecer. Cada esfera tiene un halo dorado suave en su borde. Debajo de ellos, la vista panorámica de valles y cordilleras se extiende hasta el horizonte, bañada por la luz del atardecer.$t52b$,
   magic_effects = $t52c$Del mapa que sostienen juntos emergen delicadas líneas doradas luminosas que se elevan y conectan brevemente con cada una de las esferas de recuerdo flotantes, como constelaciones trazando su historia compartida. La brújula desprende un tenue resplandor dorado pulsante. La magia se siente épica, cálida y perfectamente integrada dentro de una fotografía realista.$t52c$,
   lighting_color = $t52d$Luz de atardecer dorada e intensa, con la silueta de las montañas recortada contra el cielo. Predominan tonos dorado vibrante, naranja aventurero, azul montaña profundo y toques turquesa de las esferas de playa.$t52d$,
-  poem_template = $t52e$100 días de aventuras a tu lado,
+  poem_template = $t52e$De aventuras a tu lado,
 {NOMBRE_DESTINATARIO}, cada viaje es sagrado.
 Contigo cada lugar se vuelve especial,
 Donde cada paso es monumental.
@@ -939,7 +939,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t53b$Sobre ellos, las estrellas forman una especie de bóveda celeste densa, como un candelabro natural. La luna llena brilla detrás de la pareja como un reflector natural, iluminándolos desde atrás con un halo plateado.$t53b$,
   magic_effects = $t53c$Ondas doradas de música visible se propagan en círculos concéntricos desde los pies de la pareja hacia afuera, como si el propio cielo tocara la melodía de su baile. Pequeñas partículas brillantes se desprenden de las nubes bajo sus pies cada vez que giran, dejando una estela luminosa breve. La magia se siente ligera, alegre y perfectamente integrada dentro de una fotografía realista.$t53c$,
   lighting_color = $t53d$Iluminación nocturna celestial, con contraluz plateado de la luna llena y el brillo dorado cálido de las ondas de sonido. Predominan tonos blanco nube, azul noche profundo, plateado lunar y dorado suave.$t53d$,
-  poem_template = $t53e$100 días bailando entre tus brazos,
+  poem_template = $t53e$Bailando entre tus brazos,
 {NOMBRE_DESTINATARIO}, flotando en tus abrazos.
 Tus pasos me llevan a las nubes,
 Donde cada giro son querubes.
@@ -957,7 +957,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t54b$Entre ambos, a la altura del pecho, flotan pequeñas nubes luminosas de pensamiento, suaves y translúcidas, en tonos plateados y dorados tenues, que se forman y disuelven lentamente mientras hablan, sin llegar a formar letras ni palabras legibles, solo la sugerencia visual de ideas compartidas. La habitación está en penumbra, iluminada principalmente por la luna y el tenue resplandor de las nubes de pensamiento.$t54b$,
   magic_effects = $t54c$Cada nube de pensamiento tiene un brillo interior pulsante suave, como una respiración lenta, y ocasionalmente dos nubes de cada uno se entrelazan brevemente antes de disolverse, simbolizando la conexión de sus ideas. Diminutas motas de luz plateada flotan en el aire alrededor de la cama, como polvo de luna. La magia se siente serena, íntima y perfectamente integrada dentro de una fotografía realista.$t54c$,
   lighting_color = $t54d$Iluminación nocturna fría y suave, dominada por la luz plateada de la luna llena a través de la ventana, contrastada con el resplandor dorado tenue de las nubes de pensamiento. Predominan tonos azul noche profundo, plateado lunar y dorado suave apagado.$t54d$,
-  poem_template = $t54e$100 días de charlas hasta el amanecer,
+  poem_template = $t54e$De charlas hasta el amanecer,
 {NOMBRE_DESTINATARIO}, contigo puedo ser.
 Nuestras conversaciones tocan mi alma,
 Donde cada palabra trae calma.
@@ -975,7 +975,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} está de pie sobre un sut
   background_details = $t55b$El salón tiene una estética íntima de palacio moderno: cortinas largas de terciopelo cayendo en pliegues suaves, un piso de mármol pulido que refleja tenuemente el resplandor dorado de {NOMBRE_DESTINATARIO}, e iluminación ambiental cálida similar a la de candelabros distribuidos fuera de foco en el fondo.$t55b$,
   magic_effects = $t55c$El resplandor dorado que emana de {NOMBRE_DESTINATARIO} se refleja suavemente en el mármol bajo sus pies, creando un halo circular de luz alrededor de la base del pedestal. Pequeñas partículas doradas ascienden lentamente desde sus hombros hacia la corona de luz, alimentándola. La magia se siente solemne, cálida y perfectamente integrada dentro de una fotografía realista.$t55c$,
   lighting_color = $t55d$Iluminación cálida tipo salón de gala, con el resplandor dorado de {NOMBRE_DESTINATARIO} como fuente de luz principal. Predominan tonos dorado intenso, ámbar cálido, blanco marfil del mármol y toques bronce en las sombras.$t55d$,
-  poem_template = $t55e$100 días sintiéndome única contigo,
+  poem_template = $t55e$Sintiéndome única contigo,
 {NOMBRE_DESTINATARIO}, eres mi mejor abrigo.
 Tu amor me hace sentir especial,
 Donde cada gesto es monumental.
@@ -993,7 +993,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t56b$La mitad exterior del patio, más alejada de la pareja, se ve en tonos grises apagados y desaturados, con piedra agrietada y vegetación marchita. A medida que el ojo se acerca al centro donde están abrazados, el entorno se transforma gradualmente: la piedra bajo sus pies florece con corazones dorados brillantes que crecen como flores entre las grietas, y el gris cede paso a tonos cálidos dorados.$t56b$,
   magic_effects = $t56c$Alrededor de la pareja flotan varios libros antiguos abiertos, suspendidos en el aire, con páginas que brillan suavemente y muestran líneas de texto doradas caligráficas e ilegibles, sugiriendo definiciones descubiertas del amor verdadero. Los eslabones de las cadenas rotas se disuelven en motas de luz dorada al tocar el suelo florecido. La magia se siente reveladora, cálida y perfectamente integrada dentro de una fotografía realista.$t56c$,
   lighting_color = $t56d$Iluminación que transiciona de fría y gris en los bordes del encuadre a cálida y dorada en el centro, donde está la pareja. Predominan tonos gris piedra apagado en los extremos, dorado brillante y verde dorado cálido cerca del centro.$t56d$,
-  poem_template = $t56e$100 días aprendiendo a amar de verdad,
+  poem_template = $t56e$Aprendiendo a amar de verdad,
 {NOMBRE_DESTINATARIO}, tú me enseñaste esta verdad.
 Antes no sabía lo que era amar así,
 Donde cada día es un sí.
@@ -1013,7 +1013,7 @@ En el centro de la composición, Diego resbala y cae en un tramo de escalera ext
   background_details = $t57b$Alrededor de la pareja, la tormenta arrecia: lluvia intensa oblicua, rayos distantes iluminando el cielo, viento agitando ropa y cabello. Dentro del radio de las alas de luz, sin embargo, ni una gota de lluvia los toca; el aire ahí es cálido y dorado.$t57b$,
   magic_effects = $t57c$Las alas de luz dorada tienen una textura suave y plumosa, semitransparente en los bordes, brillando con más intensidad donde envuelven directamente a la pareja. Las gotas de lluvia que se acercan demasiado al borde de las alas se desvían suavemente, como repelidas por un campo invisible. La magia se siente urgente, protectora y perfectamente integrada dentro de una fotografía realista.$t57c$,
   lighting_color = $t57d$Contraste dramático: tormenta oscura en tonos grises azulados y plateados fríos alrededor, contra el resplandor cálido dorado de las alas de luz que envuelven a la pareja.$t57d$,
-  poem_template = $t57e$100 días de apoyo incondicional,
+  poem_template = $t57e$De apoyo incondicional,
 {NOMBRE_DESTINATARIO}, eres mi pilar principal.
 En mis peores momentos estás ahí,
 Donde tu fuerza me hace seguir.
@@ -1031,7 +1031,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros fotorrea
   background_details = $t58b$El jardín está bañado en luz de sol brillante y cálida, con pasto verde vibrante y flores silvestres de colores alrededor. De los ojos de ambos caen pequeñas lágrimas de risa que, al desprenderse, se transforman en diminutos diamantes brillantes que ruedan sobre el pasto.$t58b$,
   magic_effects = $t58c$Alrededor de la pareja flotan y estallan suavemente burbujas transparentes que contienen ondas visibles de sonido de sus carcajadas, cada una liberando al reventar un breve estallido de confeti de colores vibrantes. La magia se siente ligera, juguetona y perfectamente integrada dentro de una fotografía realista.$t58c$,
   lighting_color = $t58d$Luz de sol de mediodía brillante y alegre, cálida y uniforme. Predominan tonos verde césped vibrante, amarillo sol, y el brillo cristalino de las lágrimas de risa convertidas en diamantes, junto con el confeti multicolor de las burbujas.$t58d$,
-  poem_template = $t58e$100 días de risas sin parar,
+  poem_template = $t58e$De risas sin parar,
 {NOMBRE_DESTINATARIO}, me haces tanto reír.
 Tu humor alegra mis días grises,
 Donde cada chiste son matices.
@@ -1051,7 +1051,7 @@ En el centro de la composición, Diego sube una escalinata monumental de peldañ
   background_details = $t59b$La escalinata asciende hacia un cielo despejado de tonos azul brillante con nubes doradas iluminadas por el amanecer. A ambos lados, columnas bajas de piedra clara flanquean los peldaños.$t59b$,
   magic_effects = $t59c$Cada peldaño que Diego pisa se ilumina brevemente con un destello dorado antes de atenuarse detrás de él. La silueta luminosa aspiracional que camina junto a él proyecta pequeñas partículas de luz blanca que ascienden como chispas hacia el cielo. La magia se siente motivadora, luminosa y perfectamente integrada dentro de una fotografía realista.$t59c$,
   lighting_color = $t59d$Iluminación de amanecer brillante y ascendente, con la luz de {NOMBRE_DESTINATARIO} como fuente cálida desde abajo y el cielo azul luminoso arriba. Predominan tonos dorado brillante, blanco luminoso y azul cielo intenso.$t59d$,
-  poem_template = $t59e$100 días inspirándome a crecer,
+  poem_template = $t59e$Inspirándome a crecer,
 {NOMBRE_DESTINATARIO}, contigo quiero ser.
 Tu ejemplo me impulsa a mejorar,
 Donde cada día puedo avanzar.
@@ -1069,7 +1069,7 @@ En el centro exacto de la composición, {NOMBRE_DESTINATARIO} y Diego (rostros f
   background_details = $t60b$Finos hilos de luz dorada conectan a la pareja central con cada uno de los ecos translúcidos que la rodean, formando una suave constelación circular. Páginas de calendario doradas y traslúcidas, con números y meses ilegibles, flotan lentamente en el fondo desenfocado, como el paso silencioso del tiempo.$t60b$,
   magic_effects = $t60c$Los hilos dorados que conectan a la pareja con sus ecos temporales laten suavemente, como un pulso constante. Pequeñas partículas doradas se desprenden de cada eco y flotan hacia el abrazo central, alimentándolo con más luz. La magia se siente atemporal, profunda y perfectamente integrada dentro de una fotografía realista.$t60c$,
   lighting_color = $t60d$Iluminación cálida y atemporal, sin indicar una hora del día específica, con la pareja central como fuente de luz dorada suave. Predominan tonos dorado profundo, ámbar cálido y destellos blancos suaves en los ecos translúcidos.$t60d$,
-  poem_template = $t60e$100 días y mi amor sigue creciendo,
+  poem_template = $t60e$Y mi amor sigue creciendo,
 {NOMBRE_DESTINATARIO}, cada día te sigo queriendo.
 Mi amor por ti no tiene límite ni fin,
 Donde cada momento es un festín.
@@ -1087,7 +1087,7 @@ En el centro de la composición aparece una pareja dentro de una acogedora sala 
   background_details = $t61b$La habitación posee una decoración cálida y elegante con muebles de madera, textiles suaves y plantas naturales distribuidas alrededor del ambiente. Grandes ventanas permiten el ingreso de abundantes rayos de sol dorados que llenan completamente el espacio de luz cálida. Toda la habitación refleja armonía, comodidad y la sensación de sentirse verdaderamente en casa.$t61b$,
   magic_effects = $t61c$La luz que emana de {NOMBRE_DESTINATARIO} se integra perfectamente con la luz natural del sol. Pequeñas partículas luminosas flotan delicadamente en el aire. Las plantas cercanas reflejan suavemente esa energía luminosa, mostrando un brillo cálido que simboliza vida, esperanza y crecimiento. La magia debe sentirse sutil, elegante y completamente integrada dentro de una fotografía realista.$t61c$,
   lighting_color = $t61d$Iluminación cinematográfica cálida, envolvente y altamente natural. La escena está dominada por rayos de sol intensos que ingresan desde las ventanas e iluminan toda la habitación. Predominan tonos: dorado intenso, amarillo cálido, crema luminoso, reflejos ámbar ligeros, tonos miel. La iluminación genera una atmósfera reconfortante, romántica y llena de energía positiva.$t61d$,
-  poem_template = $t61e$100 días amándote como si fueras el sol, {NOMBRE_DESTINATARIO}, iluminas mi vida desde el rol.
+  poem_template = $t61e$Amándote como si fueras el sol, {NOMBRE_DESTINATARIO}, iluminas mi vida desde el rol.
 Tu presencia calienta cada rincón, Donde la oscuridad ya no tiene razón.
 Cada día contigo es un amanecer, Donde tu luz me hace renacer.
 Eres mi sol personal y real, Mi amor, mi amor, mi luz vital.$t61e$,
@@ -1101,7 +1101,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t62b$Alrededor de la pareja flotan estrellas y lunas brillantes de distintos tamaños, en un cielo nocturno onírico y surrealista. Los colores del ambiente se mezclan suavemente como acuarela en el aire, creando un espacio sin límites definidos, propio de un sueño lúcido.$t62b$,
   magic_effects = $t62c$Burbujas transparentes y brillantes flotan alrededor de la pareja, cada una conteniendo pequeñas siluetas luminosas de recuerdos vividos juntos. Partículas de polvo estelar se desplazan lentamente por el aire. La magia debe sentirse serena, delicada y completamente integrada dentro de una fotografía realista.$t62c$,
   lighting_color = $t62d$Iluminación suave y difusa, similar a la luz de luna llena filtrada entre nubes. Predominan tonos pasteles: azul cielo, rosa pálido, lila suave y destellos plateados. La atmósfera es etérea, tranquila y profundamente romántica.$t62d$,
-  poem_template = $t62e$100 días viviendo este sueño contigo,
+  poem_template = $t62e$Viviendo este sueño contigo,
 {NOMBRE_DESTINATARIO}, cada momento es mi abrigo.
 Tu amor es tan perfecto que parece irreal,
 Donde cada día es algo especial.
@@ -1119,7 +1119,7 @@ En el centro de la composición aparece una pareja dentro de un ambiente cálido
   background_details = $t63b$Alrededor de la pareja flotan instrumentos musicales luminosos (guitarra, piano, violín) de forma etérea y decorativa, junto con ondas de sonido visibles en colores vibrantes que se expanden suavemente por el ambiente. El entorno evoca un escenario de concierto íntimo y mágico, cálido y acogedor.$t63b$,
   magic_effects = $t63c$Las notas musicales que emergen de la risa de {NOMBRE_DESTINATARIO} brillan con tonos dorados y pastel, flotando en espiral hacia el techo. Pequeños destellos de luz laten al ritmo de la música invisible. La magia debe sentirse alegre, luminosa y perfectamente integrada dentro de una fotografía realista.$t63c$,
   lighting_color = $t63d$Iluminación cálida y vibrante, tipo escenario de concierto íntimo. Predominan tonos alegres y luminosos: amarillo brillante, naranja suave, rosa vibrante y toques dorados. La atmósfera transmite pura felicidad y energía positiva.$t63d$,
-  poem_template = $t63e$100 días escuchando tu risa perfecta,
+  poem_template = $t63e$Escuchando tu risa perfecta,
 {NOMBRE_DESTINATARIO}, es la melodía más directa.
 Tu carcajada alegra mi existir,
 Donde cada sonido me hace vivir.
@@ -1137,7 +1137,7 @@ La imagen es un macro fotográfico extremo del rostro de {NOMBRE_DESTINATARIO}, 
   background_details = $t64b$Fuera del área de los ojos, el resto del encuadre se difumina intencionalmente en un bokeh oscuro y neutro, casi nocturno, de manera que no compita visualmente con el "portal" luminoso de la mirada. Esta oscuridad envolvente resalta aún más el contraste con los colores vívidos del paraíso reflejado.$t64b$,
   magic_effects = $t64c$En el borde del iris se percibe una leve distorsión óptica tipo lente, como si el paraíso realmente existiera al otro lado de un cristal curvo. Diminutas partículas de luz dorada escapan sutilmente del contorno de la pupila y se disuelven en el aire oscuro que rodea el rostro, sugiriendo que ese mundo interior se filtra hacia la realidad. Dentro del reflejo del paraíso, una silueta lejana y borrosa —apenas insinuada entre las palmeras— recuerda la figura de María caminando por la orilla, integrando a la pareja incluso dentro del "mundo" contenido en la mirada.$t64c$,
   lighting_color = $t64d$Iluminación dividida: el rostro se mantiene en penumbra suave y cálida, mientras que el interior de los ojos irradia luz propia. Predominan tonos turquesa intenso, dorado de atardecer, verde palmera y destellos ámbar, en fuerte contraste con la oscuridad neutra del entorno.$t64d$,
-  poem_template = $t64e$100 días mirando tus ojos de paraíso,
+  poem_template = $t64e$Mirando tus ojos de paraíso,
 {NOMBRE_DESTINATARIO}, en tu mirada encuentro mi piso.
 Tus ojos guardan mundos de belleza,
 Donde cada destello es certeza.
@@ -1155,7 +1155,7 @@ De perfil, {NOMBRE_DESTINATARIO} habla suavemente con los labios entreabiertos; 
   background_details = $t65b$El entorno es una acogedora cabaña de madera oscura con vigas a la vista, ramilletes de flores secas colgando del techo y un estante con tarros de miel artesanal iluminados por la luz del atardecer que entra por una ventana lateral. Fragmentos de panal translúcido flotan suspendidos en el aire como pequeñas esculturas de luz ámbar.$t65b$,
   magic_effects = $t65c$Dentro de la cinta de miel líquida que fluye de los labios de {NOMBRE_DESTINATARIO} se insinúan, por un instante, formas delicadas —una paloma, un corazón— antes de disolverse en un fino polvo dorado. Pequeñas abejas mágicas de luz bioluminiscente dorada orbitan lentamente alrededor de la cinta de miel sin nunca tocarla, dejando estelas luminosas breves a su paso. La magia debe sentirse artesanal, cálida y perfectamente integrada dentro de una fotografía realista.$t65c$,
   lighting_color = $t65d$Luz de atardecer entrando en ángulo bajo por la ventana lateral, cálida y dorada, con la cinta de miel como fuente de luz secundaria. Predominan tonos miel dorado, ámbar profundo, marrón madera y destellos crema. Atmósfera reconfortante, artesanal y serena.$t65d$,
-  poem_template = $t65e$100 días escuchando tu voz de miel,
+  poem_template = $t65e$Escuchando tu voz de miel,
 {NOMBRE_DESTINATARIO}, cada palabra es mi laurel.
 Tu voz calma mis tormentas internas,
 Donde cada sonido son luces eternas.
@@ -1173,7 +1173,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t66b$Fuera de la burbuja se desata una tormenta intensa: lluvia oblicua, nubes grises y densas, ráfagas de viento que agitan la vegetación cercana al acantilado. El paisaje exterior está desaturado, en tonos grises y azulados fríos, mientras que el interior de la burbuja conserva colores cálidos y vívidos, creando un contraste dramático entre ambos mundos.$t66b$,
   magic_effects = $t66c$La superficie de la burbuja protectora tiene un leve brillo dorado tipo escudo mágico, con ondulaciones sutiles al ritmo del viento exterior, como si repeliera activamente la tormenta sin romperse. Gotas de lluvia que impactan la burbuja se deslizan y se transforman en pequeñas chispas doradas antes de caer. La magia debe sentirse sólida, protectora y perfectamente integrada dentro de una fotografía realista.$t66c$,
   lighting_color = $t66d$Contraste lumínico marcado: luz cálida y dorada dentro de la burbuja frente a luz fría, grisácea y tormentosa en el exterior. Predominan tonos dorado suave y ámbar cálido dentro; gris plomo, azul tormenta y blanco lluvia afuera.$t66d$,
-  poem_template = $t66e$100 días refugiándome en tus brazos,
+  poem_template = $t66e$Refugiándome en tus brazos,
 {NOMBRE_DESTINATARIO}, eres mis mejores lazos.
 Tu abrazo me protege del mundo exterior,
 Donde cada apretón es mi mejor.
@@ -1191,7 +1191,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} está de pie en el balcó
   background_details = $t67b$El piso de madera del balcón está mojado y refleja tenuemente los colores del arcoíris como un espejo difuso. Gotas de lluvia residuales caen lentamente desde el borde del techo. A lo lejos, la ciudad o el paisaje se ve parcialmente iluminado por rayos de sol que atraviesan las nubes rotas.$t67b$,
   magic_effects = $t67c$Cada gota de lluvia, al tocar el suelo del balcón, se transforma instantáneamente en una pequeña chispa de luz de color (siguiendo la paleta del arcoíris) que se eleva brevemente antes de desvanecerse, como si la tristeza se convirtiera en luz al contacto con la sonrisa de {NOMBRE_DESTINATARIO}. El arcoíris tiene un brillo ligeramente sobrenatural, más intenso que uno real, pero manteniendo el fotorrealismo.$t67c$,
   lighting_color = $t67d$Luz de sol filtrada y difusa entre nubes rotas, con rayos visibles atravesando el ambiente húmedo. Predominan los siete colores del arcoíris (rojo, naranja, amarillo, verde, azul, índigo, violeta) contra un cielo que transiciona de gris tormenta a celeste despejado. Atmósfera fresca, luminosa y esperanzadora.$t67d$,
-  poem_template = $t67e$100 días viendo tu sonrisa brillar,
+  poem_template = $t67e$Viendo tu sonrisa brillar,
 {NOMBRE_DESTINATARIO}, como arcoíris sin cesar.
 Tu sonrisa ilumina mis días grises,
 Donde cada gesto son matices.
@@ -1209,7 +1209,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t68b$Una lluvia de estrellas fugaces cruza el cielo detrás de ellos, sus estelas curvándose sutilmente hasta insinuar, sin ser literal ni geométrica, la forma de un corazón en el firmamento. Las luces de los edificios de la ciudad titilan suavemente en la distancia, difuminadas por la altura.$t68b$,
   magic_effects = $t68c$Alrededor de la pareja ascienden lentamente farolillos de papel dorados, con una luz cálida propia en su interior; al mirar de cerca, dentro de cada uno se insinúa tenuemente, como una ventana translúcida, la silueta dorada de ese mismo beso, sin literalidad de "repetición en bucle", solo una sugerencia suave y elegante. La magia se siente cálida, festiva y perfectamente integrada dentro de una fotografía realista.$t68c$,
   lighting_color = $t68d$Iluminación nocturna cálida, con los fuegos artificiales y los farolillos como fuentes principales de luz dorada y ámbar, contra un cielo azul oscuro profundo y el brillo lejano del skyline. Predominan tonos dorado brillante, ámbar cálido, azul noche profundo y toques rosados de los fuegos artificiales.$t68d$,
-  poem_template = $t68e$100 días desde aquel primer beso mágico,
+  poem_template = $t68e$Desde aquel primer beso mágico,
 {NOMBRE_DESTINATARIO}, momento tan categórico.
 Tus labios tocaron los míos con pasión,
 Donde el tiempo paró sin razón.
@@ -1227,7 +1227,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t69b$El campo de trigo se extiende hasta el horizonte, dorado y en movimiento constante por el viento, bajo un cielo de atardecer en tonos naranja profundo y rosado. A lo lejos, el sol se oculta justo detrás de la pareja, generando un contraluz cálido que perfila sus siluetas.$t69b$,
   magic_effects = $t69c$Pequeños corazones de luz dorada, del tamaño de luciérnagas, flotan y parpadean suavemente alrededor de las palabras suspendidas, como si emanaran de ellas. Las letras doradas de "TE AMO" tienen un brillo interno pulsante, suave, sin sentirse artificial. Diminutas partículas de polvo dorado se desprenden lentamente de las letras y se mezclan con las espigas de trigo cercanas.$t69c$,
   lighting_color = $t69d$Luz de atardecer intensa y cálida a contraluz, con destellos dorados atravesando el campo de trigo. Predominan tonos dorado profundo, naranja atardecer, ámbar y toques rosados suaves en el cielo.$t69d$,
-  poem_template = $t69e$100 días desde que dijiste "te amo",
+  poem_template = $t69e$Desde que dijiste "te amo",
 {NOMBRE_DESTINATARIO}, palabras que siempre reclamo.
 Esas dos palabras cambiaron mi vida,
 Donde cada letra fue bienvenida.
@@ -1245,7 +1245,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t70b$Las "paredes" del fuerte están hechas de mantas colgantes suaves sostenidas por cojines, iluminadas por delicadas luces tipo guirnalda cálida entrelazadas en la estructura. Frente a la pareja, suspendidas en el aire como si fueran proyecciones holográficas, flotan pequeñas escenas translúcidas y luminosas de películas clásicas románticas, brillando con luz propia como pantallas mágicas en miniatura.$t70b$,
   magic_effects = $t70c$Las palomitas que flotan alrededor del bol brillan tenuemente como si estuvieran hechas de luz dorada suave. Las proyecciones holográficas de películas parpadean con un resplandor azulado y cálido alternado, como fotogramas vivos, sin llegar a ser nítidas ni legibles, solo sugerentes. La magia se siente hogareña, suave y perfectamente integrada dentro de una fotografía realista.$t70c$,
   lighting_color = $t70d$Iluminación nocturna íntima, dominada por la luz cálida de las guirnaldas y el resplandor azulado de las proyecciones holográficas. Predominan tonos ámbar suave, dorado tenue, azul proyector y blanco cálido de las luces.$t70d$,
-  poem_template = $t70e$100 días de películas a tu lado,
+  poem_template = $t70e$De películas a tu lado,
 {NOMBRE_DESTINATARIO}, mi momento más amado.
 Tu compañía hace cada escena especial,
 Donde cada abrazo es celestial.
@@ -1263,7 +1263,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t71b$Alrededor del marco de la cama y sobre las mesas de noche, flores mágicas crecen y florecen en tiempo acelerado, como si el amanecer las hiciera brotar en ese instante: enredaderas floridas trepan suavemente por los postes de la cama, pétalos abriéndose delicadamente. En el alféizar de la ventana, pequeños pájaros de plumaje brillante y bioluminiscente cantan, con diminutas espirales de luz dorada elevándose de sus picos al ritmo del canto.$t71b$,
   magic_effects = $t71c$Motas de polen dorado y luminoso flotan suavemente en el aire iluminado por los rayos de sol, como polvo de hadas natural. Las flores que florecen alrededor de la cama dejan un rastro tenue de brillo dorado en el aire al abrirse. La magia se siente fresca, viva y perfectamente integrada dentro de una fotografía realista.$t71c$,
   lighting_color = $t71d$Luz de amanecer dorada y suave entrando en ángulo bajo por la ventana, con motas de polvo doradas suspendidas en los rayos de luz. Predominan tonos dorado pastel, rosa amanecer suave, blanco cálido de las sábanas y verde tierno de las flores nuevas.$t71d$,
-  poem_template = $t71e$100 días despertando junto a ti,
+  poem_template = $t71e$Despertando junto a ti,
 {NOMBRE_DESTINATARIO}, cada mañana es para mí.
 Tu rostro es lo primero que veo al despertar,
 Donde cada día vuelve a empezar.
@@ -1281,7 +1281,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t72b$Alrededor de la pareja, flotando a distintas alturas como esferas de recuerdo translúcidas, aparecen viñetas circulares de aventuras pasadas: una playa de arena blanca y mar turquesa, una ciudad iluminada de noche, un bosque frondoso al amanecer. Cada esfera tiene un halo dorado suave en su borde. Debajo de ellos, la vista panorámica de valles y cordilleras se extiende hasta el horizonte, bañada por la luz del atardecer.$t72b$,
   magic_effects = $t72c$Del mapa que sostienen juntos emergen delicadas líneas doradas luminosas que se elevan y conectan brevemente con cada una de las esferas de recuerdo flotantes, como constelaciones trazando su historia compartida. La brújula desprende un tenue resplandor dorado pulsante. La magia se siente épica, cálida y perfectamente integrada dentro de una fotografía realista.$t72c$,
   lighting_color = $t72d$Luz de atardecer dorada e intensa, con la silueta de las montañas recortada contra el cielo. Predominan tonos dorado vibrante, naranja aventurero, azul montaña profundo y toques turquesa de las esferas de playa.$t72d$,
-  poem_template = $t72e$100 días de aventuras a tu lado,
+  poem_template = $t72e$De aventuras a tu lado,
 {NOMBRE_DESTINATARIO}, cada viaje es sagrado.
 Contigo cada lugar se vuelve especial,
 Donde cada paso es monumental.
@@ -1299,7 +1299,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t73b$Sobre ellos, las estrellas forman una especie de bóveda celeste densa, como un candelabro natural. La luna llena brilla detrás de la pareja como un reflector natural, iluminándolos desde atrás con un halo plateado.$t73b$,
   magic_effects = $t73c$Ondas doradas de música visible se propagan en círculos concéntricos desde los pies de la pareja hacia afuera, como si el propio cielo tocara la melodía de su baile. Pequeñas partículas brillantes se desprenden de las nubes bajo sus pies cada vez que giran, dejando una estela luminosa breve. La magia se siente ligera, alegre y perfectamente integrada dentro de una fotografía realista.$t73c$,
   lighting_color = $t73d$Iluminación nocturna celestial, con contraluz plateado de la luna llena y el brillo dorado cálido de las ondas de sonido. Predominan tonos blanco nube, azul noche profundo, plateado lunar y dorado suave.$t73d$,
-  poem_template = $t73e$100 días bailando entre tus brazos,
+  poem_template = $t73e$Bailando entre tus brazos,
 {NOMBRE_DESTINATARIO}, flotando en tus abrazos.
 Tus pasos me llevan a las nubes,
 Donde cada giro son querubes.
@@ -1317,7 +1317,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t74b$Entre ambos, a la altura del pecho, flotan pequeñas nubes luminosas de pensamiento, suaves y translúcidas, en tonos plateados y dorados tenues, que se forman y disuelven lentamente mientras hablan, sin llegar a formar letras ni palabras legibles, solo la sugerencia visual de ideas compartidas. La habitación está en penumbra, iluminada principalmente por la luna y el tenue resplandor de las nubes de pensamiento.$t74b$,
   magic_effects = $t74c$Cada nube de pensamiento tiene un brillo interior pulsante suave, como una respiración lenta, y ocasionalmente dos nubes de cada uno se entrelazan brevemente antes de disolverse, simbolizando la conexión de sus ideas. Diminutas motas de luz plateada flotan en el aire alrededor de la cama, como polvo de luna. La magia se siente serena, íntima y perfectamente integrada dentro de una fotografía realista.$t74c$,
   lighting_color = $t74d$Iluminación nocturna fría y suave, dominada por la luz plateada de la luna llena a través de la ventana, contrastada con el resplandor dorado tenue de las nubes de pensamiento. Predominan tonos azul noche profundo, plateado lunar y dorado suave apagado.$t74d$,
-  poem_template = $t74e$100 días de charlas hasta el amanecer,
+  poem_template = $t74e$De charlas hasta el amanecer,
 {NOMBRE_DESTINATARIO}, contigo puedo ser.
 Nuestras conversaciones tocan mi alma,
 Donde cada palabra trae calma.
@@ -1335,7 +1335,7 @@ En el centro de la composición, {NOMBRE_DESTINATARIO} está de pie sobre un sut
   background_details = $t75b$El salón tiene una estética íntima de palacio moderno: cortinas largas de terciopelo cayendo en pliegues suaves, un piso de mármol pulido que refleja tenuemente el resplandor dorado de {NOMBRE_DESTINATARIO}, e iluminación ambiental cálida similar a la de candelabros distribuidos fuera de foco en el fondo.$t75b$,
   magic_effects = $t75c$El resplandor dorado que emana de {NOMBRE_DESTINATARIO} se refleja suavemente en el mármol bajo sus pies, creando un halo circular de luz alrededor de la base del pedestal. Pequeñas partículas doradas ascienden lentamente desde sus hombros hacia la corona de luz, alimentándola. La magia se siente solemne, cálida y perfectamente integrada dentro de una fotografía realista.$t75c$,
   lighting_color = $t75d$Iluminación cálida tipo salón de gala, con el resplandor dorado de {NOMBRE_DESTINATARIO} como fuente de luz principal. Predominan tonos dorado intenso, ámbar cálido, blanco marfil del mármol y toques bronce en las sombras.$t75d$,
-  poem_template = $t75e$100 días sintiéndome único contigo,
+  poem_template = $t75e$Sintiéndome único contigo,
 {NOMBRE_DESTINATARIO}, eres mi mejor abrigo.
 Tu amor me hace sentir especial,
 Donde cada gesto es monumental.
@@ -1353,7 +1353,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t76b$La mitad exterior del patio, más alejada de la pareja, se ve en tonos grises apagados y desaturados, con piedra agrietada y vegetación marchita. A medida que el ojo se acerca al centro donde están abrazados, el entorno se transforma gradualmente: la piedra bajo sus pies florece con corazones dorados brillantes que crecen como flores entre las grietas, y el gris cede paso a tonos cálidos dorados.$t76b$,
   magic_effects = $t76c$Alrededor de la pareja flotan varios libros antiguos abiertos, suspendidos en el aire, con páginas que brillan suavemente y muestran líneas de texto doradas caligráficas e ilegibles, sugiriendo definiciones descubiertas del amor verdadero. Los eslabones de las cadenas rotas se disuelven en motas de luz dorada al tocar el suelo florecido. La magia se siente reveladora, cálida y perfectamente integrada dentro de una fotografía realista.$t76c$,
   lighting_color = $t76d$Iluminación que transiciona de fría y gris en los bordes del encuadre a cálida y dorada en el centro, donde está la pareja. Predominan tonos gris piedra apagado en los extremos, dorado brillante y verde dorado cálido cerca del centro.$t76d$,
-  poem_template = $t76e$100 días aprendiendo a amar de verdad,
+  poem_template = $t76e$Aprendiendo a amar de verdad,
 {NOMBRE_DESTINATARIO}, tú me enseñaste esta verdad.
 Antes no sabía lo que era amar así,
 Donde cada día es un sí.
@@ -1373,7 +1373,7 @@ En el centro de la composición, María resbala y cae en un tramo de escalera ex
   background_details = $t77b$Alrededor de la pareja, la tormenta arrecia: lluvia intensa oblicua, rayos distantes iluminando el cielo, viento agitando ropa y cabello. Dentro del radio de las alas de luz, sin embargo, ni una gota de lluvia los toca; el aire ahí es cálido y dorado.$t77b$,
   magic_effects = $t77c$Las alas de luz dorada tienen una textura suave y plumosa, semitransparente en los bordes, brillando con más intensidad donde envuelven directamente a la pareja. Las gotas de lluvia que se acercan demasiado al borde de las alas se desvían suavemente, como repelidas por un campo invisible. La magia se siente urgente, protectora y perfectamente integrada dentro de una fotografía realista.$t77c$,
   lighting_color = $t77d$Contraste dramático: tormenta oscura en tonos grises azulados y plateados fríos alrededor, contra el resplandor cálido dorado de las alas de luz que envuelven a la pareja.$t77d$,
-  poem_template = $t77e$100 días de apoyo incondicional,
+  poem_template = $t77e$De apoyo incondicional,
 {NOMBRE_DESTINATARIO}, eres mi pilar principal.
 En mis peores momentos estás ahí,
 Donde tu fuerza me hace seguir.
@@ -1391,7 +1391,7 @@ En el centro de la composición, María y {NOMBRE_DESTINATARIO} (rostros fotorre
   background_details = $t78b$El jardín está bañado en luz de sol brillante y cálida, con pasto verde vibrante y flores silvestres de colores alrededor. De los ojos de ambos caen pequeñas lágrimas de risa que, al desprenderse, se transforman en diminutos diamantes brillantes que ruedan sobre el pasto.$t78b$,
   magic_effects = $t78c$Alrededor de la pareja flotan y estallan suavemente burbujas transparentes que contienen ondas visibles de sonido de sus carcajadas, cada una liberando al reventar un breve estallido de confeti de colores vibrantes. La magia se siente ligera, juguetona y perfectamente integrada dentro de una fotografía realista.$t78c$,
   lighting_color = $t78d$Luz de sol de mediodía brillante y alegre, cálida y uniforme. Predominan tonos verde césped vibrante, amarillo sol, y el brillo cristalino de las lágrimas de risa convertidas en diamantes, junto con el confeti multicolor de las burbujas.$t78d$,
-  poem_template = $t78e$100 días de risas sin parar,
+  poem_template = $t78e$De risas sin parar,
 {NOMBRE_DESTINATARIO}, me haces tanto reír.
 Tu humor alegra mis días grises,
 Donde cada chiste son matices.
@@ -1411,7 +1411,7 @@ En el centro de la composición, María sube una escalinata monumental de pelda�
   background_details = $t79b$La escalinata asciende hacia un cielo despejado de tonos azul brillante con nubes doradas iluminadas por el amanecer. A ambos lados, columnas bajas de piedra clara flanquean los peldaños.$t79b$,
   magic_effects = $t79c$Cada peldaño que María pisa se ilumina brevemente con un destello dorado antes de atenuarse detrás de ella. La silueta luminosa aspiracional que camina junto a ella proyecta pequeñas partículas de luz blanca que ascienden como chispas hacia el cielo. La magia se siente motivadora, luminosa y perfectamente integrada dentro de una fotografía realista.$t79c$,
   lighting_color = $t79d$Iluminación de amanecer brillante y ascendente, con la luz de {NOMBRE_DESTINATARIO} como fuente cálida desde abajo y el cielo azul luminoso arriba. Predominan tonos dorado brillante, blanco luminoso y azul cielo intenso.$t79d$,
-  poem_template = $t79e$100 días inspirándome a crecer,
+  poem_template = $t79e$Inspirándome a crecer,
 {NOMBRE_DESTINATARIO}, contigo quiero ser.
 Tu ejemplo me impulsa a mejorar,
 Donde cada día puedo avanzar.
@@ -1429,7 +1429,7 @@ En el centro exacto de la composición, María y {NOMBRE_DESTINATARIO} (rostros 
   background_details = $t80b$Finos hilos de luz dorada conectan a la pareja central con cada uno de los ecos translúcidos que la rodean, formando una suave constelación circular. Páginas de calendario doradas y traslúcidas, con números y meses ilegibles, flotan lentamente en el fondo desenfocado, como el paso silencioso del tiempo.$t80b$,
   magic_effects = $t80c$Los hilos dorados que conectan a la pareja con sus ecos temporales laten suavemente, como un pulso constante. Pequeñas partículas doradas se desprenden de cada eco y flotan hacia el abrazo central, alimentándolo con más luz. La magia se siente atemporal, profunda y perfectamente integrada dentro de una fotografía realista.$t80c$,
   lighting_color = $t80d$Iluminación cálida y atemporal, sin indicar una hora del día específica, con la pareja central como fuente de luz dorada suave. Predominan tonos dorado profundo, ámbar cálido y destellos blancos suaves en los ecos translúcidos.$t80d$,
-  poem_template = $t80e$100 días y mi amor sigue creciendo,
+  poem_template = $t80e$Y mi amor sigue creciendo,
 {NOMBRE_DESTINATARIO}, cada día te sigo queriendo.
 Mi amor por ti no tiene límite ni fin,
 Donde cada momento es un festín.

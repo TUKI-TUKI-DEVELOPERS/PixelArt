@@ -189,7 +189,7 @@ export default function CheckoutPage() {
           Tus propuestas
         </h2>
         <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "20px" }}>
-          Estas son las {data.proposals.length} plantillas que ya seleccionaste y el equipo diseñó para vos.
+          Estas son las {data.proposals.length} plantillas que ya seleccionaste y el equipo diseñó para ti.
           {!isMobile && " Explóralas usando las flechas o arrastrando las esquinas."}
         </p>
 
