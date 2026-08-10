@@ -48,3 +48,8 @@ coverage/
 
 # Playwright MCP output (screenshots/snapshots/logs from browser testing)
 .playwright-mcp/
+
+# Pipeline standalone de generación de contenido con IA (venv, scripts,
+# imágenes generadas) — vive en el root del repo pero no es parte de la app,
+# nunca se commitea (575MB+).
+PromptsPixelArtPlantillas/
