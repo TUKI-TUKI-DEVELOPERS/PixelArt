@@ -75,6 +75,16 @@ const NEXT_STATUS: Record<string, string> = {
   SHIPPED:          "DELIVERED",
 };
 
+/** Icono de carga inline para los botones de "Generar con IA" — mismo patrón
+ * (SVG + @keyframes vía <style>) que ya usa admin/login/page.tsx. */
+function GenSpinner() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" style={{ animation: "order-gen-spin 0.8s linear infinite", flexShrink: 0 }}>
+      <path d="M12 2a10 10 0 0 1 10 10" />
+    </svg>
+  );
+}
+
 async function forceDownload(url: string, filename: string) {
   const res = await fetch(url);
   const blob = await res.blob();
@@ -577,6 +587,7 @@ export default function OrdenDetallePage() {
 
   return (
     <div style={{ padding: "32px" }}>
+      <style dangerouslySetInnerHTML={{ __html: "@keyframes order-gen-spin { to { transform: rotate(360deg); } }" }} />
 
       {/* ── 1. Header ── */}
       <div style={{ marginBottom: "28px" }}>
@@ -970,7 +981,8 @@ export default function OrdenDetallePage() {
                           <button
                             disabled={coverGenerating}
                             onClick={handleGenerateCover}
-                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: coverVerifying ? "#f59e0b" : coverGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: coverGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: coverVerifying ? "#f59e0b" : coverGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: coverGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            {(coverGenerating || coverVerifying) && <GenSpinner />}
                             {coverVerifying
                               ? "Se cortó la conexión — verificando…"
                               : coverGenerating
@@ -1008,7 +1020,8 @@ export default function OrdenDetallePage() {
                           <button
                             disabled={backCoverGenerating}
                             onClick={handleGenerateBackCover}
-                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: backCoverVerifying ? "#f59e0b" : backCoverGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: backCoverGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: backCoverVerifying ? "#f59e0b" : backCoverGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: backCoverGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            {(backCoverGenerating || backCoverVerifying) && <GenSpinner />}
                             {backCoverVerifying
                               ? "Se cortó la conexión — verificando…"
                               : backCoverGenerating
@@ -1091,7 +1104,8 @@ export default function OrdenDetallePage() {
                         <button
                           disabled={addonGenerating}
                           onClick={handleGenerateAddon}
-                          style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: addonGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: addonGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                          style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: addonGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: addonGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          {addonGenerating && <GenSpinner />}
                           {addonGenerating ? "Generando…" : addonAsset ? "Regenerar" : "Generar"}
                         </button>
                         {addonGenerateError && (
@@ -1219,7 +1233,8 @@ export default function OrdenDetallePage() {
                           <button
                             disabled={isGenerating}
                             onClick={() => handleGenerateTemplate(t.templateId)}
-                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
+                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            {(isGenerating || isVerifying) && <GenSpinner />}
                             {isVerifying
                               ? "Se cortó la conexión — verificando si terminó igual…"
                               : isGenerating
