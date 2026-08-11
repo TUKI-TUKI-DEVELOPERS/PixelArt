@@ -204,6 +204,18 @@ ALTER TABLE personalized_models
 ADD COLUMN cover_scene_visual TEXT,
 ADD COLUMN back_cover_tagline TEXT;
 
+-- Escena visual de la contratapa (fondo, sin personas) — a nivel de LIBRO,
+-- igual que cover_scene_visual. Antes de esto, TODOS los libros generaban
+-- contratapa con el mismo bloque compartido prompt_shared_blocks
+-- 'contratapa_fondo_efectos' (que resultó ser, sin querer, el fondo
+-- aprobado específico de "10 Razones por las que Te Amo" — corazones en
+-- bokeh dorado/rosa), así que cualquier otro libro salía con un fondo
+-- romántico que no le correspondía. Ver
+-- PromptsPixelArtPlantillas/tapa-contratapa-promocion/fondos-contratapa-sin-personajes.md
+-- (16 escenas ya aprobadas) — falta la migración/backfill de esos textos acá.
+ALTER TABLE personalized_models
+ADD COLUMN back_cover_scene TEXT;
+
 -- Hashtag de contratapa: vive por CATEGORÍA (ej. "#AmorPixelArt" para todo
 -- Amor), no por libro — evita repetir el mismo valor en cada fila.
 ALTER TABLE personalized_categories

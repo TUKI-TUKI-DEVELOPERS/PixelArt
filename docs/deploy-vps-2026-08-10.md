@@ -89,22 +89,37 @@ docker compose -f infra/docker/docker-compose.yml up --build -d
 
 ## Problema 5 — 502 Bad Gateway después de cada rebuild: se pierde la conexión a `shared-gateway`
 
-**Síntoma**: los contenedores están `healthy`, pero el sitio da 502 desde afuera. El log de `puente` (el nginx compartido de la VPS, contenedor `nginx:alpine`, atiende varios proyectos en el puerto 80/443) dice `host not found in upstream "pixelart_web:3000"`.
+**Síntoma**: los contenedores están `healthy`, pero el sitio da 502 desde afuera. El log de `puente` (el nginx compartido de la VPS, contenedor `nginx:alpine`, atiende varios proyectos — PixelArt, torolococayma, etc. — en el puerto 80/443) dice `host not found in upstream "pixelart_web:3000"`.
 
-**Causa**: `puente` resuelve los contenedores por **nombre**, vía una red Docker compartida llamada `shared-gateway`. Esa conexión de red **no está declarada en `docker-compose.yml`** (se agregó a mano en algún momento, no es parte del compose managed) — así que **cada vez que Docker recrea `pixelart_api`/`pixelart_web`** (cualquier `--build`, o directamente `up -d` si cambió la definición del servicio), se pierde, y hay que reconectarlos a mano.
+**Causa**: `puente` resuelve los contenedores por **nombre**, vía una red Docker compartida llamada `shared-gateway`. Esa conexión de red **no estaba declarada en `docker-compose.yml`** (se había agregado a mano con `docker network connect`, no era parte del compose managed) — así que cada vez que Docker recreaba `pixelart_api`/`pixelart_web` (cualquier `--build`), se perdía.
 
-**Fix — correr SIEMPRE después de cualquier rebuild/recreación de `api` o `web`**:
+**Fix aplicado (2026-08-11) — ya no requiere pasos manuales.** Se declaró `shared-gateway` como red externa directo en `infra/docker/docker-compose.yml` de la VPS (edición a mano, nunca vía git — este archivo sigue en la lista de divergencia permanente):
 
-```bash
-docker network connect shared-gateway pixelart_web
-docker network connect shared-gateway pixelart_api
-docker exec puente nginx -s reload
+```yaml
+  api:
+    ...
+    networks:
+      - default
+      - shared-gateway   # agregar después del depends_on, antes de healthcheck
+
+  web:
+    ...
+    networks:
+      - default
+      - shared-gateway   # agregar después del depends_on, antes de healthcheck
+
+networks:                # nueva sección al final del archivo, junto a volumes:
+  shared-gateway:
+    external: true
 ```
 
-Verificación si vuelve a pasar:
+Con esto, Compose reconecta `shared-gateway` solo en cada recreación de `api`/`web` — **`docker network connect` no hace falta nunca más**.
+
+Verificación:
 ```bash
-docker network inspect shared-gateway --format '{{range .Containers}}{{.Name}} {{end}}'
-# tiene que listar: pixelart_api puente pixelart_web
+docker inspect pixelart_web --format 'web: {{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+docker inspect pixelart_api --format 'api: {{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+# ambos tienen que listar: docker_default shared-gateway
 ```
 
 ---
@@ -126,8 +141,7 @@ docker network inspect shared-gateway --format '{{range .Containers}}{{.Name}} {
 
 ```bash
 docker compose -f infra/docker/docker-compose.yml up -d web
-docker network connect shared-gateway pixelart_web   # se vuelve a perder, ver Problema 5
-docker exec puente nginx -s reload
+docker exec puente nginx -s reload   # shared-gateway ya no hay que reconectarla (ver Problema 5), pero el reload sigue haciendo falta
 ```
 
 ---
@@ -136,10 +150,8 @@ docker exec puente nginx -s reload
 
 1. `git fetch` + `git checkout origin/main -- <archivos>` (nunca `docker-compose.yml`, `.env.docker`, `next.config.ts`)
 2. `docker compose -f infra/docker/docker-compose.yml up --build api web -d`
-3. **Siempre**, después del build: reconectar a `shared-gateway` y recargar `puente`:
+3. **Siempre**, después del build: recargar `puente` (la reconexión a `shared-gateway` ya es automática desde el fix del 2026-08-11, ver Problema 5 — solo falta el reload porque nginx cachea la IP vieja del contenedor):
    ```bash
-   docker network connect shared-gateway pixelart_web
-   docker network connect shared-gateway pixelart_api
    docker exec puente nginx -s reload
    ```
 4. Verificar sin exponer secretos: `.env.docker` tiene `OPENAI_API_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_URL=https://pixelart.pe` (los tres con `grep -c "^VAR="`)
@@ -150,4 +162,4 @@ docker exec puente nginx -s reload
    FROM personalized_models;"
    ```
 6. `curl -I https://pixelart.pe` desde la propia VPS (no confiar solo en el navegador — puede tener caché)
-7. Si el 502 vuelve a aparecer después de un rebuild futuro, ir directo a los Problemas 5 y 6 de este documento — son los dos puntos que se pierden en cada recreación de contenedor.
+7. Si el 502 vuelve a aparecer después de un rebuild futuro: el paso 3 (reload de `puente`) es el único punto que sigue siendo manual — confirmá que se corrió. Si el reload no alcanza, recién ahí revisar el Problema 5 completo (podría indicar que la red `shared-gateway` se sacó del compose sin querer).

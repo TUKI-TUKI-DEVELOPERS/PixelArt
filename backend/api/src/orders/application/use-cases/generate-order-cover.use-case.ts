@@ -104,7 +104,7 @@ export class GenerateOrderCoverUseCase {
 
   async generateBackCover(input: GenerateOrderCoverInput): Promise<GenerateOrderCoverOutput> {
     const { orderId, demoRow, model, category } = await this.resolveOrderContext(input.orderId);
-    if (!model.backCoverTagline || !category.backCoverHashtag) {
+    if (!model.backCoverTagline || !category.backCoverHashtag || !model.backCoverScene) {
       throw new BadRequestException(
         'Este libro todavía no tiene el contenido de prompt de contratapa cargado — no se puede generar con IA todavía.',
       );
@@ -114,6 +114,7 @@ export class GenerateOrderCoverUseCase {
 
     const prompt = buildBackCoverPrompt({
       sharedBlocks: await this.personalizedRepo.findSharedBlocks(),
+      scene: model.backCoverScene,
       tagline,
       hashtag,
       names: this.resolveNameValues(demoRow),

@@ -42,6 +42,9 @@ export class PersonalizedModelOrmEntity {
   @Column({ name: 'back_cover_tagline', type: 'text', nullable: true })
   backCoverTagline!: string | null;
 
+  @Column({ name: 'back_cover_scene', type: 'text', nullable: true })
+  backCoverScene!: string | null;
+
   @ManyToOne(() => PersonalizedCategoryOrmEntity, (c) => c.models)
   @JoinColumn({ name: 'category_id' })
   category!: PersonalizedCategoryOrmEntity;

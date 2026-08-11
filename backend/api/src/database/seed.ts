@@ -955,6 +955,14 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] contenido de tapa/contratapa (resto del catálogo) ✓');
 
+    // Fix: la contratapa generaba con un solo fondo compartido para los 17
+    // libros (el de "10 Razones", copiado por error como si fuera genérico)
+    // — carga la escena propia de cada libro en back_cover_scene.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-back-cover-scene.sql'), 'utf8'),
+    );
+    console.log('[seed] escena de contratapa por libro ✓');
+
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
     // modelo via cover_asset_id. Usa encode(digest(...)) para hash determinístico.

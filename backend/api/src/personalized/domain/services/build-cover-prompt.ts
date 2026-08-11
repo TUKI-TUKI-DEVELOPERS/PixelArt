@@ -39,6 +39,12 @@ export function buildCoverPrompt(input: BuildCoverPromptInput): string {
 
 export type BuildBackCoverPromptInput = {
   sharedBlocks: Record<string, string>;
+  /** back_cover_scene del modelo — fondo/escena propio del libro (ej. balcón
+   * romántico para "Mi Amor", cielo con arcoíris para "El Mejor Equipo").
+   * Antes esto leía un único bloque compartido ('contratapa_fondo_efectos'),
+   * por lo que TODOS los libros generaban con el mismo fondo — quedó
+   * documentado en personalized_models.back_cover_scene. */
+  scene: string;
   /** back_cover_tagline del modelo (copy propio del libro). */
   tagline: string;
   /** back_cover_hashtag de la categoría. */
@@ -61,7 +67,7 @@ export function buildBackCoverPrompt(input: BuildBackCoverPromptInput): string {
 
   return [
     `[IMAGEN BASE]\n${input.sharedBlocks['contratapa_imagen_base']}`,
-    `[ESCENA VISUAL]\n${input.sharedBlocks['contratapa_fondo_efectos']}`,
+    `[ESCENA VISUAL]\n${input.scene}`,
     `[COMPOSICIÓN — REGLAS OBLIGATORIAS]\n${input.sharedBlocks['contratapa_composicion_reglas']}`,
     `[DISEÑO EDITORIAL]\n${disenoEditorial}`,
     `[DETALLES TÉCNICOS]\n${input.sharedBlocks['contratapa_detalles_tecnicos']}`,
