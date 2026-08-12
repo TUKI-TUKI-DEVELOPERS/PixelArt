@@ -943,6 +943,11 @@ function getFixedDedicatorGender(libroNombre: string): "M" | "F" | null {
   return null;
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Acepta + opcional (código de país) y 6-15 dígitos, con espacios/guiones
+// como separadores — rechaza letras, que es justo el bug reportado.
+const PHONE_RE = /^\+?[\d\s-]{6,15}$/;
+
 type PhotoConfig = { recipient: number; dedicator: number };
 const PHOTO_CONFIG: Record<WizardMode, PhotoConfig> = {
   "amor":          { recipient: 2, dedicator: 2 },
@@ -1172,6 +1177,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const successRef = useRef<HTMLDivElement>(null);
+  const wizardSectionRef = useRef<HTMLElement>(null);
 
   // Step animation
   const [animKey, setAnimKey] = useState(0);
@@ -1196,6 +1202,11 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
       setAnimDir(currentStep > prevStepRef.current ? "forward" : "backward");
       setAnimKey((k) => k + 1);
       prevStepRef.current = currentStep;
+      // Sin esto, el scroll se queda donde estaba en el paso anterior — si el
+      // paso nuevo es más corto (ej. pasar del Resumen, largo, a la
+      // confirmación final, corta), el botón de "Enviar Solicitud" queda
+      // arriba de la vista y el cliente cree que no pasó nada al hacer clic.
+      wizardSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [currentStep]);
 
@@ -1302,10 +1313,18 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     ? (resolvedOptions[selectedDedicationIdx] ?? "")
     : customDedication;
 
+  // Sin <form> real en el wizard (todo es onClick), la validación nativa de
+  // type="email"/type="tel" del navegador nunca se dispara — antes cualquier
+  // texto no vacío pasaba (letras en el teléfono, cualquier cosa en el email).
+  const emailFormatValid = EMAIL_RE.test(form.customerEmail.trim());
+  const phoneFormatValid = PHONE_RE.test(form.customerPhone.trim());
+  const emailError = form.customerEmail && !emailFormatValid ? "Ingresá un email válido (ej. nombre@correo.com)" : undefined;
+  const phoneError = form.customerPhone && !phoneFormatValid ? "Ingresá un teléfono válido (solo números, 6 a 15 dígitos)" : undefined;
+
   const step7Valid =
     !!form.customerFullName &&
-    !!form.customerEmail &&
-    !!form.customerPhone &&
+    !!form.customerEmail && emailFormatValid &&
+    !!form.customerPhone && phoneFormatValid &&
     !!form.shippingAddressLine1;
 
   async function handleSubmit() {
@@ -1456,6 +1475,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   return (
     <section
       id="wizard-section"
+      ref={wizardSectionRef}
       style={{ width: "100%", position: "relative", overflow: "hidden", background: "#ffffff" }}
     >
       <WizardBackground accent={accent} />
@@ -2509,8 +2529,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
 
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
                   <FormField label="Nombre completo *" value={form.customerFullName} onChange={(v) => updateForm("customerFullName", v)} isMobile={isMobile} />
-                  <FormField label="Email *" value={form.customerEmail} onChange={(v) => updateForm("customerEmail", v)} type="email" isMobile={isMobile} />
-                  <FormField label="Teléfono *" value={form.customerPhone} onChange={(v) => updateForm("customerPhone", v)} type="tel" isMobile={isMobile} />
+                  <FormField label="Email *" value={form.customerEmail} onChange={(v) => updateForm("customerEmail", v)} type="email" isMobile={isMobile} error={emailError} />
+                  <FormField label="Teléfono *" value={form.customerPhone} onChange={(v) => updateForm("customerPhone", v)} type="tel" isMobile={isMobile} error={phoneError} />
                   <FormField label="Dirección *" value={form.shippingAddressLine1} onChange={(v) => updateForm("shippingAddressLine1", v)} fullWidth isMobile={isMobile} />
                   <FormField label="Dirección línea 2" value={form.shippingAddressLine2} onChange={(v) => updateForm("shippingAddressLine2", v)} isMobile={isMobile} />
                   <FormField label="Ciudad" value={form.shippingCity} onChange={(v) => updateForm("shippingCity", v)} isMobile={isMobile} />
@@ -2851,7 +2871,7 @@ function CharacterCard({
 // ── Helper components ─────────────────────────────────────────────────────────
 
 function FormField({
-  label, value, onChange, type = "text", fullWidth, isMobile, min, max,
+  label, value, onChange, type = "text", fullWidth, isMobile, min, max, error,
 }: {
   label: string;
   value: string;
@@ -2861,6 +2881,7 @@ function FormField({
   isMobile?: boolean;
   min?: string;
   max?: string;
+  error?: string;
 }) {
   return (
     <div style={{ gridColumn: fullWidth && !isMobile ? "span 2" : undefined }}>
@@ -2873,8 +2894,9 @@ function FormField({
         min={min}
         max={max}
         onChange={(e) => onChange(e.target.value)}
-        style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", boxSizing: "border-box", outline: "none" }}
+        style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: error ? "1px solid #dc2626" : "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", boxSizing: "border-box", outline: "none" }}
       />
+      {error && <div style={{ fontSize: "11px", color: "#dc2626", marginTop: "4px" }}>{error}</div>}
     </div>
   );
 }
