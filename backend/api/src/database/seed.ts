@@ -150,6 +150,7 @@ export async function runSeed(): Promise<void> {
     // 0k. Tapa, contratapa y venta cruzada — contenido de prompt + slugs para QR
     await client.query(`ALTER TABLE personalized_models ADD COLUMN IF NOT EXISTS cover_scene_visual TEXT`);
     await client.query(`ALTER TABLE personalized_models ADD COLUMN IF NOT EXISTS back_cover_tagline TEXT`);
+    await client.query(`ALTER TABLE personalized_models ADD COLUMN IF NOT EXISTS back_cover_scene TEXT`);
     await client.query(`ALTER TABLE personalized_categories ADD COLUMN IF NOT EXISTS back_cover_hashtag TEXT`);
     await client.query(`ALTER TABLE personalized_categories ADD COLUMN IF NOT EXISTS slug TEXT`);
     await client.query(`ALTER TABLE personalized_categories DROP CONSTRAINT IF EXISTS personalized_categories_slug_key`);
@@ -962,6 +963,14 @@ export async function runSeed(): Promise<void> {
       readFileSync(join(__dirname, 'content/backfill-back-cover-scene.sql'), 'utf8'),
     );
     console.log('[seed] escena de contratapa por libro ✓');
+
+    // Cierre de Fase D: cover_scene_visual de los 6 libros con tratamiento de
+    // identidad especial (persona/mascota fallecida etérea, vestuario de
+    // época) que backfill-tapa-contratapa-resto.sql dejó afuera a propósito.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-tapa-pendientes.sql'), 'utf8'),
+    );
+    console.log('[seed] contenido de tapa (6 libros pendientes) ✓');
 
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
