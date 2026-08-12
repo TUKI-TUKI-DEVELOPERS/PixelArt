@@ -32,7 +32,7 @@ export type DemoRequestWithRelations = DemoRequest & {
   coverType: string | null;
   templateSelections: { id: number; templateId: number; templateName: string | null; templatePreviewKey: string | null }[];
   assetIds: number[];
-  proposals: { id: number; templateId: number; outputStorageKey: string; protectionMode: string }[];
+  proposals: { id: number; templateId: number; outputStorageKey: string; protectionMode: string; generatedAt: Date }[];
   // ya incluidos en DemoRequest base: recipientName, recipientNickname, dedicatorName, genderDirection, characterMeta
 };
 

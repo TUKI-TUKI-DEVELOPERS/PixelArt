@@ -18,6 +18,16 @@ async function resolveAssetUrl(assetId: number): Promise<string | null> {
   }
 }
 
+/** Icono de carga inline para los botones de "Generar con IA" — mismo patrón
+ * que admin/ordenes/[id]/page.tsx. */
+function GenSpinner() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" style={{ animation: "solicitud-gen-spin 0.8s linear infinite", flexShrink: 0 }}>
+      <path d="M12 2a10 10 0 0 1 10 10" />
+    </svg>
+  );
+}
+
 /** Fuerza descarga de una URL cross-origin */
 async function forceDownload(url: string, filename: string) {
   const res = await fetch(url);
@@ -66,7 +76,7 @@ type DemoDetail = {
   catalogBookVariantId: number;
   templateSelections: { id: number; templateId: number; templateName: string | null; templatePreviewUrl: string | null }[];
   assetIds: number[];
-  proposals: { id: number; templateId: number; outputStorageKey: string; outputUrl: string; protectionMode: string }[];
+  proposals: { id: number; templateId: number; outputStorageKey: string; outputUrl: string; protectionMode: string; generatedAt: string }[];
   checkoutLink: { token: string; url: string; expiresAt: string; orderId: number } | null;
   hasPaymentProof: boolean;
 };
@@ -78,6 +88,7 @@ export default function SolicitudDetallePage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<number | null>(null);
   const [generatingSet, setGeneratingSet] = useState<Set<number>>(new Set());
+  const [verifyingSet, setVerifyingSet] = useState<Set<number>>(new Set());
   const [generateError, setGenerateError] = useState<Record<number, string>>({});
   const [selectedPhoto, setSelectedPhoto] = useState<Record<number, Record<string, number>>>({});
   const [deletingProposal, setDeletingProposal] = useState<number | null>(null);
@@ -159,6 +170,26 @@ export default function SolicitudDetallePage() {
     }
   }
 
+  /** Mismo mecanismo que admin/ordenes/[id]/page.tsx: si el fetch se corta
+   * (conexión del navegador, no falla real), el servidor puede haber
+   * terminado igual — antes de mostrar "Error al generar" sin más,
+   * confirmamos consultando si ya apareció la propuesta (generatedAt nuevo). */
+  async function waitForProposalResult(templateId: number, startedAt: number): Promise<boolean> {
+    for (let attempt = 0; attempt < 30; attempt++) {
+      await new Promise((r) => setTimeout(r, 4000));
+      try {
+        const res = await fetch(`${API}/api/admin/demo/requests/${id}`);
+        if (!res.ok) continue;
+        const detail: DemoDetail = await res.json();
+        const done = detail.proposals.some(
+          (p) => p.templateId === templateId && new Date(p.generatedAt).getTime() >= startedAt,
+        );
+        if (done) return true;
+      } catch { /* seguir intentando */ }
+    }
+    return false;
+  }
+
   async function handleGenerateProposal(templateId: number) {
     // Guarda SÍNCRONA (no depende de que React re-renderice el disabled del
     // botón) — evita que un doble click dispare dos pedidos y choque contra
@@ -168,6 +199,7 @@ export default function SolicitudDetallePage() {
 
     setGeneratingSet((prev) => new Set(prev).add(templateId));
     setGenerateError((prev) => ({ ...prev, [templateId]: "" }));
+    const startedAt = Date.now();
     try {
       const res = await fetch(
         `${API}/api/admin/demo/requests/${id}/proposals/generate?templateId=${templateId}&protectionMode=WATERMARK`,
@@ -183,7 +215,18 @@ export default function SolicitudDetallePage() {
       }
       loadDetail();
     } catch (err) {
-      setGenerateError((prev) => ({ ...prev, [templateId]: err instanceof Error ? err.message : "Error" }));
+      // Se cortó la conexión, pero el servidor puede haber terminado igual —
+      // lo dejamos claro en el botón mientras confirmamos, en vez de quedar
+      // en un "Generando…" indistinguible de la espera normal o mostrar un
+      // "Error al generar" que no fue tal.
+      setVerifyingSet((prev) => new Set(prev).add(templateId));
+      const finishedAnyway = await waitForProposalResult(templateId, startedAt);
+      setVerifyingSet((prev) => { const next = new Set(prev); next.delete(templateId); return next; });
+      if (finishedAnyway) {
+        loadDetail();
+      } else {
+        setGenerateError((prev) => ({ ...prev, [templateId]: err instanceof Error ? err.message : "Error" }));
+      }
     } finally {
       generatingRef.current.delete(templateId);
       setGeneratingSet((prev) => { const next = new Set(prev); next.delete(templateId); return next; });
@@ -259,6 +302,7 @@ export default function SolicitudDetallePage() {
 
   return (
     <div style={{ padding: "32px", maxWidth: "1100px" }}>
+      <style dangerouslySetInnerHTML={{ __html: "@keyframes solicitud-gen-spin { to { transform: rotate(360deg); } }" }} />
 
       {/* ── Header ── */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
@@ -668,6 +712,7 @@ export default function SolicitudDetallePage() {
             const proposal = data.proposals.find((p) => p.templateId === ts.templateId);
             const isUploading = uploading === ts.templateId;
             const isGenerating = generatingSet.has(ts.templateId);
+            const isVerifying = verifyingSet.has(ts.templateId);
             const isDeleting = proposal ? deletingProposal === proposal.id : false;
             return (
               <div key={ts.id}>
@@ -692,20 +737,26 @@ export default function SolicitudDetallePage() {
                       <span style={{ fontSize: "13px", fontWeight: 600, color: "#065f46" }}>{ts.templateName ?? `Plantilla #${ts.templateId}`}</span>
                       <span style={{ fontSize: "11px", color: "#22c55e", background: "#dcfce7", padding: "2px 8px", borderRadius: "99px", fontWeight: 600 }}>Marca de agua</span>
                     </div>
-                    {data.status === "RECEIVED" && (
-                      <div style={{ padding: "0 12px 10px" }}>
-                        <button
-                          disabled={isGenerating}
-                          onClick={() => handleGenerateProposal(ts.templateId)}
-                          title="Vuelve a generar con IA, pisando esta propuesta — no hace falta borrarla antes"
-                          style={{ width: "100%", padding: "7px", borderRadius: "8px", border: "none", background: isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "11px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
-                          {isGenerating ? "Regenerando… (puede tardar 20s)" : "Regenerar con IA"}
-                        </button>
-                        {generateError[ts.templateId] && (
-                          <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>
-                        )}
-                      </div>
-                    )}
+                    {/* Sin gate por status a propósito — si la propuesta no salió como
+                        queríamos, tiene que poder regenerarse aunque ya se le haya
+                        mandado al cliente (mismo comportamiento que Órdenes). */}
+                    <div style={{ padding: "0 12px 10px" }}>
+                      <button
+                        disabled={isGenerating}
+                        onClick={() => handleGenerateProposal(ts.templateId)}
+                        title="Vuelve a generar con IA, pisando esta propuesta — no hace falta borrarla antes"
+                        style={{ width: "100%", padding: "7px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "11px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                        {(isGenerating || isVerifying) && <GenSpinner />}
+                        {isVerifying
+                          ? "Se cortó la conexión — verificando…"
+                          : isGenerating
+                          ? "Regenerando… (puede tardar 20s)"
+                          : "Regenerar con IA"}
+                      </button>
+                      {generateError[ts.templateId] && (
+                        <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div style={{ border: "2px dashed #d1d5db", borderRadius: "12px", overflow: "hidden" }}>
@@ -746,8 +797,13 @@ export default function SolicitudDetallePage() {
                         <button
                           disabled={isGenerating}
                           onClick={() => handleGenerateProposal(ts.templateId)}
-                          style={{ width: "100%", marginTop: "6px", padding: "8px", borderRadius: "8px", border: "none", background: isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit" }}>
-                          {isGenerating ? "Generando… (puede tardar 20s)" : "Generar con IA"}
+                          style={{ width: "100%", marginTop: "6px", padding: "8px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                          {(isGenerating || isVerifying) && <GenSpinner />}
+                          {isVerifying
+                            ? "Se cortó la conexión — verificando…"
+                            : isGenerating
+                            ? "Generando… (puede tardar 20s)"
+                            : "Generar con IA"}
                         </button>
                         {generateError[ts.templateId] && (
                           <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>

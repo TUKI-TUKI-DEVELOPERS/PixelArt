@@ -134,6 +134,7 @@ export class TypeOrmDemoRepository extends DemoRepositoryPort {
         templateId: Number(p.templateId),
         outputStorageKey: p.outputStorageKey,
         protectionMode: p.protectionMode,
+        generatedAt: p.generatedAt,
       })),
     };
   }
