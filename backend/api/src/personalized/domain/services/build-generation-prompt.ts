@@ -162,6 +162,104 @@ export function resolveFamilyGroupNameValues(
   };
 }
 
+/** "A" / "A & B" / "A, B & C" — mismo criterio en todos los libros de
+ * reparto variable que necesitan listar N nombres en un solo placeholder. */
+function joinNamesOxford(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? '';
+  const last = names[names.length - 1];
+  const rest = names.slice(0, -1).join(', ');
+  return `${rest} & ${last}`;
+}
+
+type HermanosCharacterMeta = {
+  hermanos?: Array<{ name?: string | null } | null> | null;
+};
+
+/** Para el modo "hermanos" (libro El Mejor Equipo) el wizard tampoco
+ * recolecta recipientName/dedicatorName (quedan NULL — no hay un único
+ * "destinatario"/"dedicante" entre 2 o 3 hermanos). Los nombres reales viven
+ * en characterMeta.hermanos[].name. No hay slot dedicado para una lista de
+ * N nombres, así que se reparten en los 2 placeholders existentes: todos
+ * menos el último en {NOMBRE_DESTINATARIO} (separados por coma) y el último
+ * en {NOMBRE_DEDICANTE} — el subtítulo fijo "{NOMBRE_DESTINATARIO} &
+ * {NOMBRE_DEDICANTE}" termina leyéndose como una lista natural ("Valentina,
+ * Mateo & Sofía"). Devuelve null si characterMeta no tiene forma de
+ * "hermanos" (no rompe ningún otro libro). */
+export function resolveHermanosNameValues(
+  characterMeta: Record<string, unknown> | null | undefined,
+): NamePlaceholderValues | null {
+  if (!characterMeta || typeof characterMeta !== 'object') return null;
+  const meta = characterMeta as HermanosCharacterMeta;
+  if (!Array.isArray(meta.hermanos)) return null;
+  const names = meta.hermanos.map((h) => h?.name).filter((n): n is string => !!n);
+  if (names.length === 0) return null;
+  const last = names[names.length - 1];
+  const rest = names.slice(0, -1).join(', ');
+  return {
+    nombreDestinatario: rest || null,
+    nombreDedicante: last,
+  };
+}
+
+type AventuraEntrePatasCharacterMeta = {
+  mode?: string;
+  pet?: { name?: string | null } | null;
+  owners?: Array<{ name?: string | null } | null> | null;
+};
+
+/** Para "Aventura entre patas" (mascota + 1 a 3 niños dueños), a diferencia
+ * de "hermanos", el wizard SÍ guarda recipientName/dedicatorName (no quedan
+ * NULL) — pero dedicatorName es solo el nombre del PRIMER dueño; el 2do y
+ * 3ro viven únicamente en characterMeta.owners[1]/[2], invisibles para
+ * resolveNameValues() por defecto. Sin este resolver, el subtítulo de la
+ * tapa imprime solo "Mascota & Dueño1" y pierde a los demás dueños en
+ * silencio cuando hay 2 o 3. {NOMBRE_DESTINATARIO}=mascota (ya andaba bien),
+ * {NOMBRE_DEDICANTE}=todos los dueños unidos ("Mateo & Sofía" / "Mateo,
+ * Sofía & Lucía"). Devuelve null si characterMeta no tiene forma de
+ * "mascotas-aventura" (no rompe ningún otro libro). */
+export function resolveAventuraEntrePatasNameValues(
+  characterMeta: Record<string, unknown> | null | undefined,
+): NamePlaceholderValues | null {
+  if (!characterMeta || typeof characterMeta !== 'object') return null;
+  const meta = characterMeta as AventuraEntrePatasCharacterMeta;
+  if (meta.mode !== 'mascotas-aventura') return null;
+  const ownerNames = (meta.owners ?? []).map((o) => o?.name).filter((n): n is string => !!n);
+  if (ownerNames.length === 0 && !meta.pet?.name) return null;
+  return {
+    nombreDestinatario: meta.pet?.name ?? null,
+    nombreDedicante: ownerNames.length > 0 ? joinNamesOxford(ownerNames) : null,
+  };
+}
+
+type MemorialHermanosCharacterMeta = {
+  mode?: string;
+  recipient?: { name?: string | null } | null;
+  livingSiblings?: Array<{ name?: string | null } | null> | null;
+};
+
+/** Para "Siempre serás parte de mí" (hermano/a fallecido + 1 o 2 hermanos
+ * vivos que dedican), mismo problema que "Aventura entre patas": el wizard
+ * SÍ guarda recipientName/dedicatorName (no quedan NULL), pero dedicatorName
+ * es solo el nombre del PRIMER hermano vivo — el segundo vive únicamente en
+ * characterMeta.livingSiblings[1], invisible para resolveNameValues() por
+ * defecto. Sin esto, el subtítulo pierde al segundo hermano en silencio
+ * cuando numSiblings=3. {NOMBRE_DESTINATARIO}=hermano/a fallecido,
+ * {NOMBRE_DEDICANTE}=todos los hermanos vivos unidos. Devuelve null si
+ * characterMeta no tiene forma de "memorial-hermanos". */
+export function resolveMemorialHermanosNameValues(
+  characterMeta: Record<string, unknown> | null | undefined,
+): NamePlaceholderValues | null {
+  if (!characterMeta || typeof characterMeta !== 'object') return null;
+  const meta = characterMeta as MemorialHermanosCharacterMeta;
+  if (meta.mode !== 'memorial-hermanos') return null;
+  const livingNames = (meta.livingSiblings ?? []).map((s) => s?.name).filter((n): n is string => !!n);
+  if (livingNames.length === 0 && !meta.recipient?.name) return null;
+  return {
+    nombreDestinatario: meta.recipient?.name ?? null,
+    nombreDedicante: livingNames.length > 0 ? joinNamesOxford(livingNames) : null,
+  };
+}
+
 /** El `name` en BD incluye el sufijo de dirección ("... El a Ella") para
  * distinguirlo en el admin — el título impreso en la imagen no lo lleva. */
 export function derivePrintedTitle(templateName: string | null): string {

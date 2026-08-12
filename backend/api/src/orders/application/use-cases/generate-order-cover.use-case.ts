@@ -11,6 +11,9 @@ import { buildCoverPrompt, buildBackCoverPrompt, COVER_SIZE } from '../../../per
 import {
   fillNamePlaceholders,
   resolveFamilyGroupNameValues,
+  resolveHermanosNameValues,
+  resolveAventuraEntrePatasNameValues,
+  resolveMemorialHermanosNameValues,
   NamePlaceholderValues,
 } from '../../../personalized/domain/services/build-generation-prompt';
 import { resolveReferencePhotos } from '../../../demo/domain/services/resolve-reference-photos';
@@ -90,10 +93,12 @@ export class GenerateOrderCoverUseCase {
     }
     const referenceImages = await this.downloadReferences(references.map((r) => r.assetId));
 
+    const nameValues = this.resolveNameValues(demoRow);
     const prompt = buildCoverPrompt({
       sharedBlocks: await this.personalizedRepo.findSharedBlocks(),
-      coverSceneVisual: fillNamePlaceholders(coverSceneVisual, this.resolveNameValues(demoRow)),
+      coverSceneVisual: fillNamePlaceholders(coverSceneVisual, nameValues),
       title: model.name.toUpperCase(),
+      names: nameValues,
     });
 
     const generated = await this.imageGeneration.generateWithReferences(prompt, referenceImages, COVER_SIZE);
@@ -128,7 +133,10 @@ export class GenerateOrderCoverUseCase {
 
   private resolveNameValues(demoRow: DemoRequestRow): NamePlaceholderValues {
     return (
-      resolveFamilyGroupNameValues(demoRow.character_meta) ?? {
+      resolveFamilyGroupNameValues(demoRow.character_meta) ??
+      resolveHermanosNameValues(demoRow.character_meta) ??
+      resolveAventuraEntrePatasNameValues(demoRow.character_meta) ??
+      resolveMemorialHermanosNameValues(demoRow.character_meta) ?? {
         nombreDestinatario: demoRow.recipient_name,
         apodoDestinatario: demoRow.recipient_nickname,
         nombreDedicante: demoRow.dedicator_name,

@@ -19,19 +19,28 @@ export type BuildCoverPromptInput = {
    * como un solo bloque (ver personalized_models.cover_scene_visual). */
   coverSceneVisual: string;
   title: string;
+  /** tapa_diseno_editorial_wrapper (subtítulo impreso) y tapa_composicion_reglas
+   * también traen {NOMBRE_DESTINATARIO}/{NOMBRE_DEDICANTE} sin rellenar —
+   * antes de este fix llegaban literales al prompt de imagen, y la IA
+   * terminaba inventando nombres para poder renderizar el subtítulo. */
+  names: NamePlaceholderValues;
 };
 
 /** Arma el prompt final de TAPA — mismo patrón de bloques fijos (tapa_*) +
  * contenido propio del libro que buildGenerationPrompt() ya usa para las
  * páginas interiores. */
 export function buildCoverPrompt(input: BuildCoverPromptInput): string {
-  const disenoEditorial = input.sharedBlocks['tapa_diseno_editorial_wrapper'].replace('{TITULO}', input.title);
+  const disenoEditorial = fillNamePlaceholders(
+    input.sharedBlocks['tapa_diseno_editorial_wrapper'].replace('{TITULO}', input.title),
+    input.names,
+  );
+  const composicionReglas = fillNamePlaceholders(input.sharedBlocks['tapa_composicion_reglas'], input.names);
 
   return [
     `[IMAGEN BASE]\n${input.sharedBlocks['tapa_imagen_base']}`,
     `[ESCENA VISUAL]\n${input.coverSceneVisual}`,
     `Proporción y conexión física entre ambos (crítico)\n${input.sharedBlocks['tapa_proporcion_conexion']}`,
-    `[COMPOSICIÓN — REGLAS OBLIGATORIAS]\n${input.sharedBlocks['tapa_composicion_reglas']}`,
+    `[COMPOSICIÓN — REGLAS OBLIGATORIAS]\n${composicionReglas}`,
     `[DISEÑO EDITORIAL]\n${disenoEditorial}`,
     `[DETALLES TÉCNICOS]\n${input.sharedBlocks['tapa_detalles_tecnicos']}`,
   ].join('\n\n');
