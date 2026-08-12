@@ -66,20 +66,33 @@ export class GetCheckoutInfoUseCase {
       [demoRequestId],
     ) as { customer_full_name: string; package_preference: string; gender_direction: string | null }[];
 
-    // All active templates from the same personalized_model Y misma dirección de género
-    // (si el modelo no distingue dirección, gender_direction es NULL en ambos lados y el
-    // filtro sigue funcionando igual).
+    // All active templates from the same personalized_model Y misma dirección de género.
+    // "si el modelo no distingue dirección, gender_direction es NULL en ambos lados"
+    // asumía que demo_request.gender_direction también quedaba NULL para esos modelos —
+    // FALSO para los libros de Familia con dedicante de género fijo (Papá/Mamá/Abuelo/
+    // Abuela): el wizard salta el selector pero igual calcula y guarda un
+    // genderDirection (ver WizardSection.tsx), aunque sus plantillas nunca tuvieron
+    // versión dual y quedan siempre en NULL. Resultado: 0 matches, "No hay más
+    // plantillas disponibles". Por eso el filtro de género se ignora por completo
+    // cuando NINGUNA plantilla de este modelo usa gender_direction — sea cual sea
+    // el valor guardado en demo_request para esos casos, es irrelevante.
     const availableRows: { id: string; name: string | null; template_preview_key: string }[] =
       await this.dataSource.query(
         `SELECT id, name, template_preview_key
-         FROM personalized_templates
-         WHERE model_id = $1
-           AND is_active = TRUE
-           AND gender_direction IS NOT DISTINCT FROM $2
-           AND id NOT IN (
+         FROM personalized_templates pt
+         WHERE pt.model_id = $1
+           AND pt.is_active = TRUE
+           AND (
+             pt.gender_direction IS NOT DISTINCT FROM $2
+             OR NOT EXISTS (
+               SELECT 1 FROM personalized_templates pt2
+               WHERE pt2.model_id = $1 AND pt2.gender_direction IS NOT NULL
+             )
+           )
+           AND pt.id NOT IN (
              SELECT template_id FROM demo_template_selections WHERE demo_request_id = $3
            )
-         ORDER BY id`,
+         ORDER BY pt.id`,
         [order.personalizedModelId, demoRow?.gender_direction ?? null, demoRequestId],
       );
 

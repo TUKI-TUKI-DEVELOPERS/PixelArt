@@ -1390,7 +1390,29 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           recipientName: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : recipientName || null,
           recipientNickname: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : recipientNickname || null,
           dedicatorName: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : dedicatorName || null,
-          genderDirection: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : genderDirection || null,
+          // "familia" (Papá/Mamá/Abuelo/Abuela) y 3 de los 4 libros de "mascotas"
+          // (todos menos Aventura Entre Patas) preguntan género de ambos roles, así
+          // que el efecto que calcula genderDirection corre y guarda un HE_TO_SHE/
+          // SHE_TO_HE que no significa nada ahí: esas plantillas nunca tuvieron
+          // versión dual, su gender_direction es siempre NULL. Guardar ese valor
+          // rompía el filtro de plantillas disponibles en el checkout (0 matches,
+          // "No hay más plantillas disponibles"). Aventura Entre Patas y los 4
+          // libros de "memorial" nunca piden género del dedicante, así que ya
+          // quedaban en null solos — no hace falta agregarlos acá.
+          // "memorial" es un caso aparte: nunca pregunta género del dedicante (por
+          // eso genderDirection, el de esquema HE_TO_SHE/SHE_TO_HE, siempre queda
+          // vacío ahí) — pero 2 de sus 4 libros (Mi Ángel Guardián, Siempre en mi
+          // Corazón) SÍ tienen plantillas 100% divididas en F/M (cero en NULL), a
+          // diferencia de todos los demás modos que usan el esquema HE_TO_SHE. Sin
+          // esto, esos dos quedaban con 0 plantillas disponibles en el checkout
+          // igual que Familia/Mascotas, pero por el motivo opuesto: el filtro SÍ
+          // encontraba plantillas con dirección, solo que ninguna coincidía con
+          // NULL. Los otros 2 libros de memorial (plantillas 100% NULL) no se ven
+          // afectados por mandar esto — el fix de backend los sigue ignorando bien.
+          genderDirection:
+            wizardMode === "memorial" ? (recipientGender || null)
+            : ["familia-grupo", "hermanos", "familia", "mascotas"].includes(wizardMode) ? null
+            : genderDirection || null,
           characterMeta: wizardMode === "familia-grupo"
             ? {
                 mode: "familia-grupo",
