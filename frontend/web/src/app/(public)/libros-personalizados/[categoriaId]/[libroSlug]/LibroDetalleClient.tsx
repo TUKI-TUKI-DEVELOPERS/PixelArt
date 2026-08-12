@@ -4,12 +4,23 @@ import { tokens } from "@/lib/design-tokens";
 
 import { useState } from "react";
 import Link from "next/link";
+import { HeartHandshake, Users, Home as HomeIcon, PawPrint, Feather, type LucideIcon } from "lucide-react";
 import MaternalSkyBackground from "@/components/backgrounds/MaternalSkyBackground";
 import WizardSection from "./WizardSection";
 import BookCard from "@/components/Home/BookCard";
 import type { BookCategory } from "@/components/Home/NuestrosLibrosSection";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
+
+/* ── "De quién a quién" — ícono por tipo de relación (lucide-react, mismo
+   sistema de íconos que ya usa el resto del sitio) ── */
+const PARA_QUIEN_ICONS: Record<string, LucideIcon> = {
+  HeartHandshake,
+  Users,
+  Home: HomeIcon,
+  PawPrint,
+  Feather,
+};
 
 /* ── Miniaturas por slug ── */
 const SLUG_THUMBNAIL: Record<string, string> = {
@@ -38,6 +49,10 @@ type LibroInfo = {
   nombre: string;
   subtitulo: string;
   tagline: string;
+  /** Badge corto arriba del título — a quién está dedicado el libro, para
+   * que el cliente entienda en 2 segundos si le sirve o no (ej. "De hijos
+   * a mamá"). Clave de `icono` debe existir en PARA_QUIEN_ICONS. */
+  paraQuien: { texto: string; icono: keyof typeof PARA_QUIEN_ICONS };
   descripcionCorta: string;
   bullets: string[];
   caracteristicas: { label: string; value: string }[];
@@ -51,6 +66,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "1025 Días Enamorándome De Ti",
     subtitulo: "Libro Personalizado de AMOR",
     tagline: "EL MEJOR CONTEO ES EL DE NOSOTROS",
+    paraQuien: { texto: "De pareja a pareja", icono: "HeartHandshake" },
     descripcionCorta:
       "Idea de regalo lleno de amor para parejas:",
     bullets: [
@@ -71,6 +87,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "10 o 15 Razones Por Las Que Te Amo",
     subtitulo: "Libro Personalizado de AMOR",
     tagline: "PORQUE EN LO SIMPLE VIVIMOS LO MAS GRANDE TÚ Y YO",
+    paraQuien: { texto: "De pareja a pareja", icono: "HeartHandshake" },
     descripcionCorta:
       "Idea de regalo lleno de amor para parejas:",
     bullets: [
@@ -91,6 +108,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Mi Amor",
     subtitulo: "Libro Personalizado de AMOR",
     tagline: "ERES MI INSPIRACIÓN INFINITA",
+    paraQuien: { texto: "De pareja a pareja", icono: "HeartHandshake" },
     descripcionCorta:
       "Idea de regalo lleno de amor para parejas:",
     bullets: [
@@ -111,6 +129,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Papá, Mi Héroe",
     subtitulo: "Libro Personalizado de Familia",
     tagline: "PARA EL HOMBRE QUE ME ENSEÑO A SER VALIENTE",
+    paraQuien: { texto: "De hijos a papá", icono: "Users" },
     descripcionCorta:
       "Crea el homenaje más hermoso para papá:",
     bullets: [
@@ -131,6 +150,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Te Amo, Abuelo",
     subtitulo: "Libro Personalizado de Familia",
     tagline: "ÉL TE CONTO HISTORIAS, AHORA TU DALE UN TESORO QUE RECORDAR",
+    paraQuien: { texto: "De nietos a abuelo", icono: "Users" },
     descripcionCorta:
       "Crea el homenaje más hermoso para el abuelo:",
     bullets: [
@@ -151,6 +171,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "El Mejor Equipo",
     subtitulo: "Libro Personalizado de Familia",
     tagline: "PORQUE SER HERMANOS SE MERECE UN LIBRO PROPIO",
+    paraQuien: { texto: "Entre hermanos", icono: "Users" },
     descripcionCorta:
       "Crea el homenaje más hermoso entre hermanos:",
     bullets: [
@@ -171,6 +192,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "La Familia",
     subtitulo: "Libro Personalizado de Familia",
     tagline: "PORQUE ESTANDO JUNTOS TODO ES MEJOR",
+    paraQuien: { texto: "Para toda la familia", icono: "Home" },
     descripcionCorta:
       "Crea el homenaje más hermoso para tu familia:",
     bullets: [
@@ -191,6 +213,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Te Amo, Abuela",
     subtitulo: "Libro Personalizado de Familia",
     tagline: "PORQUE EL AMOR DE UNA ABUELA NUNCA SE OLVIDA",
+    paraQuien: { texto: "De nietos a abuela", icono: "Users" },
     descripcionCorta:
       "Crea el homenaje más hermoso para la abuela:",
     bullets: [
@@ -211,6 +234,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Mamá, Mi Heroína",
     subtitulo: "Libro Personalizado de Familia",
     tagline: "EL REGALO QUE TU MAMÁ GUARDARÁ PARA SIEMPRE",
+    paraQuien: { texto: "De hijos a mamá", icono: "Users" },
     descripcionCorta:
       "Crea el homenaje más hermoso para mamá:",
     bullets: [
@@ -231,6 +255,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Siempre Serás Parte de Mi Corazón",
     subtitulo: "Libro Memorial Personalizado",
     tagline: "PORQUE NUESTRO VÍNCULO ES ETERNO",
+    paraQuien: { texto: "De hermanos a un hermano/a", icono: "Feather" },
     descripcionCorta:
       "El homenaje a ese lazo que ninguna distancia puede romper:",
     bullets: [
@@ -251,6 +276,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Siempre en mi Corazón",
     subtitulo: "Libro Memorial Personalizado",
     tagline: "PORQUE TU RECUERDO VIVE EN CADA LATIDO",
+    paraQuien: { texto: "De nietos a abuela o abuelo", icono: "Feather" },
     descripcionCorta:
       "El homenaje más hermoso para quien siempre estará en tu corazón:",
     bullets: [
@@ -271,6 +297,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Mi Ángel Guardián",
     subtitulo: "Libro Memorial Personalizado",
     tagline: "PORQUE TU LUZ SIGUE BRILLANDO EN MÍ",
+    paraQuien: { texto: "De hijos a mamá o papá", icono: "Feather" },
     descripcionCorta:
       "El homenaje más hermoso para quien fue tu guía y tu fuerza:",
     bullets: [
@@ -291,6 +318,7 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     nombre: "Gracias por tu amor",
     subtitulo: "Libro Memorial Personalizado",
     tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ",
+    paraQuien: { texto: "De sobrinos a una tía", icono: "Feather" },
     descripcionCorta:
       "El homenaje más hermoso para quien nunca olvidarás:",
     bullets: [
@@ -307,12 +335,97 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     reviewCount: 0,
     accent: "#8b6bb1",
   },
+  "aventura-entre-patas": {
+    nombre: "Aventura Entre Patas",
+    subtitulo: "Libro Personalizado de Mascotas",
+    tagline: "CELEBRA TUS AVENTURAS JUNTO A TU PELUDO AMIGO",
+    paraQuien: { texto: "De niños a su mascota", icono: "PawPrint" },
+    descripcionCorta:
+      "Crea la aventura más divertida junto a tu mascota:",
+    bullets: [
+      "Un libro donde los niños de la casa viven aventuras de piratas, superhéroes y exploradores junto a su mascota favorita.",
+      "Cada plantilla transforma los juegos cotidianos en escenas llenas de imaginación, humor y complicidad.",
+    ],
+    caracteristicas: [
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
+    ],
+    precio: { desde: "S/ 130" },
+    reviewCount: 150,
+    accent: "#f5a623",
+  },
+  "mi-amigo-miauravilloso": {
+    nombre: "Mi Amigo Miauravilloso",
+    subtitulo: "Libro Personalizado de Mascotas",
+    tagline: "PARA TU GUARDIAN MISTICO",
+    paraQuien: { texto: "De dueño a su gato", icono: "PawPrint" },
+    descripcionCorta:
+      "Crea el homenaje más tierno para tu gato:",
+    bullets: [
+      "Un libro que celebra las manías y la magia felina de tu gato, con escenas llenas de humor y ternura.",
+      "Cada plantilla captura esa personalidad única que solo un gato puede tener.",
+    ],
+    caracteristicas: [
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
+    ],
+    precio: { desde: "S/ 130" },
+    reviewCount: 188,
+    accent: "#f5a623",
+  },
+  "mi-mejor-amigo-del-mundo": {
+    nombre: "Mi Mejor Amigo del Mundo",
+    subtitulo: "Libro Personalizado de Mascotas",
+    tagline: "ERES MI COMPAÑERO FIEL",
+    paraQuien: { texto: "De dueño a su mascota", icono: "PawPrint" },
+    descripcionCorta:
+      "Crea el tributo más fiel a tu compañero de vida:",
+    bullets: [
+      "Un libro que celebra la compañía incondicional de tu mascota en el día a día, sea perro, gato o cualquier otro amigo peludo.",
+      "Cada plantilla captura esos momentos simples que hacen que la vida junto a ella sea mejor.",
+    ],
+    caracteristicas: [
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
+    ],
+    precio: { desde: "S/ 130" },
+    reviewCount: 90,
+    accent: "#f5a623",
+  },
+  "nuestro-angel-de-4-patas": {
+    nombre: "Nuestro Ángel de 4 Patas",
+    subtitulo: "Libro Memorial Personalizado",
+    tagline: "SU HUELLA QUEDÓ PARA SIEMPRE EN TU CORAZÓN",
+    paraQuien: { texto: "En memoria de tu mascota", icono: "Feather" },
+    descripcionCorta:
+      "Un tributo de amor eterno para tu mejor amigo:",
+    bullets: [
+      "Un libro que honra la memoria de esa mascota que ya no está, pero cuyo amor sigue presente en cada recuerdo.",
+      "Cada página es un homenaje lleno de ternura para mantener su presencia siempre viva.",
+    ],
+    caracteristicas: [
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
+    ],
+    precio: { desde: "S/ 130" },
+    reviewCount: 188,
+    accent: "#f5a623",
+  },
 };
 
 const DEFAULT_INFO: LibroInfo = {
   nombre: "Libro Personalizado",
   subtitulo: "Libro Personalizado",
   tagline: "",
+  paraQuien: { texto: "Para esa persona especial", icono: "HeartHandshake" },
   descripcionCorta: "Idea de regalo personalizado:",
   bullets: [
     "Crea un libro de historias único y especial para esa persona que más quieres.",
@@ -327,6 +440,32 @@ const DEFAULT_INFO: LibroInfo = {
   precio: { desde: "S/ 130" },
   reviewCount: 100,
   accent: "#dc4b89",
+};
+
+/* ── Fotos recomendadas — ejemplos "así sí" (rostro visible, buena luz,
+   fondo simple) generados con PromptsPixelArtPlantillas/scripts/
+   generate_fotos_recomendadas.py, subidos a MinIO en
+   IA_Books/FotosRecomendadas/{slug}-{n}.png. Roles según lo que pide
+   PHOTO_CONFIG/MemberSection real en WizardSection.tsx (no nombres
+   inventados — una foto de ejemplo por cada rol distinto del wizard). ── */
+const FOTOS_RECOMENDADAS: Record<string, string[]> = {
+  "10-razones-por-las-que-te-amo": ["Persona 1", "Persona 2"],
+  "1025-dias-enamorandome-de-ti": ["Persona 1", "Persona 2"],
+  "mi-amor": ["Persona 1", "Persona 2"],
+  "papa-mi-heroe": ["Papá", "Hija"],
+  "mama-mi-heroina": ["Mamá", "Hijo"],
+  "te-amo-abuelo": ["Abuelo", "Nieto"],
+  "te-amo-abuela": ["Abuela", "Nieto"],
+  "el-mejor-equipo": ["Hermano/a 1", "Hermano/a 2"],
+  "la-familia": ["Papá", "Mamá", "Hijo/a"],
+  "aventura-entre-patas": ["Niño/a", "Mascota"],
+  "mi-amigo-miauravilloso": ["Tu gato"],
+  "mi-mejor-amigo-del-mundo": ["Tu mascota"],
+  "nuestro-angel-de-4-patas": ["Tu mascota"],
+  "gracias-por-tu-amor": ["Tía", "Sobrino/a"],
+  "mi-angel-guardian": ["Mamá o papá", "Hijo/a"],
+  "siempre-en-mi-corazon": ["Abuelo/a", "Nieto/a"],
+  "siempre-seras-parte-de-mi": ["Hermano/a", "Hermano/a que dedica"],
 };
 
 /* ── Libros relacionados por categoría ── */
@@ -754,6 +893,30 @@ export default function LibroDetalleClient({
                 }),
               }}
             >
+              {(() => {
+                const ParaQuienIcon = PARA_QUIEN_ICONS[info.paraQuien.icono];
+                return (
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "14px" }}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "6px 14px",
+                        borderRadius: "999px",
+                        background: "rgba(255,255,255,0.92)",
+                        border: `1.5px solid ${info.accent}`,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      }}
+                    >
+                      <ParaQuienIcon size={14} strokeWidth={2.5} color={info.accent} />
+                      <span style={{ fontSize: "12px", fontWeight: 700, color: info.accent, letterSpacing: "0.2px" }}>
+                        {info.paraQuien.texto}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
               <h1
                 style={{
                   margin: "0 0 8px 0",
@@ -897,8 +1060,43 @@ export default function LibroDetalleClient({
         </div>
       </section>
 
+      {/* ═══ FOTOS RECOMENDADAS — guía "así sí" antes de subir tu foto ═══
+          paddingTop acá (no en el wizard de abajo) porque el <section> de
+          arriba tiene marginBottom negativo (la tarjeta "flota" sobre el
+          fondo) — este es el primer elemento después de esa sección, así
+          que es quien tiene que compensar el solapamiento. Siempre se
+          renderiza (aunque el libro no tenga fotos) para no perder ese
+          offset. ── */}
+      <div style={{ paddingTop: isMobile ? "32px" : "152px" }}>
+      {FOTOS_RECOMENDADAS[libroSlug] && (
+        <div style={{ padding: isMobile ? "0 24px 8px" : "0 48px 8px", maxWidth: "900px", margin: "0 auto" }}>
+          <h2 style={{ textAlign: "center", fontSize: isMobile ? "22px" : "26px", fontWeight: 700, color: "#111", margin: "0 0 8px 0", fontFamily: tokens.fonts.display }}>
+            Así deben verse tus fotos
+          </h2>
+          <p style={{ textAlign: "center", fontSize: "14px", color: "#666", margin: "0 auto 28px", maxWidth: "440px", lineHeight: 1.5 }}>
+            Ejemplos ilustrativos (no son personas reales) — subí una foto así de cada uno para el mejor resultado.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+            {FOTOS_RECOMENDADAS[libroSlug].map((rol, i) => (
+              <div key={i} style={{ width: "170px" }}>
+                <div style={{ position: "relative", borderRadius: "14px", overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", aspectRatio: "4/5", background: "#f3f3f3" }}>
+                  <img
+                    src={getAssetUrl(`IA_Books/FotosRecomendadas/${libroSlug}-${i + 1}.png`)}
+                    alt={`Ejemplo de foto — ${rol}`}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                </div>
+                <div style={{ marginTop: "10px", textAlign: "center", fontSize: "13px", fontWeight: 700, color: info.accent }}>{rol}</div>
+                <div style={{ fontSize: "11px", color: "#888", textAlign: "center", marginTop: "2px" }}>Rostro visible · Buena luz · Fondo simple</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      </div>
+
       {/* ═══ WIZARD DE CREACIÓN — 5 pasos ═══ */}
-      <div style={{ paddingTop: isMobile ? 0 : "120px" }}>
+      <div>
 
         {/* ── Divisor decorativo ── */}
         <div
