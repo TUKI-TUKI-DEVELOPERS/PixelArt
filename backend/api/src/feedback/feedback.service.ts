@@ -15,14 +15,16 @@ export class FeedbackService {
     private readonly emailService: EmailService,
   ) {}
 
-  /** Admin genera link de feedback — disponible desde que el pago fue aprobado */
+  /** Admin genera link de feedback — solo cuando la orden ya está DELIVERED.
+   * Antes se permitía desde PAYMENT_VERIFIED y se disparaba automáticamente
+   * al aprobar el pago (ver reviewPayment en el admin) — el cliente recibía
+   * "¿Cómo te fue con tu libro?" días o semanas antes de tenerlo en la mano. */
   async generateFeedbackLink(orderId: number) {
     const order = await this.ordersService.findById(orderId);
     if (!order) throw new NotFoundException('Orden no encontrada');
 
-    const ELIGIBLE = ['PAYMENT_VERIFIED', 'IN_PRODUCTION', 'SHIPPED', 'DELIVERED'];
-    if (!ELIGIBLE.includes(order.status)) {
-      throw new BadRequestException('El pago debe estar verificado para generar el link de feedback');
+    if (order.status !== 'DELIVERED') {
+      throw new BadRequestException('La orden debe estar marcada como entregada para generar el link de feedback');
     }
 
     const link = await this.publicLinksService.generate({ linkType: 'FEEDBACK', orderId });

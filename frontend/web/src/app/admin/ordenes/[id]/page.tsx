@@ -500,16 +500,12 @@ export default function OrdenDetallePage() {
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
       if (!res.ok) throw new Error();
-      // Auto-generar link de feedback al aprobar el pago
-      if (action === "APPROVE") {
-        try {
-          const fbRes = await fetch(`${API}/api/admin/feedback/generate/${id}`, { method: "POST" });
-          if (fbRes.ok) {
-            const fbResult = await fbRes.json();
-            setFeedbackLink(fbResult.url);
-          }
-        } catch { /* silencioso — no bloquear el flujo principal */ }
-      }
+      // El link/correo de feedback ("¿Cómo te fue con tu libro?") YA NO se
+      // dispara acá — antes salía apenas se aprobaba el pago, días o semanas
+      // antes de que el cliente tuviera el libro en la mano. Ahora es 100%
+      // manual, desde la sección de Feedback, y solo aparece cuando la orden
+      // ya está DELIVERED — el admin decide cuándo hay certeza real de que
+      // el cliente lo recibió.
       load();
     } catch { alert("Error al revisar pago"); }
     finally { setActing(false); }
@@ -1532,7 +1528,9 @@ export default function OrdenDetallePage() {
       )}
 
       {/* ── 8. Feedback ── */}
-      {["PAYMENT_VERIFIED", "IN_PRODUCTION", "SHIPPED", "DELIVERED"].includes(data.status) && (
+      {/* Solo cuando ya está DELIVERED — pedirle reseña al cliente antes de
+          que tenga el libro en la mano no tiene sentido (ver reviewPayment). */}
+      {data.status === "DELIVERED" && (
         <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", overflow: "hidden" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6", display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Feedback del cliente</span>
