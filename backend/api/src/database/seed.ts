@@ -854,6 +854,19 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] personalized_templates content backfill (Amor) ✓');
 
+    // Corrige personalized_templates.name para "Mi Amor": las 20 plantillas
+    // "El a Ella" imprimían el mismo título masculino que su par "Ella a El"
+    // (fileToName() solo hace reemplazo mecánico de texto, nunca tradujo
+    // género — bug real: destinataria mujer pero título "MI SUPERHÉROE
+    // PERSONAL"). De paso corrige 4 títulos masculinos desalineados de su
+    // propio contenido (Plantilla 3 imprimía "Mi Thor Dios del Trueno",
+    // nombre de marca registrada, aunque la escena ya no menciona a Thor;
+    // 17/19/20 sin tilde). Ver detalle en el propio .sql.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-amor-title-gender-fix.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates.name gender fix (Mi Amor) ✓');
+
     // Backfill del contenido de prompt para los 6 libros de Familia (díada:
     // Mamá/Papá/Abuela/Abuelo; reparto variable: Mi Familia/El Mejor Equipo).
     // Mismo patrón que Amor: matchea por template_preview_key, idempotente
