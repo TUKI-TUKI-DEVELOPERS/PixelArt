@@ -23,7 +23,7 @@ por siempre en mi alma te llevo prendido.$ss1pm$,
   magic_effects = $ss1fx$Destellos dorados cayendo de la estrella central. Partículas de luz muy sutiles en el aire. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$ss1fx$,
   lighting_color = $ss1lc$Luz de día soleado y saturada, con azules vibrantes, naranjas cálidos y el destello dorado de la estrella.$ss1lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1718;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_01_Memoria_Familiar_Hermano_Porque_somos_el_Mejor_Equipo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss2sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad pícara y la magia entrañable de las travesuras compartidas.
@@ -48,7 +48,7 @@ tu chispa traviesa es un don inmortal.$ss2pm$,
   magic_effects = $ss2fx$Huellas brillantes moviéndose por el papel del mapa. Pequeñas chispas doradas saltando de las varitas. La magia debe sentirse traviesa y completamente integrada dentro de una fotografía realista.$ss2fx$,
   lighting_color = $ss2lc$Marrones cálidos de madera, dorado suave y el brillo cálido del mapa mágico.$ss2lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1719;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_02_Memoria_Familiar_Hermano_Porque_somos_Cómplices_de_Travesuras.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss3sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ingenio compartido y la certeza de que juntos podían construir cualquier locura.
@@ -73,7 +73,7 @@ volando a tu lado en la eternidad.$ss3pm$,
   magic_effects = $ss3fx$El plano es transparente y emite luz propia. Chispas sutiles cayendo de la estructura. La magia debe sentirse inventiva y completamente integrada dentro de una fotografía realista.$ss3fx$,
   lighting_color = $ss3lc$Verde hierba, azul cielo, plata metálica y neón cian del plano.$ss3lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1720;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_03_Memoria_Familiar_Hermano_Porque_nuestras_Locuras_Tienen_Sentido.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss4sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite astucia compartida y la certeza de que ningún misterio se les resistía juntos.
@@ -98,7 +98,7 @@ cuidando mi vida cual fiel paladín.$ss4pm$,
   magic_effects = $ss4fx$Las huellas en el suelo brillan como polvo de estrellas. El cristal de la lupa atrapa y magnifica esa luz. La magia debe sentirse misteriosa y completamente integrada dentro de una fotografía realista.$ss4fx$,
   lighting_color = $ss4lc$Grises azulados, amarillos cálidos y dorado brillante de las huellas.$ss4lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1721;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_04_Memoria_Familiar_Hermano_Porque_resolvemos_Todos_los_Misterios.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss5sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite pura libertad y la emoción de volar juntos más allá de todo límite.
@@ -123,7 +123,7 @@ tu abrazo de hermano por siempre estará.$ss5pm$,
   magic_effects = $ss5fx$Estelas de propulsión luminosa saliendo de los trajes. Juguetes flotando sin gravedad. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$ss5fx$,
   lighting_color = $ss5lc$Púrpuras y azules espaciales, con colores cálidos de los trajes.$ss5lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1722;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_05_Memoria_Familiar_Hermano_Porque_eres_mi_Compañero_de_Infinito.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss6sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite confianza absoluta y la adrenalina de surcar el espacio codo a codo.
@@ -148,7 +148,7 @@ viajando por siempre impulsados de amor.$ss6pm$,
   magic_effects = $ss6fx$El efecto de túnel de luz estelar reflejándose en los rostros de todos. La magia debe sentirse vertiginosa y completamente integrada dentro de una fotografía realista.$ss6fx$,
   lighting_color = $ss6lc$Negros cósmicos, luces azules, cian y neón blanco de las estrellas.$ss6lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1723;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_06_Memoria_Familiar_Hermano_Porque_eres_mi_Copiloto_Eterno.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss7sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite lealtad absoluta y la fuerza inquebrantable de llegar juntos hasta el final.
@@ -173,7 +173,7 @@ con una hermandad que en mi pecho se inunda.$ss7pm$,
   magic_effects = $ss7fx$Un pequeño frasco en la mano de uno de ellos emite una luz estelar mágica que ilumina sus rostros en la oscuridad. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$ss7fx$,
   lighting_color = $ss7lc$Grises oscuros de la roca, naranjas ardientes y el destello dorado de la esperanza en el cielo.$ss7lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1724;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_07_Memoria_Familiar_Hermano_Porque_llegamos_Hasta_el_Fin_del_Mundo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss8sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro científico y la certeza de que el tiempo se detenía a su lado.
@@ -198,7 +198,7 @@ viviendo recuerdos con gran nitidez.$ss8pm$,
   magic_effects = $ss8fx$Relámpagos de energía temporal rodeando el contorno del auto flotante. Fuego mágico en las llantas. La magia debe sentirse futurista y completamente integrada dentro de una fotografía realista.$ss8fx$,
   lighting_color = $ss8lc$Asfalto oscuro, fuego naranja intenso, luces de neón azules y púrpuras, y destellos eléctricos blancos.$ss8lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1725;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_08_Memoria_Familiar_Hermano_Porque_viajamos_en_Nuestro_Propio_Tiempo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss9sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite libertad absoluta y la magia de volar sin miedo alguno.
@@ -223,7 +223,7 @@ siguiendo la luz de la segunda estrella.$ss9pm$,
   magic_effects = $ss9fx$Estelas de polvo dorado brillante rodeando sus cuerpos y dejando un rastro en el aire mientras vuelan. La magia debe sentirse libre y completamente integrada dentro de una fotografía realista.$ss9fx$,
   lighting_color = $ss9lc$Azules medianoche profundos, plata lunar y el dorado resplandeciente del polvo mágico.$ss9lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1726;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_09_Memoria_Familiar_Hermano_Porque_volamos_a_Nunca_Jamás.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss10sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite vigilancia mutua y la certeza de que juntos nada podía dañarlos.
@@ -248,7 +248,7 @@ si somos unidos, listos para saltar.$ss10pm$,
   magic_effects = $ss10fx$Las capas tienen un movimiento dramático casi sobrenatural en el viento. Iluminación cinematográfica heroica en sus rostros. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$ss10fx$,
   lighting_color = $ss10lc$Azul noche suave, dorado cálido de las luces de la ciudad y la luz plateada de la luna entre las nubes.$ss10lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1727;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_10_Memoria_Familiar_Hermano_Porque_nos_Protegemos_la_Espalda.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss11sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite poder conjunto y la certeza de que juntos podían con todo.
@@ -273,7 +273,7 @@ unidos por siempre en poder celestial.$ss11pm$,
   magic_effects = $ss11fx$Un suave resplandor dorado emana de sus manos y del escudo, iluminando el entorno con chispas cinematográficas. La magia debe sentirse triunfal y completamente integrada dentro de una fotografía realista.$ss11fx$,
   lighting_color = $ss11lc$Naranjas y dorados de victoria, contrastando con el cian de sus poderes.$ss11lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1728;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_11_Memoria_Familiar_Hermano_Porque_juntos_Somos_Invencibles.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss12sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad divertida y la certeza de que ningún miedo podía con ellos.
@@ -298,7 +298,7 @@ llenando la vida de risa y encanto.$ss12pm$,
   magic_effects = $ss12fx$Los haces de luz de las linternas crujen con chispas mágicas. El fantasma es luz translúcida y brillante. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$ss12fx$,
   lighting_color = $ss12lc$Marrones y negros ambientales rotos por el resplandor verde suave del fantasma y la luz dorada de las linternas.$ss12lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1729;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_12_Memoria_Familiar_Hermano_Porque_somos_Cazafantasmas_de_Miedos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss13sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite equilibrio perfecto entre dos opuestos que se complementan.
@@ -323,7 +323,7 @@ hermanos eternos de gran conexión.$ss13pm$,
   magic_effects = $ss13fx$Aura de fuego en uno, aura de nieve/cristales en el otro. El impacto de sus manos crea una onda expansiva de polvo cósmico. La magia debe sentirse equilibrada y completamente integrada dentro de una fotografía realista.$ss13fx$,
   lighting_color = $ss13lc$Contraste fuerte y hermoso entre naranjas/rojos ardientes y azules/plata glaciales.$ss13lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1730;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_13_Memoria_Familiar_Hermano_Porque_somos_el_Yin_de_mi_Yang.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss14sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta y la certeza de que su compañía siempre fue un refugio seguro.
@@ -348,7 +348,7 @@ mi eterno refugio, mi hermano y amigo.$ss14pm$,
   magic_effects = $ss14fx$Estrellas fugaces cruzando el cielo. El ambiente destila paz mágica y conexión emocional pura.$ss14fx$,
   lighting_color = $ss14lc$Azul medianoche, púrpuras cósmicos, el blanco de la espuma del mar y un fuego de fogata suave iluminándolos.$ss14lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1731;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_14_Memoria_Familiar_Hermano_Porque_eres_mi_Refugio_Constante.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss15sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad juguetona y la certeza de que hasta las peleas terminaban en risas.
@@ -373,7 +373,7 @@ con un lazo mágico, puro y muy fiel.$ss15pm$,
   magic_effects = $ss15fx$Chispas mágicas cayendo de las armas chocadas como si fuera confeti brillante. Relámpagos juguetones. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$ss15fx$,
   lighting_color = $ss15lc$Rojo poderoso, dorado, azul místico y destellos de relámpagos blancos.$ss15lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1732;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_15_Memoria_Familiar_Hermano_Porque_somos_Rivales_y_Mejores_Amigos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss16sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite despreocupación total y la alegría de cantar sin miedo a los problemas.
@@ -398,7 +398,7 @@ nuestro coro eterno jamás va a parar.$ss16pm$,
   magic_effects = $ss16fx$Notas musicales doradas sutiles flotando en el aire alrededor de sus bocas. Mariposas mágicas revoloteando. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$ss16fx$,
   lighting_color = $ss16lc$Verdes exuberantes, turquesa del agua y dorado del sol de la tarde.$ss16lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1733;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_16_Memoria_Familiar_Hermano_Porque_cantamos_la_Misma_Canción.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss17sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro puro ante la magia invernal compartida.
@@ -423,7 +423,7 @@ donde nuestra magia se vuelve inmortal.$ss17pm$,
   magic_effects = $ss17fx$La magia de hielo en las manos de {NOMBRE_DESTINATARIO} brilla como diamantes bajo la luz de la luna. Polvo de nieve destellando. La magia debe sentirse deslumbrante y completamente integrada dentro de una fotografía realista.$ss17fx$,
   lighting_color = $ss17lc$Cian puro, blanco nieve, plata y tonos magenta/violeta de la aurora.$ss17lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1734;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_17_Memoria_Familiar_Hermano_Porque_eres_la_Magia_de_mi_Invierno.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss18sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor compartido incluso frente a lo que debería dar miedo.
@@ -448,7 +448,7 @@ vivir a tu lado fue siempre muy justo.$ss18pm$,
   magic_effects = $ss18fx$Chispas de lava saltando como fuegos artificiales cómicos. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$ss18fx$,
   lighting_color = $ss18lc$Sombras oscuras, piedra negra y la luz roja/naranja vibrante y ardiente desde abajo.$ss18lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1735;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_18_Memoria_Familiar_Hermano_Porque_nos_reímos_del_Peligro.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss19sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite un lazo que ni la distancia ni el tiempo pueden romper.
@@ -473,7 +473,7 @@ juntos nacimos y juntos vivir.$ss19pm$,
   magic_effects = $ss19fx$Los senderos de luz desprenden polvo de estrellas. El símbolo de infinito gigante brilla en el fondo. La magia debe sentirse conceptual y completamente integrada dentro de una fotografía realista.$ss19fx$,
   lighting_color = $ss19lc$Púrpuras suaves, índigos, y la luz radiante contrastante (oro y plata) de los dos caminos entrelazados.$ss19lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1736;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_19_Memoria_Familiar_Hermano_Porque_nuestros_Caminos_Siempre_se_Cruzan.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $ss20sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta y el amor eterno que trasciende la partida física.
@@ -498,6 +498,6 @@ tu esencia es mi fuerza, mi luz, mi verdad.$ss20pm$,
   magic_effects = $ss20fx$El puente emite partículas de luz doradas. Un lazo de energía sutil une sus manos. La magia debe sentirse esperanzadora y completamente integrada dentro de una fotografía realista.$ss20fx$,
   lighting_color = $ss20lc$Naranja caléndula vibrante, oro divino, cielo crepuscular mágico.$ss20lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"livingSiblings","count":2}]'::jsonb
-WHERE id = 1737;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_20_Memoria_Familiar_Hermano_Porque_nuestro_Vínculo_es_Eterno.png' AND is_active = true;
 
 COMMIT;

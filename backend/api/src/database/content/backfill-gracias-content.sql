@@ -23,7 +23,7 @@ tu amor es un juego de magia inmortal.$gr1pm$,
   magic_effects = $gr1fx$Las gotas de agua salpicadas por los pies brillan como polvo de oro suspendido en el aire. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$gr1fx$,
   lighting_color = $gr1lc$Marrones rústicos, verde esmeralda y el destello cálido del sol reflejado en el agua.$gr1lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1658;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_01_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Niños.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr2sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite energía desbordante y la alegría de cantar a todo pulmón juntas.
@@ -48,7 +48,7 @@ tu ritmo por siempre será inigualable.$gr2pm$,
   magic_effects = $gr2fx$Ondas de sonido visibles como auras brillantes flotando en el aire. La magia debe sentirse eufórica y completamente integrada dentro de una fotografía realista.$gr2fx$,
   lighting_color = $gr2lc$Magenta, cian, azul eléctrico y destellos blancos.$gr2lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1659;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_02_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Estrellas_de_Rock.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr3sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro aventurero dentro de la propia casa convertida en jungla.
@@ -73,7 +73,7 @@ tu luz mi camino la va a iluminar.$gr3pm$,
   magic_effects = $gr3fx$Luciérnagas gigantes brillantes flotando. El ambiente se siente como un sueño épico. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$gr3fx$,
   lighting_color = $gr3lc$Verdes vibrantes, marrones tierra y luces doradas filtrándose por las ventanas/ramas.$gr3lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1660;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_03_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Exploradores.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr4sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite caos delicioso y la alegría de cocinar juntas sin ninguna regla.
@@ -98,7 +98,7 @@ tu dulce recuerdo es mi gran vocación.$gr4pm$,
   magic_effects = $gr4fx$La harina suspendida en el aire brilla como polvo de estrellas. Burbujas de colores salen de las ollas en ebullición. La magia debe sentirse dulce y completamente integrada dentro de una fotografía realista.$gr4fx$,
   lighting_color = $gr4lc$Blancos polvorientos, marrones chocolate, amarillos cálidos.$gr4lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1661;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_04_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Chefs_Expertos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr5sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite triunfo aventurero al descubrir un tesoro juntos.
@@ -123,7 +123,7 @@ mi fiel capitana desde que era yo niño.$gr5pm$,
   magic_effects = $gr5fx$Las monedas de chocolate emiten un aura de luz de oro real. Polvo flotando en el rayo de luz parece magia. La magia debe sentirse triunfal y completamente integrada dentro de una fotografía realista.$gr5fx$,
   lighting_color = $gr5lc$Dorados resplandecientes, marrones rústicos de madera y sombras profundas.$gr5lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1662;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_05_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Piratas.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr6sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la magia de la imaginación infantil convertida en viaje espacial real.
@@ -148,7 +148,7 @@ tu luz me ilumina de forma constante.$gr6pm$,
   magic_effects = $gr6fx$Fuego mágico de propulsión saliendo de la parte inferior de las cajas. Planetas brillantes en miniatura flotando. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$gr6fx$,
   lighting_color = $gr6lc$Azul cósmico, morados profundos y luces de estrellas.$gr6lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1663;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_06_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Astronautas.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr7sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite velocidad divertida y la complicidad de una carrera amistosa.
@@ -173,7 +173,7 @@ tu recuerdo abraza, te siento tan cerca.$gr7pm$,
   magic_effects = $gr7fx$Estelas de chispas y humo de colores saliendo de las ruedas. La magia debe sentirse veloz y completamente integrada dentro de una fotografía realista.$gr7fx$,
   lighting_color = $gr7lc$Colores primarios muy saturados (rojos, azules, amarillos) y el brillo neón de la pista.$gr7lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1664;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_07_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Pilotos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr8sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro mágico y la diversión de trucos compartidos.
@@ -198,7 +198,7 @@ me dejas el truco del más grande amor.$gr8pm$,
   magic_effects = $gr8fx$Naipes flotando congelados en el aire. Humo de colores brillantes (rosa y azul) saliendo del sombrero. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$gr8fx$,
   lighting_color = $gr8lc$Morados intensos, dorados, verdes esmeralda y destellos blancos.$gr8lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1665;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_08_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Magos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr9sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite creatividad desbordante y la alegría de pintar sin límites.
@@ -223,7 +223,7 @@ los lienzos hermosos que el alma enredan.$gr9pm$,
   magic_effects = $gr9fx$Las salpicaduras de pintura en el aire flotan como gotas de agua en el espacio y emiten luz. La magia debe sentirse creativa y completamente integrada dentro de una fotografía realista.$gr9fx$,
   lighting_color = $gr9lc$Contraste extremo entre el blanco del fondo y los colores flúor/neón de la pintura arrojada.$gr9lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1666;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_09_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Artistas.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr10sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría desinhibida y la energía de una coreografía espontánea.
@@ -248,7 +248,7 @@ tu gran energía ya no quedará atrás.$gr10pm$,
   magic_effects = $gr10fx$Pequeñas chispas doradas en el suelo al ritmo de sus pies. Rayos de luz enfocando su pose final. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$gr10fx$,
   lighting_color = $gr10lc$Tonos cálidos de hogar combinados con luces teatrales brillantes.$gr10lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1667;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_10_Memoria_Familiar_Tia_Porque_nos_divertimos_como_Bailarines.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr11sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite carisma puro y la energía de ser el centro alegre de cada reunión.
@@ -273,7 +273,7 @@ tu risa en mi pecho se va a cobijar.$gr11pm$,
   magic_effects = $gr11fx$Los reflejos de la bola de espejos parecen confeti de luz flotando en el aire. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$gr11fx$,
   lighting_color = $gr11lc$Destellos multicolores vibrantes (rosa, azul, dorado) rebotando en las paredes y muebles.$gr11lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1668;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_11_Memoria_Familiar_Tia_Porque_eres_el_Alma_de_la_Fiesta.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr12sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad traviesa y la certeza de ser cómplices perfectos.
@@ -298,7 +298,7 @@ haciendo la vida feliz y radiante.$gr12pm$,
   magic_effects = $gr12fx$Las plumas o el confeti de la trampa están suspendidos en el aire, emitiendo un ligero brillo mágico. La magia debe sentirse traviesa y completamente integrada dentro de una fotografía realista.$gr12fx$,
   lighting_color = $gr12lc$Marrones cálidos, amarillos y los colores brillantes de las plumas/confeti.$gr12lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1669;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_12_Memoria_Familiar_Tia_Porque_eres_mi_Cómplice_Perfecto.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr13sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad dulce y la libertad de una travesura compartida a escondidas.
@@ -323,7 +323,7 @@ endulzas por siempre mi fiel corazón.$gr13pm$,
   magic_effects = $gr13fx$El pastel de chocolate emite literalmente un resplandor dorado apetitoso y mágico. La magia debe sentirse traviesa y completamente integrada dentro de una fotografía realista.$gr13fx$,
   lighting_color = $gr13lc$Oscuros profundos y la luz focal cálida de la linterna.$gr13lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1670;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_13_Memoria_Familiar_Tia_Porque_me_enseñaste_a_Romper_las_Reglas.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr14sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite el asombro de un juego de mesa que cobra vida por completo.
@@ -348,7 +348,7 @@ seremos equipo en el mismo camino.$gr14pm$,
   magic_effects = $gr14fx$Las fichas del juego cobran vida en miniatura. Los dados brillan intensamente mientras flotan. La magia debe sentirse asombrosa y completamente integrada dentro de una fotografía realista.$gr14fx$,
   lighting_color = $gr14lc$Marrones hogareños, con el estallido verde y dorado de la magia del tablero.$gr14lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1671;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_14_Memoria_Familiar_Tia_Porque_hacíamos_el_Mejor_Equipo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr15sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite confianza íntima y la certeza de que ella siempre guardaría cada secreto.
@@ -373,7 +373,7 @@ tus buenos consejos me dan la verdad.$gr15pm$,
   magic_effects = $gr15fx$El aliento al susurrar se convierte en pequeñas estrellas brillantes. La luz del farol nevado es divina. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$gr15fx$,
   lighting_color = $gr15lc$Marrones cálidos en primer plano, azules helados y blancos luminosos en el fondo.$gr15lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1672;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_15_Memoria_Familiar_Tia_Porque_eres_la_Guardiana_de_mis_Secretos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr16sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo profundo en un abrazo que todo lo sanaba.
@@ -398,7 +398,7 @@ el faro radiante que mi alma embriaga.$gr16pm$,
   magic_effects = $gr16fx$El aura de luz dorada que emite el cuerpo de {NOMBRE_DESTINATARIO} crea un campo de fuerza sutil contra la oscuridad. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$gr16fx$,
   lighting_color = $gr16lc$Sombras frías alrededor, y un centro dorado/naranja vibrante y cálido.$gr16lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1673;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_16_Memoria_Familiar_Tia_Porque_tus_Abrazos_Curaban_Todo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr17sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite calidez pura frente a la tristeza de un día gris.
@@ -423,7 +423,7 @@ mi faro divino, mi hermoso encuentro.$gr17pm$,
   magic_effects = $gr17fx$El pequeño sol flotando entre sus manos emite llamaradas sutiles. La lluvia se evapora al tocar la cúpula de luz. La magia debe sentirse reconfortante y completamente integrada dentro de una fotografía realista.$gr17fx$,
   lighting_color = $gr17lc$Azul grisáceo vs. oro y amarillo cálido.$gr17lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1674;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_17_Memoria_Familiar_Tia_Porque_iluminabas_los_Días_Grises.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr18sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro ante un poder extraordinario escondido en lo cotidiano.
@@ -448,7 +448,7 @@ tu luz a mi lado jamás va a faltar.$gr18pm$,
   magic_effects = $gr18fx$Los objetos (platos, agua) están congelados en el aire sostenidos por anillos de luz azul. La magia debe sentirse asombrosa y completamente integrada dentro de una fotografía realista.$gr18fx$,
   lighting_color = $gr18lc$Tonos de hogar cálidos rotos por la luz azul eléctrica del "súper poder".$gr18lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1675;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_18_Memoria_Familiar_Tia_Porque_eres_mi_Heroína_Secreta.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr19sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia luminosa al revivir un recuerdo querido.
@@ -473,7 +473,7 @@ tú vives por siempre en mi fiel corazón.$gr19pm$,
   magic_effects = $gr19fx$El holograma está hecho de polvo de estrellas y luz sólida. Pequeños fragmentos de fotos flotan alrededor. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$gr19fx$,
   lighting_color = $gr19lc$Oscuros aterciopelados y la luz dorada pura de la proyección.$gr19lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1676;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_19_Memoria_Familiar_Tia_Porque_tus_Recuerdos_son_mi_Tesoro.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $gr20sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite un legado familiar que la muerte no pudo romper.
@@ -498,6 +498,6 @@ tu chispa es mi guía y mi gran verdad.$gr20pm$,
   magic_effects = $gr20fx$El puente emite un brillo suave y constante. El gran árbol emite pulsos de luz que representan la sangre y el linaje familiar eterno. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$gr20fx$,
   lighting_color = $gr20lc$Naranja caléndula vibrante, oro divino, cielo crepuscular mágico.$gr20lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1677;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Plantillas/PLANTILLA_20_Memoria_Familiar_Tia_Porque_nuestra_Familia_es_Eterna.png' AND is_active = true;
 
 COMMIT;

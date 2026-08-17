@@ -23,7 +23,7 @@ tu súper amor nunca me va a faltar.$scM1pm$,
   magic_effects = $scM1fx$Una estela de luz suave se despliega detrás de la capa de {NOMBRE_DESTINATARIO}, con pequeñas partículas doradas flotando en el aire. La magia debe sentirse heroica y completamente integrada dentro de una fotografía realista.$scM1fx$,
   lighting_color = $scM1lc$Iluminación cinematográfica cálida y heroica de atardecer, con dorados intensos, naranjas y morados suaves.$scM1lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1869;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_01_Memoria_Familiar_Abuelo_Porque_eres_mi_Superhéroe.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM2sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite sabiduría, protección y el consuelo de sentir el camino siempre iluminado por su recuerdo.
@@ -48,7 +48,7 @@ y tu recuerdo me ayuda a caminar.$scM2pm$,
   magic_effects = $scM2fx$El cristal del bastón brilla iluminando las hojas cercanas y luciérnagas doradas flotan suavemente alrededor del sendero. La magia debe sentirse sabia y completamente integrada dentro de una fotografía realista.$scM2fx$,
   lighting_color = $scM2lc$Iluminación cálida de atardecer en el bosque, con azules profundos, verdes esmeralda y el contraste dorado que emana del bastón.$scM2lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1871;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_02_Memoria_Familiar_Abuelo_Porque_eres_mi_Guía.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM3sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro, sabiduría y la magia entrañable de quien convertía lo cotidiano en algo extraordinario.
@@ -73,7 +73,7 @@ porque tu magia en mí va a sobrevivir.$scM3pm$,
   magic_effects = $scM3fx$Símbolos dorados y fórmulas flotan sutilmente sobre el libro abierto, con un brillo suave en las botellas de cristal del fondo. La magia debe sentirse intelectual y completamente integrada dentro de una fotografía realista.$scM3fx$,
   lighting_color = $scM3lc$Luz cálida de velas y el brillo mágico que sale del libro central, con marrones oscuros, púrpuras y dorados intensos.$scM3lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1873;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_03_Memoria_Familiar_Abuelo_Porque_eres_un_Hechicero.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM4sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite majestuosidad, justicia y el orgullo de haber sido guiados por su fuerza y su voz de mando.
@@ -98,7 +98,7 @@ que reina en mi alma de forma total.$scM4pm$,
   magic_effects = $scM4fx$Sutiles destellos de sol rebotan en el oro de las joyas y el trono, con polvo fino brillando en la luz cálida. La magia debe sentirse majestuosa y completamente integrada dentro de una fotografía realista.$scM4fx$,
   lighting_color = $scM4lc$Luz de desierto vibrante con dorados intensos, tonos arena, blanco brillante y acentos de azul cobalto.$scM4lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1875;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_04_Memoria_Familiar_Abuelo_Porque_eres_un_Líder.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM5sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite elegancia, calidez y el encanto sereno que curaba cualquier pena con solo una sonrisa.
@@ -123,7 +123,7 @@ que guarda un amor que será inagotable.$scM5pm$,
   magic_effects = $scM5fx$Destellos de luz sutiles se reflejan en los candelabros y los detalles del traje. La magia debe sentirse elegante y completamente integrada dentro de una fotografía realista.$scM5fx$,
   lighting_color = $scM5lc$Luz cálida, festiva y de ensueño, con blanco perla, dorado, plata y tonos cristalinos.$scM5lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1877;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_05_Memoria_Familiar_Abuelo_Porque_eres_Encantador.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM6sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite emoción, curiosidad y el espíritu aventurero que convertía cualquier lugar en un descubrimiento.
@@ -148,7 +148,7 @@ que siempre en mi vida me va a acompañar.$scM6pm$,
   magic_effects = $scM6fx$Un haz de luz ilumina el tesoro y el rostro de {NOMBRE_DESTINATARIO}, con polvo flotante iluminado. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$scM6fx$,
   lighting_color = $scM6lc$Luz cálida filtrada entre el follaje, con verdes profundos, marrones tierra y el brillo dorado del tesoro.$scM6lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1879;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_06_Memoria_Familiar_Abuelo_Porque_eres_Aventurero.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM7sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría pura, fantasía y el alma juguetona que nunca dejó de sonreír.
@@ -173,7 +173,7 @@ y tu buen humor es un don celestial.$scM7pm$,
   magic_effects = $scM7fx$Polvo de hadas cae desde las criaturas fantásticas y burbujas flotan en el aire. La magia debe sentirse juguetona y completamente integrada dentro de una fotografía realista.$scM7fx$,
   lighting_color = $scM7lc$Luz de día soleado y radiante, con rosas, celestes, dorados y verdes esmeralda vibrantes.$scM7lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1881;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_07_Memoria_Familiar_Abuelo_Porque_eres_Divertido.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM8sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura mágica, gratitud y el consuelo de saber que sigue cuidando cada deseo del corazón.
@@ -198,7 +198,7 @@ y cada deseo mi alma abrazará.$scM8pm$,
   magic_effects = $scM8fx$El humo de la lámpara guarda estrellas sutiles y destellos dorados en su interior. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$scM8fx$,
   lighting_color = $scM8lc$Atmósfera nocturna mística con azules noche, púrpuras, dorados brillantes y humo azul cian translúcido.$scM8lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1883;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_08_Memoria_Familiar_Abuelo_Porque_cumples_mis_Deseos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM9sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite fuerza, protección y el valor incondicional que hacía sentir a salvo del mundo entero.
@@ -223,7 +223,7 @@ valiente por siempre en mi corazón.$scM9pm$,
   magic_effects = $scM9fx$Destellos dorados brillan suavemente alrededor del escudo, como un campo de energía protector y sereno. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$scM9fx$,
   lighting_color = $scM9lc$Grises metálicos, dorado y naranja de atardecer, y luz dorada/blanca pura de protección.$scM9lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1885;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_09_Memoria_Familiar_Abuelo_Porque_eres_Valiente.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM10sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz, esperanza y la serenidad de un alma que siempre creyó en un mundo mejor.
@@ -248,7 +248,7 @@ volando muy libre en la eternidad.$scM10pm$,
   magic_effects = $scM10fx$Un ligero resplandor suave bordea la paloma blanca y hay un brillo sutil de rocío en las flores. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$scM10fx$,
   lighting_color = $scM10lc$Iluminación suave, natural y angelical, con blancos puros, celestes, verdes frescos y los tonos pastel del arcoíris.$scM10lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1887;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_10_Memoria_Familiar_Abuelo_Porque_eres_un_Soñador.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM11sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite protección absoluta, fuerza y la certeza de estar siempre a salvo bajo su cuidado.
@@ -273,7 +273,7 @@ guiando mis pasos con fuerza y con fe.$scM11pm$,
   magic_effects = $scM11fx$Relámpagos finos de luz azul rodean el martillo y los ojos de {NOMBRE_DESTINATARIO} reflejan una luz suave. La magia debe sentirse poderosa y completamente integrada dentro de una fotografía realista.$scM11fx$,
   lighting_color = $scM11lc$Atmósfera poderosa y protectora, con gris tormenta, azul eléctrico, plata metálica y rojo intenso.$scM11lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1889;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_11_Memoria_Familiar_Abuelo_Porque_me_haces_sentir_Seguro.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM12sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite calidez festiva y la generosidad infinita de quien nunca dejó de dar amor.
@@ -298,7 +298,7 @@ tu gran generosidad no tiene igual.$scM12pm$,
   magic_effects = $scM12fx$El interior del saco brilla con una luz dorada y mágica y los copos de nieve brillan sutilmente. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$scM12fx$,
   lighting_color = $scM12lc$Luces cálidas doradas en contraste con la nieve azul/blanca, con rojo terciopelo, blanco nieve y oro cálido.$scM12lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1891;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_12_Memoria_Familiar_Abuelo_Porque_eres_Generoso.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM13sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad divertida y el estilo inolvidable con el que enfrentaba la vida.
@@ -323,7 +323,7 @@ por siempre serás mi abuelo atrevido.$scM13pm$,
   magic_effects = $scM13fx$Las burbujas de jabón reflejan un arcoíris intenso y mágico. La magia debe sentirse juguetona y completamente integrada dentro de una fotografía realista.$scM13fx$,
   lighting_color = $scM13lc$Luz cinematográfica con negro elegante, grises y el reflejo multicolor de las burbujas flotando.$scM13lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1893;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_13_Memoria_Familiar_Abuelo_Porque_eres_Atrevido.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM14sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite picardía, generosidad y la leyenda entrañable de un héroe del bosque.
@@ -348,7 +348,7 @@ tu hermosa leyenda será recordada.$scM14pm$,
   magic_effects = $scM14fx$Las monedas de oro brillan intensamente con polvo de hadas y la punta de la flecha es luz pura. La magia debe sentirse pícara y completamente integrada dentro de una fotografía realista.$scM14fx$,
   lighting_color = $scM14lc$Verdes profundos, marrones rústicos, dorado brillante y luz de atardecer.$scM14lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1895;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_14_Memoria_Familiar_Abuelo_Porque_eres_un_Rebelde.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM15sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría desbordante y la magia de convertir hasta la lluvia en una fiesta.
@@ -373,7 +373,7 @@ tu paso de baile lo hace especial.$scM15pm$,
   magic_effects = $scM15fx$Las gotas de lluvia iluminadas parecen polvo de estrellas y las salpicaduras brillan con luz propia dorada. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$scM15fx$,
   lighting_color = $scM15lc$Azul petróleo para el atardecer, amarillos vibrantes y reflejos plateados del agua.$scM15lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1897;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_15_Memoria_Familiar_Abuelo_Porque_eres_Alegre.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM16sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia mágica y la calidez de quien guardaba cada recuerdo familiar como un tesoro.
@@ -398,7 +398,7 @@ tus cuentos me abrazan por la eternidad.$scM16pm$,
   magic_effects = $scM16fx$Los hilos de luz dorada flotan en espiral y sutiles siluetas doradas de la familia se forman en el aire. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$scM16fx$,
   lighting_color = $scM16lc$Marrones cálidos, fuego ámbar y la luz dorada y pura de los recuerdos.$scM16lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1899;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_16_Memoria_Familiar_Abuelo_Porque_eres_mi_Guardián_de_Historias.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM17sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite arraigo, fortaleza y la certeza de que su esencia sigue dando vida y sostén a la familia.
@@ -423,7 +423,7 @@ con tu fortaleza yo voy a seguir.$scM17pm$,
   magic_effects = $scM17fx$Miles de luciérnagas flotan alrededor del árbol y de {NOMBRE_DESTINATARIO}, y la flor en sus manos emite un destello de luz pura. La magia debe sentirse ancestral y completamente integrada dentro de una fotografía realista.$scM17fx$,
   lighting_color = $scM17lc$Verde jade profundo, azul medianoche y dorado incandescente.$scM17lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1901;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_17_Memoria_Familiar_Abuelo_Porque_eres_mi_Raíz_y_mi_Fuerza.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM18sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo celestial y la certeza de que su luz sigue guiando cada paso desde el cielo.
@@ -448,7 +448,7 @@ y en cada galaxia tú me cuidarás.$scM18pm$,
   magic_effects = $scM18fx$La formación del rostro es etérea, hecha enteramente de cúmulos de estrellas y polvo de nebulosa. La magia debe sentirse celestial y completamente integrada dentro de una fotografía realista.$scM18fx$,
   lighting_color = $scM18lc$Negro espacial, violetas profundos, azules cósmicos y plata brillante de las estrellas.$scM18lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1903;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_18_Memoria_Familiar_Abuelo_Porque_eres_mi_Estrella_Guía.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM19sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia entrañable y la sensación de que el tiempo junto a él nunca alcanza.
@@ -473,7 +473,7 @@ pues tú de mi lado no puedes faltar.$scM19pm$,
   magic_effects = $scM19fx$Relojes de bolsillo y engranajes flotan sin gravedad, y el tren está hecho de luz pura. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$scM19fx$,
   lighting_color = $scM19lc$Bronce, cobre, grises misteriosos y el destello cálido y dorado de la maquinaria temporal.$scM19lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1905;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_19_Memoria_Familiar_Abuelo_Porque_eres_mi_Viajero_del_Tiempo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scM20sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta, consuelo y el amor eterno que trasciende la partida física.
@@ -498,7 +498,7 @@ mi ángel guardián, que en mi alma está.$scM20pm$,
   magic_effects = $scM20fx$Un aura de luz dorada muy suave envuelve a ambos, con partículas de luz celestial cayendo como polvo brillante. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$scM20fx$,
   lighting_color = $scM20lc$Luz reconfortante, suave y envolvente, con durazno, lavanda y rosa pastel.$scM20lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1907;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_20_Memoria_Familiar_Abuelo_Porque_eres_mi_Ángel_Guardián.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF1sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra a la abuela como la superheroína protectora que siempre fue, un homenaje lleno de fuerza y ternura.
@@ -523,7 +523,7 @@ tu súper amor nunca me va a faltar.$scF1pm$,
   magic_effects = $scF1fx$Una estela de luz suave se despliega detrás de la capa de {NOMBRE_DESTINATARIO}, con pequeñas partículas doradas flotando en el aire. La magia debe sentirse heroica y completamente integrada dentro de una fotografía realista.$scF1fx$,
   lighting_color = $scF1lc$Iluminación cinematográfica cálida y heroica de atardecer, con dorados intensos, naranjas y morados suaves.$scF1lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1868;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_01_Memoria_Familiar_Abuela_Porque_eres_mi_Superheroína.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF2sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite sabiduría, protección y el consuelo de sentir el camino siempre iluminado por su recuerdo.
@@ -548,7 +548,7 @@ y tu recuerdo me ayuda a caminar.$scF2pm$,
   magic_effects = $scF2fx$El cristal del bastón brilla iluminando las hojas cercanas y luciérnagas doradas flotan suavemente alrededor del sendero. La magia debe sentirse sabia y completamente integrada dentro de una fotografía realista.$scF2fx$,
   lighting_color = $scF2lc$Iluminación cálida de atardecer en el bosque, con azules profundos, verdes esmeralda y el contraste dorado que emana del bastón.$scF2lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1870;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_02_Memoria_Familiar_Abuela_Porque_eres_mi_Guía.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF3sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro, sabiduría y la magia entrañable de quien convertía lo cotidiano en algo extraordinario.
@@ -573,7 +573,7 @@ porque tu magia en mí va a sobrevivir.$scF3pm$,
   magic_effects = $scF3fx$Símbolos dorados y fórmulas flotan sutilmente sobre el libro abierto, con un brillo suave en las botellas de cristal del fondo. La magia debe sentirse intelectual y completamente integrada dentro de una fotografía realista.$scF3fx$,
   lighting_color = $scF3lc$Luz cálida de velas y el brillo mágico que sale del libro central, con marrones oscuros, púrpuras y dorados intensos.$scF3lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1872;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_03_Memoria_Familiar_Abuela_Porque_eres_una_Hechicera.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF4sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite majestuosidad, justicia y el orgullo de haber sido guiados por su fuerza y su voz de mando.
@@ -598,7 +598,7 @@ que reina en mi alma de forma total.$scF4pm$,
   magic_effects = $scF4fx$Sutiles destellos de sol rebotan en el oro de las joyas y el trono, con polvo fino brillando en la luz cálida. La magia debe sentirse majestuosa y completamente integrada dentro de una fotografía realista.$scF4fx$,
   lighting_color = $scF4lc$Luz de desierto vibrante con dorados intensos, tonos arena, blanco brillante y acentos de azul cobalto.$scF4lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1874;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_04_Memoria_Familiar_Abuela_Porque_eres_una_Líder.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF5sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite elegancia, calidez y el encanto sereno que curaba cualquier pena con solo una sonrisa.
@@ -623,7 +623,7 @@ que guarda un amor que será inagotable.$scF5pm$,
   magic_effects = $scF5fx$Destellos de luz sutiles se reflejan en los candelabros y los detalles del vestido. La magia debe sentirse elegante y completamente integrada dentro de una fotografía realista.$scF5fx$,
   lighting_color = $scF5lc$Luz cálida, festiva y lujosa, con blanco perla, dorado y rojo burdeos sutil.$scF5lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1876;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_05_Memoria_Familiar_Abuela_Porque_eres_Encantadora.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF6sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite emoción, curiosidad y el espíritu aventurero que convertía cualquier lugar en un descubrimiento.
@@ -648,7 +648,7 @@ que siempre en mi vida me va a acompañar.$scF6pm$,
   magic_effects = $scF6fx$Un haz de luz ilumina el tesoro y el rostro de {NOMBRE_DESTINATARIO}, con polvo flotante iluminado. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$scF6fx$,
   lighting_color = $scF6lc$Luz cálida filtrada entre el follaje, con verdes profundos, marrones tierra y el brillo dorado del tesoro.$scF6lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1878;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_06_Memoria_Familiar_Abuela_Porque_eres_Aventurera.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF7sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría pura, fantasía y el alma juguetona que nunca dejó de sonreír.
@@ -673,7 +673,7 @@ y tu buen humor es un don celestial.$scF7pm$,
   magic_effects = $scF7fx$Polvo de hadas cae desde las criaturas fantásticas y burbujas flotan en el aire. La magia debe sentirse juguetona y completamente integrada dentro de una fotografía realista.$scF7fx$,
   lighting_color = $scF7lc$Luz de día soleado y radiante, con rosas, celestes, dorados y verdes esmeralda vibrantes.$scF7lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1880;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_07_Memoria_Familiar_Abuela_Porque_eres_Divertida.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF8sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura mágica, gratitud y el consuelo de saber que sigue cuidando cada deseo del corazón.
@@ -698,7 +698,7 @@ y cada deseo mi alma abrazará.$scF8pm$,
   magic_effects = $scF8fx$El humo de la lámpara guarda estrellas sutiles y destellos dorados en su interior. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$scF8fx$,
   lighting_color = $scF8lc$Atmósfera nocturna mística con azules noche, púrpuras, dorados brillantes y humo azul cian translúcido.$scF8lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1882;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_08_Memoria_Familiar_Abuela_Porque_cumples_mis_Deseos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF9sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite fuerza, protección y el valor incondicional que hacía sentir a salvo del mundo entero.
@@ -723,7 +723,7 @@ valiente por siempre en mi corazón.$scF9pm$,
   magic_effects = $scF9fx$Chispas de fuego rebotan en un campo de fuerza sutil que genera el escudo. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$scF9fx$,
   lighting_color = $scF9lc$Grises metálicos, fuego naranja/rojo y luz dorada/blanca pura de protección.$scF9lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1884;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_09_Memoria_Familiar_Abuela_Porque_eres_Valiente.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF10sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz, esperanza y la serenidad de un alma que siempre creyó en un mundo mejor.
@@ -748,7 +748,7 @@ volando muy libre en la eternidad.$scF10pm$,
   magic_effects = $scF10fx$Un ligero resplandor suave bordea la paloma blanca y hay un brillo sutil de rocío en las flores. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$scF10fx$,
   lighting_color = $scF10lc$Iluminación suave, natural y angelical, con blancos puros, celestes, verdes frescos y los tonos pastel del arcoíris.$scF10lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1886;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_10_Memoria_Familiar_Abuela_Porque_eres_una_Soñadora.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF11sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite protección absoluta, fuerza y la certeza de estar siempre a salvo bajo su cuidado.
@@ -773,7 +773,7 @@ guiando mis pasos con fuerza y con fe.$scF11pm$,
   magic_effects = $scF11fx$Relámpagos finos de luz azul rodean el escudo y los ojos de {NOMBRE_DESTINATARIO} reflejan una luz suave. La magia debe sentirse poderosa y completamente integrada dentro de una fotografía realista.$scF11fx$,
   lighting_color = $scF11lc$Atmósfera poderosa y protectora, con gris tormenta, azul eléctrico, plata metálica y rojo intenso.$scF11lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1888;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_11_Memoria_Familiar_Abuela_Porque_me_haces_sentir_Seguro.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF12sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite calidez festiva y la generosidad infinita de quien nunca dejó de dar amor.
@@ -798,7 +798,7 @@ tu gran generosidad no tiene igual.$scF12pm$,
   magic_effects = $scF12fx$El interior del saco brilla con una luz dorada y mágica y los copos de nieve brillan sutilmente. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$scF12fx$,
   lighting_color = $scF12lc$Luces cálidas doradas en contraste con la nieve azul/blanca, con rojo terciopelo, blanco nieve y oro cálido.$scF12lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1890;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_12_Memoria_Familiar_Abuela_Porque_eres_Generosa.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF13sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad divertida y el estilo inolvidable con el que enfrentaba la vida.
@@ -823,7 +823,7 @@ por siempre serás mi abuela atrevida.$scF13pm$,
   magic_effects = $scF13fx$Las burbujas de jabón reflejan un arcoíris intenso y mágico. La magia debe sentirse juguetona y completamente integrada dentro de una fotografía realista.$scF13fx$,
   lighting_color = $scF13lc$Luz cinematográfica con negro elegante, grises y el reflejo multicolor de las burbujas flotando.$scF13lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1892;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_13_Memoria_Familiar_Abuela_Porque_eres_Atrevida.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF14sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite picardía, generosidad y la leyenda entrañable de una heroína del bosque.
@@ -848,7 +848,7 @@ tu hermosa leyenda será recordada.$scF14pm$,
   magic_effects = $scF14fx$Las monedas de oro brillan intensamente con polvo de hadas y la punta de la flecha es luz pura. La magia debe sentirse pícara y completamente integrada dentro de una fotografía realista.$scF14fx$,
   lighting_color = $scF14lc$Verdes profundos, marrones rústicos, dorado brillante y luz de atardecer.$scF14lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1894;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_14_Memoria_Familiar_Abuela_Porque_eres_una_Rebelde.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF15sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría desbordante y la magia de convertir hasta la lluvia en una fiesta.
@@ -873,7 +873,7 @@ tu paso de baile lo hace especial.$scF15pm$,
   magic_effects = $scF15fx$Las gotas de lluvia iluminadas parecen polvo de estrellas y las salpicaduras brillan con luz propia dorada. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$scF15fx$,
   lighting_color = $scF15lc$Azul petróleo para el atardecer, amarillos vibrantes y reflejos plateados del agua.$scF15lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1896;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_15_Memoria_Familiar_Abuela_Porque_eres_Alegre.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF16sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia mágica y la calidez de quien guardaba cada recuerdo familiar como un tesoro.
@@ -898,7 +898,7 @@ tus cuentos me abrazan por la eternidad.$scF16pm$,
   magic_effects = $scF16fx$Los hilos de luz dorada flotan en espiral y sutiles siluetas doradas de la familia se forman en el aire. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$scF16fx$,
   lighting_color = $scF16lc$Marrones cálidos, fuego ámbar y la luz dorada y pura de los recuerdos.$scF16lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1898;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_16_Memoria_Familiar_Abuela_Porque_eres_mi_Guardiana_de_Historias.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF17sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite arraigo, fortaleza y la certeza de que su esencia sigue dando vida y sostén a la familia.
@@ -923,7 +923,7 @@ con tu fortaleza yo voy a seguir.$scF17pm$,
   magic_effects = $scF17fx$Miles de luciérnagas flotan alrededor del árbol y de {NOMBRE_DESTINATARIO}, y la flor en sus manos emite un destello de luz pura. La magia debe sentirse ancestral y completamente integrada dentro de una fotografía realista.$scF17fx$,
   lighting_color = $scF17lc$Verde jade profundo, azul medianoche y dorado incandescente.$scF17lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1900;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_17_Memoria_Familiar_Abuela_Porque_eres_mi_Raíz_y_mi_Fuerza.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF18sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo celestial y la certeza de que su luz sigue guiando cada paso desde el cielo.
@@ -948,7 +948,7 @@ y en cada galaxia tú me cuidarás.$scF18pm$,
   magic_effects = $scF18fx$La formación del rostro es etérea, hecha enteramente de cúmulos de estrellas y polvo de nebulosa. La magia debe sentirse celestial y completamente integrada dentro de una fotografía realista.$scF18fx$,
   lighting_color = $scF18lc$Negro espacial, violetas profundos, azules cósmicos y plata brillante de las estrellas.$scF18lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1902;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_18_Memoria_Familiar_Abuela_Porque_eres_mi_Estrella_Guía.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF19sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia entrañable y la sensación de que el tiempo junto a ella nunca alcanza.
@@ -973,7 +973,7 @@ pues tú de mi lado no puedes faltar.$scF19pm$,
   magic_effects = $scF19fx$Relojes de bolsillo y engranajes flotan sin gravedad, y el tren está hecho de luz pura. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$scF19fx$,
   lighting_color = $scF19lc$Bronce, cobre, grises misteriosos y el destello cálido y dorado de la maquinaria temporal.$scF19lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1904;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_19_Memoria_Familiar_Abuela_Porque_eres_mi_Viajera_del_Tiempo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $scF20sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta, consuelo y el amor eterno que trasciende la partida física.
@@ -998,6 +998,6 @@ mi ángel guardián, que en mi alma está.$scF20pm$,
   magic_effects = $scF20fx$Un aura de luz dorada muy suave envuelve a ambas, con partículas de luz celestial cayendo como polvo brillante. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$scF20fx$,
   lighting_color = $scF20lc$Luz reconfortante, suave y envolvente, con durazno, lavanda y rosa pastel.$scF20lc$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
-WHERE id = 1906;
+WHERE template_preview_key = 'IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon/Plantillas/PLANTILLA_20_Memoria_Familiar_Abuela_Porque_eres_mi_Ángel_Guardián.png' AND is_active = true;
 
 COMMIT;

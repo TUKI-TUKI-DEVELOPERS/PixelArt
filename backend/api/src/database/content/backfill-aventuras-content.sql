@@ -18,7 +18,7 @@ Porque juntos, cualquier tesoro conquistarán.$av1pm$,
   magic_effects = $av1fx$Destellos dorados brillan sobre las monedas y joyas del cofre, y pequeñas motas de luz flotan suavemente sobre la arena. La magia debe sentirse sutil, elegante y completamente integrada dentro de una fotografía realista.$av1fx$,
   lighting_color = $av1lc$Iluminación cálida de atardecer dorado, con reflejos ámbar sobre el agua y la arena. Predominan tonos dorados, naranjas y turquesas. Atmósfera de aventura mágica y emocionante.$av1lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1458;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_1_Piratas_del_Tesoro_Escondido.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av2sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite heroísmo, unión familiar y la fantasía infantil de salvar el mundo en equipo.
@@ -38,7 +38,7 @@ Con {NOMBRE_DESTINATARIO} al frente, la misión cumplirán,
   magic_effects = $av2fx$Un aura de luz brillante rodea al grupo, con partículas doradas flotando y una señal luminosa en el cielo con forma de huella de pata. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$av2fx$,
   lighting_color = $av2lc$Iluminación cinematográfica dramática de atardecer urbano. Predominan tonos rojo, azul eléctrico y dorado. Atmósfera épica y poderosa.$av2lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1459;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_2_Superhéroes_al_Rescate.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av3sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro, exploración y la magia de descubrir el universo en compañía.
@@ -58,7 +58,7 @@ Astronautas valientes en su nave espacial,
   magic_effects = $av3fx$Estelas de polvo estelar se desplazan lentamente y reflejos de luz cósmica brillan sobre los cascos. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$av3fx$,
   lighting_color = $av3lc$Iluminación espacial dramática con contrastes fuertes y reflejos plateados en los cascos. Predominan tonos azul marino, púrpura cósmico y dorado estelar. Atmósfera de exploración y asombro.$av3lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1460;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_3_Astronautas_en_el_Espacio.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av4sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nobleza, valentía infantil y la fantasía de defender un reino mágico junto a un fiel compañero.
@@ -78,7 +78,7 @@ Caballeros valientes de un reino sin igual,
   magic_effects = $av4fx$Un dragón pequeño y amigable vuela en el cielo con escamas verdes brillantes, y flores mágicas destellan suavemente en el jardín. La magia debe sentirse elegante y completamente integrada dentro de una fotografía realista.$av4fx$,
   lighting_color = $av4lc$Iluminación de día soleado mágico, con sombras suaves. Predominan tonos dorados, verdes intensos y azul real. Atmósfera de cuento de hadas medieval.$av4lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1461;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_4_Caballeros_del_Reino_Mágico.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av5sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite curiosidad, complicidad y la emoción de resolver un misterio en equipo.
@@ -98,7 +98,7 @@ Detectives famosos de este vecindario,
   magic_effects = $av5fx$Huellas de pata marcadas en el suelo con un suave brillo dorado alrededor, como pistas iluminadas. La magia debe sentirse sutil y completamente integrada dentro de una fotografía realista.$av5fx$,
   lighting_color = $av5lc$Iluminación de atardecer cálido con tonos dorados y sombras suaves. Predominan ámbar, naranja y marrón cálido. Atmósfera de misterio intrigante pero amigable.$av5lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1462;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_5_Detectives_del_Misterio.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av6sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite diversión, curiosidad científica y el caos alegre de experimentar en equipo.
@@ -118,7 +118,7 @@ Científicos geniales en su laboratorio especial,
   magic_effects = $av6fx$Burbujas de colores flotan por todo el laboratorio y humo de colores sale de los frascos con chispas doradas. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$av6fx$,
   lighting_color = $av6lc$Iluminación brillante de laboratorio con reflejos en el vidrio. Predominan tonos neón: verde, rosa y azul eléctrico. Atmósfera de caos científico divertido.$av6lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1463;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_6_Científicos_Locos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av7sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite agilidad, sigilo y la complicidad de una misión secreta compartida.
@@ -138,7 +138,7 @@ Ninjas valientes de un dojo legendario,
   magic_effects = $av7fx$Humo ninja blanco se dispersa suavemente en el suelo y hojas de bambú caen en movimiento lento. La magia debe sentirse sigilosa y completamente integrada dentro de una fotografía realista.$av7fx$,
   lighting_color = $av7lc$Iluminación de atardecer con rayos de luz atravesando el bambú y sombras largas. Predominan tonos verdes naturales con acentos naranjas y rojos. Atmósfera misteriosa y sigilosa.$av7lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1464;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_7_Ninjas_Secretos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av8sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro místico y la fantasía de hacer magia real en compañía de un fiel familiar peludo.
@@ -158,7 +158,7 @@ Magos poderosos de un mundo encantado,
   magic_effects = $av8fx$Partículas doradas y plateadas flotan por todo el espacio, y humo místico azul y morado sale del caldero. La magia debe sentirse profunda y completamente integrada dentro de una fotografía realista.$av8fx$,
   lighting_color = $av8lc$Iluminación mística con tonos dorados y azules, sombras suaves. Predominan púrpura profundo, azul medianoche y dorado brillante. Atmósfera encantada y misteriosa.$av8lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1465;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_8_Magos_y_Hechiceros.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av9sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite seguridad, calma y la certeza reconfortante de tener un protector incondicional.
@@ -178,7 +178,7 @@ Con {NOMBRE_DESTINATARIO} a su lado, todo está bien,
   magic_effects = $av9fx$La luz del atardecer entra creando un halo dorado suave alrededor de todos. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$av9fx$,
   lighting_color = $av9lc$Iluminación cálida de atardecer con tonos dorados y naranjas, sombras suaves. Atmósfera de seguridad y paz.$av9lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1466;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_9_Mi_Guardián_Peludo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av10sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite amor incondicional y la certeza de que un abrazo peludo puede curar cualquier tristeza.
@@ -198,7 +198,7 @@ No hay nada que {NOMBRE_DESTINATARIO} no pueda arreglar,
   magic_effects = $av10fx$Rayos de sol dorados atraviesan las hojas del árbol creando luz filtrada, y pétalos de flores flotan suavemente en el aire. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$av10fx$,
   lighting_color = $av10lc$Iluminación natural de día soleado con tonos dorados cálidos, sombras suaves. Atmósfera de amor incondicional y conexión profunda.$av10lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1467;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_10_Abrazos_Que_Curan_Todo.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av11sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura, confianza y la complicidad íntima de un secreto compartido solo entre mejores amigos.
@@ -218,7 +218,7 @@ Con {NOMBRE_DESTINATARIO} de confidente, todo es especial,
   magic_effects = $av11fx$La luz dorada de la tarde envuelve suavemente a todos, creando una atmósfera de intimidad. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$av11fx$,
   lighting_color = $av11lc$Iluminación suave de tarde con tonos dorados y cálidos, sombras delicadas. Atmósfera de complicidad y amistad profunda.$av11lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1468;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_11_Secretos_Entre_Mejores_Amigos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av12sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo, empatía y la sanación silenciosa de un amor incondicional.
@@ -238,7 +238,7 @@ No hay tristeza que {NOMBRE_DESTINATARIO} no pueda curar,
   magic_effects = $av12fx$La luz de la lámpara cercana crea un halo cálido reconfortante alrededor de todos. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$av12fx$,
   lighting_color = $av12lc$Iluminación suave y tenue con tonos grises y dorados cálidos, sombras delicadas. Atmósfera de empatía y amor incondicional.$av12lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1469;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_12_Lágrimas_Secadas_Con_Lamidas.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av13sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz nocturna y la certeza reconfortante de una compañía incondicional al dormir en familia.
@@ -258,7 +258,7 @@ La cama es chica, pero el amor es grande,
   magic_effects = $av13fx$La luz de luna entra suavemente creando sombras plateadas delicadas sobre el edredón. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$av13fx$,
   lighting_color = $av13lc$Iluminación nocturna suave con luz de lámpara dorada y luz de luna plateada, sombras delicadas. Atmósfera de seguridad y amor familiar.$av13lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1470;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_13_Cama_Compartida.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av14sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite vigilancia protectora y la paz nocturna de saber que alguien fiel cuida el sueño de los más pequeños.
@@ -278,7 +278,7 @@ Ningún monstruo se atreve a aparecer,
   magic_effects = $av14fx$Sombras suaves de formas abstractas en las paredes parecen alejarse de la presencia de {NOMBRE_DESTINATARIO}, y la luz de luna crea un halo protector plateado alrededor de él. La magia debe sentirse protectora y completamente integrada dentro de una fotografía realista.$av14fx$,
   lighting_color = $av14lc$Iluminación nocturna dramática con luz de luna plateada dominante y sombras suaves, contrastes entre luz y oscuridad. Atmósfera de vigilancia protectora.$av14lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1471;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_14_Protector_de_Pesadillas.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av15sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro puro y la emoción imborrable de un primer encuentro que cambia la vida de una familia entera.
@@ -298,7 +298,7 @@ El primer abrazo, la primera sonrisa también,
   magic_effects = $av15fx$La luz solar crea una atmósfera mágica y cálida alrededor del momento, con motas doradas suspendidas en el aire. La magia debe sentirse pura y completamente integrada dentro de una fotografía realista.$av15fx$,
   lighting_color = $av15lc$Iluminación natural brillante de día soleado con tonos dorados cálidos, sombras suaves. Atmósfera de alegría pura y amor a primera vista.$av15lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1472;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_15_El_Primer_Encuentro.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av16sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite diversión familiar y la comicidad de un escondite que nunca engaña a nadie.
@@ -318,7 +318,7 @@ El mejor escondite nunca encontrará,
   magic_effects = $av16fx$Ninguno: escena puramente cómica y cotidiana, sin elementos mágicos añadidos.$av16fx$,
   lighting_color = $av16lc$Iluminación natural brillante de tarde con tonos cálidos, sombras suaves. Atmósfera de diversión familiar y risa.$av16lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1473;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_16_Escondidas_Imposibles.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av17sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite energía pura y el caos alegre de una persecución compartida bajo el sol.
@@ -338,7 +338,7 @@ Corriendo juntos bajo el sol brillar,
   magic_effects = $av17fx$Ninguno: escena de energía pura y movimiento real, sin elementos mágicos añadidos.$av17fx$,
   lighting_color = $av17lc$Iluminación brillante de día soleado con tonos dorados, sombras dinámicas. Atmósfera de energía pura y diversión descontrolada.$av17lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1474;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_17_Persecución_en_el_Jardín.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av18sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor tierno y la aceptación alegre de que el amor no necesita trucos perfectos.
@@ -358,7 +358,7 @@ No importa si falla o si lo hace al revés,
   magic_effects = $av18fx$Ninguno: escena puramente cómica y cotidiana, sin elementos mágicos añadidos.$av18fx$,
   lighting_color = $av18lc$Iluminación natural brillante con tonos cálidos, sombras suaves. Atmósfera de diversión y fracaso adorable.$av18lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1475;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_18_Clase_de_Trucos_Fallidos.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av19sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite descubrimiento épico y la emoción de explorar un pasado prehistórico lleno de maravillas.
@@ -378,7 +378,7 @@ Paleontólogos valientes en misión especial,
   magic_effects = $av19fx$El huevo de dinosaurio agrietado deja asomar un bebé dinosaurio amigable de ojos grandes y tiernos. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$av19fx$,
   lighting_color = $av19lc$Iluminación de atardecer prehistórico con tonos cálidos naranjas y dorados, sombras dramáticas. Atmósfera de aventura épica y descubrimiento.$av19lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1476;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_19_Aventureros_de_Dinosaurios.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $av20sv$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría veraniega y la felicidad plena de un día de playa vivido en familia.
@@ -398,6 +398,6 @@ Días de playa que nunca olvidarán,
   magic_effects = $av20fx$Destellos del sol se reflejan brillantes sobre el agua creando pequeños puntos de luz dorada. La magia debe sentirse luminosa y completamente integrada dentro de una fotografía realista.$av20fx$,
   lighting_color = $av20lc$Iluminación brillante de día soleado con tonos dorados cálidos, reflejos del sol en el agua. Atmósfera de vacaciones perfectas y diversión veraniega.$av20lc$,
   character_roles = '[{"key":"pet","count":1},{"key":"owners","count":3}]'::jsonb
-WHERE id = 1477;
+WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Plantillas/PLANTILLA_20_Día_de_Playa_Perfecto.png' AND is_active = true;
 
 COMMIT;
