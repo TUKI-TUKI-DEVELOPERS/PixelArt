@@ -49,7 +49,9 @@ export class OpenAiImageGenerationAdapter extends ImageGenerationPort {
         image: files,
         prompt,
         size,
-        quality: 'medium',
+        // 'high' re-dibuja e integra la cara real en la escena mucho mejor que
+        // 'medium' (validado 2026-08-15); cuesta ~3.2x pero es despreciable por libro.
+        quality: 'high',
       }),
     );
 
