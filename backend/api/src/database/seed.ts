@@ -1158,6 +1158,29 @@ export async function runSeed(): Promise<void> {
     `, ['admin@pixelart.local', passwordHash]);
     console.log('[seed] users ✓');
 
+    // Guarda anti-recurrencia: si quedó alguna plantilla activa sin contenido de
+    // prompt (scene_visual/poem_template/character_roles), avisar fuerte. Suele
+    // significar que se agregó un libro y falta su backfill, o que un backfill
+    // matcheó por `id` (frágil, cambia entre bases) en vez de por
+    // `template_preview_key`. No es fatal — solo avisa, para no descubrirlo un
+    // cliente en el demo/PDF (ver generate-demo-proposal.use-case.ts).
+    const { rows: plantillasSinContenido } = await client.query(`
+      SELECT m.name, count(*)::int AS faltan
+      FROM personalized_templates t
+      JOIN personalized_models m ON m.id = t.model_id
+      WHERE t.is_active = true
+        AND (t.scene_visual IS NULL OR t.poem_template IS NULL OR t.character_roles IS NULL)
+      GROUP BY m.name
+      ORDER BY faltan DESC
+    `);
+    if (plantillasSinContenido.length > 0) {
+      const total = plantillasSinContenido.reduce((n, r) => n + Number(r.faltan), 0);
+      console.warn(`⚠️  [seed] ${total} plantilla(s) activa(s) SIN contenido de prompt — revisá el backfill de estos libros (¿matchea por template_preview_key?):`);
+      for (const r of plantillasSinContenido) console.warn(`   - ${r.name}: ${r.faltan}`);
+    } else {
+      console.log('[seed] ✓ todas las plantillas activas tienen contenido de prompt');
+    }
+
     console.log('[seed] Todos los seeds completados.');
 
   } catch (err) {
