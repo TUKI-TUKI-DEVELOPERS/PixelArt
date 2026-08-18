@@ -299,7 +299,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "{dedicatorName}",
     },
   ],
-  "Te amo, abuela": [
+  "Te Amo, Abuela": [
     {
       label: "Cariñosa",
       HE_TO_SHE:
@@ -354,7 +354,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "{dedicatorName}",
     },
   ],
-  "Te amo, abuelo": [
+  "Te Amo, Abuelo": [
     {
       label: "Emotiva",
       HE_TO_SHE:
@@ -840,7 +840,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "Porque más que hermanos, somos el mejor equipo.",
     },
   ],
-  "Mi Familia": [
+  "La Familia": [
     {
       label: "Con amor",
       HE_TO_SHE:
@@ -929,7 +929,7 @@ function getWizardMode(categoriaSlug: string, libroNombre: string): WizardMode {
 
 // Para "familia" el destinatario está implícito en el nombre del libro
 function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
-  return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(libroNombre) ? "F" : "M";
+  return ["Mamá, Mi Heroína", "Te Amo, Abuela"].includes(libroNombre) ? "F" : "M";
 }
 
 // Libros de familia donde el dedicante solo puede ser un género (el libro está
@@ -938,8 +938,6 @@ function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
 function getFixedDedicatorGender(libroNombre: string): "M" | "F" | null {
   if (libroNombre === "Papá, Mi Héroe") return "F";       // hija → papá
   if (libroNombre === "Mamá, Mi Heroína") return "M";      // hijo → mamá
-  if (libroNombre === "Te amo, abuelo") return "M";        // nieto → abuelo
-  if (libroNombre === "Te amo, abuela") return "M";        // nieto → abuela
   return null;
 }
 
@@ -1880,8 +1878,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               const recipientG = getFamiliaRecipientGender(libroNombre);
               const recipientLabel = libroNombre === "Papá, Mi Héroe" ? "papá"
                 : libroNombre === "Mamá, Mi Heroína" ? "mamá"
-                : libroNombre === "Te amo, abuelo" ? "abuelo"
-                : libroNombre === "Te amo, abuela" ? "abuela"
+                : libroNombre === "Te Amo, Abuelo" ? "abuelo"
+                : libroNombre === "Te Amo, Abuela" ? "abuela"
                 : recipientG === "M" ? "él" : "ella";
               const step1Valid = dedicatorGender !== "";
               return (
@@ -1891,7 +1889,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ marginBottom: "28px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                       {(() => {
-                        const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
+                        const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
                         return (["M", "F"] as const).map((g) => (
                           <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g}
                             label={g === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija")}
@@ -1903,7 +1901,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     </div>
                   </div>
                   {(() => {
-                    const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
+                    const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
                     const dedicantLabel = dedicatorGender === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija");
                     return step1Valid && summaryBox(`${dedicantLabel} le dedica el libro a ${recipientLabel}`);
                   })()}
@@ -2152,8 +2150,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   : wizardMode === "familia" ? (
                       libroNombre === "Papá, Mi Héroe" ? "Datos del papá"
                       : libroNombre === "Mamá, Mi Heroína" ? "Datos de la mamá"
-                      : libroNombre === "Te amo, abuelo" ? "Datos del abuelo"
-                      : libroNombre === "Te amo, abuela" ? "Datos de la abuela"
+                      : libroNombre === "Te Amo, Abuelo" ? "Datos del abuelo"
+                      : libroNombre === "Te Amo, Abuela" ? "Datos de la abuela"
                       : recipientGender === "F" ? "Datos de ella" : "Datos de él"
                     )
                   : recipientGender === "F" ? "Datos de ella" : "Datos de él"}
@@ -2267,7 +2265,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   {wizardMode === "mascotas" ? (dedicatorGender === "M" ? "Datos del dueño" : "Datos de la dueña")
                     : wizardMode === "memorial" ? "¿Quién dedica este libro?"
                     : wizardMode === "familia" ? (() => {
-                      const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
+                      const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
                       return dedicatorGender === "M"
                         ? (isAbuelo ? "Datos del nieto" : "Datos del hijo")
                         : (isAbuelo ? "Datos de la nieta" : "Datos de la hija");

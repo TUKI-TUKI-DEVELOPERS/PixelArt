@@ -8,7 +8,7 @@ BEGIN;
 UPDATE personalized_templates SET
   scene_visual = $f1a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite fuerza heroica y la certeza de que el amor de mamá lo hace invencible.
 
-Ligeramente descentrada sobre una azotea de ciudad al atardecer, la mamá, expresión fuerte, confiada y protectora, vistiendo un bodysuit superheroico en rosa intenso, púrpura y dorado, cabello ondeando dramáticamente con el viento, una mano extendida protectoramente hacia su hijo. Junto a ella, su hijo, expresión de admiración y orgullo, con ropa casual infantil, mirando a su mamá con asombro.$f1a$,
+Ligeramente descentrada sobre una azotea de ciudad al atardecer, la mamá, expresión fuerte, confiada y protectora, vistiendo un bodysuit superheroico en rosa intenso, púrpura y dorado, cabello ondeando dramáticamente con el viento, una mano extendida protectoramente hacia su hijo. Junto a ella, su hijo, expresión de admiración y orgullo, con ropa casual, mirando a su mamá con asombro.$f1a$,
   background_details = $f1b$Skyline de ciudad al atardecer con rascacielos, cielo dramático en tonos naranja, rosa y púrpura, luces de ciudad encendiéndose.$f1b$,
   magic_effects = $f1c$Un aura brillante rosa y dorada envuelve a la mamá, con partículas de energía flotando suavemente. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$f1c$,
   lighting_color = $f1d$Iluminación dramática de atardecer con rayos de luz solar atravesando las nubes. Predominan rosa intenso, púrpura, dorado y naranja atardecer. Atmósfera cinematográfica épica.$f1d$,
@@ -25,14 +25,14 @@ mi superheroína, tomo tu mano.
 Cuando el mundo se pone difícil,
 tú me haces sentir invencible,
 gracias por ser mi protectora,
-mi superheroína a toda hora.$f1e$,
+mi {APODO_DESTINATARIO}, mi superheroína a toda hora.$f1e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_1_Mi_Superheroína_Sin_Capa.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $f2a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite valentía y la certeza de que el coraje de mamá es su mejor enseñanza.
 
-Ligeramente descentrada en un campo al amanecer, la mamá, expresión determinada y victoriosa, vistiendo armadura elegante de guerrera en rosa metálico, púrpura y dorado, sosteniendo un escudo con corazón grabado y una espada apuntando al cielo. Junto a ella, su hijo, expresión valiente y orgullosa, con túnica de aprendiz, sosteniendo un pequeño escudo de madera.$f2a$,
+Ligeramente descentrada en un campo al amanecer, la mamá, expresión determinada y victoriosa, vistiendo armadura elegante de guerrera en rosa metálico, púrpura y dorado, sosteniendo un escudo con corazón grabado y una espada apuntando al cielo. Junto a ella, su hijo, expresión valiente y orgullosa, con túnica de aprendiz, sosteniendo un escudo de madera a juego.$f2a$,
   background_details = $f2b$Campo abierto al amanecer con montañas al fondo, cielo dramático en rosa, naranja y dorado, banderas ondeando suavemente.$f2b$,
   magic_effects = $f2c$La armadura de la mamá brilla con reflejos metálicos y un aura dorada la envuelve. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$f2c$,
   lighting_color = $f2d$Iluminación heroica de amanecer con rayos de luz dorada atravesando nubes. Predominan rosa metálico, púrpura, dorado y naranja amanecer. Atmósfera victoriosa e inspiracional.$f2d$,
@@ -49,14 +49,14 @@ y con tu espada de valentía me riges.
 Gracias por pelear cada día,
 por llenarme de amor y alegría,
 eres mi guerrera invencible,
-mi mamá, mi amor indestructible.$f2e$,
+mi {APODO_DESTINATARIO}, mi amor indestructible.$f2e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_2_La_Guerrera_Que_Nunca_Se_Rinde.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $f3a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite majestuosidad tierna y la certeza de que mamá gobierna el corazón de su hijo con amor.
 
-Ligeramente descentrada sentada en un trono dorado y rosa, la mamá, expresión amorosa y serena, con corona delicada dorada y gemas rosas, vestido de reina fluido en tonos rosa suave y lavanda, una mano extendida hacia su hijo. Junto al trono, su hijo, expresión de amor y admiración, con outfit elegante de príncipe infantil, sosteniendo la mano de su mamá.$f3a$,
+Ligeramente descentrada sentada en un trono dorado y rosa, la mamá, expresión amorosa y serena, con corona delicada dorada y gemas rosas, vestido de reina fluido en tonos rosa suave y lavanda, una mano extendida hacia su hijo. Junto al trono, su hijo, expresión de amor y admiración, con outfit elegante de príncipe, sosteniendo la mano de su mamá.$f3a$,
   background_details = $f3b$Salón de trono mágico con columnas elegantes, ventanales con luz suave, cortinas de terciopelo rosa y dorado, flores decorativas.$f3b$,
   magic_effects = $f3c$Partículas doradas flotan suavemente alrededor del trono. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$f3c$,
   lighting_color = $f3d$Iluminación suave y cálida tipo cuento de hadas. Predominan rosa suave, lavanda, dorado y blanco marfil. Atmósfera elegante y amorosa.$f3d$,
@@ -73,7 +73,7 @@ me guías desde que soy niño.
 No necesitas castillo ni oro,
 tu riqueza es el amor que atesoro,
 gracias por ser mi reina amada,
-mi mamá, mi todo, mi adorada.$f3e$,
+mi {APODO_DESTINATARIO}, mi todo, mi adorada.$f3e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_3_Mi_Reina_Mi_Todo.png' AND is_active = true;
 
@@ -97,7 +97,7 @@ y todos mis miedos resuelves.
 Gracias por cuidarme cada día,
 por ser mi luz y mi guía,
 mi ángel guardián del cielo,
-mi mamá, mi consuelo.$f4e$,
+mi {APODO_DESTINATARIO}, mi consuelo.$f4e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_4_Mi_Ángel_Protector.png' AND is_active = true;
 
@@ -121,14 +121,14 @@ mi maga, mi amor maternal.
 Gracias por tu magia cada día,
 por llenar mi vida de fantasía,
 eres la maga más poderosa,
-mi mamá, la más maravillosa.$f5e$,
+mi {APODO_DESTINATARIO}, la más maravillosa.$f5e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_5_La_Maga_de_Mi_Vida.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $f6a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite determinación y la certeza de que mamá guía el rumbo con firmeza y amor.
 
-Ligeramente descentrada al timón, la mamá, expresión determinada y confiada, con uniforme de capitana naval azul marino con botones dorados, cabello recogido en trenza práctica, sosteniendo el timón con ambas manos. Junto a ella, su hijo, expresión aventurera, con outfit náutico infantil, sosteniendo un catalejo mirando al horizonte.$f6a$,
+Ligeramente descentrada al timón, la mamá, expresión determinada y confiada, con uniforme de capitana naval azul marino con botones dorados, cabello recogido en trenza práctica, sosteniendo el timón con ambas manos. Junto a ella, su hijo, expresión aventurera, con outfit náutico, sosteniendo un catalejo mirando al horizonte.$f6a$,
   background_details = $f6b$Barco de madera en mar abierto, olas dinámicas, cielo de atardecer dramático, velas infladas por el viento.$f6b$,
   magic_effects = $f6c$El spray de agua marina brilla con destellos dorados de atardecer. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$f6c$,
   lighting_color = $f6d$Iluminación dramática de atardecer marino. Predominan azul marino profundo, dorado atardecer, naranja y blanco velas. Atmósfera de aventura y exploración.$f6d$,
@@ -145,14 +145,14 @@ juntos somos más que ninguno.
 Gracias por capitanear mi vida,
 por ser mi fuerza y mi guarida,
 mi capitana valiente y fiel,
-mi mamá, mi cielo, mi miel.$f6e$,
+mi {APODO_DESTINATARIO}, mi cielo, mi miel.$f6e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_6_Mi_Capitana_del_Corazón.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $f7a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite protección silenciosa y la certeza de que mamá aleja cualquier miedo sin hacer ruido.
 
-Ligeramente descentrada en postura de combate elegante, la mamá, expresión concentrada y alerta, con outfit ninja en negro, púrpura oscuro y detalles plateados, cabello recogido en moño alto. Detrás de ella protegido, su hijo, expresión segura y admirada, con outfit ninja infantil, en postura de aprendiz imitando a su mamá.$f7a$,
+Ligeramente descentrada en postura de combate elegante, la mamá, expresión concentrada y alerta, con outfit ninja en negro, púrpura oscuro y detalles plateados, cabello recogido en moño alto. Detrás de ella protegido, su hijo, expresión segura y admirada, con outfit ninja, en postura de aprendiz imitando a su mamá.$f7a$,
   background_details = $f7b$Templo japonés tradicional al anochecer, árboles de cerezo con flores cayendo, luna llena grande y brillante.$f7b$,
   magic_effects = $f7c$Pétalos de cerezo flotan suavemente en el aire bajo la luz lunar. La magia debe sentirse mística y completamente integrada dentro de una fotografía realista.$f7c$,
   lighting_color = $f7d$Iluminación lunar dramática con sombras suaves. Predominan negro, púrpura oscuro, plateado y azul nocturno. Atmósfera mística y protectora.$f7d$,
@@ -169,14 +169,14 @@ haces lo imposible posible.
 Gracias por protegerme en secreto,
 por ser mi guardiana en concreto,
 mi ninja del amor maternal,
-mi mamá, mi protectora celestial.$f7e$,
+mi {APODO_DESTINATARIO}, mi protectora celestial.$f7e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_7_Mi_Ninja_Silenciosa.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $f8a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ferocidad protectora y el orgullo de un hijo aprendiendo de su guerrera.
 
-Ligeramente descentrada en pose noble de amazona, la mamá, expresión feroz y determinada, con outfit de amazona en tonos tierra, verde y dorado, trenzas guerreras y plumas decorativas, un arco decorativo colgado al hombro. Junto a ella, su hijo, expresión valiente y orgullosa, con outfit tribal infantil, sosteniendo un pequeño escudo de madera.$f8a$,
+Ligeramente descentrada en pose noble de amazona, la mamá, expresión feroz y determinada, con outfit de amazona en tonos tierra, verde y dorado, trenzas guerreras y plumas decorativas, un arco decorativo colgado al hombro. Junto a ella, su hijo, expresión valiente y orgullosa, con outfit tribal, sosteniendo un escudo de madera a juego.$f8a$,
   background_details = $f8b$Selva exuberante con cascada, vegetación densa, luz natural filtrándose entre hojas.$f8b$,
   magic_effects = $f8c$Gotas de agua de la cascada brillan al reflejar la luz, y hojas flotan suavemente en el aire. La magia debe sentirse poderosa y completamente integrada dentro de una fotografía realista.$f8c$,
   lighting_color = $f8d$Luz natural filtrada de selva. Predominan verde selva, marrón tierra, dorado y turquesa agua. Atmósfera de tribu guerrera y naturaleza poderosa.$f8d$,
@@ -192,7 +192,7 @@ me enseñas a luchar de manera sincera.
 
 Gracias por ser mi amazona,
 mi protectora en toda zona,
-mi mamá, mi guerrera de honor,
+mi {APODO_DESTINATARIO}, mi guerrera de honor,
 mi amazona llena de amor.$f8e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_8_Mi_Amazona_Guerrera.png' AND is_active = true;
@@ -215,7 +215,7 @@ con tu luz divina me iluminas,
 y todas mis penas eliminas.
 
 Gracias por ser mi diosa amada,
-mi mamá, mi luz adorada,
+mi {APODO_DESTINATARIO}, mi luz adorada,
 diosa del amor maternal,
 mi tesoro celestial.$f9e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
@@ -241,14 +241,14 @@ haces lo imposible alcanzable.
 Gracias por tu fuerza infinita,
 por ser mi roca bendita,
 mi titán maternal poderoso,
-mi mamá, mi amor grandioso.$f10e$,
+mi {APODO_DESTINATARIO}, mi amor grandioso.$f10e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_10_Mi_Titán_Inquebrantable.png' AND is_active = true;
 
 UPDATE personalized_templates SET
   scene_visual = $f11a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite honor y disciplina, con su hijo aprendiendo el camino del guerrero de amor de su mamá.
 
-Ligeramente descentrada en posición de combate honorable, la mamá, expresión honorable y sabia, con kimono samurái en rosa oscuro, negro y dorado, sosteniendo una katana con ambas manos en posición ceremonial. Junto a ella, su hijo, expresión de respeto y concentración, con kimono simple infantil, sosteniendo un bokken de madera.$f11a$,
+Ligeramente descentrada en posición de combate honorable, la mamá, expresión honorable y sabia, con kimono samurái en rosa oscuro, negro y dorado, sosteniendo una katana con ambas manos en posición ceremonial. Junto a ella, su hijo, expresión de respeto y concentración, con kimono simple, sosteniendo un bokken de madera.$f11a$,
   background_details = $f11b$Jardín zen japonés con puente rojo arqueado, árboles de cerezo en flor, templo japonés al fondo.$f11b$,
   magic_effects = $f11c$Pétalos de cerezo caen suavemente reflejándose en el agua del estanque. La magia debe sentirse honorable y completamente integrada dentro de una fotografía realista.$f11c$,
   lighting_color = $f11d$Iluminación suave de amanecer japonés. Predominan rosa oscuro, negro, dorado, rosa cerezo y verde zen. Atmósfera de honor, disciplina y tradición.$f11d$,
@@ -265,7 +265,7 @@ mi samurái, mi protector.
 Gracias por tu honor y lealtad,
 por enseñarme la verdad,
 mi samurái del corazón,
-mi mamá, mi inspiración.$f11e$,
+mi {APODO_DESTINATARIO}, mi inspiración.$f11e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_11_Mi_Samurái_de_Honor.png' AND is_active = true;
 
@@ -289,7 +289,7 @@ mi heroína, mi mundo entero.
 Gracias por ser mi salvación,
 mi heroína del corazón,
 sin capa pero con amor infinito,
-mi mamá, mi héroe favorito.$f12e$,
+mi {APODO_DESTINATARIO}, mi héroe favorito.$f12e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_12_La_Heroína_Que_No_Necesita_Capa.png' AND is_active = true;
 
@@ -313,7 +313,7 @@ sanas cualquier herida o ruptura.
 Gracias por tus abrazos sanadores,
 que alejan todos los dolores,
 mi refugio, mi sanación,
-mi mamá, mi bendición.$f13e$,
+mi {APODO_DESTINATARIO}, mi bendición.$f13e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_13_Tus_Abrazos_Mágicos.png' AND is_active = true;
 
@@ -321,7 +321,7 @@ UPDATE personalized_templates SET
   scene_visual = $f14a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura nocturna y el ritual sagrado del beso de buenas noches.
 
 Ligeramente descentrada inclinada sobre la cama, la mamá, expresión de ternura infinita, besando suavemente la frente de su hijo, una mano acariciando su cabello. Acostado en la cama, su hijo, expresión de paz y somnolencia, con ojos cerrados recibiendo el beso.$f14a$,
-  background_details = $f14b$Habitación infantil acogedora de noche, ventana con luna llena y estrellas, peluches cerca.$f14b$,
+  background_details = $f14b$Habitación acogedora de noche, ventana con luna llena y estrellas, elementos decorativos cerca.$f14b$,
   magic_effects = $f14c$Partículas mágicas como polvo de estrellas flotan suavemente por la habitación. La magia debe sentirse tierna y completamente integrada dentro de una fotografía realista.$f14c$,
   lighting_color = $f14d$Luz suave de luna entrando por la ventana. Predominan azul nocturno suave, lavanda, plateado lunar y rosa pálido. Atmósfera de ritual nocturno y paz.$f14d$,
   poem_template = $f14e$Cada noche antes de dormir,
@@ -337,7 +337,7 @@ duermo tranquilo y felizmente.
 Gracias por cada beso nocturno,
 por hacer mi sueño tan oportuno,
 mi ritual sagrado de amor,
-mi mamá, mi protector.$f14e$,
+mi {APODO_DESTINATARIO}, mi protector.$f14e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_14_El_Ritual_Más_Sagrado.png' AND is_active = true;
 
@@ -361,7 +361,7 @@ aprendo a amar y a cuidar.
 Gracias por cada receta compartida,
 por hacer la cocina mi lugar de vida,
 cocinando amor en cada platillo,
-mi mamá, mi tesoro sencillo.$f15e$,
+mi {APODO_DESTINATARIO}, mi tesoro sencillo.$f15e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_15_Recetas_de_Amor.png' AND is_active = true;
 
@@ -385,7 +385,7 @@ y mis miedos alejaste.
 Gracias por estar en cada inicio,
 por ser mi fuerza y mi servicio,
 mi compañera en cada paso,
-mi mamá, mi abrazo.$f16e$,
+mi {APODO_DESTINATARIO}, mi abrazo.$f16e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_16_Mi_Valiente_Compañera.png' AND is_active = true;
 
@@ -409,7 +409,7 @@ cualquier enfermedad cura.
 Gracias por cuidarme sin descanso,
 por ser mi enfermera en cada caso,
 mi sanadora del corazón,
-mi mamá, mi curación.$f17e$,
+mi {APODO_DESTINATARIO}, mi curación.$f17e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_17_Mi_Enfermera_del_Alma.png' AND is_active = true;
 
@@ -433,7 +433,7 @@ que seca mi llanto directo.
 Gracias por secar cada lágrima,
 por ser mi consuelo y mi rima,
 mi secadora de tristezas,
-mi mamá, mi fortaleza.$f18e$,
+mi {APODO_DESTINATARIO}, mi fortaleza.$f18e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_18_Secadora_de_Tristezas.png' AND is_active = true;
 
@@ -457,7 +457,7 @@ me haces fuerte y especial.
 Gracias por enseñarme a ser valiente,
 por hacerme fuerte y consciente,
 mi maestra de fortaleza,
-mi mamá, mi grandeza.$f19e$,
+mi {APODO_DESTINATARIO}, mi grandeza.$f19e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_19_Lecciones_de_Fortaleza.png' AND is_active = true;
 
@@ -480,7 +480,7 @@ mi amiga, mi amor maternal.
 
 Gracias por ser mi mejor amiga,
 por hacer mi vida tan bendiga,
-mi mamá, mi compañera,
+mi {APODO_DESTINATARIO}, mi compañera,
 mi amiga verdadera.$f20e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Mama_mi_heroina/Plantillas/PLANTILLA_20_Mamá_Mi_Mejor_Amiga.png' AND is_active = true;
@@ -868,7 +868,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Pl
 UPDATE personalized_templates SET
   scene_visual = $f1a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo profundo y la certeza de que un abrazo de abuela cura cualquier tristeza.
 
-Ligeramente descentrada en un sillón cómodo, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de amor profundo y protección, con suéter de lana en tono lavanda, abrazando tiernamente a su nieto. Envuelto en el abrazo, su nieto, ojos cerrados en paz absoluta, con la cabeza apoyada en el pecho de la abuela.$f1a$,
+Ligeramente descentrada en un sillón cómodo, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de amor profundo y protección, con suéter de lana en tono lavanda, abrazando tiernamente a su nieto. Envuelto en el abrazo, su nieto, ojos cerrados en paz absoluta, con la cabeza apoyada en el pecho de la abuela.$f1a$,
   background_details = $f1b$Sala acogedora con luz suave de ventana, sillón cómodo en tonos crema, manta tejida sobre el respaldo, plantas en macetas.$f1b$,
   magic_effects = $f1c$Partículas de luz flotante sutiles simbolizan la magia sanadora del abrazo. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$f1c$,
   lighting_color = $f1d$Iluminación dorada y suave tipo atardecer envolviendo la escena. Atmósfera cálida de hogar y sanación.$f1d$,
@@ -892,12 +892,12 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f2a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite el hechizo nocturno de un cuento que lleva a soñar.
 
-Ligeramente descentrada sentada al borde de la cama, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión narrativa y cálida, con bata suave en tono rosa empolvado, gafas de lectura, leyendo un libro de cuentos ilustrado. Acurrucado bajo las cobijas, su nieto, ojos brillantes de fascinación, mirando el libro encantado.$f2a$,
-  background_details = $f2b$Habitación infantil acogedora con luz tenue de lámpara de noche, estantes con juguetes, ventana con cielo nocturno estrellado.$f2b$,
+Ligeramente descentrada sentada al borde de la cama, la abuela, con la edad y apariencia reales de su foto de referencia, expresión narrativa y cálida, con bata suave en tono rosa empolvado, gafas de lectura, leyendo un libro de cuentos ilustrado. Acurrucado bajo las cobijas, su nieto, ojos brillantes de fascinación, mirando el libro encantado.$f2a$,
+  background_details = $f2b$Habitación acogedora de noche con luz tenue de lámpara, estantes con libros, ventana con cielo nocturno estrellado.$f2b$,
   magic_effects = $f2c$Pequeñas siluetas etéreas de personajes de cuentos (un dragón, un castillo) emergen suavemente del libro. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$f2c$,
   lighting_color = $f2d$Iluminación cálida y envolvente de lámpara de noche. Atmósfera íntima con toque de fantasía.$f2d$,
   poem_template = $f2e$Cada noche es una aventura,
-cuando {NOMBRE_DESTINATARIO} me viene a arropar,
+cuando {APODO_DESTINATARIO} me viene a arropar,
 con su voz suave y dulce,
 me lleva a un mundo a soñar.
 
@@ -916,13 +916,13 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f3a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría culinaria y el ingrediente secreto que es el amor de abuela.
 
-Ligeramente descentrada en la cocina, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión alegre y paciente, con delantal vintage floral, manos enharinadas sosteniendo un rodillo. De pie en un banquito junto a la mesa, su nieto, rostro iluminado de felicidad, con delantal infantil presionando cortadores de galletas en la masa.$f3a$,
+Ligeramente descentrada en la cocina, la abuela, con la edad y apariencia reales de su foto de referencia, expresión alegre y paciente, con delantal vintage floral, manos enharinadas sosteniendo un rodillo. De pie en un banquito junto a la mesa, su nieto, rostro iluminado de felicidad, con delantal presionando cortadores de galletas en la masa.$f3a$,
   background_details = $f3b$Cocina rústica acogedora con mesa de madera cubierta de masa, bandeja de galletas horneadas enfriándose, ventana con luz natural cálida.$f3b$,
   magic_effects = $f3c$Partículas doradas flotantes y pequeños corazones simbolizan el aroma de canela y vainilla en el aire. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$f3c$,
   lighting_color = $f3d$Iluminación natural y cálida de mañana. Atmósfera familiar, dulce y llena de calidez.$f3d$,
   poem_template = $f3e$En tu cocina huele a cielo,
 a canela, vainilla y amor,
-hacer galletas contigo, {NOMBRE_DESTINATARIO},
+hacer galletas contigo, {APODO_DESTINATARIO},
 es mi actividad favorita, la mejor.
 
 Me dejas probar la masa,
@@ -940,13 +940,13 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f4a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad íntima y la confianza absoluta entre nieto y abuela.
 
-Ligeramente descentrados muy cerca en un banco de jardín, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de ternura y complicidad, inclinada en actitud de escucha atenta. Junto a ella susurrando al oído, su nieto, expresión traviesa y feliz, con mano cerca de la boca en gesto cómplice.$f4a$,
+Ligeramente descentrados muy cerca en un banco de jardín, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de ternura y complicidad, inclinada en actitud de escucha atenta. Junto a ella susurrando al oído, su nieto, expresión traviesa y feliz, con mano cerca de la boca en gesto cómplice.$f4a$,
   background_details = $f4b$Jardín tranquilo con flores silvestres, árbol grande con ramas protectoras, luz filtrada entre hojas.$f4b$,
   magic_effects = $f4c$Pequeños corazones flotantes simbolizan el vínculo entre ambos, con destellos dorados sutiles. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$f4c$,
   lighting_color = $f4d$Iluminación suave de tarde dorada filtrada entre las hojas. Atmósfera privada, mágica y de complicidad.$f4d$,
   poem_template = $f4e$Hay cosas que solo tú sabes,
 secretos que guardo en mi corazón,
-porque sé que {NOMBRE_DESTINATARIO} entiende,
+porque sé que {APODO_DESTINATARIO} entiende,
 sin juzgar, con puro amor.
 
 Me escuchas con atención,
@@ -964,13 +964,13 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f5a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad alegre y el placer especial de ser consentida por abuela.
 
-Ligeramente descentrados en una heladería, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de complicidad y felicidad, con ropa casual chic, guiñando un ojo. Junto a ella sosteniendo un helado enorme, su nieto, ojos brillantes y sonrisa enorme, con ambas manos en el helado.$f5a$,
+Ligeramente descentrados en una heladería, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de complicidad y felicidad, con ropa casual chic, guiñando un ojo. Junto a ella sosteniendo un helado enorme, su nieto, ojos brillantes y sonrisa enorme, con ambas manos en el helado.$f5a$,
   background_details = $f5b$Escena urbana encantadora con tienda colorida de fondo, mesas con sombrillas, día soleado y feliz.$f5b$,
   magic_effects = $f5c$Confeti de colores y estrellitas brillantes flotan suavemente en el aire festivo. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$f5c$,
   lighting_color = $f5d$Iluminación brillante y alegre de día soleado. Atmósfera vibrante y llena de vida.$f5d$,
   poem_template = $f5e$Mamá dice que no, pero tú dices que sí,
 un dulce más, un ratito más de jugar,
-{NOMBRE_DESTINATARIO}, contigo todo es especial,
+{APODO_DESTINATARIO}, contigo todo es especial,
 porque me dejas ser y me sabes mimar.
 
 Me compras ese juguete,
@@ -988,7 +988,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f6a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura pura en el gesto simple de dos manos entrelazadas.
 
-Ligeramente descentradas en primer plano, las manos de la abuela, mujer mayor de unos 67 años, piel suave con marcas del tiempo, venas visibles y anillo sencillo, propias de una mano de abuela, sosteniendo delicadamente la mano pequeña de su nieto, manos pequeñas y suaves descansando con confianza.$f6a$,
+Ligeramente descentradas en primer plano, las manos de la abuela, con la edad y apariencia reales de su foto de referencia, anillo sencillo, propias de una mano de abuela, sosteniendo delicadamente la mano de su nieto, con la edad y apariencia reales de su foto de referencia, descansando con confianza.$f6a$,
   background_details = $f6b$Fondo suavemente desenfocado con elementos de tejido (agujas, ovillo de lana en tonos pastel) o jardín con flores difuminadas.$f6b$,
   magic_effects = $f6c$Hilos de luz dorada conectan sutilmente ambas manos simbolizando el vínculo. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$f6c$,
   lighting_color = $f6d$Luz natural suave y cálida tipo ventana de tarde. Atmósfera tierna y reconfortante.$f6d$,
@@ -1002,7 +1002,7 @@ con caricias suaves y calor,
 y cuando me acaricias el cabello,
 desaparece cualquier dolor.
 
-{NOMBRE_DESTINATARIO}, tus manos son mágicas,
+{APODO_DESTINATARIO}, tus manos son mágicas,
 llenas de ternura y bondad,
 en ellas encuentro consuelo,
 y una paz sin igual.$f6e$,
@@ -1012,13 +1012,13 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f7a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz absoluta y el refugio seguro del regazo de abuela.
 
-Ligeramente descentrada sentada en un sillón, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de amor profundo y paz, acariciando suavemente el cabello de su nieto. Profundamente dormido en su regazo, su nieto, expresión de paz absoluta, acurrucado en posición fetal.$f7a$,
+Ligeramente descentrada sentada en un sillón, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de amor profundo y paz, acariciando suavemente el cabello de su nieto. Recostado en su regazo, su nieto, expresión de paz absoluta con los ojos abiertos mirando hacia arriba con ternura, acurrucado cómodamente.$f7a$,
   background_details = $f7b$Sala acogedora con luz suave de tarde, manta tejida sobre el brazo del sillón, taza de té en mesa lateral.$f7b$,
   magic_effects = $f7c$Un aura cálida envuelve a ambos con partículas de luz dorada muy suaves. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$f7c$,
   lighting_color = $f7d$Luz dorada suave de atardecer, muy cálida y envolvente. Atmósfera de tranquilidad absoluta.$f7d$,
   poem_template = $f7e$No hay almohada más cómoda,
 ni lugar más seguro para estar,
-que dormido en tu regazo, {NOMBRE_DESTINATARIO},
+que dormido en tu regazo, {APODO_DESTINATARIO},
 donde puedo soñar y descansar.
 
 Tu mano acaricia mi frente,
@@ -1036,7 +1036,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f8a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite aprendizaje amoroso al descubrir la magia en las cosas simples.
 
-Ligeramente descentrados en un jardín, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión sabia y amorosa, señalando una mariposa con postura de maestra paciente. Junto a ella mirando en la misma dirección, su nieto, expresión de asombro y curiosidad, con ojos brillantes.$f8a$,
+Ligeramente descentrados en un jardín, la abuela, con la edad y apariencia reales de su foto de referencia, expresión sabia y amorosa, señalando una mariposa con postura de maestra paciente. Junto a ella mirando en la misma dirección, su nieto, expresión de asombro y curiosidad, con ojos brillantes.$f8a$,
   background_details = $f8b$Jardín exuberante con flores coloridas, mariposas volando, árboles frondosos, cielo azul con nubes suaves.$f8b$,
   magic_effects = $f8c$Siluetas brillantes sutiles de pájaros y estrellas flotan en el aire como símbolos de aprendizaje. La magia debe sentirse educativa y completamente integrada dentro de una fotografía realista.$f8c$,
   lighting_color = $f8d$Luz natural brillante de día, cálida y clara. Atmósfera educativa y llena de asombro.$f8d$,
@@ -1050,7 +1050,7 @@ no necesita de grandes gestos,
 que está en los detalles pequeños,
 en los abrazos y en los momentos.
 
-Gracias, {NOMBRE_DESTINATARIO}, por tus lecciones,
+Gracias, {APODO_DESTINATARIO}, por tus lecciones,
 por enseñarme a vivir con el corazón,
 todo lo que soy hoy,
 lo aprendí de tu amor.$f8e$,
@@ -1060,13 +1060,13 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f9a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite sabiduría transmitida con amor y reverencia.
 
-Ligeramente descentrados sentados en un porche, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de sabiduría y amor, con mano posada suavemente sobre la de su nieto, mirándolo con profundidad. Escuchando con atención absoluta, su nieto, expresión seria y receptiva.$f9a$,
+Ligeramente descentrados sentados en un porche, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de sabiduría y amor, con mano posada suavemente sobre la de su nieto, mirándolo con profundidad. Escuchando con atención absoluta, su nieto, expresión seria y receptiva.$f9a$,
   background_details = $f9b$Porche acogedor o banco en jardín tranquilo, luz de atardecer dorado, plantas en macetas.$f9b$,
   magic_effects = $f9c$Palabras doradas flotantes sutiles ("amor", "valentía") y pequeñas llaves doradas simbolizan consejos valiosos. La magia debe sentirse contemplativa y completamente integrada dentro de una fotografía realista.$f9c$,
   lighting_color = $f9d$Luz dorada de atardecer, cálida y envolvente. Atmósfera de intimidad y confianza.$f9d$,
   poem_template = $f9e$Cuando no sé qué hacer,
 cuando el camino se ve difícil,
-tus palabras me guían, {NOMBRE_DESTINATARIO},
+tus palabras me guían, {APODO_DESTINATARIO},
 como un faro en la noche.
 
 "Sé amable", "Sé valiente",
@@ -1084,7 +1084,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f10a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo silencioso y la comprensión profunda sin necesidad de palabras.
 
-Ligeramente descentrada arrodillada a la altura de su nieto, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de comprensión profunda, sosteniendo su rostro con ambas manos, limpiando una lágrima con el pulgar. Frente a ella, su nieto, expresión vulnerable encontrando consuelo, con manos aferradas suavemente a la ropa de la abuela.$f10a$,
+Ligeramente descentrada arrodillada a la altura de su nieto, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de comprensión profunda, con una mano secando suavemente una lágrima de su mejilla con el pulgar, sin cubrir su rostro. Frente a ella, su nieto, expresión vulnerable encontrando consuelo, con manos aferradas suavemente a la ropa de la abuela.$f10a$,
   background_details = $f10b$Interior cálido y privado con luz suave envolvente, elementos difuminados para mantener intimidad.$f10b$,
   magic_effects = $f10c$Partículas de luz dorada suave envuelven a ambos como un abrazo invisible. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$f10c$,
   lighting_color = $f10d$Luz suave y cálida, íntima y reconfortante. Atmósfera de consuelo profundo y comprensión.$f10d$,
@@ -1095,7 +1095,7 @@ y mi corazón se calma.
 
 No me preguntas qué pasó,
 no necesitas explicación,
-simplemente estás ahí, {NOMBRE_DESTINATARIO},
+simplemente estás ahí, {APODO_DESTINATARIO},
 con tu infinita comprensión.
 
 Tus abrazos secan mis lágrimas,
@@ -1108,7 +1108,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f11a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia compartida al descubrir juntos la historia familiar.
 
-Ligeramente descentrados rodeados de álbumes de fotos antiguos, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión nostálgica pero feliz, sosteniendo una foto antigua, señalándola con el dedo. Muy cerca mirando la foto con fascinación, su nieto, expresión de asombro y curiosidad.$f11a$,
+Ligeramente descentrados rodeados de álbumes de fotos antiguos, la abuela, con la edad y apariencia reales de su foto de referencia, expresión nostálgica pero feliz, sosteniendo una foto antigua, señalándola con el dedo. Muy cerca mirando la foto con fascinación, su nieto, expresión de asombro y curiosidad.$f11a$,
   background_details = $f11b$Sala familiar acogedora con álbumes de fotos vintage apilados, cajas de recuerdos, marcos de fotos antiguas.$f11b$,
   magic_effects = $f11c$Algunas fotos antiguas flotan sutilmente en el aire con brillo dorado, conectando el pasado con el presente. La magia debe sentirse nostálgica y completamente integrada dentro de una fotografía realista.$f11c$,
   lighting_color = $f11d$Luz natural cálida de ventana, creando atmósfera nostálgica. Atmósfera íntima y llena de historia.$f11d$,
@@ -1122,7 +1122,7 @@ me dices con una sonrisa,
 y veo en tus ojos jóvenes,
 la misma luz que hoy me hechiza.
 
-Gracias por compartir tu historia, {NOMBRE_DESTINATARIO},
+Gracias por compartir tu historia, {APODO_DESTINATARIO},
 por dejarme conocer tu pasado,
 cada foto es un tesoro,
 de amor que has regalado.$f11e$,
@@ -1132,12 +1132,12 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f12a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite amor maternal profundo en un abrazo frontal cercano.
 
-Ligeramente descentrados frente a frente, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de amor maternal profundo, sosteniendo el rostro de su nieto con ternura infinita. Su nieto, expresión de amor puro y gratitud, con manos tocando los brazos de la abuela.$f12a$,
+Ligeramente descentrados frente a frente, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de amor maternal profundo, acariciando suavemente la mejilla de su nieto sin cubrir su rostro, con ternura infinita. Su nieto, expresión de amor puro y gratitud, con manos tocando los brazos de la abuela.$f12a$,
   background_details = $f12b$Interior cálido con luz dorada envolvente, o jardín con flores difuminadas de fondo.$f12b$,
   magic_effects = $f12c$Un aura de luz dorada brillante rodea a ambos con hilos de luz conectando sus corazones. La magia debe sentirse profundamente emotiva y completamente integrada dentro de una fotografía realista.$f12c$,
   lighting_color = $f12d$Luz cálida y envolvente tipo atardecer dorado. Atmósfera emotiva y de conexión maternal.$f12d$,
   poem_template = $f12e$Mamá es mamá, eso es verdad,
-pero tú, {NOMBRE_DESTINATARIO}, eres especial,
+pero tú, {APODO_DESTINATARIO}, eres especial,
 eres mi segunda mamá,
 mi confidente, mi hogar.
 
@@ -1156,7 +1156,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f13a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite magia natural y el tiempo detenido en un jardín compartido.
 
-Ligeramente descentrados arrodillados junto a un parterre de flores, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de alegría y enseñanza, con sombrero de jardín elegante, señalando una mariposa. Junto a ella con botas de lluvia coloridas, su nieto, expresión de asombro, sosteniendo una regadera pequeña.$f13a$,
+Ligeramente descentrados arrodillados junto a un parterre de flores, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de alegría y enseñanza, con sombrero de jardín elegante, señalando una mariposa. Junto a ella con botas de lluvia coloridas, su nieto, expresión de asombro, sosteniendo una regadera pequeña.$f13a$,
   background_details = $f13b$Jardín exuberante tipo cuento de hadas con flores de todos colores, mariposas monarca, arco de jardín cubierto de rosas.$f13b$,
   magic_effects = $f13c$Las flores tienen un brillo sutil y pequeñas hadas se esconden entre ellas con destellos de luz dorada. La magia debe sentirse encantadora y completamente integrada dentro de una fotografía realista.$f13c$,
   lighting_color = $f13d$Luz natural mágica de mañana, cálida y brillante. Atmósfera de cuento de hadas.$f13d$,
@@ -1167,7 +1167,7 @@ en cada dulce momento.
 
 Me enseñas los nombres de las plantas,
 y juntos regamos con amor,
-en tu jardín encantado, {NOMBRE_DESTINATARIO},
+en tu jardín encantado, {APODO_DESTINATARIO},
 todo tiene color.
 
 Aquí el tiempo se detiene,
@@ -1180,7 +1180,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f14a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite un viaje fantástico entre generaciones a través de los recuerdos de la abuela.
 
-Ligeramente descentrada, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión narrativa y cálida, en su versión actual, con una versión joven y etérea de sí misma (años 50-60, cabello oscuro) apareciendo como una proyección mágica detrás de ella. Junto a la abuela actual, su nieto, expresión de fascinación total, mirando asombrado la versión joven de su abuela.$f14a$,
+Ligeramente descentrada, la abuela, con la edad y apariencia reales de su foto de referencia, expresión narrativa y cálida, en su versión actual, con una versión joven y etérea de sí misma (años 50-60, cabello oscuro) apareciendo como una proyección mágica detrás de ella. Junto a la abuela actual, su nieto, expresión de fascinación total, mirando asombrado la versión joven de su abuela.$f14a$,
   background_details = $f14b$Ambiente surrealista con objetos vintage (radio antigua, cartas) flotando junto a elementos modernos, portal de luz dorada conectando épocas.$f14b$,
   magic_effects = $f14c$Espirales de tiempo doradas y partículas brillantes conectan las dos versiones de la abuela. La magia debe sentirse conceptual y completamente integrada dentro de una fotografía realista.$f14c$,
   lighting_color = $f14d$Luz mágica y cinematográfica, mezcla de tonos sepia y dorados cálidos. Atmósfera de distorsión temporal suave.$f14d$,
@@ -1192,7 +1192,7 @@ a lugares fascinantes.
 Me hablas de juegos sin pantallas,
 de cartas escritas a mano,
 y yo imagino ese mundo,
-de la mano de mi {NOMBRE_DESTINATARIO} amada.
+de la mano de mi {APODO_DESTINATARIO} amada.
 
 Eres mi máquina del tiempo,
 mi puente entre ayer y hoy,
@@ -1204,7 +1204,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f15a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite majestuosidad tierna: en el reino de amor de la abuela, su nieto es el protagonista.
 
-Ligeramente descentrada vestida como reina benevolente, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de orgullo maternal, con vestido largo en tonos lavanda, corona delicada de flores, sosteniendo la mano de su nieto. Vestido como príncipe infantil, su nieto, expresión de felicidad absoluta, con traje elegante y corona pequeña.$f15a$,
+Ligeramente descentrada vestida como reina benevolente, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de orgullo maternal, con vestido largo en tonos lavanda, corona delicada de flores, sosteniendo la mano de su nieto. Vestido como príncipe, su nieto, expresión de felicidad absoluta, con traje elegante y corona a juego.$f15a$,
   background_details = $f15b$Escenario de cuento de hadas con trono decorado con flores, cortinas de terciopelo púrpura y dorado, alfombra roja.$f15b$,
   magic_effects = $f15c$Destellos de luz dorada flotan alrededor con pequeñas estrellas brillantes. La magia debe sentirse majestuosa y completamente integrada dentro de una fotografía realista.$f15c$,
   lighting_color = $f15d$Luz dorada y majestuosa tipo atardecer de cuento de hadas. Atmósfera de castillo encantado pero acogedor.$f15d$,
@@ -1215,7 +1215,7 @@ con amor y dignidad.
 
 Me haces sentir importante,
 valioso y sin igual,
-porque en tu reino de amor, {NOMBRE_DESTINATARIO},
+porque en tu reino de amor, {APODO_DESTINATARIO},
 yo soy lo principal.
 
 Gracias por hacerme sentir,
@@ -1228,7 +1228,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f16a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite el vuelo de la imaginación al leer juntos.
 
-Ligeramente descentrados en un sillón grande rodeados de libros, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión cálida y narrativa, con gafas de lectura, leyendo un libro grande ilustrado. Acurrucado junto a ella, su nieto, ojos brillantes de fascinación, mirando el libro.$f16a$,
+Ligeramente descentrados en un sillón grande rodeados de libros, la abuela, con la edad y apariencia reales de su foto de referencia, expresión cálida y narrativa, con gafas de lectura, leyendo un libro grande ilustrado. Acurrucado junto a ella, su nieto, ojos brillantes de fascinación, mirando el libro.$f16a$,
   background_details = $f16b$Biblioteca hogareña con estantes de madera llenos de libros, escalera de biblioteca, lámpara de lectura cálida.$f16b$,
   magic_effects = $f16c$Personajes de cuentos (dragones, princesas) emergen sutilmente de las páginas como hologramas etéreos y brillantes. La magia debe sentirse literaria y completamente integrada dentro de una fotografía realista.$f16c$,
   lighting_color = $f16d$Luz cálida y acogedora de lámpara y ventana. Atmósfera de fantasía literaria y calidez.$f16d$,
@@ -1242,7 +1242,7 @@ sobre tierras lejanas y mar,
 y en cada página que pasas,
 me enseñas a soñar.
 
-Gracias, {NOMBRE_DESTINATARIO}, por abrir mi mente,
+Gracias, {APODO_DESTINATARIO}, por abrir mi mente,
 por mostrarme que leer es volar,
 contigo cada libro es mágico,
 y juntos podemos viajar.$f16e$,
@@ -1252,7 +1252,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f17a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite poder heroico con ternura: el amor de la abuela es su verdadero superpoder.
 
-Ligeramente descentrada en postura heroica, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión poderosa pero cálida, vestida como superheroína con capa brillante en dorado y lavanda, símbolo de corazón en el pecho. Junto a ella como compañero superhéroe infantil, su nieto, expresión de admiración y orgullo, con capa pequeña a juego y máscara colorida.$f17a$,
+Ligeramente descentrada en postura heroica, la abuela, con la edad y apariencia reales de su foto de referencia, expresión poderosa pero cálida, vestida como superheroína con capa brillante en dorado y lavanda, símbolo de corazón en el pecho. Junto a ella como compañero superhéroe, su nieto, expresión de admiración y orgullo, con capa a juego, rostro completamente visible.$f17a$,
   background_details = $f17b$Escenario urbano estilizado tipo cómic con edificios en perspectiva, cielo dramático con nubes y rayos de luz.$f17b$,
   magic_effects = $f17c$Corazones brillantes flotan como símbolo del superpoder de la abuela, con un aura dorada rodeándola. La magia debe sentirse heroica y completamente integrada dentro de una fotografía realista.$f17c$,
   lighting_color = $f17d$Iluminación dramática y cinematográfica con luz heroica. Atmósfera épica pero tierna y familiar.$f17d$,
@@ -1266,7 +1266,7 @@ combates mis miedos con valor,
 y con tus abrazos mágicos,
 derrotas cualquier dolor.
 
-{NOMBRE_DESTINATARIO}, eres mi superheroína,
+{APODO_DESTINATARIO}, eres mi superheroína,
 la más poderosa de verdad,
 porque tu superpoder es el amor,
 y eso nunca cambiará.$f17e$,
@@ -1276,7 +1276,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f18a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite continuidad y la promesa de un legado de amor que perdurará para siempre.
 
-Ligeramente descentrados caminando de la mano por un sendero, vistos de perfil, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión serena, sosteniendo con ternura la mano de su nieto. Su nieto, expresión de confianza, caminando junto a ella mirando hacia adelante.$f18a$,
+Ligeramente descentrados caminando de la mano por un sendero, vistos en ángulo de tres cuartos con los rostros visibles, la abuela, con la edad y apariencia reales de su foto de referencia, expresión serena, sosteniendo con ternura la mano de su nieto. Su nieto, expresión de confianza, caminando junto a ella mirando hacia adelante.$f18a$,
   background_details = $f18b$Camino hermoso que se extiende hacia el horizonte rodeado de naturaleza exuberante, cielo con colores de atardecer espectacular.$f18b$,
   magic_effects = $f18c$Huellas brillantes detrás de ellas se transforman sutilmente en flores, y mariposas las siguen. La magia debe sentirse esperanzadora y completamente integrada dentro de una fotografía realista.$f18c$,
   lighting_color = $f18d$Luz dorada de atardecer, cálida y esperanzadora. Atmósfera de paz y continuidad.$f18d$,
@@ -1292,7 +1292,7 @@ y vivirá para siempre.
 
 Gracias por todo lo que me diste,
 por ser mi guía y mi luz,
-tu amor es eterno, {NOMBRE_DESTINATARIO},
+tu amor es eterno, {APODO_DESTINATARIO},
 y yo lo llevaré con gratitud.$f18e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Plantillas/PLANTILLA_18_Tu_Legado_de_Amor.png' AND is_active = true;
@@ -1300,7 +1300,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f19a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite aspiración amorosa: su nieto soñando con ser tan sabio y bondadoso como su abuela.
 
-Ligeramente descentrada con elegancia digna, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión serena y orgullosa, vistiendo ropa elegante, cabello plateado hermoso. Junto a ella, su nieto, expresión de admiración, mirando a su abuela, con una versión etérea de sí mismo adulto reflejado sutilmente imitando su postura.$f19a$,
+Ligeramente descentrada con elegancia digna, la abuela, con la edad y apariencia reales de su foto de referencia, expresión serena y orgullosa, vistiendo ropa elegante. Junto a ella, su nieto, expresión de admiración, mirando a su abuela, con una versión etérea de sí mismo adulto reflejado sutilmente imitando su postura.$f19a$,
   background_details = $f19b$Espacio con elementos que conectan presente y futuro, portal de luz suave uniendo ambas escenas.$f19b$,
   magic_effects = $f19c$Líneas de luz conectan a la abuela con su nieto y su versión futura, con símbolos de cualidades (corazón, libro) flotando entre ellas. La magia debe sentirse aspiracional y completamente integrada dentro de una fotografía realista.$f19c$,
   lighting_color = $f19d$Luz cálida y esperanzadora que une ambas figuras. Atmósfera de aspiración y legado.$f19d$,
@@ -1314,7 +1314,7 @@ abrazar como tú lo haces,
 y dar amor incondicional,
 como tú siempre me das.
 
-Eres mi ejemplo, {NOMBRE_DESTINATARIO},
+Eres mi ejemplo, {APODO_DESTINATARIO},
 mi inspiración de verdad,
 y cuando crezca, seré como tú,
 lleno de amor y bondad.$f19e$,
@@ -1324,7 +1324,7 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Pl
 UPDATE personalized_templates SET
   scene_visual = $f20a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite gratitud absoluta y amor puro en el cierre emotivo del libro.
 
-Ligeramente descentrados en un abrazo frontal muy estrecho, la abuela, mujer mayor de unos 67 años, cabello canoso plateado, expresión de amor incondicional y felicidad profunda, con ojos cerrados, frente casi tocando la de su nieto. Su nieto, expresión de amor puro y gratitud, completamente envuelto en el abrazo.$f20a$,
+Ligeramente descentrados en un abrazo frontal muy estrecho, la abuela, con la edad y apariencia reales de su foto de referencia, expresión de amor incondicional y felicidad profunda, con ojos cerrados, frente casi tocando la de su nieto. Su nieto, expresión de amor puro y gratitud, envuelto en el abrazo con el rostro visible hacia la cámara.$f20a$,
   background_details = $f20b$Fondo desenfocado con luz dorada envolvente que crea un halo alrededor de ambos, eliminando distracciones.$f20b$,
   magic_effects = $f20c$Un aura de luz dorada brillante e intensa rodea a ambos, con corazones grandes y pequeños flotando abundantemente. La magia debe sentirse celestial y completamente integrada dentro de una fotografía realista.$f20c$,
   lighting_color = $f20d$Luz dorada intensa y envolvente, casi celestial. Atmósfera de máxima intensidad emotiva y gratitud.$f20d$,
@@ -1341,7 +1341,7 @@ y mi mayor bendición.
 No hay palabras suficientes,
 para expresar lo que siento por ti,
 pero estas tres palabras lo resumen:
-Te amo, {NOMBRE_DESTINATARIO}, gracias por existir.$f20e$,
+Te amo, {APODO_DESTINATARIO}, gracias por existir.$f20e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Plantillas/PLANTILLA_20_Gracias_Por_Ser_Mi_Abuela.png' AND is_active = true;
 
@@ -1355,7 +1355,7 @@ Ligeramente descentrado en postura heroica, el abuelo, expresión orgullosa y c�
   poem_template = $f1e$No necesitas capa ni poderes de ficción,
 Eres mi superhéroe con tu sabiduría y corazón.
 Tus canas son de plata, tu fuerza es real,
-{NOMBRE_DESTINATARIO}, contigo todo mal se vuelve bien al final.
+{APODO_DESTINATARIO}, contigo todo mal se vuelve bien al final.
 
 Salvas mis días con tu risa y tu calma,
 Eres el guardián que protege mi alma.
@@ -1377,7 +1377,7 @@ No necesitas castillo ni ejército leal,
 Tu reino es mi vida, tu poder es ancestral.
 
 Me enseñas a ser fuerte, noble y valiente,
-{NOMBRE_DESTINATARIO}, eres mi rey, mi guía permanente.
+{APODO_DESTINATARIO}, eres mi rey, mi guía permanente.
 En tu reino de abrazos siempre hay paz,
 Mi rey del corazón, mi hogar, mi faz.$f2e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
@@ -1386,14 +1386,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f3a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite lealtad protectora y el asombro de un nieto ante su caballero.
 
-Ligeramente descentrado en postura protectora, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión noble y valiente, con armadura dorada brillante completa, casco bajo el brazo, espada noble en la mano. Junto a él tocando suavemente la armadura, su nieto, expresión de asombro y admiración.$f3a$,
+Ligeramente descentrado en postura protectora, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión noble y valiente, con armadura dorada brillante completa, casco bajo el brazo, espada noble en la mano. Junto a él tocando suavemente la armadura, su nieto, expresión de asombro y admiración.$f3a$,
   background_details = $f3b$Campo de batalla épico al atardecer, colinas verdes, cielo con tonos naranjas y dorados, banderas ondeando a lo lejos.$f3b$,
   magic_effects = $f3c$La luz dorada se refleja en la armadura con destellos heroicos sutiles. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$f3c$,
   lighting_color = $f3d$Iluminación de atardecer épico con tonos naranjas y dorados. Atmósfera épica, protectora y cálida.$f3d$,
   poem_template = $f3e$Con armadura brillante y espada de verdad,
 Eres mi caballero que lucha con lealtad.
 Defiendes mis sueños, proteges mi camino,
-{NOMBRE_DESTINATARIO} valiente, mi héroe y mi destino.
+{APODO_DESTINATARIO} valiente, mi héroe y mi destino.
 
 En batallas de vida siempre estás ahí,
 Tu honor y tu fuerza me inspiran a mí.
@@ -1412,7 +1412,7 @@ Ligeramente descentrado flotando suavemente, el abuelo, expresión serena y prot
   poem_template = $f4e$Con alas invisibles que siempre me cuidan,
 Eres mi ángel guardián, mis pasos tú guías.
 Desde el cielo de tu amor me proteges sin cesar,
-{NOMBRE_DESTINATARIO} celestial, mi guía estelar.
+{APODO_DESTINATARIO} celestial, mi guía estelar.
 
 Tu luz me ilumina cuando hay oscuridad,
 Tu voz me calma con pura serenidad.
@@ -1424,14 +1424,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f5a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite espíritu aventurero y la emoción compartida de explorar mundos de historias.
 
-Ligeramente descentrado en la proa de un barco de madera elegante, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión determinada, vestido de capitán con chaqueta naval azul y botones dorados, catalejo en mano. Junto a él señalando emocionado hacia el horizonte, su nieto, expresión aventurera, con ropa de marinero.$f5a$,
+Ligeramente descentrado en la proa de un barco de madera elegante, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión determinada, vestido de capitán con chaqueta naval azul y botones dorados, catalejo en mano. Junto a él señalando emocionado hacia el horizonte, su nieto, expresión aventurera, con ropa de marinero.$f5a$,
   background_details = $f5b$Océano azul brillante con olas suaves, gaviotas volando, isla tropical visible a lo lejos.$f5b$,
   magic_effects = $f5c$El viento mueve la ropa y la luz del sol brilla suavemente sobre el agua. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$f5c$,
   lighting_color = $f5d$Iluminación náutica brillante con reflejos dorados en el agua. Atmósfera aventurera, emocionante y de complicidad.$f5d$,
   poem_template = $f5e$Con timón en mano y brújula de experiencia,
 Eres el capitán que navega con paciencia.
 Me llevas a mares de historias sin fin,
-{NOMBRE_DESTINATARIO} aventurero, mi guía, mi fortín.
+{APODO_DESTINATARIO} aventurero, mi guía, mi fortín.
 
 Juntos exploramos mundos de imaginación,
 Tu barco es de sueños, tu vela es pasión.
@@ -1450,7 +1450,7 @@ Ligeramente descentrado sentado en una silla de madera antigua, el abuelo, expre
   poem_template = $f6e$Con barba de sabio y ojos de experiencia,
 Guardas mil historias con tu paciencia.
 Cada cuento tuyo es una lección de vida,
-{NOMBRE_DESTINATARIO} maestro, tu sabiduría es mi guía querida.
+{APODO_DESTINATARIO} maestro, tu sabiduría es mi guía querida.
 
 Me enseñas del mundo con tus palabras de oro,
 Eres la biblioteca viviente que más adoro.
@@ -1462,14 +1462,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f7a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite fuerza victoriosa y la determinación de nunca rendirse.
 
-Ligeramente descentrado en postura de batalla victoriosa, el abuelo, expresión heroica, con armadura de cuero y metal, casco con plumas, escudo con emblema familiar, espada en mano. A su lado imitando su postura con determinación, su nieto, expresión valiente, con armadura infantil.$f7a$,
+Ligeramente descentrado en postura de batalla victoriosa, el abuelo, expresión heroica, con armadura de cuero y metal, casco con plumas, escudo con emblema familiar, espada en mano. A su lado imitando su postura con determinación, su nieto, expresión valiente, con armadura a juego.$f7a$,
   background_details = $f7b$Campo de batalla al amanecer, montañas al fondo, cielo con nubes dramáticas pero luz esperanzadora.$f7b$,
   magic_effects = $f7c$Una luz heroica ilumina a el abuelo y destellos brillan en las armas. La magia debe sentirse victoriosa y completamente integrada dentro de una fotografía realista.$f7c$,
   lighting_color = $f7d$Iluminación de amanecer con nubes dramáticas y luz esperanzadora. Atmósfera épica, heroica y determinada.$f7d$,
   poem_template = $f7e$Con escudo de amor y espada de valor,
 Eres mi guerrero, mi eterno luchador.
 Has vencido batallas que yo nunca vi,
-{NOMBRE_DESTINATARIO} valiente, eres mi héroe aquí.
+{APODO_DESTINATARIO} valiente, eres mi héroe aquí.
 
 Tu fuerza me inspira a nunca rendirme,
 Tu coraje me enseña a siempre seguir firme.
@@ -1488,7 +1488,7 @@ Ligeramente descentrado frente a una estructura mágica de recuerdos, el abuelo,
   poem_template = $f8e$Con tus manos construyes memorias de amor,
 Eres el arquitecto de mi vida, mi creador.
 Cada momento contigo es un ladrillo especial,
-{NOMBRE_DESTINATARIO} constructor, edificas mi hogar emocional.
+{APODO_DESTINATARIO} constructor, edificas mi hogar emocional.
 
 Diseñas mi futuro con tus enseñanzas sabias,
 Construyes mi carácter con tus palabras diarias.
@@ -1507,7 +1507,7 @@ Ligeramente descentrado en escala imponente, el abuelo, expresión benevolente, 
   poem_template = $f9e$Grande como montaña, fuerte como el mar,
 Eres mi titán, mi gigante sin par.
 Tu amor es inmenso, tu fuerza colosal,
-{NOMBRE_DESTINATARIO} poderoso, mi protector celestial.
+{APODO_DESTINATARIO} poderoso, mi protector celestial.
 
 Cargas el mundo en tus hombros con gracia,
 Y aún así me levantas con tu abrazo y tu audacia.
@@ -1526,7 +1526,7 @@ Ligeramente descentrado en un espacio dimensional donde las épocas se mezclan, 
   poem_template = $f10e$Guardas en tu corazón años de historias,
 Eres el guardián del tiempo y sus memorias.
 Viajas entre épocas con tu sabiduría ancestral,
-{NOMBRE_DESTINATARIO} eterno, mi puente temporal.
+{APODO_DESTINATARIO} eterno, mi puente temporal.
 
 Me conectas con el pasado de nuestra familia,
 Me guías al futuro con tu luz que brilla.
@@ -1538,14 +1538,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f11a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite guía segura en medio de la tormenta, con el abuelo como luz que nunca se apaga.
 
-Ligeramente descentrado en la cima de un faro majestuoso, el abuelo, expresión protectora, con una luz brillante emanando del faro. Abajo en un barquito seguro mirando hacia arriba con confianza, su nieto, expresión de alivio.$f11a$,
+Ligeramente descentrado de pie junto a un faro majestuoso, el abuelo, expresión protectora, con una luz brillante emanando del faro detrás de él. A su lado en un barquito seguro, su nieto, expresión de alivio mirándolo con confianza.$f11a$,
   background_details = $f11b$Océano con olas grandes pero controladas, cielo nocturno con nubes dramáticas pero estrellas visibles, costa rocosa.$f11b$,
   magic_effects = $f11c$Un haz de luz poderoso del faro atraviesa la tormenta guiando el camino. La magia debe sentirse protectora y completamente integrada dentro de una fotografía realista.$f11c$,
   lighting_color = $f11d$Iluminación dramática nocturna con el haz de luz del faro como fuente principal. Atmósfera dramática pero esperanzadora, protectora.$f11d$,
   poem_template = $f11e$Cuando la vida se vuelve oscura y fría,
 Eres mi faro, mi luz, mi guía.
 Tu amor ilumina mi camino sin cesar,
-{NOMBRE_DESTINATARIO} luminoso, mi estrella polar.
+{APODO_DESTINATARIO} luminoso, mi estrella polar.
 
 En las tormentas más fuertes siempre estás,
 Tu luz me dice "no temas, aquí estás".
@@ -1557,14 +1557,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f12a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura pura: un gigante amable que ama sin reservas.
 
-Ligeramente descentrado arrodillado para estar a la altura de su nieto, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión dulce, representado como gigante amable de vestimenta simple en tonos tierra, abrazando suavemente con sus manos grandes. Su nieto, sonrisa sin miedo, sintiendo amor puro en el abrazo.$f12a$,
+Ligeramente descentrado arrodillado para estar a la altura de su nieto, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión dulce, representado como gigante amable de vestimenta simple en tonos tierra, abrazando suavemente con sus manos grandes. Su nieto, sonrisa sin miedo, sintiendo amor puro en el abrazo.$f12a$,
   background_details = $f12b$Jardín mágico con flores gigantes, árboles enormes, mariposas grandes volando.$f12b$,
   magic_effects = $f12c$Pétalos flotan suavemente mientras una luz cálida envuelve el abrazo. La magia debe sentirse tierna y completamente integrada dentro de una fotografía realista.$f12c$,
   lighting_color = $f12d$Luz suave de atardecer envolviendo el jardín mágico. Atmósfera tierna, protectora y de amor gentil.$f12d$,
   poem_template = $f12e$Grande en estatura, gigante en bondad,
 Eres el coloso de pura ternura y lealtad.
 Tus manos enormes me abrazan con amor,
-{NOMBRE_DESTINATARIO} gentil, mi gigante protector.
+{APODO_DESTINATARIO} gentil, mi gigante protector.
 
 Fuerte por fuera, suave por dentro,
 Tu corazón tierno es mi mejor aliento.
@@ -1576,14 +1576,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f13a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite el hechizo cotidiano de un cuento contado con el corazón.
 
-Ligeramente descentrado en una mecedora acogedora junto a la chimenea, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión animada, con un libro grande abierto en su regazo, contando una historia con gestos expresivos. Sentado a sus pies en el suelo con pijama, su nieto, ojos llenos de asombro.$f13a$,
+Ligeramente descentrado en una mecedora acogedora junto a la chimenea, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión animada, con un libro grande abierto en su regazo, contando una historia con gestos expresivos. Sentado a sus pies en el suelo con pijama, su nieto, ojos llenos de asombro.$f13a$,
   background_details = $f13b$Sala acogedora con luz cálida de chimenea, estantes con libros, ventana mostrando noche estrellada.$f13b$,
   magic_effects = $f13c$Elementos de la historia cobran vida sutilmente: un dragón pequeño translúcido y un castillo brillante flotan cerca del libro. La magia debe sentirse acogedora y completamente integrada dentro de una fotografía realista.$f13c$,
   lighting_color = $f13d$Luz dorada cálida de la chimenea. Atmósfera mágica, acogedora y llena de imaginación.$f13d$,
   poem_template = $f13e$Cuando cuentas historias el mundo se detiene,
 Cada palabra tuya un hechizo que me entretiene.
 Tus cuentos son ventanas a mundos sin fin,
-{NOMBRE_DESTINATARIO} narrador, mi mago del confín.
+{APODO_DESTINATARIO} narrador, mi mago del confín.
 
 Dragones y héroes cobran vida en tu voz,
 Me llevas a lugares mágicos, atroz.
@@ -1595,14 +1595,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f14a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite conexión con la naturaleza y la paciencia de aprender juntos a cultivar vida.
 
-Ligeramente descentrados arrodillados junto a un cantero de flores, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión paciente, señalando algo con amor mientras planta. Junto a él con tierra en las manos, su nieto, expresión de curiosidad y alegría, plantando con una herramienta pequeña.$f14a$,
+Ligeramente descentrados arrodillados junto a un cantero de flores, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión paciente, señalando algo con amor mientras planta. Junto a él con tierra en las manos, su nieto, expresión de curiosidad y alegría, plantando con una herramienta pequeña.$f14a$,
   background_details = $f14b$Jardín exuberante con flores de todos los colores, mariposas volando, regadera vintage, árboles frutales.$f14b$,
   magic_effects = $f14c$Partículas de polen brillan suavemente bajo la luz del sol. La magia debe sentirse pacífica y completamente integrada dentro de una fotografía realista.$f14c$,
   lighting_color = $f14d$Luz dorada del sol filtrándose entre las flores. Atmósfera pacífica, educativa y conectada con la naturaleza.$f14d$,
   poem_template = $f14e$Tu jardín es un reino de exploración,
 Cada planta, cada flor, una nueva lección.
 Me enseñas los secretos de la tierra y el sol,
-{NOMBRE_DESTINATARIO} jardinero, mi maestro español.
+{APODO_DESTINATARIO} jardinero, mi maestro español.
 
 Juntos plantamos semillas de amor y paciencia,
 Vemos crecer la vida con tu sabia presencia.
@@ -1621,7 +1621,7 @@ Ligeramente descentrados sentados en un banco de madera bajo un árbol grande, e
   poem_template = $f15e$No están en libros ni en escuelas formales,
 Tus lecciones son de vida, profundas y ancestrales.
 Me enseñas con ejemplo, con amor y paciencia,
-{NOMBRE_DESTINATARIO} maestro, mi fuente de sapiencia.
+{APODO_DESTINATARIO} maestro, mi fuente de sapiencia.
 
 Cada momento contigo es una clase especial,
 Aprendo a ser mejor, a vivir sin mal.
@@ -1633,14 +1633,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f16a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite complicidad íntima y la confianza absoluta de un secreto compartido.
 
-Ligeramente descentrados muy cerca en un sofá acogedor, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión cómplice, inclinándose para susurrar algo al oído de su nieto con sonrisa traviesa. Su nieto, ojos brillantes, escuchando con sonrisa de complicidad.$f16a$,
+Ligeramente descentrados muy cerca en un sofá acogedor, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión cómplice, inclinándose para susurrar algo al oído de su nieto con sonrisa traviesa. Su nieto, ojos brillantes, escuchando con sonrisa de complicidad.$f16a$,
   background_details = $f16b$Sala cálida con luz suave, ventana mostrando atardecer, cojines cómodos.$f16b$,
   magic_effects = $f16c$Pequeñas estrellas brillantes flotan alrededor simbolizando el secreto compartido. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$f16c$,
   lighting_color = $f16d$Luz dorada suave de atardecer entrando por la ventana. Atmósfera cómplice, íntima y llena de confianza.$f16d$,
   poem_template = $f16e$Tenemos secretos que nadie más sabe,
 Complicidad única, conexión que no cabe.
 Eres mi confidente, mi amigo leal,
-{NOMBRE_DESTINATARIO} cómplice, mi tesoro especial.
+{APODO_DESTINATARIO} cómplice, mi tesoro especial.
 
 Guardas mis secretos con amor y cuidado,
 Yo guardo los tuyos, nuestro pacto sagrado.
@@ -1652,14 +1652,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f17a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite alegría contagiosa y una carcajada compartida sin límites.
 
-Ligeramente descentrados en medio de una carcajada genuina, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión de gesto cómico, haciendo una cara graciosa. Junto a él sosteniéndose el estómago de tanto reír, su nieto, expresión de risa desbordante.$f17a$,
+Ligeramente descentrados en medio de una carcajada genuina, el abuelo, con la edad y apariencia reales de su foto de referencia, con los ojos entrecerrados por la risa genuina y una sonrisa amplia. Junto a él sosteniéndose el estómago de tanto reír, su nieto, expresión de risa desbordante.$f17a$,
   background_details = $f17b$Espacio alegre y colorido tipo jardín o cocina, luz brillante y cálida, elementos cotidianos de un momento espontáneo.$f17b$,
   magic_effects = $f17c$Pequeños símbolos de risa (notas musicales, estrellas) flotan alrededor con un brillo dorado sutil. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$f17c$,
   lighting_color = $f17d$Luz brillante y cálida de un momento espontáneo. Atmósfera alegre, divertida y llena de risa.$f17d$,
   poem_template = $f17e$Tus chistes y bromas iluminan mi día,
 Tu risa contagiosa es pura alegría.
 Me haces reír hasta que me duele el costado,
-{NOMBRE_DESTINATARIO} divertido, mi comediante amado.
+{APODO_DESTINATARIO} divertido, mi comediante amado.
 
 Con tus ocurrencias el mundo es mejor,
 Tu humor es medicina, tu risa es amor.
@@ -1671,14 +1671,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f18a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite sanación emocional profunda en un abrazo protector.
 
-Ligeramente descentrado abrazando tiernamente a su nieto, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión de amor incondicional, en un abrazo profundo y protector. Su nieto, ojos cerrados sintiendo paz absoluta, envuelto en el abrazo.$f18a$,
+Ligeramente descentrado abrazando tiernamente a su nieto, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión de amor incondicional, en un abrazo profundo y protector. Su nieto, ojos cerrados sintiendo paz absoluta, envuelto en el abrazo.$f18a$,
   background_details = $f18b$Espacio suave y difuminado, interior cálido con luz dorada envolvente.$f18b$,
   magic_effects = $f18c$Corazones dorados flotan suavemente y ondas de energía amorosa son visibles alrededor del abrazo. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$f18c$,
   lighting_color = $f18d$Luz cálida y dorada envolvente. Atmósfera sanadora, amorosa y llena de consuelo.$f18d$,
   poem_template = $f18e$Cuando estoy triste o el mundo me duele,
 Tu abrazo es el remedio que todo lo resuelve.
 Tus brazos son refugio, tu pecho es mi hogar,
-{NOMBRE_DESTINATARIO} amoroso, mi puerto, mi lugar.
+{APODO_DESTINATARIO} amoroso, mi puerto, mi lugar.
 
 En tu abrazo encuentro paz y consuelo,
 Tus brazos son alas que me llevan al cielo.
@@ -1690,14 +1690,14 @@ WHERE template_preview_key = 'IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Pl
 UPDATE personalized_templates SET
   scene_visual = $f19a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite curiosidad compartida y el asombro de descubrir juntos la belleza del mundo.
 
-Ligeramente descentrados caminando por un sendero, el abuelo, hombre mayor de unos 68 años, cabello y barba canosos, expresión de descubrimiento, señalando algo maravilloso en la naturaleza. Junto a él mirando hacia donde señala, su nieto, expresión de asombro y curiosidad.$f19a$,
+Ligeramente descentrados caminando por un sendero, el abuelo, con la edad y apariencia reales de su foto de referencia, expresión de descubrimiento, señalando algo maravilloso en la naturaleza. Junto a él mirando hacia donde señala, su nieto, expresión de asombro y curiosidad.$f19a$,
   background_details = $f19b$Paisaje natural hermoso tipo bosque o campo, luz del sol creando atmósfera mágica, elementos naturales detallados.$f19b$,
   magic_effects = $f19c$Un destello de luz brilla suavemente sobre lo que están observando, y partículas brillantes flotan en el aire. La magia debe sentirse inspiradora y completamente integrada dentro de una fotografía realista.$f19c$,
   lighting_color = $f19d$Luz natural brillante de día, cálida y clara. Atmósfera exploradora, educativa y llena de asombro.$f19d$,
   poem_template = $f19e$Me muestras el mundo con ojos de asombro,
 Cada lugar contigo es un nuevo descombro.
 Me enseñas a ver la belleza en lo simple,
-{NOMBRE_DESTINATARIO} explorador, mi guía que no se extingue.
+{APODO_DESTINATARIO} explorador, mi guía que no se extingue.
 
 Juntos descubrimos maravillas cada día,
 Tu curiosidad eterna es mi mejor guía.
@@ -1716,7 +1716,7 @@ En la mitad izquierda, ligeramente descentrado, el abuelo, edad actual, sostenie
   poem_template = $f20e$No importa cuánto crezca o qué edad tenga yo,
 En tus ojos siempre seré tu pequeño, lo sé yo.
 Tu amor no cambia con el paso del tiempo,
-{NOMBRE_DESTINATARIO} eterno, mi amor, mi aliento.
+{APODO_DESTINATARIO} eterno, mi amor, mi aliento.
 
 Puedo ser grande pero en tu corazón,
 Siempre seré tu nieto, tu bendición.
@@ -1733,7 +1733,7 @@ Ligeramente descentrados en una cueva iluminada, el papá, expresión alegre y c
   magic_effects = $f1c$Luciérnagas gigantes iluminan la escena con un resplandor dorado suave. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$f1c$,
   lighting_color = $f1d$Luz cálida del fuego de la cueva con destellos dorados de las luciérnagas. Atmósfera cálida, divertida y llena de energía creativa.$f1d$,
   poem_template = $f1e$En la cueva de los {APELLIDO}, la chispa nunca se apaga,
-papá {NOMBRE_DESTINATARIO} talla guitarras con piedras y ramas,
+papá {APODO_DESTINATARIO} talla guitarras con piedras y ramas,
 mamá {NOMBRE_DEDICANTE} inventa canciones junto al fuego encendido,
 y sus hijos bailan al ritmo divertido.
 
