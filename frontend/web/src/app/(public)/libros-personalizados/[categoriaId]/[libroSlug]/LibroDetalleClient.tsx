@@ -949,7 +949,11 @@ export default function LibroDetalleClient({
                   margin: "0 0 16px 0",
                   fontSize: "18px",
                   fontWeight: 600,
-                  color: libroSlug === "1025-dias-enamorandome-de-ti" ? info.accent : "#111",
+                  color: libroSlug === "1025-dias-enamorandome-de-ti"
+                    ? info.accent
+                    : ["gracias-por-tu-amor", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug)
+                    ? "#fff"
+                    : "#111",
                 }}
               >
                 {info.descripcionCorta}
@@ -971,7 +975,7 @@ export default function LibroDetalleClient({
                     style={{
                       fontSize: "16px",
                       lineHeight: 1.6,
-                      color: libroSlug === "mi-mejor-amigo-del-mundo" ? "#fff" : "#444",
+                      color: ["mi-mejor-amigo-del-mundo", "gracias-por-tu-amor", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug) ? "#fff" : "#444",
                       paddingLeft: "28px",
                       position: "relative",
                     }}

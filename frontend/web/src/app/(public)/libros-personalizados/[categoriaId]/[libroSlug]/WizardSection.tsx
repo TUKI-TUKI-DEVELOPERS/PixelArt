@@ -512,14 +512,14 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
       HE_TO_SHE:
         "{recipientNickname}, crecimos juntos inventando mundos enteros,\n" +
         "haciendo locuras, sin miedo, siendo compañeros.\n" +
-        "Nos prometimos estar siempre el uno para el otro,\n" +
-        "y esa promesa, hoy, la cumplimos con este libro.\n" +
+        "Ya no estás para vivirlo, pero esa complicidad nunca se fue con vos,\n" +
+        "sigue viva en cada recuerdo que guardamos los dos.\n" +
         "Tu historia, tu risa, tu espíritu viven aquí, para siempre.",
       SHE_TO_HE:
         "{recipientNickname}, crecimos juntas inventando mundos enteros,\n" +
         "haciendo locuras, sin miedo, siendo compañeras.\n" +
-        "Nos prometimos estar siempre la una para la otra,\n" +
-        "y esa promesa, hoy, la cumplimos con este libro.\n" +
+        "Ya no estás para vivirlo, pero esa complicidad nunca se fue con vos,\n" +
+        "sigue viva en cada recuerdo que guardamos los dos.\n" +
         "Tu historia, tu risa, tu espíritu viven aquí, para siempre.",
     },
     {
@@ -527,15 +527,15 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
       HE_TO_SHE:
         "Nadie nos conocía como tú, {recipientNickname}, tan profundamente,\n" +
         "compartiste miedos y secretos, siempre presente.\n" +
-        "Los mejores momentos de esta familia los viviste sin juzgar,\n" +
-        "por eso este libro es tributo a tu lealtad, sin par.\n" +
-        "A ese lazo que ni el tiempo logrará cortar.",
+        "Aunque ya no estés aquí para vivirlo, cada momento de esta familia lleva tu huella,\n" +
+        "imposible de borrar.\n" +
+        "Ese lazo que ni la ausencia logrará cortar.",
       SHE_TO_HE:
         "Nadie nos conocía como tú, {recipientNickname}, tan profundamente,\n" +
         "compartiste miedos y secretos, siempre presente.\n" +
-        "Los mejores momentos de esta familia los viviste sin juzgar,\n" +
-        "por eso este libro es tributo a tu lealtad, sin par.\n" +
-        "A ese lazo que ni el tiempo logrará cortar.",
+        "Aunque ya no estés aquí para vivirlo, cada momento de esta familia lleva tu huella,\n" +
+        "imposible de borrar.\n" +
+        "Ese lazo que ni la ausencia logrará cortar.",
     },
     {
       label: "Sanadora",
