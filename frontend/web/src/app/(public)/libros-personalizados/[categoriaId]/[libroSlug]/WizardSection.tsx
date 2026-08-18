@@ -747,7 +747,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "— {dedicatorName}",
     },
   ],
-  "Aventura entre patas": [
+  "Aventura Entre Patas": [
     {
       label: "Aventurera",
       HE_TO_SHE:
@@ -1108,7 +1108,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const [owner3Name, setOwner3Name] = useState("");
   const owner2Upload = usePhotoUpload("uploads/customers");
   const owner3Upload = usePhotoUpload("uploads/customers");
-  const isAventuraEntrePatas = libroNombre === "Aventura entre patas";
+  const isAventuraEntrePatas = libroNombre === "Aventura Entre Patas";
 
   // Familia-grupo — nombre de la familia y miembros
   const [familyName, setFamilyName] = useState("");
@@ -2586,9 +2586,24 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <h3 style={{ margin: "0 0 20px 0", fontSize: "24px", fontWeight: 700 }}>8. Resumen de tu solicitud</h3>
                 <div style={{ borderRadius: "14px", border: "1px solid #f0f0f0", overflow: "hidden", marginBottom: "24px" }}>
                   <SummaryRow label="Libro" value={libroNombre} />
-                  <SummaryRow label="Para" value={`${recipientNickname}${recipientNickname ? ` (${recipientNickname})` : ""}`} />
-                  <SummaryRow label="De" value={dedicatorName} />
-                  <SummaryRow label="Fotos" value={`${recipientUpload.photos.length + dedicatorUpload.photos.length} fotos subidas`} />
+                  <SummaryRow label="Para" value={recipientNickname ? `${recipientName} (${recipientNickname})` : recipientName} />
+                  <SummaryRow
+                    label="De"
+                    value={
+                      isAventuraEntrePatas && numOwners > 1
+                        ? [dedicatorName, owner2Name, ...(numOwners >= 3 ? [owner3Name] : [])].filter(Boolean).join(", ")
+                        : dedicatorName
+                    }
+                  />
+                  <SummaryRow
+                    label="Fotos"
+                    value={`${
+                      recipientUpload.photos.length +
+                      dedicatorUpload.photos.length +
+                      (isAventuraEntrePatas && numOwners >= 2 ? owner2Upload.photos.length : 0) +
+                      (isAventuraEntrePatas && numOwners >= 3 ? owner3Upload.photos.length : 0)
+                    } fotos subidas`}
+                  />
                   <SummaryRow label="Escenarios" value={selectedTemplates.map((id) => templates.find((t) => t.id === id)?.name ?? `#${id}`).join(", ")} />
                   <SummaryRow label="Tapa" value={selectedVariant?.coverType.replace("TAPA_", "Tapa ") ?? "—"} />
                   <SummaryRow label="Plantillas" value={selectedPackage === "PREMIUM" ? "15 plantillas" : "10 plantillas"} />
