@@ -285,7 +285,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_Amigo_Miauravill
 UPDATE personalized_templates SET
   scene_visual = $mMime1a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra el recibimiento eufórico de la mascota, la certeza pura de ser el centro del mundo de alguien apenas cruza la puerta.
 
-Ligeramente descentrado, {NOMBRE_DESTINATARIO}, un perro de mediana edad, salta de emoción en la entrada de la casa con las patas delanteras levantadas y la cola en pleno movimiento (efecto de desenfoque de velocidad), boca abierta en sonrisa canina. La puerta está abierta y deja entrar luz dorada desde afuera; se distingue parcialmente la silueta de su dueño/a llegando a casa.$mMime1a$,
+Ligeramente descentrado, {NOMBRE_DESTINATARIO}, su fiel mascota, salta de emoción en la entrada de la casa con las patas delanteras levantadas y la cola en pleno movimiento (efecto de desenfoque de velocidad), expresión de pura alegría. La puerta está abierta y deja entrar luz dorada desde afuera; se distingue parcialmente la silueta de su dueño/a llegando a casa.$mMime1a$,
   background_details = $mMime1b$Un pasillo de entrada acogedor y cálido, con detalles hogareños desenfocados de fondo.$mMime1b$,
   magic_effects = $mMime1c$Pequeños destellos mágicos y estrellas brillantes flotan alrededor de {NOMBRE_DESTINATARIO}, simbolizando la emoción pura del reencuentro. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$mMime1c$,
   lighting_color = $mMime1d$Luz cálida de atardecer entrando por la puerta abierta, con dorados intensos, amarillos suaves y blancos brillantes.$mMime1d$,
@@ -298,12 +298,12 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime2a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite paz nocturna y la certeza reconfortante de una compañía incondicional mientras se duerme.
 
-Ligeramente descentrada, {NOMBRE_DESTINATARIO}, una gata acurrucada, duerme plácidamente junto a su dueño/a sobre una cama acogedora (se distingue parcialmente la silueta de la persona), en posición relajada y respirando en calma.$mMime2a$,
+Ligeramente descentrada, {NOMBRE_DESTINATARIO}, su fiel mascota, acurrucada, duerme plácidamente junto a su dueño/a sobre una cama acogedora (se distingue parcialmente la silueta de la persona), en posición relajada y respirando en calma.$mMime2a$,
   background_details = $mMime2b$Un dormitorio en penumbra nocturna, iluminado suavemente por luz de luna que entra por la ventana.$mMime2b$,
   magic_effects = $mMime2c$Polvo de estrellas mágico flota suavemente en el aire y la luz de luna crea un halo dorado tenue alrededor de {NOMBRE_DESTINATARIO}. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$mMime2c$,
   lighting_color = $mMime2d$Azules nocturnos suaves, plateados y dorados tenues, atmósfera de calma absoluta.$mMime2d$,
   poem_template = $mMime2e$Cada noche, sin falta alguna, {NOMBRE_DESTINATARIO} duerme a mi lado, su calor me da tranquilidad, su presencia, un regalo sagrado.
-No necesita palabras ni gestos, solo estar ahí, ronroneando en paz, me hace sentir acompañado, protegido, nunca solo jamás.
+No necesita palabras ni gestos, solo estar ahí, en calma, me hace sentir acompañado, protegido, nunca solo jamás.
 En la oscuridad de la noche, su lealtad brilla como el sol, y sé que mientras ella esté cerca, todo estará bien, todo es amor.$mMime2e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
 WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_mundo/Plantillas/PLANTILLA_2_Porque_Duerme_a_Mi_Lado_Todas_las_Noches.png' AND is_active = true;
@@ -311,7 +311,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime3a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite empatía profunda, el consuelo silencioso de una mascota que percibe el dolor sin necesidad de palabras.
 
-Ligeramente descentrado, {NOMBRE_DESTINATARIO}, un perro de mirada empática, se acerca con expresión empática a su dueño/a sentado (se distinguen parcialmente sus piernas y manos), apoyando la cabeza sobre su regazo con ojos tiernos y comprensivos mirando hacia arriba.$mMime3a$,
+Ligeramente descentrado, {NOMBRE_DESTINATARIO}, su fiel mascota, de mirada empática, se acerca con expresión empática a su dueño/a sentado (se distinguen parcialmente sus piernas y manos), apoyando la cabeza sobre su regazo con ojos tiernos y comprensivos mirando hacia arriba.$mMime3a$,
   background_details = $mMime3b$Una sala cálida con luz suave, ambiente hogareño e íntimo.$mMime3b$,
   magic_effects = $mMime3c$Un aura dorada brillante envuelve suavemente a {NOMBRE_DESTINATARIO}, simbolizando su energía sanadora, con pequeñas luces mágicas flotando alrededor. La magia debe sentirse reconfortante y completamente integrada dentro de una fotografía realista.$mMime3c$,
   lighting_color = $mMime3d$Dorados cálidos, marrones suaves y luz ambiental acogedora.$mMime3d$,
@@ -324,7 +324,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime4a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite conexión profunda y silenciosa, el vínculo de quien se entiende sin necesidad de decir nada.
 
-En primer plano cercano, {NOMBRE_DESTINATARIO}, una coneja de mirada serena, permanece tranquila en brazos de su dueño/a (se distingue parcialmente su mano acariciándola), con las orejas relajadas y la nariz moviéndose suavemente, mirándose fijamente en un momento de entendimiento mutuo.$mMime4a$,
+En primer plano cercano, {NOMBRE_DESTINATARIO}, su fiel mascota, de mirada serena, permanece tranquila en brazos de su dueño/a (se distingue parcialmente su mano acariciándola), con expresión relajada y tranquila, mirándose fijamente en un momento de entendimiento mutuo.$mMime4a$,
   background_details = $mMime4b$Un rincón hogareño con luz natural suave, fondo difuminado con destellos mágicos discretos.$mMime4b$,
   magic_effects = $mMime4c$Una luz dorada brillante conecta sutilmente sus miradas, simbolizando la comunicación sin palabras. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$mMime4c$,
   lighting_color = $mMime4d$Dorados suaves, marrones cálidos y luz natural tenue.$mMime4d$,
@@ -337,7 +337,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime5a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite ternura pura a través de la mirada expresiva de la mascota, un amor que no necesita palabras.
 
-En primer plano, {NOMBRE_DESTINATARIO}, un cuy de ojos grandes y brillantes, es sostenido con delicadeza entre las manos de su dueño/a (se distinguen parcialmente), mirando fijamente a la cámara con expresión de devoción.$mMime5a$,
+En primer plano, {NOMBRE_DESTINATARIO}, su fiel mascota, de ojos grandes y brillantes, es acariciada con delicadeza por su dueño/a (se distinguen parcialmente), mirando fijamente a la cámara con expresión de devoción.$mMime5a$,
   background_details = $mMime5b$Un ambiente cálido y difuminado, con tonos suaves de fondo.$mMime5b$,
   magic_effects = $mMime5c$Un resplandor dorado suave y pequeñas partículas de luz mágica rodean su cabeza, simbolizando la pureza de su mirada. La magia debe sentirse tierna y completamente integrada dentro de una fotografía realista.$mMime5c$,
   lighting_color = $mMime5d$Marrones, dorados y luz natural cálida.$mMime5d$,
@@ -350,7 +350,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime6a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite amor puro e incondicional en un abrazo tierno entre mascota y dueño/a.
 
-{NOMBRE_DESTINATARIO}, un gato de expresión serena, se acurruca contra el pecho de su dueño/a (se distingue parcialmente) con los ojos cerrados en paz, ronroneando suavemente mientras es correspondido con una caricia.$mMime6a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, de expresión serena, se acurruca contra el pecho de su dueño/a (se distingue parcialmente) con los ojos cerrados en paz, en calma total mientras es correspondida con una caricia.$mMime6a$,
   background_details = $mMime6b$Un ambiente hogareño difuminado, con luz natural cálida de fondo.$mMime6b$,
   magic_effects = $mMime6c$Un resplandor dorado intenso y cálido envuelve a ambos, con pequeños corazones luminosos flotando suavemente en el aire. La magia debe sentirse pura y completamente integrada dentro de una fotografía realista.$mMime6c$,
   lighting_color = $mMime6d$Dorados intensos, rosas suaves y luz cálida envolvente.$mMime6d$,
@@ -363,7 +363,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime7a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor tierno, la travesura entrañable de una mascota que se adueña de todo el espacio.
 
-{NOMBRE_DESTINATARIO}, una hurona completamente estirada y relajada, ocupa todo el espacio disponible de un sofá, con expresión de satisfacción total. Su dueño/a está de pie al lado (se distingue parcialmente), con postura resignada pero divertida.$mMime7a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, completamente estirada y relajada, ocupa todo el espacio disponible de un sofá, con expresión de satisfacción total. Su dueño/a está de pie al lado (se distingue parcialmente), con postura resignada pero divertida.$mMime7a$,
   background_details = $mMime7b$Una sala acogedora con tonos cálidos de fondo.$mMime7b$,
   magic_effects = $mMime7c$Pequeñas coronas doradas brillantes flotan sobre {NOMBRE_DESTINATARIO}, como si fuera la reina del sofá. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$mMime7c$,
   lighting_color = $mMime7d$Marrones, beiges y dorados cómicos.$mMime7d$,
@@ -376,7 +376,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime8a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor cotidiano, la resignación cariñosa de compartir la cama con quien se la adueña por completo.
 
-Vista desde arriba de una cama, {NOMBRE_DESTINATARIO}, un perro, está completamente estirado en diagonal ocupando la mayor parte del espacio, durmiendo profundamente. Su dueño/a ocupa apenas el borde de la cama (se distingue parcialmente), en equilibrio precario.$mMime8a$,
+Vista desde arriba de una cama, {NOMBRE_DESTINATARIO}, su fiel mascota, está completamente estirada en diagonal ocupando la mayor parte del espacio, durmiendo profundamente. Su dueño/a ocupa apenas el borde de la cama (se distingue parcialmente), en equilibrio precario.$mMime8a$,
   background_details = $mMime8b$Sábanas desordenadas, luz de noche suave.$mMime8b$,
   magic_effects = $mMime8c$Pequeñas "Z" brillantes flotan sobre {NOMBRE_DESTINATARIO}, indicando sueño profundo. La magia debe sentirse cómica y completamente integrada dentro de una fotografía realista.$mMime8c$,
   lighting_color = $mMime8d$Azules nocturnos, blancos y grises suaves.$mMime8d$,
@@ -389,7 +389,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime9a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite travesura irresistible, la ternura desarmante de un pequeño ladrón imposible de regañar.
 
-{NOMBRE_DESTINATARIO}, un hurón con restos de comida cerca del hocico, mira hacia arriba con ojos grandes de inocencia fingida, sentado junto a un plato vacío en una mesa o mostrador.$mMime9a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, con restos de comida cerca del hocico, mira hacia arriba con ojos grandes de inocencia fingida, sentada junto a un plato vacío en una mesa o mostrador.$mMime9a$,
   background_details = $mMime9b$Una cocina o comedor cálido, desenfocado de fondo.$mMime9b$,
   magic_effects = $mMime9c$Pequeñas huellas brillantes y migajas mágicas flotan en el aire, evidenciando el "crimen". La magia debe sentirse juguetona y completamente integrada dentro de una fotografía realista.$mMime9c$,
   lighting_color = $mMime9d$Cálidos, marrones, dorados y tonos de comida.$mMime9d$,
@@ -402,7 +402,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime10a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor tierno, el poder irresistible de una mirada suplicante a la hora de comer.
 
-{NOMBRE_DESTINATARIO}, un perro, está sentado frente a su dueño/a que está comiendo (se distingue parcialmente la mesa y la persona), con la cabeza ligeramente inclinada y ojos grandes y brillantes de súplica tierna.$mMime10a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, está sentada frente a su dueño/a que está comiendo (se distingue parcialmente la mesa y la persona), con la cabeza ligeramente inclinada y ojos grandes y brillantes de súplica tierna.$mMime10a$,
   background_details = $mMime10b$Un comedor cálido, desenfocado de fondo.$mMime10b$,
   magic_effects = $mMime10c$Corazones brillantes y estrellas mágicas flotan alrededor de su cabeza, simbolizando su poder de manipulación adorable. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$mMime10c$,
   lighting_color = $mMime10d$Cálidos, dorados y marrones.$mMime10d$,
@@ -415,7 +415,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime11a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite energía explosiva y humor, el ritual caótico y adorable después de cada baño.
 
-{NOMBRE_DESTINATARIO}, un perro, corre a toda velocidad por la casa con el pelaje mojado, gotas de agua volando, orejas al viento y expresión de euforia total.$mMime11a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, corre a toda velocidad por la casa con el pelaje mojado, gotas de agua volando, orejas al viento y expresión de euforia total.$mMime11a$,
   background_details = $mMime11b$Un pasillo o sala de casa, con una toalla tirada de fondo.$mMime11b$,
   magic_effects = $mMime11c$Rayos de velocidad brillantes y gotas de agua mágicas congeladas en el aire acompañan su carrera. La magia debe sentirse enérgica y completamente integrada dentro de una fotografía realista.$mMime11c$,
   lighting_color = $mMime11d$Azules del agua, blancos brillantes, sensación de movimiento dinámico.$mMime11d$,
@@ -428,7 +428,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime12a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra el humor espontáneo de una mascota con un talento único para las expresiones cómicas.
 
-Collage fotorrealista de 3-4 expresiones faciales cómicas de {NOMBRE_DESTINATARIO}, una gata: lengua de lado, ojos entrecerrados, orejas en posiciones graciosas, boca entreabierta en gesto torcido. Cada expresión enmarcada con un borde dorado brillante tipo polaroid mágica.$mMime12a$,
+Collage fotorrealista de 3-4 expresiones faciales cómicas de {NOMBRE_DESTINATARIO}, su fiel mascota: lengua de lado, ojos entrecerrados, orejas en posiciones graciosas, boca entreabierta en gesto torcido. Cada expresión enmarcada con un borde dorado brillante tipo polaroid mágica.$mMime12a$,
   background_details = $mMime12b$Un fondo neutro y cálido, con destellos de estrellas flotando alrededor.$mMime12b$,
   magic_effects = $mMime12c$Pequeñas estrellas y destellos de risa flotan entre los recuadros. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$mMime12c$,
   lighting_color = $mMime12d$Vibrantes, dorados y tonos cálidos.$mMime12d$,
@@ -441,7 +441,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime13a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite espíritu aventurero y compañerismo, la certeza de que cada camino es mejor acompañado.
 
-{NOMBRE_DESTINATARIO}, un perro, camina con paso seguro y feliz junto a su dueño/a (se distingue parcialmente) por un sendero de bosque o playa al atardecer, mirando hacia adelante con expresión de explorador.$mMime13a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, camina con paso seguro y feliz junto a su dueño/a (se distingue parcialmente) por un sendero de bosque o playa al atardecer, mirando hacia adelante con expresión de exploradora.$mMime13a$,
   background_details = $mMime13b$Un sendero natural al atardecer, luz dorada iluminando la escena.$mMime13b$,
   magic_effects = $mMime13c$Un camino brillante mágico se extiende hacia el horizonte, con una brújula mágica y estrellas de viaje sutiles. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$mMime13c$,
   lighting_color = $mMime13d$Dorados, naranjas y verdes naturales de atardecer.$mMime13d$,
@@ -454,7 +454,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime14a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite lealtad constante, la presencia fiel de una mascota en cada circunstancia de la vida.
 
-{NOMBRE_DESTINATARIO}, una gata, aparece sentada fielmente junto a su dueño/a en distintos momentos sutilmente sugeridos dentro de la misma escena continua, manteniendo siempre la misma expresión leal y presente.$mMime14a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, aparece sentada fielmente junto a su dueño/a en distintos momentos sutilmente sugeridos dentro de la misma escena continua, manteniendo siempre la misma expresión leal y presente.$mMime14a$,
   background_details = $mMime14b$Un ambiente hogareño cálido que sutilmente evoca distintos momentos del día.$mMime14b$,
   magic_effects = $mMime14c$Un hilo dorado brillante conecta visualmente la escena, simbolizando lealtad constante. La magia debe sentirse reconfortante y completamente integrada dentro de una fotografía realista.$mMime14c$,
   lighting_color = $mMime14d$Tonos cálidos unificados por una luz dorada constante.$mMime14d$,
@@ -467,7 +467,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime15a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite protección heroica, la nobleza silenciosa de una mascota que vigila con devoción.
 
-{NOMBRE_DESTINATARIO}, un perro, se posiciona de forma protectora frente a su dueño/a (se distingue parcialmente detrás de él), con postura alerta, mirada vigilante y noble, orejas atentas.$mMime15a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, se posiciona de forma protectora frente a su dueño/a (se distingue parcialmente detrás de ella), con postura alerta, mirada vigilante y noble, orejas atentas.$mMime15a$,
   background_details = $mMime15b$Un fondo neutro con luz dramática tipo héroe iluminando a {NOMBRE_DESTINATARIO} desde atrás.$mMime15b$,
   magic_effects = $mMime15c$Un escudo mágico dorado translúcido y brillante envuelve suavemente su silueta, simbolizando protección. La magia debe sentirse noble y completamente integrada dentro de una fotografía realista.$mMime15c$,
   lighting_color = $mMime15d$Dorados intensos, azules nobles y luz dramática.$mMime15d$,
@@ -480,9 +480,9 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime16a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite libertad e ingravidez mágica, el vuelo compartido de quien te enseña a soñar.
 
-{NOMBRE_DESTINATARIO}, un loro de plumaje colorido, vuela junto a su dueño/a, quien también flota suavemente en el aire dentro de una sala de estar (se distingue parcialmente su silueta), ambos con expresión de alegría y libertad.$mMime16a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, flota mágicamente en el aire junto a su dueño/a, quien también flota suavemente dentro de una sala de estar (se distingue parcialmente su silueta), ambos con expresión de alegría y libertad.$mMime16a$,
   background_details = $mMime16b$Una sala de estar con una ventana grande que muestra un cielo estrellado imposible con galaxias visibles, libros y objetos cotidianos flotando alrededor.$mMime16b$,
-  magic_effects = $mMime16c$Mariposas luminosas multicolores flotan alrededor mientras plumas brillantes se desprenden suavemente de {NOMBRE_DESTINATARIO}. La magia debe sentirse onírica y completamente integrada dentro de una fotografía realista.$mMime16c$,
+  magic_effects = $mMime16c$Mariposas luminosas multicolores flotan alrededor mientras pequeños destellos dorados se desprenden suavemente de {NOMBRE_DESTINATARIO}. La magia debe sentirse onírica y completamente integrada dentro de una fotografía realista.$mMime16c$,
   lighting_color = $mMime16d$Azules profundos, púrpuras, dorados y plateados brillantes.$mMime16d$,
   poem_template = $mMime16e$Con {NOMBRE_DESTINATARIO} a mi lado, desafío la gravedad, juntos hemos despegado, hacia nuestra libertad.
 No hay cielo que nos detenga, ni límite que alcanzar, su espíritu me sostiene, y me enseña a soñar.
@@ -493,7 +493,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime17a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra el heroísmo cotidiano de una mascota leal, un poder que no necesita disfraz.
 
-{NOMBRE_DESTINATARIO}, un hurón, posa en actitud heroica (pecho hacia adelante, postura orgullosa), con una capa translúcida de energía brillante flotando dramáticamente detrás. Su dueño/a lo mira con admiración y sonrisa (se distingue parcialmente).$mMime17a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, posa en actitud heroica (pecho hacia adelante, postura orgullosa), con una capa translúcida de energía brillante flotando dramáticamente detrás. Su dueño/a lo mira con admiración y sonrisa (se distingue parcialmente).$mMime17a$,
   background_details = $mMime17b$Un fondo con efectos sutiles de cómic integrados (estrellas de impacto, líneas de velocidad).$mMime17b$,
   magic_effects = $mMime17c$Rayos de luz dorada salen de sus patas como superpoderes, con relámpagos de energía y un símbolo heroico brillante en su pecho. La magia debe sentirse poderosa y completamente integrada dentro de una fotografía realista.$mMime17c$,
   lighting_color = $mMime17d$Azules eléctricos, rojos intensos y dorados brillantes.$mMime17d$,
@@ -506,7 +506,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime18a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite asombro cotidiano, la magia de una mascota que transforma lo simple en maravilloso.
 
-{NOMBRE_DESTINATARIO}, un cuy (conejillo de indias), corretea felizmente por una cocina cotidiana donde los objetos se transforman mágicamente a su paso, dejando pequeñas huellas de estrellas doradas brillantes.$mMime18a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, corretea felizmente por una cocina cotidiana donde los objetos se transforman mágicamente a su paso, dejando pequeñas huellas de estrellas doradas brillantes.$mMime18a$,
   background_details = $mMime18b$Una cocina hogareña donde el plato de comida brilla como oro fundido y la luz del sol se convierte en rayos arcoíris.$mMime18b$,
   magic_effects = $mMime18c$Burbujas de agua flotan como diminutos planetas con anillos y flores luminosas crecen de sus huellas. La magia debe sentirse maravillosa y completamente integrada dentro de una fotografía realista.$mMime18c$,
   lighting_color = $mMime18d$Dorados, arcoíris pastel y brillos plateados.$mMime18d$,
@@ -519,7 +519,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime19a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite sanación y esperanza, la luz reconfortante de una mascota en los momentos más grises.
 
-{NOMBRE_DESTINATARIO}, una gata, brilla suavemente con una luz interior dorada y blanca cálida, acercándose con ternura a su dueño/a sentado con expresión melancólica (se distingue parcialmente), tocándolo suavemente.$mMime19a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, brilla suavemente con una luz interior dorada y blanca cálida, acercándose con ternura a su dueño/a sentado con expresión melancólica (se distingue parcialmente), tocándolo suavemente.$mMime19a$,
   background_details = $mMime19b$Un ambiente donde sombras oscuras alrededor se disuelven al contacto con la luz de {NOMBRE_DESTINATARIO}.$mMime19b$,
   magic_effects = $mMime19c$Mariposas luminosas nacen de los rayos de luz que emanan de ella. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$mMime19c$,
   lighting_color = $mMime19d$Contraste de grises y azules profundos transformándose en dorados cálidos y blancos brillantes.$mMime19d$,
@@ -533,7 +533,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mMime20a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite aventura épica e infinita, la certeza de que cada día con esta mascota es un mundo nuevo por descubrir.
 
-{NOMBRE_DESTINATARIO}, un loro posado sobre el hombro de su dueño/a (se distingue parcialmente), avanza junto a él hacia un portal dimensional circular brillante que se abre en medio de la sala de estar, con las alas ligeramente extendidas de emoción.$mMime20a$,
+{NOMBRE_DESTINATARIO}, su fiel mascota, avanza junto a su dueño/a (se distingue parcialmente) hacia un portal dimensional circular brillante que se abre en medio de la sala de estar, con expresión de emoción pura.$mMime20a$,
   background_details = $mMime20b$Un lado del portal muestra la casa normal; el otro revela un mundo de fantasía épico con montañas flotantes, cascadas de estrellas líquidas y un cielo con múltiples lunas.$mMime20b$,
   magic_effects = $mMime20c$Ondas dimensionales rodean el portal y luz mágica emana del otro mundo. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$mMime20c$,
   lighting_color = $mMime20d$Contraste entre tonos cálidos hogareños y colores fantásticos vibrantes (púrpuras, verdes neón, azules eléctricos).$mMime20d$,
@@ -547,7 +547,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Mi_mejor_amigo_del_
 UPDATE personalized_templates SET
   scene_visual = $mNues1a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la calidez entrañable de la cercanía física compartida, el recuerdo vivo de un lugar favorito que nunca cambiaba.
 
-Ligeramente descentrada, {NOMBRE_DEDICANTE} está sentada en un sofá con ropa cómoda, expresión serena y nostálgica, acariciando suavemente la cabeza de {NOMBRE_DESTINATARIO}, un perro acurrucado junto a ella con la cabeza apoyada en su regazo, ojos entrecerrados de calma.$mNues1a$,
+Ligeramente descentrado/a, {NOMBRE_DEDICANTE} está sentado/a en un sofá con ropa cómoda, expresión serena y nostálgica, acariciando suavemente la cabeza de {NOMBRE_DESTINATARIO}, su fiel mascota, acurrucada junto a {NOMBRE_DEDICANTE} con la cabeza apoyada en su regazo, ojos entrecerrados de calma.$mNues1a$,
   background_details = $mNues1b$Un interior acogedor de sala o dormitorio, mantas suaves y cojines, luz cálida de atardecer entrando por la ventana.$mNues1b$,
   magic_effects = $mNues1c$Un halo de luz dorada tenue envuelve suavemente a ambos, como un recuerdo que sigue vivo. La magia debe sentirse sutil y completamente integrada dentro de una fotografía realista.$mNues1c$,
   lighting_color = $mNues1d$Dorados, beige y crema cálidos, luz suave de atardecer.$mNues1d$,
@@ -563,7 +563,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues2a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la alegría compartida de una rutina diaria convertida en pequeña aventura.
 
-{NOMBRE_DEDICANTE} camina por un sendero con sonrisa amplia, ropa casual, sosteniendo una correa. A su lado, {NOMBRE_DESTINATARIO}, una gata de paso elegante, camina con la cola en alto, mirando alrededor con expresión curiosa y alegre.$mNues2a$,
+{NOMBRE_DEDICANTE} camina por un sendero con sonrisa amplia, ropa casual, sosteniendo una correa. A su lado, {NOMBRE_DESTINATARIO}, su fiel mascota, de paso elegante, camina con la cola en alto, mirando alrededor con expresión curiosa y alegre.$mNues2a$,
   background_details = $mNues2b$Un parque soleado con árboles verdes y flores silvestres, cielo azul con nubes suaves, mañana luminosa.$mNues2b$,
   magic_effects = $mNues2c$Un suave brillo dorado acompaña sus pasos, como una estela de recuerdos felices. La magia debe sentirse sutil y completamente integrada dentro de una fotografía realista.$mNues2c$,
   lighting_color = $mNues2d$Verdes, azules y dorados vibrantes, luz solar cálida.$mNues2d$,
@@ -579,12 +579,12 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues3a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra la alegría desbordante del juego compartido, esa complicidad que hace sentir niño otra vez.
 
-{NOMBRE_DEDICANTE}, agachada y riendo con energía juvenil, lanza un juguete. {NOMBRE_DESTINATARIO}, un perro en plena acción, salta para atraparlo con la lengua afuera y expresión juguetona.$mNues3a$,
+{NOMBRE_DEDICANTE}, agachada y riendo con energía juvenil, lanza un juguete. {NOMBRE_DESTINATARIO}, su fiel mascota, en plena acción, salta para atraparlo con expresión juguetona.$mNues3a$,
   background_details = $mNues3b$Un jardín o sala de estar espaciosa con luz natural brillante, juguetes dispersos sobre el pasto o la alfombra.$mNues3b$,
   magic_effects = $mNues3c$Pequeñas partículas doradas de luz siguen el movimiento del juguete en el aire. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$mNues3c$,
   lighting_color = $mNues3d$Colores brillantes y alegres, luz de día radiante.$mNues3d$,
   poem_template = $mNues3e$Contigo volví a ser niña, sin preocupaciones ni edad, jugábamos con pelotas, con juguetes, con pura felicidad.
-Tu energía era contagiosa, tus ladridos mi canción, cada juego era una fiesta, cada momento una bendición.
+Tu energía era contagiosa, tu alegría mi canción, cada juego era una fiesta, cada momento una bendición.
 Perseguías tu juguete favorito con tanta emoción, y yo corría contigo, compartiendo tu diversión.
 No importaba si estaba cansada o si el día fue largo, contigo, {NOMBRE_DESTINATARIO}, el juego nunca fue un cargo.
 Ahora guardo tus juguetes como tesoros de amor, recuerdos de risas compartidas, de puro esplendor.
@@ -595,7 +595,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues4a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite consuelo profundo, la intuición silenciosa de una mascota que siempre supo cuándo hacía falta un abrazo.
 
-{NOMBRE_DEDICANTE} está sentado con expresión vulnerable pero reconfortada, ojos cerrados. {NOMBRE_DESTINATARIO}, una gata, está acurrucada contra su pecho, cabeza apoyada, ronroneando suavemente mientras él la acaricia.$mNues4a$,
+{NOMBRE_DEDICANTE} está sentado/a con expresión vulnerable pero reconfortada, ojos cerrados. {NOMBRE_DESTINATARIO}, su fiel mascota, está acurrucada contra su pecho, cabeza apoyada, con un sonido suave de calma mientras él la acaricia.$mNues4a$,
   background_details = $mNues4b$Un interior íntimo (dormitorio o sala) con luz tenue y cálida, atmósfera tranquila.$mNues4b$,
   magic_effects = $mNues4c$Un resplandor dorado suave envuelve el abrazo compartido. La magia debe sentirse reconfortante y completamente integrada dentro de una fotografía realista.$mNues4c$,
   lighting_color = $mNues4d$Dorados cálidos y suaves, luz tenue de lámpara o ventana filtrada.$mNues4d$,
@@ -611,14 +611,14 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues5a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la alegría matutina de un ritual diario, el amor que era mejor despertador que cualquier alarma.
 
-{NOMBRE_DEDICANTE} despierta en la cama con sonrisa somnolienta y feliz. {NOMBRE_DESTINATARIO}, un perro sobre la cama junto a ella, cola en movimiento y lengua afuera, la saluda con lamidas emocionadas.$mNues5a$,
+{NOMBRE_DEDICANTE} despierta en la cama con sonrisa somnolienta y feliz. {NOMBRE_DESTINATARIO}, su fiel mascota, sobre la cama junto a {NOMBRE_DEDICANTE}, cola en movimiento, la saluda con expresión emocionada.$mNues5a$,
   background_details = $mNues5b$Un dormitorio al amanecer, luz suave de sol entrando por la ventana, sábanas arrugadas.$mNues5b$,
   magic_effects = $mNues5c$La luz matutina dorada envuelve a ambos con un brillo cálido y vivo. La magia debe sentirse luminosa y completamente integrada dentro de una fotografía realista.$mNues5c$,
   lighting_color = $mNues5d$Dorados, blancos y crema cálidos, luz de amanecer.$mNues5d$,
   poem_template = $mNues5e$Cada mañana comenzaba con tu saludo especial, tus lamidas, tu energía matutinal.
 No necesitaba alarma, tu amor era mi despertar, tu alegría al verme abrir los ojos, mi razón para empezar.
 Saltabas a la cama, me mirabas con emoción, como si cada amanecer fuera una nueva celebración.
-Tu cola moviéndose, tus ladridos de alegría, eran la mejor forma de comenzar cada día.
+Tu cola moviéndose, tus sonidos de alegría, eran la mejor forma de comenzar cada día.
 Ahora las mañanas son más silenciosas, es verdad, pero siento tu espíritu despertándome con tu bondad.
 Me despertabas con amor, y aunque ya no estés aquí, cada mañana te recuerdo, {NOMBRE_DESTINATARIO}, y sonrío por ti.$mNues5e$,
   character_roles = '[{"key":"recipient","count":1},{"key":"dedicator","count":1}]'::jsonb
@@ -627,13 +627,13 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues6a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la sabiduría silenciosa del amor incondicional, esa comunicación que no necesitaba palabras.
 
-{NOMBRE_DEDICANTE} está sentado en el suelo con expresión serena y reflexiva, mirando a {NOMBRE_DESTINATARIO}, una gata sentada junto a él, con los ojos fijos en los de él en un momento de conexión profunda.$mNues6a$,
+{NOMBRE_DEDICANTE} está sentado/a en el suelo con expresión serena y reflexiva, mirando a {NOMBRE_DESTINATARIO}, su fiel mascota, sentada junto a {NOMBRE_DEDICANTE}, con los ojos fijos en los suyos en un momento de conexión profunda.$mNues6a$,
   background_details = $mNues6b$Un jardín al atardecer con luz dorada suave, atmósfera tranquila y contemplativa.$mNues6b$,
   magic_effects = $mNues6c$Un brillo dorado tenue conecta sutilmente sus miradas. La magia debe sentirse contemplativa y completamente integrada dentro de una fotografía realista.$mNues6c$,
   lighting_color = $mNues6d$Dorados, naranjas suaves y verdes cálidos de atardecer.$mNues6d$,
   poem_template = $mNues6e$Nunca dijiste "te quiero" con palabras, es verdad, pero tu amor lo sentí en cada gesto, en cada lealtad.
 Tu mirada lo decía todo, tu presencia era mi hogar, no necesitabas hablar para hacerme amar.
-Cada movimiento de cola, cada ronroneo suave, cada vez que me buscabas, cada momento clave.
+Cada movimiento de cola, cada suspiro suave, cada vez que me buscabas, cada momento clave.
 Me enseñaste que el amor más puro no necesita voz, solo presencia, fidelidad, y un corazón feroz.
 Ahora que no estás, escucho tu silencio amoroso, en cada recuerdo tuyo, en cada instante hermoso.
 Me enseñaste que el amor trasciende las palabras, y ese amor, {NOMBRE_DESTINATARIO}, en mi alma nunca se apaga.$mNues6e$,
@@ -643,7 +643,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues7a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite espíritu aventurero, la certeza de que cada viaje era mejor compartido.
 
-{NOMBRE_DEDICANTE} está de pie en una playa, ropa de aventura, expresión emocionada y libre, brazos abiertos hacia el horizonte. {NOMBRE_DESTINATARIO}, un perro junto a ella, olfatea el aire con la cola levantada y expresión curiosa.$mNues7a$,
+{NOMBRE_DEDICANTE} está de pie en una playa, ropa de aventura, expresión emocionada y libre, brazos abiertos hacia el horizonte. {NOMBRE_DESTINATARIO}, su fiel mascota, junto a {NOMBRE_DEDICANTE}, olfatea el aire con la cola levantada y expresión curiosa.$mNues7a$,
   background_details = $mNues7b$Una playa soleada con olas y cielo azul, día claro y luminoso.$mNues7b$,
   magic_effects = $mNues7c$Un brillo dorado sutil bordea el horizonte, como una promesa de aventuras compartidas. La magia debe sentirse expansiva y completamente integrada dentro de una fotografía realista.$mNues7c$,
   lighting_color = $mNues7d$Azules, verdes y dorados vivos, luz solar brillante.$mNues7d$,
@@ -659,7 +659,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues8a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite humor tierno, ese ritual diario de compartir comida sin poder resistirse a la mirada suplicante.
 
-{NOMBRE_DEDICANTE} está sentado a la mesa con un plato de comida, expresión divertida y cariñosa, sosteniendo un bocado en la mano. Frente a él, {NOMBRE_DESTINATARIO}, una gata con mirada fija e intensa, espera pacientemente sentada.$mNues8a$,
+{NOMBRE_DEDICANTE} está sentado/a a la mesa con un plato de comida, expresión divertida y cariñosa, sosteniendo un bocado en la mano. Frente a él, {NOMBRE_DESTINATARIO}, su fiel mascota, con mirada fija e intensa, espera pacientemente sentada.$mNues8a$,
   background_details = $mNues8b$Una cocina o comedor hogareño con luz natural cálida.$mNues8b$,
   magic_effects = $mNues8c$Un pequeño destello dorado resalta el bocado ofrecido, como un ritual amoroso cotidiano. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$mNues8c$,
   lighting_color = $mNues8d$Cálidos, dorados y marrones acogedores.$mNues8d$,
@@ -675,12 +675,12 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues9a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra la valentía silenciosa de un guardián leal que cuidaba el hogar con devoción.
 
-{NOMBRE_DEDICANTE} está de pie junto a la entrada de la casa, con la mano apoyada sobre {NOMBRE_DESTINATARIO}, un perro en posición alerta y protectora, orejas levantadas, postura firme.$mNues9a$,
+{NOMBRE_DEDICANTE} está de pie junto a la entrada de la casa, con la mano apoyada sobre {NOMBRE_DESTINATARIO}, su fiel mascota, en posición alerta y protectora, orejas levantadas, postura firme.$mNues9a$,
   background_details = $mNues9b$La entrada de una casa o jardín frontal al atardecer, luz de porche encendida.$mNues9b$,
   magic_effects = $mNues9c$Un halo dorado tenue rodea a {NOMBRE_DESTINATARIO}, como un escudo protector invisible. La magia debe sentirse noble y completamente integrada dentro de una fotografía realista.$mNues9c$,
   lighting_color = $mNues9d$Cálidos con toques dramáticos, dorados y ámbar.$mNues9d$,
   poem_template = $mNues9e$Eras el guardián de nuestro hogar, valiente y leal, cada ruido extraño te ponía en alerta total.
-Ladrabas para protegernos, para hacernos saber, que mientras estuvieras tú, nada malo iba a suceder.
+Alertabas para protegernos, para hacernos saber, que mientras estuvieras tú, nada malo iba a suceder.
 Tu valentía no conocía límites, tu amor era tu escudo, protegías a tu familia con un corazón puro y desnudo.
 No importaba tu tamaño, tu espíritu era gigante, eras nuestro protector, nuestro guerrero constante.
 Ahora que no estás, siento tu presencia vigilante, como un ángel guardián, siempre adelante.
@@ -691,7 +691,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues10a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra con humor la picardía entrañable de una mascota traviesa, esos desastres que terminaban siempre en risas.
 
-{NOMBRE_DEDICANTE} está de pie con expresión de risa genuina mezclada con falsa exasperación, manos en la cabeza. {NOMBRE_DESTINATARIO}, una gata, está en medio de un pequeño desastre de cojines y objetos dispersos, con expresión traviesa e inocente.$mNues10a$,
+{NOMBRE_DEDICANTE} está de pie con expresión de risa genuina mezclada con falsa exasperación, manos en la cabeza. {NOMBRE_DESTINATARIO}, su fiel mascota, está en medio de un pequeño desastre de cojines y objetos dispersos, con expresión traviesa e inocente.$mNues10a$,
   background_details = $mNues10b$Una sala de estar con cojines desparramados y objetos dispersos, luz natural brillante.$mNues10b$,
   magic_effects = $mNues10c$Pequeñas partículas doradas y brillantes flotan sobre el desorden, como si la travesura misma brillara. La magia debe sentirse divertida y completamente integrada dentro de una fotografía realista.$mNues10c$,
   lighting_color = $mNues10d$Colores brillantes y alegres, luz de interior cálida.$mNues10d$,
@@ -707,7 +707,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues11a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra la alegría compartida de las festividades, esos momentos en que la mascota era parte esencial de la familia.
 
-{NOMBRE_DEDICANTE} está sentada junto a {NOMBRE_DESTINATARIO}, un gato con una pequeña bandana festiva, ambos con expresión de alegría genuina rodeados de decoraciones.$mNues11a$,
+{NOMBRE_DEDICANTE} está sentado/a junto a {NOMBRE_DESTINATARIO}, su fiel mascota, con una pequeña bandana festiva, ambos con expresión de alegría genuina rodeados de decoraciones.$mNues11a$,
   background_details = $mNues11b$Una sala decorada para una celebración (cumpleaños o Navidad), luces cálidas y guirnaldas.$mNues11b$,
   magic_effects = $mNues11c$Pequeñas luces doradas festivas flotan suavemente en el aire. La magia debe sentirse festiva y completamente integrada dentro de una fotografía realista.$mNues11c$,
   lighting_color = $mNues11d$Vibrantes y alegres, dorados y colores festivos cálidos.$mNues11d$,
@@ -723,7 +723,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues12a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la emoción pura del reencuentro diario, esa bienvenida que transformaba cualquier día difícil.
 
-{NOMBRE_DEDICANTE} entra por la puerta con expresión de felicidad anticipada, agachándose para recibir a {NOMBRE_DESTINATARIO}, una gata que corre hacia él frotándose contra sus piernas con la cola en alto, ronroneando de alegría.$mNues12a$,
+{NOMBRE_DEDICANTE} entra por la puerta con expresión de felicidad anticipada, agachándose para recibir a {NOMBRE_DESTINATARIO}, su fiel mascota, que corre hacia él dando saltos de alegría, con la cola en movimiento constante.$mNues12a$,
   background_details = $mNues12b$La entrada de una casa acogedora, luz cálida de hogar.$mNues12b$,
   magic_effects = $mNues12c$Un destello dorado cálido acompaña el momento del reencuentro. La magia debe sentirse emotiva y completamente integrada dentro de una fotografía realista.$mNues12c$,
   lighting_color = $mNues12d$Cálidos, dorados intensos de bienvenida.$mNues12d$,
@@ -739,7 +739,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues13a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite compañía silenciosa y sanadora, esa presencia que llenaba los momentos de soledad sin necesidad de palabras.
 
-{NOMBRE_DEDICANTE} está sentada junto a una ventana, expresión reflexiva pero reconfortada, acariciando suavemente a {NOMBRE_DESTINATARIO}, un gato acurrucado junto a ella con la cabeza apoyada en su regazo.$mNues13a$,
+{NOMBRE_DEDICANTE} está sentado/a junto a una ventana, expresión reflexiva pero reconfortada, acariciando suavemente a {NOMBRE_DESTINATARIO}, su fiel mascota, acurrucada junto a {NOMBRE_DEDICANTE} con la cabeza apoyada en su regazo.$mNues13a$,
   background_details = $mNues13b$Un interior tranquilo con luz tenue de atardecer, ventana con vista exterior.$mNues13b$,
   magic_effects = $mNues13c$Un resplandor dorado suave envuelve el momento de compañía silenciosa. La magia debe sentirse sanadora y completamente integrada dentro de una fotografía realista.$mNues13c$,
   lighting_color = $mNues13d$Suaves y apagados, grises, azules y dorados tenues.$mNues13d$,
@@ -755,7 +755,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues14a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite nostalgia amorosa, el consuelo de los recuerdos que mantienen viva la presencia de quien ya no está físicamente.
 
-{NOMBRE_DEDICANTE} está sentado con un álbum de fotos abierto en las manos, expresión de sonrisa nostálgica y ojos brillantes, tocando las fotos con ternura. Junto a él, de forma etérea y translúcida, aparece {NOMBRE_DESTINATARIO}, una gata que mira a {NOMBRE_DEDICANTE} con amor, como un espíritu presente.$mNues14a$,
+{NOMBRE_DEDICANTE} está sentado/a con un álbum de fotos abierto en las manos, expresión de sonrisa nostálgica y ojos brillantes, tocando las fotos con ternura. Junto a él, de forma etérea y translúcida, aparece {NOMBRE_DESTINATARIO}, su fiel mascota, que mira a {NOMBRE_DEDICANTE} con amor, como un espíritu presente.$mNues14a$,
   background_details = $mNues14b$Un interior cálido con fotos enmarcadas visibles, luz dorada suave y nostálgica.$mNues14b$,
   magic_effects = $mNues14c$Una luz dorada suave envuelve la silueta translúcida de {NOMBRE_DESTINATARIO}, conectando el pasado con el presente. La magia debe sentirse tierna y completamente integrada dentro de una fotografía realista.$mNues14c$,
   lighting_color = $mNues14d$Cálidos, dorados suaves y nostálgicos.$mNues14d$,
@@ -771,7 +771,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues15a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra la lección de vivir el presente con plenitud, esa filosofía simple que solo una mascota puede enseñar sin palabras.
 
-{NOMBRE_DEDICANTE} corre con los brazos abiertos, cabello al viento, expresión de alegría pura y libertad. Junto a ella, {NOMBRE_DESTINATARIO}, un gato de paso ágil, corre con energía y expresión de felicidad absoluta.$mNues15a$,
+{NOMBRE_DEDICANTE} corre con los brazos abiertos, cabello al viento, expresión de alegría pura y libertad. Junto a ella, {NOMBRE_DESTINATARIO}, su fiel mascota, de paso ágil, corre con energía y expresión de felicidad absoluta.$mNues15a$,
   background_details = $mNues15b$Un campo abierto vibrante con hierba alta y flores silvestres, cielo azul brillante.$mNues15b$,
   magic_effects = $mNues15c$Pequeñas partículas doradas de luz siguen su movimiento libre. La magia debe sentirse vital y completamente integrada dentro de una fotografía realista.$mNues15c$,
   lighting_color = $mNues15d$Vibrantes y saturados, dorados y verdes brillantes.$mNues15d$,
@@ -787,7 +787,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues16a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite amor trascendental, la certeza de que un cariño puro puede seguir presente más allá de lo físico.
 
-{NOMBRE_DEDICANTE} está arrodillado con expresión de gratitud profunda, manos sobre el corazón. Rodeándolo con una suave luz dorada, aparece {NOMBRE_DESTINATARIO}, una gata de forma etérea y translúcida, mirando a {NOMBRE_DEDICANTE} con postura protectora y amorosa, como un ángel guardián.$mNues16a$,
+{NOMBRE_DEDICANTE} está arrodillado/a con expresión de gratitud profunda, manos sobre el corazón. Rodeándolo con una suave luz dorada, aparece {NOMBRE_DESTINATARIO}, su fiel mascota, de forma etérea y translúcida, mirando a {NOMBRE_DEDICANTE} con postura protectora y amorosa, como un ángel guardián.$mNues16a$,
   background_details = $mNues16b$Un jardín sereno al atardecer, atmósfera de paz profunda.$mNues16b$,
   magic_effects = $mNues16c$Luz dorada suave envolvente y partículas de luz flotando alrededor de ambos. La magia debe sentirse trascendental y completamente integrada dentro de una fotografía realista.$mNues16c$,
   lighting_color = $mNues16d$Dorados y blancos suaves, luz mística reconfortante.$mNues16d$,
@@ -803,7 +803,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues17a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la comunicación profunda de la quietud compartida, esos silencios que decían más que mil palabras.
 
-{NOMBRE_DEDICANTE} está sentada en un muelle, expresión serena y contemplativa, mirando hacia el horizonte. Junto a ella, {NOMBRE_DESTINATARIO}, un gato sentado en la misma postura tranquila, mira en la misma dirección con expresión sabia.$mNues17a$,
+{NOMBRE_DEDICANTE} está sentado/a en un muelle, expresión serena y contemplativa, mirando hacia el horizonte. Junto a ella, {NOMBRE_DESTINATARIO}, su fiel mascota, sentada en la misma postura tranquila, mira en la misma dirección con expresión sabia.$mNues17a$,
   background_details = $mNues17b$Un muelle junto a un lago al atardecer, agua tranquila y cielo dorado.$mNues17b$,
   magic_effects = $mNues17c$La luz de atardecer dorada envuelve suavemente la escena de quietud compartida. La magia debe sentirse contemplativa y completamente integrada dentro de una fotografía realista.$mNues17c$,
   lighting_color = $mNues17d$Cálidos y suaves, dorados de atardecer sobre el agua.$mNues17d$,
@@ -819,7 +819,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues18a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena celebra el rol de guía silenciosa de una mascota, esas lecciones de amor y lealtad aprendidas sin palabras.
 
-{NOMBRE_DEDICANTE} camina por un sendero con expresión reflexiva y agradecida. Adelante de él, guiando el camino, camina {NOMBRE_DESTINATARIO}, una gata que mira ocasionalmente hacia atrás para asegurarse de que él la sigue, con expresión sabia y protectora.$mNues18a$,
+{NOMBRE_DEDICANTE} camina por un sendero con expresión reflexiva y agradecida. Adelante de él, guiando el camino, camina {NOMBRE_DESTINATARIO}, su fiel mascota, que mira ocasionalmente hacia atrás para asegurarse de que él la sigue, con expresión sabia y protectora.$mNues18a$,
   background_details = $mNues18b$Un sendero de bosque con luz filtrada entre los árboles, rayos de luz visibles.$mNues18b$,
   magic_effects = $mNues18c$Rayos de luz dorada se filtran entre las hojas, iluminando el camino compartido. La magia debe sentirse mística y completamente integrada dentro de una fotografía realista.$mNues18c$,
   lighting_color = $mNues18d$Verdes y dorados místicos, luz filtrada de bosque.$mNues18d$,
@@ -835,8 +835,8 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues19a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la calidez de un hogar construido por el amor de una mascota, esa presencia que transformaba cuatro paredes en un santuario.
 
-{NOMBRE_DEDICANTE} está de pie en la sala, tocando con ternura la camita y los juguetes de {NOMBRE_DESTINATARIO}. Cerca de ella, de forma etérea y suave, aparece {NOMBRE_DESTINATARIO}, un gato que mira a {NOMBRE_DEDICANTE} mientras su presencia translúcida llena el espacio de calidez.$mNues19a$,
-  background_details = $mNues19b$Una sala acogedora con la camita y juguetes del gato visibles, luz cálida de lámparas.$mNues19b$,
+{NOMBRE_DEDICANTE} está de pie en la sala, tocando con ternura la camita y los juguetes de {NOMBRE_DESTINATARIO}. Cerca de ella, de forma etérea y suave, aparece {NOMBRE_DESTINATARIO}, su fiel mascota, que mira a {NOMBRE_DEDICANTE} mientras su presencia translúcida llena el espacio de calidez.$mNues19a$,
+  background_details = $mNues19b$Una sala acogedora con la camita y los juguetes de {NOMBRE_DESTINATARIO} visibles, luz cálida de lámparas.$mNues19b$,
   magic_effects = $mNues19c$Una luz dorada suave envuelve la presencia etérea de {NOMBRE_DESTINATARIO}, integrándose naturalmente al hogar. La magia debe sentirse cálida y completamente integrada dentro de una fotografía realista.$mNues19c$,
   lighting_color = $mNues19d$Marrones, beige y dorados cálidos de hogar.$mNues19d$,
   poem_template = $mNues19e$Una casa es solo un lugar, cuatro paredes y un techo, pero tú la convertiste en hogar, con tu amor hecho y derecho.
@@ -851,7 +851,7 @@ WHERE template_preview_key = 'IA_Books/Pet_Books_Page/Libros/Nuestro_Angel_De_4_
 UPDATE personalized_templates SET
   scene_visual = $mNues20a$Una única fotografía continua que fluye de lado a lado del lienzo. La escena transmite la promesa de un reencuentro eterno, el amor que trasciende la distancia entre la vida y lo que sigue después.
 
-{NOMBRE_DEDICANTE} está de pie en el inicio de un puente arcoíris etéreo, mano extendida hacia adelante, expresión de amor eterno y esperanza. Al otro extremo del puente, rodeada de luz dorada brillante, aparece {NOMBRE_DESTINATARIO}, una gata con expresión de amor puro, mirando hacia {NOMBRE_DEDICANTE} con espera paciente.$mNues20a$,
+{NOMBRE_DEDICANTE} está de pie en el inicio de un puente arcoíris etéreo, mano extendida hacia adelante, expresión de amor eterno y esperanza. Al otro extremo del puente, rodeada de luz dorada brillante, aparece {NOMBRE_DESTINATARIO}, su fiel mascota, con expresión de amor puro, mirando hacia {NOMBRE_DEDICANTE} con espera paciente.$mNues20a$,
   background_details = $mNues20b$Un puente arcoíris vibrante conectando tierra y cielo, nubes doradas y luz celestial.$mNues20b$,
   magic_effects = $mNues20c$Una corriente de luz dorada fluye entre ambos a través del puente, como una promesa de reencuentro. La magia debe sentirse esperanzadora y completamente integrada dentro de una fotografía realista.$mNues20c$,
   lighting_color = $mNues20d$Vibrantes colores de arcoíris y dorados intensos, luz celestial.$mNues20d$,
