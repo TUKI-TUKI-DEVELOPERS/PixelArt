@@ -79,6 +79,10 @@ export async function runSeed(): Promise<void> {
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS custom_height_cm NUMERIC(5,1)`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS cover_type TEXT`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS rush_fee_cents BIGINT NOT NULL DEFAULT 0`);
+    await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_city TEXT`);
+    await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_department TEXT`);
+    await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_region TEXT`);
+    await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS desired_delivery_date DATE`);
     // calculated_total_cents ya no es price_per_page_cents * page_count (ver photobook-pricing.service.ts)
     await client.query(`ALTER TABLE photobook_projects DROP CONSTRAINT IF EXISTS chk_photobook_projects_total`);
 

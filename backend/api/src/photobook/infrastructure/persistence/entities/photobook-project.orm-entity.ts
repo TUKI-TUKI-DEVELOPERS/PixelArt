@@ -26,6 +26,18 @@ export class PhotobookProjectOrmEntity {
   @Column({ name: 'delivery_district', type: 'text', nullable: true })
   deliveryDistrict!: string | null;
 
+  @Column({ name: 'delivery_city', type: 'text', nullable: true })
+  deliveryCity!: string | null;
+
+  @Column({ name: 'delivery_department', type: 'text', nullable: true })
+  deliveryDepartment!: string | null;
+
+  @Column({ name: 'delivery_region', type: 'text', nullable: true })
+  deliveryRegion!: string | null;
+
+  @Column({ name: 'desired_delivery_date', type: 'date', nullable: true })
+  desiredDeliveryDate!: string | null;
+
   @Column({ name: 'cover_title', type: 'text', nullable: true })
   coverTitle!: string | null;
 

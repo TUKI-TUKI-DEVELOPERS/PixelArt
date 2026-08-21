@@ -11,6 +11,10 @@ export type CreateProjectData = {
   customerPhone: string;
   deliveryAddress: string;
   deliveryDistrict?: string;
+  deliveryCity?: string;
+  deliveryDepartment?: string;
+  deliveryRegion?: string;
+  desiredDeliveryDate?: string;
   coverTitle?: string;
   customerDni?: string;
   customWidthCm?: number;
@@ -33,6 +37,10 @@ export type ProjectRecord = {
   customerPhone: string | null;
   deliveryAddress: string | null;
   deliveryDistrict: string | null;
+  deliveryCity: string | null;
+  deliveryDepartment: string | null;
+  deliveryRegion: string | null;
+  desiredDeliveryDate: string | null;
   coverTitle: string | null;
   customerDni: string | null;
   customWidthCm: number | null;

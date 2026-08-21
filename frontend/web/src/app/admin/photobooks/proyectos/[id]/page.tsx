@@ -8,7 +8,9 @@ const API = "";
 
 type ProjectDetail = {
   id: number; customerFullName: string | null; customerEmail: string; customerPhone: string | null;
-  deliveryAddress: string | null; deliveryDistrict: string | null; coverTitle: string | null;
+  deliveryAddress: string | null; deliveryDistrict: string | null;
+  deliveryCity: string | null; deliveryDepartment: string | null; deliveryRegion: string | null; desiredDeliveryDate: string | null;
+  coverTitle: string | null;
   customerDni: string | null; customWidthCm: number | null; customHeightCm: number | null;
   photobookThemeId: number; photobookProductId: number; pageCount: number; calculatedTotalCents: number;
   pricePerPageCents: number; status: string; orderId: number | null; hasPaymentProof: boolean;
@@ -127,11 +129,12 @@ export default function ProyectoDetallePage() {
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Datos del cliente</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)" }}>
           {[
             { label: "Email",          value: data.customerEmail },
             { label: "Teléfono",       value: data.customerPhone ?? "—" },
-            { label: "Dirección",      value: [data.deliveryAddress, data.deliveryDistrict].filter(Boolean).join(", ") || "—" },
+            { label: "Dirección",      value: [data.deliveryAddress, data.deliveryDistrict, data.deliveryCity, data.deliveryDepartment, data.deliveryRegion].filter(Boolean).join(", ") || "—" },
+            { label: "Fecha deseada",  value: data.desiredDeliveryDate ?? "—" },
             { label: "Dimensiones",    value: data.customWidthCm && data.customHeightCm ? `${data.customWidthCm} × ${data.customHeightCm} cm` : "Estándar" },
           ].map((field, i, arr) => (
             <div key={field.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
