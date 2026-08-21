@@ -127,11 +127,10 @@ export default function ProyectoDetallePage() {
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Datos del cliente</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
           {[
             { label: "Email",          value: data.customerEmail },
             { label: "Teléfono",       value: data.customerPhone ?? "—" },
-            { label: "DNI",            value: data.customerDni ?? "—" },
             { label: "Dirección",      value: [data.deliveryAddress, data.deliveryDistrict].filter(Boolean).join(", ") || "—" },
             { label: "Dimensiones",    value: data.customWidthCm && data.customHeightCm ? `${data.customWidthCm} × ${data.customHeightCm} cm` : "Estándar" },
           ].map((field, i, arr) => (

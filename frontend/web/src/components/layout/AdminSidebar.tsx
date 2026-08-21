@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const API = "";
 
-type Badges = { demos: number; payments: number };
+type Badges = { demos: number; payments: number; photobooks: number };
 
 const NAV_SECTIONS = [
   {
@@ -24,7 +24,7 @@ const NAV_SECTIONS = [
   {
     title: "Photobooks",
     items: [
-      { label: "Solicitudes Photobooks", href: "/admin/photobooks/proyectos", icon: "camera" },
+      { label: "Solicitudes Photobooks", href: "/admin/photobooks/proyectos", icon: "camera", badgeKey: "photobooks" as keyof Badges },
     ],
   },
   {
@@ -57,18 +57,21 @@ function NavIcon({ name, color }: { name: string; color: string }) {
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [badges, setBadges] = useState<Badges>({ demos: 0, payments: 0 });
+  const [badges, setBadges] = useState<Badges>({ demos: 0, payments: 0, photobooks: 0 });
 
   useEffect(() => {
     Promise.all([
       fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
       fetch(`${API}/api/admin/orders`).then((r) => r.json()).catch(() => []),
-    ]).then(([demosData, ordersData]) => {
-      const demos  = (Array.isArray(demosData)  ? demosData  : demosData.data  ?? []) as { status: string }[];
-      const orders = (Array.isArray(ordersData) ? ordersData : ordersData.data ?? []) as { status: string }[];
+      fetch(`${API}/api/admin/photobook/projects`).then((r) => r.json()).catch(() => []),
+    ]).then(([demosData, ordersData, photobooksData]) => {
+      const demos      = (Array.isArray(demosData)      ? demosData      : demosData.data      ?? []) as { status: string }[];
+      const orders     = (Array.isArray(ordersData)     ? ordersData     : ordersData.data     ?? []) as { status: string }[];
+      const photobooks = (Array.isArray(photobooksData) ? photobooksData : photobooksData.data ?? []) as { status: string }[];
       setBadges({
-        demos:    demos.filter((d) => d.status === "RECEIVED").length,
-        payments: orders.filter((o) => o.status === "UNDER_PAYMENT_REVIEW").length,
+        demos:      demos.filter((d) => d.status === "RECEIVED").length,
+        payments:   orders.filter((o) => o.status === "UNDER_PAYMENT_REVIEW").length,
+        photobooks: photobooks.filter((p) => p.status === "CONFIRMED").length,
       });
     });
   }, [pathname]); // re-fetch al navegar para mantener actualizado

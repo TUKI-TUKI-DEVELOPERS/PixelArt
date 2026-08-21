@@ -10,12 +10,12 @@ import { AssetRepositoryPort } from '../../../assets/domain/ports/asset-reposito
 const PLACEHOLDER_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8+PBhPQAIgAMG+4l0SAAAAABJRU5ErkJggg==';
 
 // Dimensiones por defecto si el producto no tiene dimensiones custom
-const DEFAULT_WIDTH_CM = 21;
-const DEFAULT_HEIGHT_CM = 21;
+const DEFAULT_WIDTH_CM = 22;
+const DEFAULT_HEIGHT_CM = 22;
 
 // Resolución máxima para optimizar memoria (px)
-// 2400px cubre una página de 21cm a 288 DPI (deviceScaleFactor 3 × 96 DPI base)
-const MAX_IMAGE_PX = 2400;
+// 2500px cubre una página de 22cm a 288 DPI (deviceScaleFactor 3 × 96 DPI base)
+const MAX_IMAGE_PX = 2500;
 
 @Injectable()
 export class PhotobookPdfService {

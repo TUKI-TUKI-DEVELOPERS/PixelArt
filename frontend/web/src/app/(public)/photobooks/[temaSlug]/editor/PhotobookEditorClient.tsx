@@ -118,7 +118,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const [coverType, setCoverType] = useState<CoverType>("TAPA_DELGADA");
   const [wantsRush, setWantsRush] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "", customerDni: "", desiredDeliveryDate: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "", desiredDeliveryDate: "" });
   const [customWidth, setCustomWidth] = useState("");
   const [customHeight, setCustomHeight] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -411,16 +411,36 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     });
   }, []);
 
-  // Swap two slots within the same page
-  const handleSwapSlots = useCallback((pageIdx: number, fromSlot: number, toSlot: number) => {
-    if (fromSlot === toSlot) return;
+  // Swap two slots — same page or across different pages. Crop/zoom travels with the photo.
+  const handleSwapSlots = useCallback((fromPageIdx: number, fromSlot: number, toPageIdx: number, toSlot: number) => {
+    if (fromPageIdx === toPageIdx && fromSlot === toSlot) return;
     setPages((prev) => {
       const copy = [...prev];
-      const page = { ...copy[pageIdx], slots: [...copy[pageIdx].slots] };
-      const temp = page.slots[fromSlot];
-      page.slots[fromSlot] = page.slots[toSlot];
-      page.slots[toSlot] = temp;
-      copy[pageIdx] = page;
+      const fromPageOrig = copy[fromPageIdx];
+      const toPageOrig = copy[toPageIdx];
+      const fromPhoto = fromPageOrig.slots[fromSlot];
+      const toPhoto = toPageOrig.slots[toSlot];
+      const fromPos = fromPageOrig.slotPositions?.[fromSlot];
+      const toPos = toPageOrig.slotPositions?.[toSlot];
+
+      const newFromPage = { ...fromPageOrig, slots: [...fromPageOrig.slots], slotPositions: { ...fromPageOrig.slotPositions } };
+      newFromPage.slots[fromSlot] = toPhoto;
+      if (toPos !== undefined) newFromPage.slotPositions[fromSlot] = toPos;
+      else delete newFromPage.slotPositions[fromSlot];
+
+      if (fromPageIdx === toPageIdx) {
+        newFromPage.slots[toSlot] = fromPhoto;
+        if (fromPos !== undefined) newFromPage.slotPositions[toSlot] = fromPos;
+        else delete newFromPage.slotPositions[toSlot];
+        copy[fromPageIdx] = newFromPage;
+      } else {
+        const newToPage = { ...toPageOrig, slots: [...toPageOrig.slots], slotPositions: { ...toPageOrig.slotPositions } };
+        newToPage.slots[toSlot] = fromPhoto;
+        if (fromPos !== undefined) newToPage.slotPositions[toSlot] = fromPos;
+        else delete newToPage.slotPositions[toSlot];
+        copy[fromPageIdx] = newFromPage;
+        copy[toPageIdx] = newToPage;
+      }
       return copy;
     });
   }, []);
@@ -449,11 +469,16 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     });
   }
 
-  // #8 Duplicate page
+  // #8 Duplicate page (only the layout, not the photos already placed)
   function handleDuplicatePage(pageIdx: number) {
     setPages((prev) => {
       const page = prev[pageIdx];
-      const newPage = { ...page, pageNumber: prev.length + 1, slots: [...page.slots] };
+      const newPage: PageData = {
+        ...page,
+        pageNumber: prev.length + 1,
+        slots: page.slots.map(() => null),
+        slotPositions: undefined,
+      };
       const copy = [...prev];
       copy.splice(pageIdx + 1, 0, newPage);
       return copy.map((p, i) => ({ ...p, pageNumber: i + 1 }));
@@ -524,7 +549,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         ...(form.deliveryCity ? { deliveryCity: form.deliveryCity } : {}),
         ...(form.deliveryRegion ? { deliveryRegion: form.deliveryRegion } : {}),
         ...(form.deliveryDepartment ? { deliveryDepartment: form.deliveryDepartment } : {}),
-        customerDni: form.customerDni,
         ...(form.desiredDeliveryDate ? { desiredDeliveryDate: form.desiredDeliveryDate } : {}),
         wantsRush,
         rushFeeCents: wantsRush ? RUSH_FEE_CENTS : 0,
@@ -533,7 +557,9 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         pages: pages.map((p) => ({
           pageNumber: p.pageNumber,
           layoutKey: p.layoutKey,
-          slots: p.slots.filter(Boolean).map((s, i) => ({ assetId: s!.id, slotIndex: i, cropData: p.slotPositions?.[i] ?? null })),
+          slots: p.slots
+            .map((s, i) => (s ? { assetId: s.id, slotIndex: i, cropData: p.slotPositions?.[i] ?? null } : null))
+            .filter((s): s is { assetId: number; slotIndex: number; cropData: { x: number; y: number; zoom?: number } | null } => s !== null),
         })),
         assetIds: photos.map((p) => p.id),
       };
@@ -1061,7 +1087,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                   { label: "Nombre completo", key: "name", type: "text", inputMode: undefined as React.HTMLAttributes<HTMLInputElement>["inputMode"], maxLength: undefined as number | undefined, placeholder: undefined as string | undefined },
                   { label: "Email", key: "email", type: "email", inputMode: "email" as React.HTMLAttributes<HTMLInputElement>["inputMode"], maxLength: undefined, placeholder: undefined },
                   { label: "Teléfono", key: "phone", type: "tel", inputMode: "tel" as React.HTMLAttributes<HTMLInputElement>["inputMode"], maxLength: 12, placeholder: "+51912345678" },
-                  { label: "DNI", key: "customerDni", type: "text", inputMode: "numeric" as React.HTMLAttributes<HTMLInputElement>["inputMode"], maxLength: 8, placeholder: "12345678" },
                 ].map((f) => (
                   <div key={f.key}>
                     <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#6b7280", marginBottom: "5px" }}>
@@ -1074,7 +1099,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                       value={form[f.key as keyof typeof form] as string}
                       onChange={(e) => {
                         let val = e.target.value;
-                        if (f.key === "customerDni") val = val.replace(/\D/g, "").slice(0, 8);
                         if (f.key === "phone") val = val.replace(/[^\d+]/g, "").replace(/(?!^\+)\+/g, "").slice(0, 12);
                         setForm((p) => ({ ...p, [f.key]: val }));
                         setFormErrors((p) => { const n = { ...p }; delete n[f.key]; return n; });
@@ -1289,7 +1313,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: "Nombre", value: form.name },
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label: "Email", value: form.email },
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6.29 6.29l1.62-1.62a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>, label: "Teléfono", value: form.phone },
-                  { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>, label: "DNI", value: form.customerDni },
                 ].map((row, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: `${ACCENT}10`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{row.icon}</div>
@@ -1378,7 +1401,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
       {/* Nav bar */}
       {!submitted && zoomPageIdx === null && (
-        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid #eee", zIndex: 100 }}>
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid #eee", zIndex: 100, boxShadow: "0 -2px 8px rgba(0,0,0,0.06)" }}>
           {step === 3 && pages.filter((p) => p.slots.some(Boolean)).length < minPages && (
             <div style={{ background: "#fef3c7", borderBottom: "1px solid #fde68a", padding: "8px 24px", textAlign: "center", fontSize: 13, color: "#92400e", fontWeight: 600 }}>
               {(() => { const f = pages.filter((p) => p.slots.some(Boolean)).length; return `Necesitas ${minPages - f} página${minPages - f !== 1 ? "s" : ""} con fotos más para continuar (tienes ${f} de ${minPages})`; })()}
@@ -1406,8 +1429,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = "Ingresa un email válido";
                 if (!form.phone.trim()) errors.phone = "El teléfono es requerido";
                 else if (!/^(\+51)?\d{9}$/.test(form.phone.replace(/\s/g, ""))) errors.phone = "Ingresa un número válido (+51 seguido de 9 dígitos)";
-                if (!form.customerDni.trim()) errors.customerDni = "El DNI es requerido";
-                else if (!/^\d{1,8}$/.test(form.customerDni) || form.customerDni.length !== 8) errors.customerDni = "El DNI debe tener exactamente 8 dígitos";
                 if (!form.deliveryAddress.trim()) errors.deliveryAddress = "La dirección es requerida";
                 if (!form.desiredDeliveryDate) errors.desiredDeliveryDate = "La fecha de entrega es requerida";
                 if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }

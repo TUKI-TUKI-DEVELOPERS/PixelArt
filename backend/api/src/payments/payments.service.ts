@@ -63,6 +63,11 @@ export class PaymentsService {
       amountCents: order.totalAmountCents,
     });
 
+    // Surface the order for admin review (badge, kanban, order list)
+    if (order.status === 'AWAITING_PAYMENT_PROOF') {
+      await this.ordersService.advanceStatus(link.orderId, 'UNDER_PAYMENT_REVIEW', 'Comprobante subido por el cliente');
+    }
+
     return {
       id: proof.id,
       status: proof.status,

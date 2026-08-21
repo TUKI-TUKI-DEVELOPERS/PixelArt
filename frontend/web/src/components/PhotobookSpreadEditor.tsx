@@ -35,7 +35,7 @@ type Props = {
   onDuplicatePage: (pageIdx: number) => void;
   onReorderPages: (fromIdx: number, toIdx: number) => void;
   onClickPage: (pageIdx: number) => void;
-  onSwapSlots: (pageIdx: number, fromSlot: number, toSlot: number) => void;
+  onSwapSlots: (fromPageIdx: number, fromSlot: number, toPageIdx: number, toSlot: number) => void;
   onUpdateSlotPosition: (pageIdx: number, slotIdx: number, x: number, y: number, zoom: number) => void;
   coverUrl: string | null;
   backCoverUrl: string | null;
@@ -163,7 +163,7 @@ function DropSlot({
       .draggable({
         enabled: !!photo,
         inertia: false,
-        autoScroll: false,
+        autoScroll: true,
         ignoreFrom: ".pb-move-btn",
         listeners: {
           start(event) {
@@ -663,7 +663,7 @@ export default function PhotobookSpreadEditor({
     if (!el) return;
     const handler = (e: Event) => {
       const { pageIdx, fromSlot, toPageIdx, toSlot } = (e as CustomEvent).detail;
-      if (pageIdx === toPageIdx) onSwapSlots(pageIdx, fromSlot, toSlot);
+      onSwapSlots(pageIdx, fromSlot, toPageIdx, toSlot);
     };
     el.addEventListener("slotSwapped", handler);
     return () => el.removeEventListener("slotSwapped", handler);

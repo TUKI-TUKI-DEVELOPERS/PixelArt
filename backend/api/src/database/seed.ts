@@ -1132,9 +1132,11 @@ export async function runSeed(): Promise<void> {
     // ── 7. photobook_products ────────────────────────────────────────────────
     // Desactivar producto anterior renombrado
     await client.query(`UPDATE photobook_products SET is_active = FALSE WHERE name = 'Fotolibro 30x20 cm'`);
+    // Corrección de medida: el producto es 22x22 cm, no 21x21 cm
+    await client.query(`UPDATE photobook_products SET name = 'Fotolibro 22x22 cm' WHERE name = 'Fotolibro 21x21 cm'`);
 
     const photobookSeeds = [
-      { name: 'Fotolibro 21x21 cm', desc: 'Tapa dura, acabado mate',                min_pages: 25, price: 390, custom_dims: false },
+      { name: 'Fotolibro 22x22 cm', desc: 'Tapa dura, acabado mate',                min_pages: 25, price: 390, custom_dims: false },
       { name: 'Personalizado',       desc: 'Formato a medida, dimensiones libres',   min_pages: 20, price: 490, custom_dims: true  },
     ];
     for (const p of photobookSeeds) {
