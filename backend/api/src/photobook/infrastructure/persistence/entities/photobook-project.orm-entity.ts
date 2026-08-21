@@ -41,8 +41,14 @@ export class PhotobookProjectOrmEntity {
   @Column({ type: 'text', default: 'DRAFT' })
   status!: string;
 
+  @Column({ name: 'cover_type', type: 'text', nullable: true })
+  coverType!: string | null;
+
   @Column({ name: 'price_per_page_cents', type: 'bigint' })
   pricePerPageCents!: string;
+
+  @Column({ name: 'rush_fee_cents', type: 'bigint', default: '0' })
+  rushFeeCents!: string;
 
   @Column({ name: 'page_count', type: 'int', default: 0 })
   pageCount!: number;

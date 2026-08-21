@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { PhotobookRepositoryPort, CreateProjectData } from './domain/ports/photobook-repository.port';
+import { calculatePhotobookRushFeeCents, calculatePhotobookTotalCents, isValidPhotobookCoverType } from './domain/services/photobook-pricing.service';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { OrdersService } from '../orders/orders.service';
 import { PublicLinksService } from '../public-links/public-links.service';
@@ -62,7 +63,23 @@ export class PhotobookService {
     if (product.allowsCustomDimensions && (!data.customWidthCm || !data.customHeightCm)) {
       throw new BadRequestException('Este producto requiere dimensiones personalizadas (ancho y alto)');
     }
-    return this.repo.createProject({ ...data, pricePerPageCents: product.pricePerPageCents });
+    if (!isValidPhotobookCoverType(data.coverType)) {
+      throw new BadRequestException('Tipo de tapa inválido');
+    }
+
+    // El precio nunca se confía del cliente — se recalcula acá con el mismo
+    // criterio que muestra el editor (tapa + hojas + rush), no con el
+    // price_per_page_cents plano del producto.
+    const wantsRush = !!data.wantsRush;
+    const rushFeeCents = calculatePhotobookRushFeeCents(wantsRush);
+    const calculatedTotalCents = calculatePhotobookTotalCents(data.coverType, data.pages.length, wantsRush);
+
+    return this.repo.createProject({
+      ...data,
+      pricePerPageCents: product.pricePerPageCents,
+      rushFeeCents,
+      calculatedTotalCents,
+    });
   }
 
   async createOrderFromProject(projectId: number) {

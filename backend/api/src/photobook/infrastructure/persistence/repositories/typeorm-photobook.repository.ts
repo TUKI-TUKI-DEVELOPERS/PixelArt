@@ -47,7 +47,6 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
   async createProject(data: CreateProjectData): Promise<ProjectRecord> {
     return this.dataSource.transaction(async (manager) => {
       const pageCount = data.pages.length;
-      const total = data.pricePerPageCents * pageCount;
 
       const project = manager.create(PhotobookProjectOrmEntity, {
         photobookProductId: String(data.photobookProductId),
@@ -62,9 +61,11 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
         customWidthCm: data.customWidthCm ?? null,
         customHeightCm: data.customHeightCm ?? null,
         status: 'CONFIRMED',
+        coverType: data.coverType,
         pricePerPageCents: String(data.pricePerPageCents),
+        rushFeeCents: String(data.rushFeeCents),
         pageCount,
-        calculatedTotalCents: String(total),
+        calculatedTotalCents: String(data.calculatedTotalCents),
       });
       const savedProject = await manager.save(PhotobookProjectOrmEntity, project);
 
@@ -156,7 +157,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
       customerEmail: e.customerEmail, customerFullName: e.customerFullName, customerPhone: e.customerPhone,
       deliveryAddress: e.deliveryAddress, deliveryDistrict: e.deliveryDistrict, coverTitle: e.coverTitle,
       customerDni: e.customerDni, customWidthCm: e.customWidthCm ? Number(e.customWidthCm) : null, customHeightCm: e.customHeightCm ? Number(e.customHeightCm) : null,
-      status: e.status, pricePerPageCents: Number(e.pricePerPageCents), pageCount: e.pageCount,
+      status: e.status, coverType: e.coverType, pricePerPageCents: Number(e.pricePerPageCents), rushFeeCents: Number(e.rushFeeCents), pageCount: e.pageCount,
       calculatedTotalCents: Number(e.calculatedTotalCents), currency: e.currency, createdAt: e.createdAt,
     };
   }

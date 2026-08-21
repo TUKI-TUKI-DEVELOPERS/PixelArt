@@ -15,7 +15,11 @@ export type CreateProjectData = {
   customerDni?: string;
   customWidthCm?: number;
   customHeightCm?: number;
+  coverType: string;
+  wantsRush?: boolean;
   pricePerPageCents: number;
+  rushFeeCents: number;
+  calculatedTotalCents: number;
   pages: { pageNumber: number; layoutKey: string; slots: { assetId: number; slotIndex: number; cropData?: CropData | null }[] }[];
   assetIds: number[];
 };
@@ -34,7 +38,9 @@ export type ProjectRecord = {
   customWidthCm: number | null;
   customHeightCm: number | null;
   status: string;
+  coverType: string | null;
   pricePerPageCents: number;
+  rushFeeCents: number;
   pageCount: number;
   calculatedTotalCents: number;
   currency: string;

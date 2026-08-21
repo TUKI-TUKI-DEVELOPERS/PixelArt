@@ -636,7 +636,9 @@ CREATE TABLE photobook_projects (
   status photobook_project_status NOT NULL DEFAULT 'DRAFT',
 
   -- snapshot de pricing al confirmar (para que no cambie si el admin edita el producto)
+  cover_type TEXT,
   price_per_page_cents BIGINT NOT NULL CHECK (price_per_page_cents >= 0),
+  rush_fee_cents BIGINT NOT NULL DEFAULT 0 CHECK (rush_fee_cents >= 0),
   page_count INT NOT NULL DEFAULT 0 CHECK (page_count >= 0),
   calculated_total_cents BIGINT NOT NULL DEFAULT 0 CHECK (calculated_total_cents >= 0),
   currency TEXT NOT NULL DEFAULT 'PEN',
@@ -650,9 +652,9 @@ CREATE INDEX IF NOT EXISTS photobook_projects_theme_id_idx ON photobook_projects
 CREATE INDEX IF NOT EXISTS photobook_projects_customer_email_idx ON photobook_projects(customer_email);
 CREATE INDEX IF NOT EXISTS photobook_projects_status_idx ON photobook_projects(status);
 
-ALTER TABLE photobook_projects
-  ADD CONSTRAINT chk_photobook_projects_total
-  CHECK (calculated_total_cents = price_per_page_cents * page_count);
+-- calculated_total_cents ya no es price_per_page_cents * page_count: depende de
+-- cover_type (tapa delgada/gruesa) + tarifa por hoja + rush_fee_cents. La
+-- fórmula real vive en domain/services/photobook-pricing.service.ts.
 
 -- Fotos usadas en el photobook (reusa assets por hash)
 CREATE TABLE photobook_project_assets (
