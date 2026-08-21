@@ -1148,10 +1148,13 @@ export async function runSeed(): Promise<void> {
     await client.query(`UPDATE photobook_products SET is_active = FALSE WHERE name = 'Fotolibro 30x20 cm'`);
     // Corrección de medida: el producto es 22x22 cm, no 21x21 cm
     await client.query(`UPDATE photobook_products SET name = 'Fotolibro 22x22 cm' WHERE name = 'Fotolibro 21x21 cm'`);
+    // Desactivado: no hay UI para elegirlo a propósito, y el editor terminaba
+    // cayendo ahí por azar (sin ORDER BY en listProducts) sin que el cliente
+    // supiera por qué le pedían dimensiones personalizadas
+    await client.query(`UPDATE photobook_products SET is_active = FALSE WHERE name = 'Personalizado'`);
 
     const photobookSeeds = [
       { name: 'Fotolibro 22x22 cm', desc: 'Tapa dura, acabado mate',                min_pages: 25, price: 390, custom_dims: false },
-      { name: 'Personalizado',       desc: 'Formato a medida, dimensiones libres',   min_pages: 20, price: 490, custom_dims: true  },
     ];
     for (const p of photobookSeeds) {
       await client.query(`

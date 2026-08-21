@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { usePhotoUpload, UploadedPhoto } from "@/hooks/usePhotoUpload";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { getAssetUrl } from "@/lib/assetUrl";
 import PhotobookPreview from "@/components/PhotobookPreview";
 import PhotobookSpreadEditor from "@/components/PhotobookSpreadEditor";
 import interact from "interactjs";
@@ -20,17 +21,6 @@ const RUSH_FEE_CENTS = 2500; // S/ 25
 const MIN_NORMAL_DAYS = 4;
 const MIN_RUSH_DAYS = 2;
 
-function getMinDate(rush: boolean): string {
-  const d = new Date();
-  d.setDate(d.getDate() + (rush ? MIN_RUSH_DAYS : MIN_NORMAL_DAYS));
-  return d.toISOString().split("T")[0];
-}
-function getMaxDate(rush: boolean): string | undefined {
-  if (!rush) return undefined;
-  const d = new Date();
-  d.setDate(d.getDate() + MIN_NORMAL_DAYS - 1);
-  return d.toISOString().split("T")[0];
-}
 
 type CoverType = "TAPA_DELGADA" | "TAPA_GRUESA";
 
@@ -82,7 +72,8 @@ const STEPS = [
   { number: 2, label: "Editor" },
   { number: 3, label: "Preview" },
   { number: 4, label: "Datos" },
-  { number: 5, label: "Confirmar" },
+  { number: 5, label: "Revisar" },
+  { number: 6, label: "Pagar" },
 ];
 
 /* ── localStorage helpers ── */
@@ -115,6 +106,10 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const isMobile = isMobileHook || isNarrow;
 
   const [step, setStep] = useState(1);
+  // La barra de navegación es fixed, así que el contenido de cada paso scrollea
+  // con la página normal — sin esto, cambiar de paso deja el scroll donde
+  // estaba en el paso anterior en vez de arrancar arriba.
+  useEffect(() => { window.scrollTo(0, 0); }, [step]);
   const [mobilePageIdx, setMobilePageIdx] = useState(0);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const { photos, pendingDuplicates, uploading, progress, uploadFiles, removePhoto, resolveDuplicate, restorePhotos } = usePhotoUpload("uploads/photobooks");
@@ -125,11 +120,17 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const [coverType, setCoverType] = useState<CoverType>("TAPA_DELGADA");
   const [wantsRush, setWantsRush] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "", desiredDeliveryDate: "" });
-  const [customWidth, setCustomWidth] = useState("");
-  const [customHeight, setCustomHeight] = useState("");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  // #15 Pago embebido (paso 6) — la orden solo se crea recién al subir el
+  // comprobante, no antes. paymentToken se guarda una vez creada para que un
+  // reintento de subida no vuelva a confirmar (evita duplicar la orden).
+  const [paymentToken, setPaymentToken] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // #2 Filter toggle
   const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
@@ -195,8 +196,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     if (draft.form) setForm(draft.form as typeof form);
     if (draft.coverType) setCoverType(draft.coverType as CoverType);
     if (draft.selectedProduct) setSelectedProduct(draft.selectedProduct as number);
-    if (draft.customWidth) setCustomWidth(draft.customWidth as string);
-    if (draft.customHeight) setCustomHeight(draft.customHeight as string);
     if (draft.wantsRush !== undefined) setWantsRush(draft.wantsRush as boolean);
   }
 
@@ -213,7 +212,14 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       setDraftToken(urlDraftToken);
       fetch(`${API}/api/photobook/drafts/${urlDraftToken}`)
         .then((r) => (r.ok ? r.json() : null))
-        .then((res) => { if (res?.state) applyDraftState(res.state as Record<string, unknown>); })
+        .then((res) => {
+          // Si este token ya fue confirmado (ej. volviste con el botón atrás
+          // desde la pantalla de pago), no hay nada que restaurar acá — el
+          // diseño ya quedó fijo. Lo mandamos de nuevo a pagar en vez de
+          // mostrarle un editor vacío.
+          if (res?.paymentUrl) { window.location.href = res.paymentUrl as string; return; }
+          if (res?.state) applyDraftState(res.state as Record<string, unknown>);
+        })
         .catch(() => { /* si falla, el cliente sigue con el editor vacío, sin romper nada */ });
       return;
     }
@@ -291,8 +297,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         coverType,
         wantsRush,
         selectedProduct,
-        customWidth,
-        customHeight,
       };
       saveDraft(draftKey, draftData);
 
@@ -320,7 +324,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [pages, photos, step, form, selectedProduct, customWidth, customHeight, draftKey, draftToken, themeId, submitted, pathname, router, searchParams]);
+  }, [pages, photos, step, form, selectedProduct, draftKey, draftToken, themeId, submitted, pathname, router, searchParams]);
 
   // Auto-distribute
   function buildPhotoPool(): UploadedPhoto[] {
@@ -582,45 +586,77 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     return () => clearTimeout(timer);
   }, [step]);
 
-  async function handleSubmit() {
-    if (!themeId || !product) return;
+  // #15 Paso 6 — subir la captura de pago
+  function handleFileSelected(file: File) {
+    const url = URL.createObjectURL(file);
+    setPendingFile(file);
+    setPendingPreview(url);
+    setUploadError(null);
+  }
+
+  function handleCancelPending() {
+    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    setPendingFile(null);
+    setPendingPreview(null);
+    setUploadError(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  // La orden solo se crea en este momento — recién cuando hay un comprobante
+  // real para subir, no antes. Si ya se creó en un intento anterior (subida
+  // fallida), paymentToken evita volver a confirmar y duplicar la orden.
+  async function handleUploadPayment() {
+    if (!pendingFile || !themeId || !product) return;
     setSubmitting(true);
+    setUploadError(null);
     try {
-      const body = {
-        photobookProductId: product.id,
-        photobookThemeId: themeId,
-        ...(draftToken ? { draftToken } : {}),
-        coverType,
-        customerEmail: form.email,
-        customerFullName: form.name,
-        customerPhone: form.phone,
-        deliveryAddress: form.deliveryAddress,
-        ...(form.deliveryDistrict ? { deliveryDistrict: form.deliveryDistrict } : {}),
-        ...(form.deliveryCity ? { deliveryCity: form.deliveryCity } : {}),
-        ...(form.deliveryRegion ? { deliveryRegion: form.deliveryRegion } : {}),
-        ...(form.deliveryDepartment ? { deliveryDepartment: form.deliveryDepartment } : {}),
-        ...(form.desiredDeliveryDate ? { desiredDeliveryDate: form.desiredDeliveryDate } : {}),
-        wantsRush,
-        rushFeeCents: wantsRush ? RUSH_FEE_CENTS : 0,
-        ...(product.allowsCustomDimensions && customWidth && customHeight ? { customWidthCm: parseFloat(customWidth), customHeightCm: parseFloat(customHeight) } : {}),
-        pricePerPageCents: product.pricePerPageCents,
-        pages: pages.map((p) => ({
-          pageNumber: p.pageNumber,
-          layoutKey: p.layoutKey,
-          slots: p.slots
-            .map((s, i) => (s ? { assetId: s.id, slotIndex: i, cropData: p.slotPositions?.[i] ?? null } : null))
-            .filter((s): s is { assetId: number; slotIndex: number; cropData: { x: number; y: number; zoom?: number } | null } => s !== null),
-        })),
-        assetIds: photos.map((p) => p.id),
-      };
-      const res = await fetch(`${API}/api/photobook/projects`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
-      });
-      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error"); }
+      let token = paymentToken;
+      if (!token) {
+        const body = {
+          photobookProductId: product.id,
+          photobookThemeId: themeId,
+          ...(draftToken ? { draftToken } : {}),
+          coverType,
+          customerEmail: form.email,
+          customerFullName: form.name,
+          customerPhone: form.phone,
+          deliveryAddress: form.deliveryAddress,
+          ...(form.deliveryDistrict ? { deliveryDistrict: form.deliveryDistrict } : {}),
+          ...(form.deliveryCity ? { deliveryCity: form.deliveryCity } : {}),
+          ...(form.deliveryRegion ? { deliveryRegion: form.deliveryRegion } : {}),
+          ...(form.deliveryDepartment ? { deliveryDepartment: form.deliveryDepartment } : {}),
+          wantsRush,
+          rushFeeCents: wantsRush ? RUSH_FEE_CENTS : 0,
+          pricePerPageCents: product.pricePerPageCents,
+          pages: pages.map((p) => ({
+            pageNumber: p.pageNumber,
+            layoutKey: p.layoutKey,
+            slots: p.slots
+              .map((s, i) => (s ? { assetId: s.id, slotIndex: i, cropData: p.slotPositions?.[i] ?? null } : null))
+              .filter((s): s is { assetId: number; slotIndex: number; cropData: { x: number; y: number; zoom?: number } | null } => s !== null),
+          })),
+          assetIds: photos.map((p) => p.id),
+        };
+        const res = await fetch(`${API}/api/photobook/projects`, {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+        });
+        if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error"); }
+        const result = await res.json().catch(() => null);
+        token = (result?.order?.paymentLink?.token as string | undefined) ?? null;
+        if (!token) throw new Error("No se pudo generar el pago. Intentá de nuevo.");
+        setPaymentToken(token);
+        clearDraft(draftKey); // #13
+      }
+
+      const formData = new FormData();
+      formData.append("file", pendingFile);
+      const voucherRes = await fetch(`${API}/api/payment/${token}/voucher`, { method: "POST", body: formData });
+      if (!voucherRes.ok) { const err = await voucherRes.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error al subir el comprobante"); }
+
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
       setSubmitted(true);
-      clearDraft(draftKey); // #13
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error");
+      setUploadError(err instanceof Error ? err.message : "Error al enviar el comprobante");
     } finally {
       setSubmitting(false);
     }
@@ -1211,24 +1247,11 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                     style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", boxSizing: "border-box" }}
                   />
                 </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#6b7280", marginBottom: "5px" }}>
-                    Fecha de entrega deseada <span style={{ color: "#ef4444" }}>*</span>
-                  </label>
-                  <input
-                    type="date" value={form.desiredDeliveryDate}
-                    min={getMinDate(wantsRush)}
-                    max={getMaxDate(wantsRush)}
-                    onChange={(e) => { setForm((p) => ({ ...p, desiredDeliveryDate: e.target.value })); setFormErrors((p) => { const n = { ...p }; delete n.desiredDeliveryDate; return n; }); }}
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: formErrors.desiredDeliveryDate ? "1.5px solid #ef4444" : "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", boxSizing: "border-box" }}
-                  />
-                  {formErrors.desiredDeliveryDate && <div style={{ marginTop: "4px", fontSize: "12px", color: "#ef4444", fontWeight: 500 }}>{formErrors.desiredDeliveryDate}</div>}
-                </div>
                 {/* Normal / Express cards */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   <button
                     type="button"
-                    onClick={() => { setWantsRush(false); setForm((p) => ({ ...p, desiredDeliveryDate: "" })); setFormErrors((p) => { const n = { ...p }; delete n.desiredDeliveryDate; return n; }); }}
+                    onClick={() => setWantsRush(false)}
                     style={{ padding: "16px", borderRadius: "14px", textAlign: "left", cursor: "pointer", border: !wantsRush ? `2px solid ${ACCENT}` : "2px solid #e5e7eb", background: !wantsRush ? `${ACCENT}08` : "#fff", fontFamily: "inherit", transition: "all 0.2s", boxShadow: !wantsRush ? `0 4px 16px ${ACCENT}18` : "none" }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
@@ -1242,7 +1265,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
                   <button
                     type="button"
-                    onClick={() => { setWantsRush(true); setForm((p) => ({ ...p, desiredDeliveryDate: "" })); setFormErrors((p) => { const n = { ...p }; delete n.desiredDeliveryDate; return n; }); }}
+                    onClick={() => setWantsRush(true)}
                     style={{ padding: "16px", borderRadius: "14px", textAlign: "left", cursor: "pointer", border: wantsRush ? `2px solid ${ACCENT}` : "2px solid #e5e7eb", background: wantsRush ? `${ACCENT}08` : "#fff", fontFamily: "inherit", transition: "all 0.2s", boxShadow: wantsRush ? `0 4px 16px ${ACCENT}18` : "none" }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
@@ -1297,20 +1320,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 </div>
               </div>
             </div>
-
-            {product?.allowsCustomDimensions && (
-              <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #eee", padding: isMobile ? "18px 16px" : "24px" }}>
-                <div style={{ fontSize: "11px", fontWeight: 700, color: ACCENT, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px" }}>
-                  Dimensiones personalizadas (cm) <span style={{ color: "#ef4444" }}>*</span>
-                </div>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  <input type="number" placeholder="Ancho" value={customWidth} onChange={(e) => setCustomWidth(e.target.value)} min="1" max="100" step="0.5" style={{ flex: 1, padding: "10px 12px", borderRadius: "10px", border: "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit" }} />
-                  <span style={{ fontSize: "16px", color: "#6b7280", flexShrink: 0 }}>×</span>
-                  <input type="number" placeholder="Alto" value={customHeight} onChange={(e) => setCustomHeight(e.target.value)} min="1" max="100" step="0.5" style={{ flex: 1, padding: "10px 12px", borderRadius: "10px", border: "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit" }} />
-                </div>
-                <p style={{ margin: "8px 0 0", fontSize: "12px", color: "#f59e0b", fontWeight: 500 }}>Las dimensiones personalizadas pueden tener un costo adicional.</p>
-              </div>
-            )}
           </div>
         )}
 
@@ -1318,8 +1327,8 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
             {/* Header */}
             <div style={{ marginBottom: "28px" }}>
-              <h2 style={{ margin: "0 0 6px", fontSize: isMobile ? "22px" : "26px", fontWeight: 900, color: "#111" }}>Confirmar pedido</h2>
-              <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>Revisa los detalles antes de confirmar. No podrás editar después.</p>
+              <h2 style={{ margin: "0 0 6px", fontSize: isMobile ? "22px" : "26px", fontWeight: 900, color: "#111" }}>Revisa tu pedido</h2>
+              <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>Verificá que todo esté bien antes de pasar a pagar.</p>
             </div>
 
             {/* Resumen del photobook */}
@@ -1382,7 +1391,6 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 {[
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>, label: "Dirección", value: [form.deliveryAddress, form.deliveryDistrict, form.deliveryCity, form.deliveryDepartment, form.deliveryRegion].filter(Boolean).join(", ") },
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={wantsRush ? "#e74c6f" : ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{wantsRush ? <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/> : <><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="1"/><circle cx="12" cy="20" r="1"/><circle cx="20" cy="20" r="1"/></>}</svg>, label: "Tipo de entrega", value: wantsRush ? `Express — ${MIN_RUSH_DAYS} días hábiles (+S/ 25)` : `Normal — ${MIN_NORMAL_DAYS} días hábiles` },
-                  { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>, label: "Fecha deseada", value: form.desiredDeliveryDate || "—" },
                 ].map((row, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: `${ACCENT}10`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{row.icon}</div>
@@ -1419,22 +1427,102 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
             {/* CTA */}
             <button
-              disabled={submitting}
-              onClick={handleSubmit}
-              style={{ width: "100%", padding: "16px 0", borderRadius: "14px", border: "none", background: submitting ? "#d1d5db" : ACCENT, color: "#fff", fontSize: "16px", fontWeight: 800, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", transition: "background 0.2s" }}
+              onClick={() => setStep(6)}
+              style={{ width: "100%", padding: "16px 0", borderRadius: "14px", border: "none", background: ACCENT, color: "#fff", fontSize: "16px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", transition: "background 0.2s" }}
             >
-              {submitting ? (
-                <>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                  Creando pedido...
-                </>
-              ) : (
-                <>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  Confirmar pedido
-                </>
-              )}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Continuar al pago
             </button>
+          </div>
+        )}
+
+        {step === 6 && !submitted && (
+          <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+            <div style={{ marginBottom: "28px" }}>
+              <h2 style={{ margin: "0 0 6px", fontSize: isMobile ? "22px" : "26px", fontWeight: 900, color: "#111" }}>Pagá tu photobook</h2>
+              <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>Escaneá el QR, hacé el pago, y subí la captura para terminar tu pedido.</p>
+            </div>
+
+            {/* Monto */}
+            <div style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "24px" }}>
+              <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Total a pagar</div>
+              <div style={{ fontSize: "40px", fontWeight: 900, color: "#111" }}>{fmtPrice(totalCents)}</div>
+            </div>
+
+            {/* QR Yape */}
+            <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "24px" }}>
+              <h3 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: 700, color: "#111" }}>Escaneá con Yape</h3>
+              <p style={{ margin: "0 0 16px 0", fontSize: "13px", color: "#9ca3af" }}>Abre Yape, tocá el ícono de QR y escaneá</p>
+              <img
+                src={getAssetUrl("QRPago/QR_Pago_Pixelart.png")}
+                alt="QR de pago Yape PixelArt"
+                style={{ width: "240px", height: "240px", objectFit: "contain", display: "block", margin: "0 auto", borderRadius: "12px" }}
+              />
+            </div>
+
+            {/* Subir comprobante */}
+            <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px" }}>
+              <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: 700, color: "#111" }}>Subí tu comprobante</h3>
+              <p style={{ margin: "0 0 20px 0", fontSize: "14px", color: "#6b7280" }}>Después de pagar, subí la captura de pantalla del pago realizado.</p>
+
+              <input
+                type="file" accept="image/*" ref={fileRef} style={{ display: "none" }}
+                onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFileSelected(file); }}
+              />
+
+              {!pendingFile && (
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  style={{ width: "100%", padding: "14px 0", borderRadius: "12px", border: "2px dashed #d1d5db", background: "#f9fafb", color: "#6b7280", fontSize: "15px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Seleccionar captura de pago
+                </button>
+              )}
+
+              {pendingFile && (
+                <div>
+                  <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #e5e7eb", marginBottom: "16px", maxHeight: "280px", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9fafb" }}>
+                    <img src={pendingPreview!} alt="Comprobante" style={{ maxWidth: "100%", maxHeight: "280px", objectFit: "contain", display: "block" }} />
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#6b7280", marginBottom: "16px", textAlign: "center" }}>
+                    <strong style={{ color: "#111" }}>{pendingFile.name}</strong>
+                    <span style={{ color: "#9ca3af" }}> · {(pendingFile.size / 1024).toFixed(0)} KB</span>
+                  </div>
+                  {uploadError && (
+                    <div style={{ padding: "10px 14px", borderRadius: "10px", background: "#fef2f2", border: "1px solid #fecaca", fontSize: "13px", color: "#dc2626", fontWeight: 500, marginBottom: "14px", textAlign: "center" }}>
+                      {uploadError}
+                    </div>
+                  )}
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      onClick={handleCancelPending}
+                      disabled={submitting}
+                      style={{ flex: 1, padding: "13px 0", borderRadius: "12px", border: "1.5px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: "14px", fontWeight: 600, cursor: submitting ? "not-allowed" : "pointer", fontFamily: "inherit" }}
+                    >
+                      Cambiar imagen
+                    </button>
+                    <button
+                      onClick={handleUploadPayment}
+                      disabled={submitting}
+                      style={{ flex: 2, padding: "13px 0", borderRadius: "12px", border: "none", background: submitting ? "#d1d5db" : ACCENT, color: "#fff", fontSize: "14px", fontWeight: 700, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                    >
+                      {submitting ? (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          Sí, enviar comprobante
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -1443,8 +1531,8 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#065f46", margin: "0 0 10px" }}>¡Pedido confirmado!</h2>
-            <p style={{ fontSize: "15px", color: "#6b7280", lineHeight: 1.6, margin: 0 }}>Tu photobook fue creado con éxito. Recibirás un link de pago en tu correo para completar la compra.</p>
+            <h2 style={{ fontSize: "26px", fontWeight: 900, color: "#065f46", margin: "0 0 10px" }}>¡Comprobante enviado!</h2>
+            <p style={{ fontSize: "15px", color: "#6b7280", lineHeight: 1.6, margin: 0 }}>Tu pago fue recibido correctamente. Nuestro equipo lo revisará y te contactaremos por correo con la confirmación y fecha de entrega.</p>
           </div>
         )}
       </div>
@@ -1480,11 +1568,9 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 if (!form.phone.trim()) errors.phone = "El teléfono es requerido";
                 else if (!/^(\+51)?\d{9}$/.test(form.phone.replace(/\s/g, ""))) errors.phone = "Ingresa un número válido (+51 seguido de 9 dígitos)";
                 if (!form.deliveryAddress.trim()) errors.deliveryAddress = "La dirección es requerida";
-                if (!form.desiredDeliveryDate) errors.desiredDeliveryDate = "La fecha de entrega es requerida";
                 if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
                 setFormErrors({});
               }
-              if (step === 4 && product?.allowsCustomDimensions && (!customWidth || !customHeight)) { alert("Ingresá las dimensiones del photobook personalizado"); return; }
               setStep(step + 1);
               if (step === 1 && pages.length === 0) runAutoDistribute(4);
             }} style={{ padding: "10px 24px", borderRadius: "10px", border: "none", background: step === 3 && pages.filter((p) => p.slots.some(Boolean)).length < minPages ? "#d1d5db" : ACCENT, color: "#fff", fontSize: "14px", fontWeight: 700, cursor: step === 3 && pages.filter((p) => p.slots.some(Boolean)).length < minPages ? "not-allowed" : "pointer", fontFamily: "inherit" }}>Siguiente</button>

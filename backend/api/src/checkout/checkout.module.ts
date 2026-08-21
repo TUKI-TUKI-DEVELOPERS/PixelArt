@@ -7,6 +7,7 @@ import { SubmitCheckoutUseCase } from './application/use-cases/submit-checkout.u
 import { PublicLinksModule } from '../public-links/public-links.module';
 import { OrdersModule } from '../orders/orders.module';
 import { AssetsModule } from '../assets/assets.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AssetsModule } from '../assets/assets.module';
     PublicLinksModule,
     OrdersModule,
     AssetsModule,
+    EmailModule,
   ],
   controllers: [CheckoutPublicController],
   providers: [

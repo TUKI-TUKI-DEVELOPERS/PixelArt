@@ -3,11 +3,13 @@ import { DataSource } from 'typeorm';
 import { PublicLinksService } from '../../../public-links/public-links.service';
 import { OrdersService } from '../../../orders/orders.service';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
+import { EmailService } from '../../../email/email.service';
 import { PublicLink } from '../../../public-links/domain/public-link';
 
 const STANDARD_ADDITIONAL = 7;   // 10 plantillas total − 3 del demo
 const PREMIUM_ADDITIONAL = 12;   // 15 plantillas total − 3 del demo
 const EXTRA_TEMPLATES_PRICE_CENTS = 4000; // S/ 40.00 — siempre, independiente de la tapa
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
 
 export type SubmitCheckoutInput = {
   token: string;
@@ -24,6 +26,7 @@ export class SubmitCheckoutUseCase {
     private readonly publicLinksService: PublicLinksService,
     private readonly ordersService: OrdersService,
     private readonly fileStorage: FileStoragePort,
+    private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -122,6 +125,19 @@ export class SubmitCheckoutUseCase {
       'UNDER_PAYMENT_REVIEW',
       'Comprobante enviado por el cliente',
     );
+
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+    await this.emailService.queue({
+      eventType: 'NEW_PAYMENT_TO_ADMIN',
+      orderId: order.id,
+      toEmail: ADMIN_NOTIFICATION_EMAIL,
+      subject: 'PixelArt — Nuevo comprobante de pago para revisar',
+      payload: {
+        customerName: updatedOrder.customerFullName,
+        totalAmountCents: updatedOrder.totalAmountCents,
+        adminUrl: `${frontendBase}/admin/ordenes/${order.id}`,
+      },
+    });
 
     return {
       success: true,

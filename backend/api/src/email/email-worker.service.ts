@@ -17,6 +17,9 @@ const TEMPLATE_BY_EVENT: Record<string, string> = {
   PAYMENT_APPROVED_TO_CUSTOMER: 'payment-approved.html',
   PAYMENT_REJECTED_TO_CUSTOMER: 'payment-rejected.html',
   DELIVERY_FEEDBACK_REQUEST: 'delivery-feedback.html',
+  NEW_PAYMENT_TO_ADMIN: 'payment-received-admin.html',
+  NEW_DEMO_REQUEST_TO_ADMIN: 'demo-request-received-admin.html',
+  PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER: 'photobook-payment-received.html',
 };
 
 type OutboxRow = {
@@ -111,7 +114,7 @@ export class EmailWorkerService {
     const vars: Record<string, string> = {
       customerName: String(payload.customerName ?? ''),
       actionUrl: String(
-        payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.feedbackUrl ?? '',
+        payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.feedbackUrl ?? payload.adminUrl ?? '',
       ),
       totalAmount: typeof amountCents === 'number' ? `S/ ${(amountCents / 100).toFixed(2)}` : '',
       estimatedDeliveryDate: String(payload.estimatedDeliveryDate ?? ''),

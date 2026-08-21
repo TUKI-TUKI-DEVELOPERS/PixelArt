@@ -3,7 +3,10 @@ import { PaymentsRepositoryPort } from './domain/ports/payments-repository.port'
 import { PublicLinksService } from '../public-links/public-links.service';
 import { OrdersService } from '../orders/orders.service';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
+import { EmailService } from '../email/email.service';
 import { DataSource } from 'typeorm';
+
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
 
 @Injectable()
 export class PaymentsService {
@@ -12,6 +15,7 @@ export class PaymentsService {
     private readonly publicLinksService: PublicLinksService,
     private readonly ordersService: OrdersService,
     private readonly fileStorage: FileStoragePort,
+    private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -66,6 +70,29 @@ export class PaymentsService {
     // Surface the order for admin review (badge, kanban, order list)
     if (order.status === 'AWAITING_PAYMENT_PROOF') {
       await this.ordersService.advanceStatus(link.orderId, 'UNDER_PAYMENT_REVIEW', 'Comprobante subido por el cliente');
+    }
+
+    const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+    await this.emailService.queue({
+      eventType: 'NEW_PAYMENT_TO_ADMIN',
+      orderId: order.id,
+      toEmail: ADMIN_NOTIFICATION_EMAIL,
+      subject: 'PixelArt — Nuevo comprobante de pago para revisar',
+      payload: {
+        customerName: order.customerFullName,
+        totalAmountCents: order.totalAmountCents,
+        adminUrl: `${frontendBase}/admin/ordenes/${order.id}`,
+      },
+    });
+
+    if (order.channel === 'PHOTOBOOK') {
+      await this.emailService.queue({
+        eventType: 'PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER',
+        orderId: order.id,
+        toEmail: order.customerEmail,
+        subject: 'PixelArt — Recibimos tu comprobante de pago',
+        payload: { customerName: order.customerFullName, totalAmountCents: order.totalAmountCents },
+      });
     }
 
     return {

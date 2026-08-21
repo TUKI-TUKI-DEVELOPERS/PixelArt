@@ -35,7 +35,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
   }
 
   async listProducts(): Promise<PhotobookProductRecord[]> {
-    const entities = await this.productRepo.find({ where: { isActive: true } });
+    const entities = await this.productRepo.find({ where: { isActive: true }, order: { id: 'ASC' } });
     return entities.map((e) => ({ id: Number(e.id), name: e.name, pricePerPageCents: Number(e.pricePerPageCents), minPages: e.minPages, currency: e.currency, allowsCustomDimensions: e.allowsCustomDimensions }));
   }
 
@@ -74,7 +74,10 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
   }
 
   async findDraftByToken(draftToken: string): Promise<DraftRecord | null> {
-    const e = await this.projectRepo.findOne({ where: { draftToken, status: 'DRAFT' } });
+    // Sin filtro de status a propósito: si el token ya fue confirmado, el
+    // servicio necesita saberlo para mandar al cliente a pagar en vez de
+    // mostrarle un editor vacío.
+    const e = await this.projectRepo.findOne({ where: { draftToken } });
     return e ? { id: Number(e.id), draftToken: e.draftToken, status: e.status, state: e.draftState } : null;
   }
 
