@@ -28,11 +28,25 @@ export type CreateProjectData = {
   assetIds: number[];
 };
 
+export type DraftInput = {
+  photobookProductId: number;
+  photobookThemeId: number;
+  state: Record<string, unknown>;
+};
+
+export type DraftRecord = {
+  id: number;
+  draftToken: string;
+  status: string;
+  state: Record<string, unknown> | null;
+};
+
 export type ProjectRecord = {
   id: number;
   photobookProductId: number;
   photobookThemeId: number;
-  customerEmail: string;
+  draftToken: string;
+  customerEmail: string | null;
   customerFullName: string | null;
   customerPhone: string | null;
   deliveryAddress: string | null;
@@ -68,6 +82,10 @@ export abstract class PhotobookRepositoryPort {
   abstract listProducts(): Promise<PhotobookProductRecord[]>;
   abstract getProduct(id: number): Promise<PhotobookProductRecord | null>;
   abstract createProject(data: CreateProjectData): Promise<ProjectRecord>;
+  abstract createDraft(input: DraftInput): Promise<DraftRecord>;
+  abstract updateDraftState(draftToken: string, state: Record<string, unknown>): Promise<boolean>;
+  abstract findDraftByToken(draftToken: string): Promise<DraftRecord | null>;
+  abstract confirmDraft(draftToken: string, data: CreateProjectData): Promise<ProjectRecord | null>;
   abstract findAllProjects(): Promise<ProjectRecord[]>;
   abstract findProjectById(id: number): Promise<ProjectDetailRecord | null>;
   abstract updateProjectStatus(id: number, status: string): Promise<void>;

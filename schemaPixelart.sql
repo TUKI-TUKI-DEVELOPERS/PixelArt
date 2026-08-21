@@ -623,7 +623,11 @@ CREATE TABLE photobook_projects (
   photobook_product_id BIGINT NOT NULL REFERENCES photobook_products(id),
   photobook_theme_id BIGINT NOT NULL REFERENCES photobook_themes(id),
 
-  customer_email TEXT NOT NULL,
+  -- identifica el borrador desde la URL del editor (sin requerir cuenta de cliente)
+  draft_token UUID NOT NULL DEFAULT gen_random_uuid(),
+  draft_state JSONB,
+
+  customer_email TEXT,
   customer_full_name TEXT,
   customer_phone TEXT,
   delivery_address TEXT,
@@ -655,6 +659,7 @@ CREATE INDEX IF NOT EXISTS photobook_projects_product_id_idx ON photobook_projec
 CREATE INDEX IF NOT EXISTS photobook_projects_theme_id_idx ON photobook_projects(photobook_theme_id);
 CREATE INDEX IF NOT EXISTS photobook_projects_customer_email_idx ON photobook_projects(customer_email);
 CREATE INDEX IF NOT EXISTS photobook_projects_status_idx ON photobook_projects(status);
+CREATE UNIQUE INDEX IF NOT EXISTS photobook_projects_draft_token_key ON photobook_projects(draft_token);
 
 -- calculated_total_cents ya no es price_per_page_cents * page_count: depende de
 -- cover_type (tapa delgada/gruesa) + tarifa por hoja + rush_fee_cents. La
@@ -776,7 +781,7 @@ ALTER TABLE payment_proofs
 ALTER TABLE photobook_projects
   ADD CONSTRAINT chk_confirmed_requires_contact CHECK (
     status <> 'CONFIRMED'
-    OR (customer_full_name IS NOT NULL AND customer_phone IS NOT NULL AND delivery_address IS NOT NULL)
+    OR (customer_email IS NOT NULL AND customer_full_name IS NOT NULL AND customer_phone IS NOT NULL AND delivery_address IS NOT NULL)
   );
 
 -- D4: photobook_projects status CANCELLED (opcional pero recomendado)

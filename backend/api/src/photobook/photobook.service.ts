@@ -32,6 +32,24 @@ export class PhotobookService {
   listProducts() { return this.repo.listProducts(); }
   listProjects() { return this.repo.findAllProjects(); }
 
+  async createDraft(photobookProductId: number, photobookThemeId: number, state: Record<string, unknown>) {
+    const [product, theme] = await Promise.all([
+      this.repo.getProduct(photobookProductId),
+      this.repo.getTheme(photobookThemeId),
+    ]);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+    if (!theme) throw new NotFoundException('Tema no encontrado');
+    return this.repo.createDraft({ photobookProductId, photobookThemeId, state });
+  }
+
+  updateDraftState(draftToken: string, state: Record<string, unknown>) {
+    return this.repo.updateDraftState(draftToken, state);
+  }
+
+  getDraft(draftToken: string) {
+    return this.repo.findDraftByToken(draftToken);
+  }
+
   async getProjectDetail(id: number) {
     const detail = await this.repo.findProjectById(id);
     if (!detail) return null;
@@ -54,7 +72,7 @@ export class PhotobookService {
     return { ...detail, orderId, hasPaymentProof };
   }
 
-  async createProject(data: CreateProjectData) {
+  async createProject(data: CreateProjectData, draftToken?: string) {
     const product = await this.repo.getProduct(data.photobookProductId);
     if (!product) throw new NotFoundException('Producto no encontrado');
     if (data.pages.length < product.minPages) {
@@ -74,12 +92,23 @@ export class PhotobookService {
     const rushFeeCents = calculatePhotobookRushFeeCents(wantsRush);
     const calculatedTotalCents = calculatePhotobookTotalCents(data.coverType, data.pages.length, wantsRush);
 
-    return this.repo.createProject({
+    const finalData: CreateProjectData = {
       ...data,
       pricePerPageCents: product.pricePerPageCents,
       rushFeeCents,
       calculatedTotalCents,
-    });
+    };
+
+    // Si vino de un borrador (URL con ?draft=...), convierte esa misma fila en
+    // vez de crear un proyecto duplicado. Si el token ya no es válido (borrador
+    // ajeno, ya confirmado, etc.), sigue de largo y crea uno nuevo para no
+    // bloquear al cliente.
+    if (draftToken) {
+      const confirmed = await this.repo.confirmDraft(draftToken, finalData);
+      if (confirmed) return confirmed;
+    }
+
+    return this.repo.createProject(finalData);
   }
 
   async createOrderFromProject(projectId: number) {
@@ -91,7 +120,7 @@ export class PhotobookService {
       channel: 'PHOTOBOOK',
       photobookProjectId: projectId,
       customerFullName: detail.customerFullName ?? '',
-      customerEmail: detail.customerEmail,
+      customerEmail: detail.customerEmail ?? '',
       customerPhone: detail.customerPhone ?? '',
       baseAmountCents: detail.calculatedTotalCents,
     });
@@ -105,7 +134,7 @@ export class PhotobookService {
     await this.emailService.queue({
       eventType: 'PAYMENT_PROOF_RECEIVED_ADMIN',
       orderId: order.id,
-      toEmail: detail.customerEmail,
+      toEmail: detail.customerEmail ?? '',
       subject: 'PixelArt — Link de pago para tu Photobook',
       payload: { customerName: detail.customerFullName, paymentUrl, totalAmountCents: order.totalAmountCents },
     });

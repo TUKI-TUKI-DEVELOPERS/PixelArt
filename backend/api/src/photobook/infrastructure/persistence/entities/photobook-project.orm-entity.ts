@@ -11,8 +11,14 @@ export class PhotobookProjectOrmEntity {
   @Column({ name: 'photobook_theme_id', type: 'bigint' })
   photobookThemeId!: string;
 
-  @Column({ name: 'customer_email', type: 'text' })
-  customerEmail!: string;
+  @Column({ name: 'draft_token', type: 'uuid' })
+  draftToken!: string;
+
+  @Column({ name: 'draft_state', type: 'jsonb', nullable: true })
+  draftState!: Record<string, unknown> | null;
+
+  @Column({ name: 'customer_email', type: 'text', nullable: true })
+  customerEmail!: string | null;
 
   @Column({ name: 'customer_full_name', type: 'text', nullable: true })
   customerFullName!: string | null;

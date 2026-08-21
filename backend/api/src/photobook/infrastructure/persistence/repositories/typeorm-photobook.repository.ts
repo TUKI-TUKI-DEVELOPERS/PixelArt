@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import {
   PhotobookRepositoryPort, PhotobookThemeRecord, PhotobookProductRecord,
-  CreateProjectData, ProjectRecord, ProjectDetailRecord, RenderRecord,
+  CreateProjectData, ProjectRecord, ProjectDetailRecord, RenderRecord, DraftInput, DraftRecord,
 } from '../../../domain/ports/photobook-repository.port';
 import { PhotobookThemeOrmEntity } from '../entities/photobook-theme.orm-entity';
 import { PhotobookProductOrmEntity } from '../entities/photobook-product.orm-entity';
@@ -46,63 +46,109 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
 
   async createProject(data: CreateProjectData): Promise<ProjectRecord> {
     return this.dataSource.transaction(async (manager) => {
-      const pageCount = data.pages.length;
-
       const project = manager.create(PhotobookProjectOrmEntity, {
-        photobookProductId: String(data.photobookProductId),
-        photobookThemeId: String(data.photobookThemeId),
-        customerEmail: data.customerEmail,
-        customerFullName: data.customerFullName,
-        customerPhone: data.customerPhone,
-        deliveryAddress: data.deliveryAddress,
-        deliveryDistrict: data.deliveryDistrict ?? null,
-        deliveryCity: data.deliveryCity ?? null,
-        deliveryDepartment: data.deliveryDepartment ?? null,
-        deliveryRegion: data.deliveryRegion ?? null,
-        desiredDeliveryDate: data.desiredDeliveryDate ?? null,
-        coverTitle: data.coverTitle ?? null,
-        customerDni: data.customerDni ?? null,
-        customWidthCm: data.customWidthCm ?? null,
-        customHeightCm: data.customHeightCm ?? null,
+        ...this.projectFieldsFromData(data),
         status: 'CONFIRMED',
-        coverType: data.coverType,
-        pricePerPageCents: String(data.pricePerPageCents),
-        rushFeeCents: String(data.rushFeeCents),
-        pageCount,
-        calculatedTotalCents: String(data.calculatedTotalCents),
       });
       const savedProject = await manager.save(PhotobookProjectOrmEntity, project);
-
-      // Pages + slots
-      for (const pageData of data.pages) {
-        const page = manager.create(PhotobookPageOrmEntity, {
-          projectId: savedProject.id,
-          pageNumber: pageData.pageNumber,
-          layoutKey: pageData.layoutKey,
-        });
-        const savedPage = await manager.save(PhotobookPageOrmEntity, page);
-
-        for (const slotData of pageData.slots) {
-          const slot = manager.create(PhotobookPageSlotOrmEntity, {
-            pageId: savedPage.id,
-            assetId: String(slotData.assetId),
-            slotIndex: slotData.slotIndex,
-            cropData: slotData.cropData ?? null,
-          });
-          await manager.save(PhotobookPageSlotOrmEntity, slot);
-        }
-      }
-
-      // Project assets
-      for (const assetId of data.assetIds) {
-        await manager.query(
-          `INSERT INTO photobook_project_assets (project_id, asset_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-          [savedProject.id, assetId],
-        );
-      }
-
+      await this.insertPagesSlotsAssets(manager, savedProject.id, data);
       return this.toProjectRecord(savedProject);
     });
+  }
+
+  async createDraft(input: DraftInput): Promise<DraftRecord> {
+    const project = this.projectRepo.create({
+      photobookProductId: String(input.photobookProductId),
+      photobookThemeId: String(input.photobookThemeId),
+      status: 'DRAFT',
+      draftState: input.state,
+      pricePerPageCents: '0',
+    });
+    const saved = await this.projectRepo.save(project);
+    return { id: Number(saved.id), draftToken: saved.draftToken, status: saved.status, state: saved.draftState };
+  }
+
+  async updateDraftState(draftToken: string, state: Record<string, unknown>): Promise<boolean> {
+    const result = await this.projectRepo.update({ draftToken, status: 'DRAFT' }, { draftState: state });
+    return (result.affected ?? 0) > 0;
+  }
+
+  async findDraftByToken(draftToken: string): Promise<DraftRecord | null> {
+    const e = await this.projectRepo.findOne({ where: { draftToken, status: 'DRAFT' } });
+    return e ? { id: Number(e.id), draftToken: e.draftToken, status: e.status, state: e.draftState } : null;
+  }
+
+  async confirmDraft(draftToken: string, data: CreateProjectData): Promise<ProjectRecord | null> {
+    return this.dataSource.transaction(async (manager) => {
+      const existing = await manager.findOne(PhotobookProjectOrmEntity, { where: { draftToken, status: 'DRAFT' } });
+      if (!existing) return null;
+
+      manager.merge(PhotobookProjectOrmEntity, existing, {
+        ...this.projectFieldsFromData(data),
+        status: 'CONFIRMED',
+        draftState: null,
+      });
+      const savedProject = await manager.save(PhotobookProjectOrmEntity, existing);
+      await this.insertPagesSlotsAssets(manager, savedProject.id, data);
+      return this.toProjectRecord(savedProject);
+    });
+  }
+
+  private projectFieldsFromData(data: CreateProjectData) {
+    return {
+      photobookProductId: String(data.photobookProductId),
+      photobookThemeId: String(data.photobookThemeId),
+      customerEmail: data.customerEmail,
+      customerFullName: data.customerFullName,
+      customerPhone: data.customerPhone,
+      deliveryAddress: data.deliveryAddress,
+      deliveryDistrict: data.deliveryDistrict ?? null,
+      deliveryCity: data.deliveryCity ?? null,
+      deliveryDepartment: data.deliveryDepartment ?? null,
+      deliveryRegion: data.deliveryRegion ?? null,
+      desiredDeliveryDate: data.desiredDeliveryDate ?? null,
+      coverTitle: data.coverTitle ?? null,
+      customerDni: data.customerDni ?? null,
+      customWidthCm: data.customWidthCm ?? null,
+      customHeightCm: data.customHeightCm ?? null,
+      coverType: data.coverType,
+      pricePerPageCents: String(data.pricePerPageCents),
+      rushFeeCents: String(data.rushFeeCents),
+      pageCount: data.pages.length,
+      calculatedTotalCents: String(data.calculatedTotalCents),
+    };
+  }
+
+  private async insertPagesSlotsAssets(
+    manager: import('typeorm').EntityManager,
+    projectId: string,
+    data: CreateProjectData,
+  ): Promise<void> {
+    for (const pageData of data.pages) {
+      const page = manager.create(PhotobookPageOrmEntity, {
+        projectId,
+        pageNumber: pageData.pageNumber,
+        layoutKey: pageData.layoutKey,
+      });
+      const savedPage = await manager.save(PhotobookPageOrmEntity, page);
+
+      for (const slotData of pageData.slots) {
+        const slot = manager.create(PhotobookPageSlotOrmEntity, {
+          pageId: savedPage.id,
+          assetId: String(slotData.assetId),
+          slotIndex: slotData.slotIndex,
+          cropData: slotData.cropData ?? null,
+        });
+        await manager.save(PhotobookPageSlotOrmEntity, slot);
+      }
+    }
+
+    for (const assetId of data.assetIds) {
+      await manager.query(
+        `INSERT INTO photobook_project_assets (project_id, asset_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [projectId, assetId],
+      );
+    }
   }
 
   async findAllProjects(): Promise<ProjectRecord[]> {
@@ -158,6 +204,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
   private toProjectRecord(e: PhotobookProjectOrmEntity): ProjectRecord {
     return {
       id: Number(e.id), photobookProductId: Number(e.photobookProductId), photobookThemeId: Number(e.photobookThemeId),
+      draftToken: e.draftToken,
       customerEmail: e.customerEmail, customerFullName: e.customerFullName, customerPhone: e.customerPhone,
       deliveryAddress: e.deliveryAddress, deliveryDistrict: e.deliveryDistrict,
       deliveryCity: e.deliveryCity, deliveryDepartment: e.deliveryDepartment, deliveryRegion: e.deliveryRegion, desiredDeliveryDate: e.desiredDeliveryDate,

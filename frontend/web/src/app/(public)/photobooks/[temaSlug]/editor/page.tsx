@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import PhotobookEditorClient from "./PhotobookEditorClient";
 
@@ -71,13 +72,15 @@ export default async function PhotobookEditorPage({ params }: Props) {
   const backCoverUrl: string | null = theme?.backCoverUrl ?? null;
 
   return (
-    <PhotobookEditorClient
-      temaSlug={temaSlug}
-      temaNombre={temaNombre}
-      themeId={themeId}
-      products={products}
-      coverUrl={coverUrl}
-      backCoverUrl={backCoverUrl}
-    />
+    <Suspense fallback={null}>
+      <PhotobookEditorClient
+        temaSlug={temaSlug}
+        temaNombre={temaNombre}
+        themeId={themeId}
+        products={products}
+        coverUrl={coverUrl}
+        backCoverUrl={backCoverUrl}
+      />
+    </Suspense>
   );
 }

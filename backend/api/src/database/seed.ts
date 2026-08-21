@@ -86,14 +86,20 @@ export async function runSeed(): Promise<void> {
     // calculated_total_cents ya no es price_per_page_cents * page_count (ver photobook-pricing.service.ts)
     await client.query(`ALTER TABLE photobook_projects DROP CONSTRAINT IF EXISTS chk_photobook_projects_total`);
 
-    // 0f. Actualizar constraint chk_confirmed_requires_contact para incluir delivery_address
+    // 0f. Actualizar constraint chk_confirmed_requires_contact para incluir delivery_address y customer_email
+    await client.query(`ALTER TABLE photobook_projects ALTER COLUMN customer_email DROP NOT NULL`);
     await client.query(`ALTER TABLE photobook_projects DROP CONSTRAINT IF EXISTS chk_confirmed_requires_contact`);
     await client.query(`
       ALTER TABLE photobook_projects ADD CONSTRAINT chk_confirmed_requires_contact CHECK (
         status <> 'CONFIRMED'
-        OR (customer_full_name IS NOT NULL AND customer_phone IS NOT NULL AND delivery_address IS NOT NULL)
+        OR (customer_email IS NOT NULL AND customer_full_name IS NOT NULL AND customer_phone IS NOT NULL AND delivery_address IS NOT NULL)
       )
     `);
+
+    // 0f-bis. Borradores del editor de photobooks — token único para retomar desde la URL
+    await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS draft_token UUID NOT NULL DEFAULT gen_random_uuid()`);
+    await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS draft_state JSONB`);
+    await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS photobook_projects_draft_token_key ON photobook_projects(draft_token)`);
 
     // 0g. Tabla promotions
     await client.query(`

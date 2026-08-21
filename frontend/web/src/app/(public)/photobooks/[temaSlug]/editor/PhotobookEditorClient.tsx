@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { usePhotoUpload, UploadedPhoto } from "@/hooks/usePhotoUpload";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import PhotobookPreview from "@/components/PhotobookPreview";
@@ -97,6 +98,12 @@ function clearDraft(key: string) {
 
 export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, products, coverUrl, backCoverUrl }: Props) {
   const draftKey = `photobook_draft_${temaSlug}`;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // #14 Server-side draft token — lets the customer recover their work from the
+  // same URL even if localStorage gets cleared, not just within the same tab.
+  const [draftToken, setDraftToken] = useState<string | null>(null);
   const { isMobile: isMobileHook } = useWindowSize();
   const [isNarrow, setIsNarrow] = useState(false);
   useEffect(() => {
@@ -180,10 +187,36 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
   const didInitRef = useRef(false);
 
-  // #13 Load draft on mount + apply initial cover/hojas from detail page
+  // #14 Apply a draft blob (same shape whether it came from localStorage or the server)
+  function applyDraftState(draft: Record<string, unknown>) {
+    if (draft.pages) setPages(draft.pages as PageData[]);
+    if (Array.isArray(draft.photos) && draft.photos.length > 0) restorePhotos(draft.photos as UploadedPhoto[]);
+    if (draft.step) setStep(draft.step as number);
+    if (draft.form) setForm(draft.form as typeof form);
+    if (draft.coverType) setCoverType(draft.coverType as CoverType);
+    if (draft.selectedProduct) setSelectedProduct(draft.selectedProduct as number);
+    if (draft.customWidth) setCustomWidth(draft.customWidth as string);
+    if (draft.customHeight) setCustomHeight(draft.customHeight as string);
+    if (draft.wantsRush !== undefined) setWantsRush(draft.wantsRush as boolean);
+  }
+
+  // #13/#14 Load draft on mount + apply initial cover/hojas from detail page
   useEffect(() => {
     if (didInitRef.current) return;
     didInitRef.current = true;
+
+    // An explicit ?draft=token in the URL means the customer is resuming a
+    // specific project (e.g. reopened the tab from history) — takes priority
+    // over anything else, including localStorage.
+    const urlDraftToken = searchParams.get("draft");
+    if (urlDraftToken) {
+      setDraftToken(urlDraftToken);
+      fetch(`${API}/api/photobook/drafts/${urlDraftToken}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((res) => { if (res?.state) applyDraftState(res.state as Record<string, unknown>); })
+        .catch(() => { /* si falla, el cliente sigue con el editor vacío, sin romper nada */ });
+      return;
+    }
 
     // If the user just came from the detail page with an explicit selection,
     // that ALWAYS takes priority over any existing draft.
@@ -216,20 +249,12 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     if (draft && (draft.photos?.length > 0 || draft.pages?.some((p: PageData) => p.slots.some(Boolean)))) {
       setHasDraft(true);
     }
-  }, [draftKey, temaSlug]);
+  }, [draftKey, temaSlug, searchParams]);
 
   function restoreDraft() {
     const draft = loadDraft(draftKey);
     if (!draft) return;
-    if (draft.pages) setPages(draft.pages);
-    if (draft.photos?.length > 0) restorePhotos(draft.photos);
-    if (draft.step) setStep(draft.step);
-    if (draft.form) setForm(draft.form);
-    if (draft.coverType) setCoverType(draft.coverType);
-    if (draft.selectedProduct) setSelectedProduct(draft.selectedProduct);
-    if (draft.customWidth) setCustomWidth(draft.customWidth);
-    if (draft.customHeight) setCustomHeight(draft.customHeight);
-    if (draft.wantsRush !== undefined) setWantsRush(draft.wantsRush);
+    applyDraftState(draft);
     setHasDraft(false);
   }
 
@@ -238,14 +263,14 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     setHasDraft(false);
   }
 
-  // #13 Auto-save draft on changes
+  // #13/#14 Auto-save draft on changes — localStorage (instant, same-tab) + server (durable, URL-based)
   useEffect(() => {
     if (pages.length === 0 && step <= 1) return;
     // Don't save a draft of all-empty pages at step 1 (pre-created but no work done yet)
     const hasAnyPlaced = pages.some((p) => p.slots.some(Boolean));
     if (!hasAnyPlaced && photos.length === 0 && step <= 1) return;
     const timer = setTimeout(() => {
-      saveDraft(draftKey, {
+      const draftData = {
         pages: pages.map((p) => ({
           ...p,
           slots: p.slots.map((s) => s ? { id: s.id, contentHash: s.contentHash, preview: s.url || s.preview, url: s.url, thumbnailUrl: s.thumbnailUrl, width: s.width, height: s.height, originalFilename: s.originalFilename, storageKey: s.storageKey } : null),
@@ -268,10 +293,34 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         selectedProduct,
         customWidth,
         customHeight,
-      });
+      };
+      saveDraft(draftKey, draftData);
+
+      // Server sync — best-effort, never blocks the UI. Skip once the order is
+      // already confirmed (nothing left to protect).
+      if (!themeId || submitted) return;
+      if (draftToken) {
+        fetch(`${API}/api/photobook/drafts/${draftToken}`, {
+          method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state: draftData }),
+        }).catch(() => { /* se reintenta solo en el próximo tick */ });
+      } else {
+        fetch(`${API}/api/photobook/drafts`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ photobookProductId: selectedProduct, photobookThemeId: themeId, state: draftData }),
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((res) => {
+            if (!res?.draftToken) return;
+            setDraftToken(res.draftToken);
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("draft", res.draftToken);
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+          })
+          .catch(() => { /* se reintenta solo en el próximo tick */ });
+      }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [pages, photos, step, form, selectedProduct, customWidth, customHeight, draftKey]);
+  }, [pages, photos, step, form, selectedProduct, customWidth, customHeight, draftKey, draftToken, themeId, submitted, pathname, router, searchParams]);
 
   // Auto-distribute
   function buildPhotoPool(): UploadedPhoto[] {
@@ -540,6 +589,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       const body = {
         photobookProductId: product.id,
         photobookThemeId: themeId,
+        ...(draftToken ? { draftToken } : {}),
         coverType,
         customerEmail: form.email,
         customerFullName: form.name,
