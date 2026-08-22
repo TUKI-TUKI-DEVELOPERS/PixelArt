@@ -102,11 +102,11 @@ export default function ProyectosPage() {
             },
             {
               bg: "#dbeafe", text: "#1e40af", label: "Confirmado",
-              desc: "El cliente confirmó su diseño y subió el comprobante de pago. Pendiente de revisión.",
+              desc: "El diseño quedó confirmado pero no se pudo generar la orden automáticamente. Caso excepcional — revisar manualmente.",
             },
             {
               bg: "#d1fae5", text: "#065f46", label: "Orden Creada",
-              desc: "El pago fue verificado y se generó una orden de producción. El photobook está en proceso.",
+              desc: "Se generó la orden a partir del comprobante subido. El pago todavía no fue verificado — falta aprobarlo en Órdenes.",
             },
           ].map((s) => (
             <div key={s.label} style={{ display: "flex", alignItems: "flex-start", gap: "10px", flex: "1 1 220px", minWidth: 0 }}>
