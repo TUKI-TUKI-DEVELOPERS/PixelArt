@@ -17,7 +17,7 @@ const CATEGORIA_NOMBRES: Record<string, string> = {
   "libros-de-memorias-familiares": "Libros de Memorias Familiares",
 };
 
-const API_BASE = "http://api:3001";
+const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
 
 type Props = {
   params: Promise<{ categoriaId: string }>;

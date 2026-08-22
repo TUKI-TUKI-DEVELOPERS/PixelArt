@@ -17,6 +17,8 @@ import { getAssetUrl } from "@/lib/assetUrl";
 import { tokens } from "@/lib/design-tokens";
 import { hexToRgba } from "@/lib/colors";
 
+const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
+
 type ActivePromo = {
   targetType: string;
   discountType: string;
@@ -73,7 +75,7 @@ function applyBestPromo(priceCents: number, promos: ActivePromo[]): number | und
 export default async function HomePage() {
   const K = HOME_ASSET_KEYS;
 
-  const activePromos: ActivePromo[] = await fetch('http://api:3001/api/promotions/active', {
+  const activePromos: ActivePromo[] = await fetch(`${API_BASE}/api/promotions/active`, {
     next: { revalidate: 60 },
   }).then((r) => r.ok ? r.json() : []).catch(() => []);
 

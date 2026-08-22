@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import NuestrosLibrosClient from "@/components/NuestrosLibros/NuestrosLibrosClient";
 
+const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
+
 type Variant = {
   id: string;
   coverType: string;
@@ -26,7 +28,7 @@ type Category = {
 };
 
 async function fetchBooks(): Promise<Book[]> {
-  const res = await fetch("http://api:3001/api/catalog/books", {
+  const res = await fetch(`${API_BASE}/api/catalog/books`, {
     next: { revalidate: 300 },
   });
   if (!res.ok) return [];
@@ -34,7 +36,7 @@ async function fetchBooks(): Promise<Book[]> {
 }
 
 async function fetchCategories(): Promise<Category[]> {
-  const res = await fetch("http://api:3001/api/personalized/categories", {
+  const res = await fetch(`${API_BASE}/api/personalized/categories`, {
     next: { revalidate: 300 },
   });
   if (!res.ok) return [];

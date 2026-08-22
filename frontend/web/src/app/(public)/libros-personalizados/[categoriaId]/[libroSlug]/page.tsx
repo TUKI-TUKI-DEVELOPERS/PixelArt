@@ -114,7 +114,7 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
   ],
 };
 
-const API_BASE = "http://api:3001";
+const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
 
 type DbIds = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number };
 
