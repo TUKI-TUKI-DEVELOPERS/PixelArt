@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -14,7 +14,7 @@ type ProjectDetail = {
   customerDni: string | null; customWidthCm: number | null; customHeightCm: number | null;
   photobookThemeId: number; photobookProductId: number; pageCount: number; calculatedTotalCents: number;
   pricePerPageCents: number; status: string; orderId: number | null; hasPaymentProof: boolean;
-  pages: { id: number; pageNumber: number; layoutKey: string; slots: { slotIndex: number; assetId: number }[] }[];
+  pages: { id: number; pageNumber: number; layoutKey: string; slots: { slotIndex: number; assetId: number; cropData?: { x: number; y: number; zoom?: number } | null }[] }[];
   assetIds: number[];
 };
 
@@ -164,16 +164,26 @@ export default function ProyectoDetallePage() {
           <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Contenido del photobook</span>
           <span style={{ fontSize: "11px", fontWeight: 600, color: "#6b7280", background: "#f3f4f6", borderRadius: "999px", padding: "1px 8px" }}>{data.pages.length} páginas</span>
         </div>
+        {(() => {
+          // Misma proporción física que usa el PDF real (photobook-pdf.service.ts):
+          // 22x22cm por defecto, o las dimensiones personalizadas del proyecto.
+          const pageAspectRatio = `${data.customWidthCm ?? 22} / ${data.customHeightCm ?? 22}`;
+          return (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
           {data.pages.map((p) => {
-            // Construir lista de URLs en orden de slotIndex
+            // Construir lista de URLs + crop en orden de slotIndex
             const sorted = [...p.slots].sort((a, b) => a.slotIndex - b.slotIndex);
             const urls = sorted.map((s) => assetUrls[s.assetId] ?? null);
+            const crops = sorted.map((s) => s.cropData ?? null);
             const layout = p.layoutKey;
 
-            function Slot({ url }: { url: string | null }) {
+            function Slot({ url, crop }: { url: string | null; crop: { x: number; y: number; zoom?: number } | null }) {
+              const x = crop?.x ?? 50;
+              const y = crop?.y ?? 50;
+              const zoom = crop?.zoom ?? 1;
               return url
-                ? <img src={url} alt="" onClick={(e) => { e.stopPropagation(); setLightbox(url); }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "zoom-in" }} />
+                ? <img src={url} alt="" onClick={(e) => { e.stopPropagation(); setLightbox(url); }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${x}% ${y}%`, transform: `scale(${zoom})`, transformOrigin: `${x}% ${y}%`, display: "block", cursor: "zoom-in" }} />
                 : <div style={{ width: "100%", height: "100%", background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   </div>;
@@ -182,23 +192,23 @@ export default function ProyectoDetallePage() {
             return (
               <div key={p.id} style={{ borderRadius: "10px", border: "1px solid #e5e7eb", overflow: "hidden", background: "#f9fafb" }}>
                 {/* Miniatura de la página */}
-                <div style={{ aspectRatio: "3/4", background: "#f3f4f6", overflow: "hidden" }}>
+                <div style={{ aspectRatio: pageAspectRatio, background: "#f3f4f6", overflow: "hidden" }}>
                   {layout === "FULL_1" ? (
                     <div style={{ width: "100%", height: "100%", padding: "6px" }}>
-                      <div style={{ width: "100%", height: "100%", borderRadius: "4px", overflow: "hidden" }}><Slot url={urls[0] ?? null} /></div>
+                      <div style={{ width: "100%", height: "100%", borderRadius: "4px", overflow: "hidden" }}><Slot url={urls[0] ?? null} crop={crops[0] ?? null} /></div>
                     </div>
                   ) : layout === "GRID_2" ? (
                     <div style={{ width: "100%", height: "100%", padding: "6px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                      {[0, 1].map((i) => <div key={i} style={{ flex: 1, borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[i] ?? null} /></div>)}
+                      {[0, 1].map((i) => <div key={i} style={{ flex: 1, borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[i] ?? null} crop={crops[i] ?? null} /></div>)}
                     </div>
                   ) : layout === "GRID_3" ? (
                     <div style={{ width: "100%", height: "100%", padding: "6px", display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "4px" }}>
-                      <div style={{ gridColumn: "1 / -1", borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[0] ?? null} /></div>
-                      {[1, 2].map((i) => <div key={i} style={{ borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[i] ?? null} /></div>)}
+                      <div style={{ gridColumn: "1 / -1", borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[0] ?? null} crop={crops[0] ?? null} /></div>
+                      {[1, 2].map((i) => <div key={i} style={{ borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[i] ?? null} crop={crops[i] ?? null} /></div>)}
                     </div>
                   ) : (
                     <div style={{ width: "100%", height: "100%", padding: "6px", display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "4px" }}>
-                      {[0, 1, 2, 3].map((i) => <div key={i} style={{ borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[i] ?? null} /></div>)}
+                      {[0, 1, 2, 3].map((i) => <div key={i} style={{ borderRadius: "3px", overflow: "hidden" }}><Slot url={urls[i] ?? null} crop={crops[i] ?? null} /></div>)}
                     </div>
                   )}
                 </div>
@@ -211,6 +221,8 @@ export default function ProyectoDetallePage() {
             );
           })}
         </div>
+          );
+        })()}
       </div>
 
       {/* ── CTA: Crear orden ── */}
