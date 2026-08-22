@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import {
   PhotobookRepositoryPort, PhotobookThemeRecord, PhotobookProductRecord,
   CreateProjectData, ProjectRecord, ProjectDetailRecord, RenderRecord, DraftInput, DraftRecord,
@@ -164,16 +164,21 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
     if (!project) return null;
 
     const pages = await this.pageRepo.find({ where: { projectId: String(id) }, order: { pageNumber: 'ASC' } });
-    const pagesWithSlots = [];
-    for (const page of pages) {
-      const slots = await this.slotRepo.find({ where: { pageId: page.id }, order: { slotIndex: 'ASC' } });
-      pagesWithSlots.push({
-        id: Number(page.id),
-        pageNumber: page.pageNumber,
-        layoutKey: page.layoutKey,
-        slots: slots.map((s) => ({ slotIndex: s.slotIndex, assetId: Number(s.assetId), cropData: s.cropData as import('../../../domain/ports/photobook-repository.port').CropData | null })),
-      });
+    const pageIds = pages.map((page) => page.id);
+    const allSlots = pageIds.length
+      ? await this.slotRepo.find({ where: { pageId: In(pageIds) }, order: { slotIndex: 'ASC' } })
+      : [];
+    const slotsByPageId = new Map<string, PhotobookPageSlotOrmEntity[]>();
+    for (const slot of allSlots) {
+      const bucket = slotsByPageId.get(slot.pageId);
+      if (bucket) bucket.push(slot); else slotsByPageId.set(slot.pageId, [slot]);
     }
+    const pagesWithSlots = pages.map((page) => ({
+      id: Number(page.id),
+      pageNumber: page.pageNumber,
+      layoutKey: page.layoutKey,
+      slots: (slotsByPageId.get(page.id) ?? []).map((s) => ({ slotIndex: s.slotIndex, assetId: Number(s.assetId), cropData: s.cropData as import('../../../domain/ports/photobook-repository.port').CropData | null })),
+    }));
 
     const assetRows: { asset_id: string }[] = await this.dataSource.query(
       `SELECT asset_id FROM photobook_project_assets WHERE project_id = $1`, [id],
