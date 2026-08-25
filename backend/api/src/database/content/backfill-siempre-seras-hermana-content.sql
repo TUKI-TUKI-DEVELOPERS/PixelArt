@@ -15,12 +15,12 @@
 -- colectivo y quedan igual, igual que en el original.
 UPDATE personalized_templates SET
   gender_direction = 'M'
-WHERE model_id = 1164 AND is_active = true
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi') AND is_active = true
   AND template_preview_key LIKE '%_Hermano_%';
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque somos el Mejor Equipo',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_01_Memoria_Familiar_Hermana_Porque_somos_el_Mejor_Equipo.png',
   'F',
@@ -50,7 +50,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque somos Cómplices de Travesuras',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_02_Memoria_Familiar_Hermana_Porque_somos_Cómplices_de_Travesuras.png',
   'F',
@@ -80,7 +80,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque nuestras Locuras Tienen Sentido',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_03_Memoria_Familiar_Hermana_Porque_nuestras_Locuras_Tienen_Sentido.png',
   'F',
@@ -110,7 +110,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque resolvemos Todos los Misterios',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_04_Memoria_Familiar_Hermana_Porque_resolvemos_Todos_los_Misterios.png',
   'F',
@@ -140,7 +140,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque eres mi Compañera de Infinito',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_05_Memoria_Familiar_Hermana_Porque_eres_mi_Compañera_de_Infinito.png',
   'F',
@@ -170,7 +170,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque eres mi Copiloto Eterno',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_06_Memoria_Familiar_Hermana_Porque_eres_mi_Copiloto_Eterno.png',
   'F',
@@ -200,7 +200,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque llegamos Hasta el Fin del Mundo',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_07_Memoria_Familiar_Hermana_Porque_llegamos_Hasta_el_Fin_del_Mundo.png',
   'F',
@@ -230,7 +230,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque viajamos en Nuestro Propio Tiempo',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_08_Memoria_Familiar_Hermana_Porque_viajamos_en_Nuestro_Propio_Tiempo.png',
   'F',
@@ -260,7 +260,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque volamos a Nunca Jamás',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_09_Memoria_Familiar_Hermana_Porque_volamos_a_Nunca_Jamás.png',
   'F',
@@ -290,7 +290,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque nos Protegemos la Espalda',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_10_Memoria_Familiar_Hermana_Porque_nos_Protegemos_la_Espalda.png',
   'F',
@@ -320,7 +320,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque juntos Somos Invencibles',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_11_Memoria_Familiar_Hermana_Porque_juntos_Somos_Invencibles.png',
   'F',
@@ -350,7 +350,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque somos Cazafantasmas de Miedos',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_12_Memoria_Familiar_Hermana_Porque_somos_Cazafantasmas_de_Miedos.png',
   'F',
@@ -380,7 +380,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque somos el Yin de mi Yang',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_13_Memoria_Familiar_Hermana_Porque_somos_el_Yin_de_mi_Yang.png',
   'F',
@@ -410,7 +410,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque eres mi Refugio Constante',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_14_Memoria_Familiar_Hermana_Porque_eres_mi_Refugio_Constante.png',
   'F',
@@ -440,7 +440,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque somos Rivales y Mejores Amigos',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_15_Memoria_Familiar_Hermana_Porque_somos_Rivales_y_Mejores_Amigos.png',
   'F',
@@ -470,7 +470,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque cantamos la Misma Canción',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_16_Memoria_Familiar_Hermana_Porque_cantamos_la_Misma_Canción.png',
   'F',
@@ -500,7 +500,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque eres la Magia de mi Invierno',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_17_Memoria_Familiar_Hermana_Porque_eres_la_Magia_de_mi_Invierno.png',
   'F',
@@ -530,7 +530,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque nos reímos del Peligro',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_18_Memoria_Familiar_Hermana_Porque_nos_reímos_del_Peligro.png',
   'F',
@@ -560,7 +560,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque nuestros Caminos Siempre se Cruzan',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_19_Memoria_Familiar_Hermana_Porque_nuestros_Caminos_Siempre_se_Cruzan.png',
   'F',
@@ -590,7 +590,7 @@ WHERE NOT EXISTS (SELECT 1 FROM personalized_templates WHERE template_preview_ke
 
 
 INSERT INTO personalized_templates (model_id, name, template_preview_key, gender_direction, scene_visual, background_details, magic_effects, lighting_color, poem_template, character_roles)
-SELECT 1164,
+SELECT (SELECT id FROM personalized_models WHERE name = 'Siempre seras parte de mi'),
   'Memoria Familiar Hermana Porque nuestro Vínculo es Eterno',
   'IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Plantillas/PLANTILLA_20_Memoria_Familiar_Hermana_Porque_nuestro_Vínculo_es_Eterno.png',
   'F',
