@@ -299,7 +299,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "{dedicatorName}",
     },
   ],
-  "Te Amo, Abuela": [
+  "Te amo, abuela": [
     {
       label: "Cariñosa",
       HE_TO_SHE:
@@ -354,7 +354,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "{dedicatorName}",
     },
   ],
-  "Te Amo, Abuelo": [
+  "Te amo, abuelo": [
     {
       label: "Emotiva",
       HE_TO_SHE:
@@ -929,17 +929,13 @@ function getWizardMode(categoriaSlug: string, libroNombre: string): WizardMode {
 
 // Para "familia" el destinatario está implícito en el nombre del libro
 function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
-  return ["Mamá, Mi Heroína", "Te Amo, Abuela"].includes(libroNombre) ? "F" : "M";
+  return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(libroNombre) ? "F" : "M";
 }
 
-// Libros de familia donde el dedicante solo puede ser un género (el libro está
-// diseñado para una única voz — ej. "Papá, Mi Héroe" = hija dedicando a su papá).
-// Para estos libros el paso 1 (selector Hijo/Hija o Nieto/Nieta) se salta por completo.
-function getFixedDedicatorGender(libroNombre: string): "M" | "F" | null {
-  if (libroNombre === "Papá, Mi Héroe") return "F";       // hija → papá
-  if (libroNombre === "Mamá, Mi Heroína") return "M";      // hijo → mamá
-  return null;
-}
+// Libros de Familia con plantillas separadas por dirección de género (mismo
+// patrón que Amor: gender_direction + template_preview_key propio por
+// dirección) — ver usesDirectionTemplates más abajo.
+const FAMILIA_DIRECTION_BOOKS = new Set(["Papá, Mi Héroe", "Mamá, Mi Heroína", "Te amo, abuelo", "Te amo, abuela"]);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Acepta + opcional (código de país) y 6-15 dígitos, con espacios/guiones
@@ -1080,11 +1076,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const photoConfig = PHOTO_CONFIG[wizardMode];
   // Para familia-grupo y hermanos, el step 3 no existe; se salta del 2 al 4
   const nextAfterRecipient = (wizardMode === "familia-grupo" || wizardMode === "hermanos") ? 4 : 3;
-  // Libros de familia con dedicante de género único (ej. Papá Mi Héroe): el paso 1
-  // (selector Hijo/Hija) no tiene sentido y se salta — 0 va directo a 2.
-  const fixedDedicatorGender = wizardMode === "familia" ? getFixedDedicatorGender(libroNombre) : null;
-  // Barra de progreso: sin el círculo "Tipo" cuando ese paso está saltado.
-  const visibleSteps = fixedDedicatorGender ? WIZARD_STEPS.filter((s) => s.number !== 1) : WIZARD_STEPS;
+  const visibleSteps = WIZARD_STEPS;
 
   // Step 1 — gender direction
   const [genderDirection, setGenderDirection] = useState<GenderDirection>("");
@@ -1208,15 +1200,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     }
   }, [currentStep]);
 
-  // Libros con dedicante de género único: fija en silencio dedicatorGender/recipientGender
-  // apenas monta, sin que el usuario vea el paso 1 (ver fixedDedicatorGender más arriba).
-  useEffect(() => {
-    if (fixedDedicatorGender) {
-      setDedicatorGender(fixedDedicatorGender);
-      setRecipientGender(getFamiliaRecipientGender(libroNombre));
-    }
-  }, [fixedDedicatorGender, libroNombre]);
-
   useEffect(() => {
     if (dedicatorGender && recipientGender) {
       if (dedicatorGender === "M" && recipientGender === "F") setGenderDirection("HE_TO_SHE");
@@ -1233,10 +1216,11 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   // no-nulo en la DB, que es incidental):
   // - Libros de amor: dirección completa dedicante→destinatario (HE_TO_SHE, etc.),
   //   guardada en gender_direction.
-  // - "Siempre en mi corazon" y "Mi angel guardian" (memorial): dos variantes del
-  //   homenajeado, Abuelo/Abuela y Padre/Madre respectivamente. gender_direction
-  //   guarda simplemente "M" o "F" y se compara contra recipientGender (el género
-  //   del homenajeado, ya recogido en el paso 1 de estos libros).
+  // - Los 3 libros de memorial ("Siempre en mi corazon", "Mi angel guardian",
+  //   "Siempre seras parte de mi"): dos variantes del homenajeado (Abuelo/Abuela,
+  //   Padre/Madre, Hermano/Hermana). gender_direction guarda simplemente "M" o
+  //   "F" y se compara contra recipientGender (el género del homenajeado, ya
+  //   recogido en el paso 1 de estos libros).
   // El resto de libros no-amor/no-memorial siguen sin filtro: sus plantillas están
   // mezcladas y no tienen protagonista de un género fijo.
   //
@@ -1251,7 +1235,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const availableDirections = new Set(
     templates.map((t) => t.genderDirection).filter((d): d is string => d !== null),
   );
-  const usesDirectionTemplates = wizardMode === "amor" && availableDirections.size > 0;
+  const usesDirectionTemplates =
+    (wizardMode === "amor" || FAMILIA_DIRECTION_BOOKS.has(libroNombre)) && availableDirections.size > 0;
   const usesMemorialGenderTemplates = wizardMode === "memorial" && availableDirections.size > 0;
   const directionFor = (ded: "M" | "F", rec: "M" | "F"): GenderDirection =>
     ded === "M" && rec === "F" ? "HE_TO_SHE"
@@ -1679,7 +1664,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               )}
 
               <button
-                onClick={() => setCurrentStep(fixedDedicatorGender ? 2 : 1)}
+                onClick={() => setCurrentStep(1)}
                 style={{ padding: "15px 44px", borderRadius: "9999px", border: "none", background: accent, color: "#fff", fontSize: "16px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 6px 24px ${accent}40` }}
               >
                 Crear mi libro
@@ -1835,11 +1820,10 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             // ── MEMORIAL ──
             if (wizardMode === "memorial") {
               const step1Valid = recipientGender !== "";
-              // "Siempre en mi corazon" y "Mi angel guardian" tienen dos variantes reales de
-              // plantillas (Abuelo/Abuela, Padre/Madre) — el selector debe nombrarlas tal cual,
-              // no con el genérico Él/Ella que no dice en honor a quién es el libro.
-              // "Siempre seras parte de mi" no tiene plantillas separadas por género,
-              // pero sí cambia el texto de dedicatoria (hermano/hermana) — misma etiqueta clara.
+              // Los 3 libros de memorial tienen dos variantes reales de plantillas
+              // (Abuelo/Abuela, Padre/Madre, Hermano/Hermana) — el selector debe
+              // nombrarlas tal cual, no con el genérico Él/Ella que no dice en
+              // honor a quién es el libro.
               const memorialLabels: { m: string; f: string } | null =
                 libroNombre === "Siempre en mi corazon" ? { m: "Abuelo", f: "Abuela" }
                 : libroNombre === "Mi angel guardian" ? { m: "Padre", f: "Madre" }
@@ -1878,8 +1862,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               const recipientG = getFamiliaRecipientGender(libroNombre);
               const recipientLabel = libroNombre === "Papá, Mi Héroe" ? "papá"
                 : libroNombre === "Mamá, Mi Heroína" ? "mamá"
-                : libroNombre === "Te Amo, Abuelo" ? "abuelo"
-                : libroNombre === "Te Amo, Abuela" ? "abuela"
+                : libroNombre === "Te amo, abuelo" ? "abuelo"
+                : libroNombre === "Te amo, abuela" ? "abuela"
                 : recipientG === "M" ? "él" : "ella";
               const step1Valid = dedicatorGender !== "";
               return (
@@ -1889,7 +1873,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ marginBottom: "28px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                       {(() => {
-                        const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
+                        const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
                         return (["M", "F"] as const).map((g) => (
                           <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g}
                             label={g === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija")}
@@ -1901,7 +1885,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     </div>
                   </div>
                   {(() => {
-                    const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
+                    const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
                     const dedicantLabel = dedicatorGender === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija");
                     return step1Valid && summaryBox(`${dedicantLabel} le dedica el libro a ${recipientLabel}`);
                   })()}
@@ -2150,8 +2134,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   : wizardMode === "familia" ? (
                       libroNombre === "Papá, Mi Héroe" ? "Datos del papá"
                       : libroNombre === "Mamá, Mi Heroína" ? "Datos de la mamá"
-                      : libroNombre === "Te Amo, Abuelo" ? "Datos del abuelo"
-                      : libroNombre === "Te Amo, Abuela" ? "Datos de la abuela"
+                      : libroNombre === "Te amo, abuelo" ? "Datos del abuelo"
+                      : libroNombre === "Te amo, abuela" ? "Datos de la abuela"
                       : recipientGender === "F" ? "Datos de ella" : "Datos de él"
                     )
                   : recipientGender === "F" ? "Datos de ella" : "Datos de él"}
@@ -2189,7 +2173,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               </div>
 
               <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
-                {navBtn("Anterior", () => setCurrentStep(fixedDedicatorGender ? 0 : 1))}
+                {navBtn("Anterior", () => setCurrentStep(1))}
                 {navBtn("Siguiente", () => setCurrentStep(nextAfterRecipient), true, !recipientName.trim() || recipientUpload.photos.length < photoConfig.recipient)}
               </div>
             </div>
@@ -2265,7 +2249,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   {wizardMode === "mascotas" ? (dedicatorGender === "M" ? "Datos del dueño" : "Datos de la dueña")
                     : wizardMode === "memorial" ? "¿Quién dedica este libro?"
                     : wizardMode === "familia" ? (() => {
-                      const isAbuelo = libroNombre === "Te Amo, Abuelo" || libroNombre === "Te Amo, Abuela";
+                      const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
                       return dedicatorGender === "M"
                         ? (isAbuelo ? "Datos del nieto" : "Datos del hijo")
                         : (isAbuelo ? "Datos de la nieta" : "Datos de la hija");

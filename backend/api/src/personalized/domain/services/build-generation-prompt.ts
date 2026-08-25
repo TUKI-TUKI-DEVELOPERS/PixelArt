@@ -260,9 +260,10 @@ export function resolveMemorialHermanosNameValues(
   };
 }
 
-/** El `name` en BD incluye el sufijo de dirección ("... El a Ella") para
- * distinguirlo en el admin — el título impreso en la imagen no lo lleva. */
+/** El `name` en BD incluye el sufijo de dirección ("... El a Ella", "... De
+ * Hijo a Papá") para distinguirlo en el admin — el título impreso en la
+ * imagen no lo lleva. */
 export function derivePrintedTitle(templateName: string | null): string {
   if (!templateName) return '';
-  return templateName.replace(/\s+(El a Ella|Ella a El)$/i, '').toUpperCase();
+  return templateName.replace(/\s+(El a Ella|Ella a El|De Hija a Papá|De Hijo a Papá)$/i, '').toUpperCase();
 }

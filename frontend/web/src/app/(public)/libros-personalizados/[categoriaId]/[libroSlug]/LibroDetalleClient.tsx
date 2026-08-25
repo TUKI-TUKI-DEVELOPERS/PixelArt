@@ -1126,7 +1126,7 @@ export default function LibroDetalleClient({
         dbIds={dbIds ?? null}
         variants={variants}
         templates={templates}
-        libroNombre={info.nombre}
+        libroNombre={libroNombre}
         categoriaSlug={categoriaSlug}
       />
       </div>

@@ -892,6 +892,55 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] personalized_templates content backfill (Familia) ✓');
 
+    // "Papá, Mi Héroe" — agrega la versión hijo→papá (antes solo existía
+    // hija→papá) siguiendo el mismo patrón de doble género de Amor
+    // (gender_direction + template_preview_key propio por dirección).
+    // Backfillea gender_direction en las 20 filas hija existentes (quedaban
+    // NULL porque fileToGender() no reconoce el patrón de nombre de archivo
+    // de este libro) e inserta las 20 filas nuevas hijo→papá.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-papa-mi-heroe-hijo-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Papá Mi Héroe — hijo) ✓');
+
+    // "Mamá, Mi Heroína" — agrega la versión hija→mamá (antes solo existía
+    // hijo→mamá), mismo patrón que "Papá, Mi Héroe" arriba.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-mama-mi-heroina-hija-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Mamá Mi Heroína — hija) ✓');
+
+    // "Te amo, abuelo" — agrega la versión nieta→abuelo (antes solo existía
+    // nieto→abuelo), mismo patrón que arriba.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-te-amo-abuelo-nieta-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Te amo abuelo — nieta) ✓');
+
+    // "Te amo, abuela" — agrega la versión nieta→abuela (antes solo existía
+    // nieto→abuela), mismo patrón que arriba. También corrige un bug
+    // preexistente en 2 de las 20 filas nieto (usaban {NOMBRE_DESTINATARIO}
+    // en vez de {APODO_DESTINATARIO}) — solo en las filas nuevas nieta, sin
+    // tocar las filas nieto ya publicadas (a pedido del usuario).
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-te-amo-abuela-nieta-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Te amo abuela — nieta) ✓');
+
+    // "Siempre serás parte de mí" — agrega la versión Hermana (antes solo
+    // existía Hermano) aunque el wizard ya permitía elegir entre ambos.
+    // A diferencia de los libros de Familia, acá gender_direction es el
+    // género del hermano/a fallecido (recipient), plano M/F (no
+    // HE_TO_SHE), igual que "Siempre en mi Corazón"/"Mi Ángel Guardián".
+    // Backfillea gender_direction='M' en las 20 filas Hermano existentes
+    // (quedaban NULL) e inserta las 20 filas nuevas Hermana. Ambas
+    // versiones comparten la misma carpeta Plantillas/ en MinIO porque
+    // los nombres de archivo ya se distinguen por "Hermano"/"Hermana".
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-siempre-seras-hermana-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Siempre serás parte de mí — hermana) ✓');
+
     // Backfill del contenido de prompt para los 3 libros díada de Mascotas
     // (Mi Amigo Miau-ravilloso, El Mejor Amigo del Mundo, Nuestro Ángel de 4
     // Patas — 60 plantillas). Mismo patrón: matchea por template_preview_key,
