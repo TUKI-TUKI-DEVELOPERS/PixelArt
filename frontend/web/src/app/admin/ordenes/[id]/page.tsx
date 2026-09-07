@@ -116,6 +116,8 @@ export default function OrdenDetallePage() {
   const [cbPdfGeneratedAt, setCbPdfGeneratedAt] = useState<string | null>(null);
   const [assetUrls, setAssetUrls] = useState<Record<number, string>>({});
   const [selectedPhoto, setSelectedPhoto] = useState<Record<number, Record<string, number>>>({});
+  // Instrucción de ajuste por plantilla para el re-roll guiado con IA.
+  const [refinementByTemplate, setRefinementByTemplate] = useState<Record<number, string>>({});
   const [generatingSet, setGeneratingSet] = useState<Set<number>>(new Set());
   const [verifyingSet, setVerifyingSet] = useState<Set<number>>(new Set());
   const [generateError, setGenerateError] = useState<Record<number, string>>({});
@@ -292,7 +294,10 @@ export default function OrdenDetallePage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ selectedAssetIds: selectedPhoto[templateId] ?? {} }),
+          body: JSON.stringify({
+            selectedAssetIds: selectedPhoto[templateId] ?? {},
+            refinementPrompt: refinementByTemplate[templateId]?.trim() || undefined,
+          }),
         },
       );
       if (!res.ok) {
@@ -525,6 +530,33 @@ export default function OrdenDetallePage() {
       load();
     } catch { alert("Error al avanzar estado"); }
     finally { setActing(false); }
+  }
+
+  // Textbox de ajuste opcional para la IA, debajo del botón de (re)generar.
+  // Re-roll guiado: regenera la imagen entera con esta corrección de máxima
+  // prioridad — no es un retoque quirúrgico sobre la imagen previa.
+  function refinementBox(templateId: number, isGenerating: boolean) {
+    return (
+      <div style={{ marginTop: "8px", maxWidth: "460px" }}>
+        <textarea
+          value={refinementByTemplate[templateId] ?? ""}
+          onChange={(e) => setRefinementByTemplate((prev) => ({ ...prev, [templateId]: e.target.value }))}
+          disabled={isGenerating}
+          rows={4}
+          placeholder="Ajuste opcional para la IA (ej. 'el pelo del hombre a rojo', 'más luz cálida')."
+          style={{ display: "block", width: "100%", minHeight: "88px", padding: "8px 10px", borderRadius: "8px", border: "1px solid #e5e7eb", fontSize: "12px", fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", color: "#374151", lineHeight: 1.4 }}
+        />
+        <details style={{ marginTop: "4px" }}>
+          <summary style={{ fontSize: "11px", color: "#7c3aed", cursor: "pointer", fontWeight: 600 }}>Cómo escribir el ajuste</summary>
+          <ul style={{ margin: "4px 0 0", paddingLeft: "18px", fontSize: "11px", color: "#6b7280", lineHeight: 1.5 }}>
+            <li>Sé específico con a quién/qué: &ldquo;el pelo <b>del hombre</b> a rojo&rdquo;, no &ldquo;pelo rojo&rdquo;.</li>
+            <li>Obedece bien: color, luz, ropa, fondo, expresión. Cuesta: tamaños y proporciones exactos.</li>
+            <li>Un cambio por vez rinde más que varios juntos.</li>
+            <li>Ojo: regenera <b>toda</b> la imagen — las otras personas pueden variar aunque no las menciones.</li>
+          </ul>
+        </details>
+      </div>
+    );
   }
 
   if (loading) return <div style={{ padding: "32px", color: "#999" }}>Cargando...</div>;
@@ -1239,6 +1271,7 @@ export default function OrdenDetallePage() {
                               ? "Regenerar con IA"
                               : "Generar con IA"}
                           </button>
+                          {refinementBox(t.templateId, isGenerating)}
                           {isVerifying && (
                             <div style={{ marginTop: "6px", fontSize: "11px", color: "#92400e" }}>
                               El servidor puede haber terminado igual — no vuelvas a apretar el botón, esto se resuelve solo en un momento.

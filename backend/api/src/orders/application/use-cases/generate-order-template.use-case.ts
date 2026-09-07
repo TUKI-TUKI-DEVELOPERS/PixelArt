@@ -33,6 +33,9 @@ export type GenerateOrderTemplateInput = {
   orderId: number;
   templateId: number;
   selectedAssetIds?: Record<string, number>;
+  /** Instrucción de ajuste del admin (ej. "cabeza más pequeña") — bloque de
+   * máxima prioridad en el prompt, re-roll guiado. */
+  refinementPrompt?: string;
 };
 
 export type GenerateOrderTemplateOutput = {
@@ -130,6 +133,7 @@ export class GenerateOrderTemplateUseCase {
       title: derivePrintedTitle(template.name),
       poem,
       separator: resolveSeparator(categoryName),
+      adminRefinement: input.refinementPrompt,
     });
 
     // 1 sola llamada, a resolución de spread real (SPREAD_SIZE) — la

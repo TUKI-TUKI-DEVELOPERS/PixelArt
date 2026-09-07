@@ -54,6 +54,13 @@ export type BuildGenerationPromptInput = {
    * WIDTH_CM/HEIGHT_CM real) — usado por la generación fresca de plantillas
    * de orden, que ya no corta ninguna imagen. */
   page?: 'A' | 'B';
+  /** Instrucción libre que escribe el admin en el panel para ajustar un
+   * resultado que no salió como esperaba (ej. "cabeza más pequeña y
+   * proporcionada al cuerpo", "más luz cálida"). Se anexa como bloque FINAL
+   * de máxima prioridad — es un re-roll guiado (regenera la imagen entera con
+   * esta corrección), no un retoque sobre la imagen previa. Vacío/undefined:
+   * el prompt queda idéntico al normal. */
+  adminRefinement?: string;
 };
 
 /** Modelos (libros) de Mascotas donde tanto la mascota COMO el/los dueño/s
@@ -93,7 +100,7 @@ export function buildGenerationPrompt(input: BuildGenerationPromptInput): string
     disenoEditorial = disenoEditorial.replace(DEFAULT_SEPARATOR_PHRASE, `${separator} en el centro`);
   }
 
-  return [
+  const sections = [
     `[IMAGEN BASE]\n${input.sharedBlocks['imagen_base']}`,
     `[ESCENA VISUAL]\n${input.sceneVisual}\n\n${identidad}`,
     `Fondo y Detalles\n${input.backgroundDetails}`,
@@ -102,7 +109,30 @@ export function buildGenerationPrompt(input: BuildGenerationPromptInput): string
     `[COMPOSICIÓN — REGLAS OBLIGATORIAS]\n${input.sharedBlocks[composicionKey]}`,
     `[DISEÑO EDITORIAL]\n${disenoEditorial}`,
     `[DETALLES TÉCNICOS]\n${input.sharedBlocks['detalles_tecnicos']}`,
-  ].join('\n\n');
+  ];
+
+  // Ajuste del editor: bloque final para que el modelo lo lea último (mayor
+  // peso por recencia). Debe PISAR explícitamente las reglas de identidad y de
+  // "mantené fiel la foto de referencia" — si no, el modelo mete atributos como
+  // el color de pelo dentro de "identidad" y conserva el de la foto, ignorando
+  // el ajuste. Lo único intocable son los rasgos faciales (para que la persona
+  // siga siendo reconocible) y el texto impreso (título/poema).
+  const refinement = input.adminRefinement?.trim();
+  if (refinement) {
+    sections.push(
+      `[AJUSTE PRIORITARIO DEL EDITOR]\n` +
+        `Instrucción de MÁXIMA prioridad: tiene precedencia sobre TODO lo ` +
+        `anterior, incluidas las reglas de identidad y de "mantené fiel la foto ` +
+        `de referencia". Aplicá exactamente este cambio AUNQUE contradiga la ` +
+        `foto de referencia o cualquier detalle de la escena. Lo ÚNICO que debe ` +
+        `permanecer igual son los rasgos faciales que hacen reconocible a cada ` +
+        `persona y el texto impreso (título y poema). Todo lo demás —color y ` +
+        `estilo de pelo, ropa, iluminación, fondo, encuadre— SÍ puede cambiar ` +
+        `si este ajuste lo pide. Cambio solicitado:\n${refinement}`,
+    );
+  }
+
+  return sections.join('\n\n');
 }
 
 export type NamePlaceholderValues = {
@@ -131,7 +161,15 @@ export function fillNamePlaceholders(text: string, values: NamePlaceholderValues
     .replaceAll('{NOMBRE_DESTINATARIO}', capitalizeName(values.nombreDestinatario ?? ''))
     .replaceAll('{APODO_DESTINATARIO}', capitalizeName(values.apodoDestinatario ?? values.nombreDestinatario ?? ''))
     .replaceAll('{NOMBRE_DEDICANTE}', capitalizeName(values.nombreDedicante ?? ''))
-    .replaceAll('{APELLIDO}', capitalizeName(values.apellido ?? ''));
+    .replaceAll('{APELLIDO}', capitalizeName(values.apellido ?? ''))
+    // El apodo es texto libre del cliente. Si escribe uno que ya trae el
+    // posesivo ("Mi amor", "Mi cielo") y el texto fijo ya tiene un "mi" antes
+    // del placeholder (205 de 416 poemas lo tienen, por métrica: "Mi {APODO},
+    // mi amor..."), sale "mi Mi Amor". Colapsamos el posesivo duplicado — en
+    // español "mi mi" nunca es válido, así que solo puede venir de este choque.
+    // Se conserva el "mi" del texto fijo (con la mayúscula/minúscula correcta
+    // según la posición en el verso) y se descarta el que aporta el apodo.
+    .replace(/\b(mi)\s+mi\b/gi, '$1');
 }
 
 type FamilyGroupCharacterMeta = {
@@ -260,10 +298,22 @@ export function resolveMemorialHermanosNameValues(
   };
 }
 
-/** El `name` en BD incluye el sufijo de dirección ("... El a Ella", "... De
- * Hijo a Papá") para distinguirlo en el admin — el título impreso en la
- * imagen no lo lleva. */
+/** El `name` en BD incluye decoraciones que sirven para distinguir la
+ * plantilla en el admin pero NO deben imprimirse en la imagen: el sufijo de
+ * dirección ("... El a Ella", "... De Hijo a Papá", "... De Nieta a Abuela",
+ * "... De Hija a Mamá") y, en los libros de Memorias Familiares, el prefijo de
+ * colección ("Memoria Familiar Abuelo Porque..."). El título impreso conserva
+ * solo la parte real ("Abuelo Porque...").
+ *
+ * El sufijo direccional se matchea de forma genérica ("De <rol> a <rol>") a
+ * propósito: cada libro direccional nuevo (nieto/nieta, hijo/hija, etc.)
+ * agregaba una variante de sufijo y había que acordarse de listarla acá —
+ * justo el olvido que dejó "DE HIJO A MAMÁ" impreso en la imagen. `\p{L}`
+ * (flag u) cubre los roles con tilde como "Papá"/"Mamá". */
 export function derivePrintedTitle(templateName: string | null): string {
   if (!templateName) return '';
-  return templateName.replace(/\s+(El a Ella|Ella a El|De Hija a Papá|De Hijo a Papá)$/i, '').toUpperCase();
+  return templateName
+    .replace(/^Memorias?\s+Familiar(?:es)?\s+/i, '')
+    .replace(/\s+(El a Ella|Ella a El|De \p{L}+ a \p{L}+)$/iu, '')
+    .toUpperCase();
 }

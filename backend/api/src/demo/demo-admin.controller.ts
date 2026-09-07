@@ -54,15 +54,18 @@ export class DemoAdminController {
   /**
    * POST /api/admin/demo/requests/:id/proposals/generate
    * Query: templateId
-   * Body opcional: { selectedAssetIds: { [roleKey]: assetId } } — qué foto
-   * usar por cada persona cuando subió más de una (por defecto, la primera).
-   * Genera la imagen con IA (fotos reales del cliente) en vez de subirla a mano.
+   * Body opcional: { selectedAssetIds: { [roleKey]: assetId },
+   *   refinementPrompt?: string } — selectedAssetIds: qué foto usar por cada
+   * persona cuando subió más de una (por defecto, la primera). refinementPrompt:
+   * instrucción de ajuste del admin para un re-roll guiado (ej. "cabeza más
+   * pequeña"). Genera la imagen con IA (fotos reales del cliente).
    */
   @Post('requests/:id/proposals/generate')
   generateProposal(
     @Param('id') id: string,
     @Query('templateId') templateId: string,
     @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+    @Body('refinementPrompt') refinementPrompt?: string,
   ) {
     if (!templateId) throw new BadRequestException('templateId is required');
 
@@ -70,6 +73,7 @@ export class DemoAdminController {
       demoRequestId: Number(id),
       templateId: Number(templateId),
       selectedAssetIds,
+      refinementPrompt,
       generatedByUserId: null,
     });
   }

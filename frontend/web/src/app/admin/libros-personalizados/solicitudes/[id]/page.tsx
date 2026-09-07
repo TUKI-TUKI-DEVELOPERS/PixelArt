@@ -91,6 +91,9 @@ export default function SolicitudDetallePage() {
   const [verifyingSet, setVerifyingSet] = useState<Set<number>>(new Set());
   const [generateError, setGenerateError] = useState<Record<number, string>>({});
   const [selectedPhoto, setSelectedPhoto] = useState<Record<number, Record<string, number>>>({});
+  // Instrucción de ajuste que el admin escribe por plantilla para el re-roll
+  // guiado (ej. "cabeza más pequeña"). Se manda al backend en la (re)generación.
+  const [refinementByTemplate, setRefinementByTemplate] = useState<Record<number, string>>({});
   const [deletingProposal, setDeletingProposal] = useState<number | null>(null);
   const [assetUrls, setAssetUrls] = useState<Record<number, string>>({});
   const [sendingCheckout, setSendingCheckout] = useState(false);
@@ -206,7 +209,10 @@ export default function SolicitudDetallePage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ selectedAssetIds: selectedPhoto[templateId] ?? {} }),
+          body: JSON.stringify({
+            selectedAssetIds: selectedPhoto[templateId] ?? {},
+            refinementPrompt: refinementByTemplate[templateId]?.trim() || undefined,
+          }),
         },
       );
       if (!res.ok) {
@@ -245,6 +251,33 @@ export default function SolicitudDetallePage() {
     } finally {
       setDeletingProposal(null);
     }
+  }
+
+  // Textbox de ajuste opcional para la IA, debajo del botón de (re)generar.
+  // Re-roll guiado: se regenera la imagen entera con esta corrección de máxima
+  // prioridad — no es un retoque quirúrgico sobre la imagen previa.
+  function refinementBox(templateId: number, isGenerating: boolean) {
+    return (
+      <div style={{ marginTop: "6px" }}>
+        <textarea
+          value={refinementByTemplate[templateId] ?? ""}
+          onChange={(e) => setRefinementByTemplate((prev) => ({ ...prev, [templateId]: e.target.value }))}
+          disabled={isGenerating}
+          rows={4}
+          placeholder="Ajuste opcional para la IA (ej. 'el pelo del hombre a rojo', 'más luz cálida')."
+          style={{ width: "100%", minHeight: "84px", padding: "8px 10px", borderRadius: "8px", border: "1px solid #e5e7eb", fontSize: "12px", fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", color: "#374151", lineHeight: 1.4 }}
+        />
+        <details style={{ marginTop: "4px" }}>
+          <summary style={{ fontSize: "10px", color: "#7c3aed", cursor: "pointer", fontWeight: 600 }}>Cómo escribir el ajuste</summary>
+          <ul style={{ margin: "4px 0 0", paddingLeft: "16px", fontSize: "10px", color: "#6b7280", lineHeight: 1.5 }}>
+            <li>Sé específico con a quién/qué: &ldquo;el pelo <b>del hombre</b> a rojo&rdquo;, no &ldquo;pelo rojo&rdquo;.</li>
+            <li>Obedece bien: color, luz, ropa, fondo, expresión. Cuesta: tamaños y proporciones exactos.</li>
+            <li>Un cambio por vez rinde más que varios juntos.</li>
+            <li>Ojo: regenera <b>toda</b> la imagen — las otras personas pueden variar aunque no las menciones.</li>
+          </ul>
+        </details>
+      </div>
+    );
   }
 
   if (loading) return <div style={{ padding: "32px", color: "#999" }}>Cargando...</div>;
@@ -753,6 +786,7 @@ export default function SolicitudDetallePage() {
                           ? "Regenerando… (puede tardar 20s)"
                           : "Regenerar con IA"}
                       </button>
+                      {refinementBox(ts.templateId, isGenerating)}
                       {generateError[ts.templateId] && (
                         <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>
                       )}
@@ -805,6 +839,7 @@ export default function SolicitudDetallePage() {
                             ? "Generando… (puede tardar 20s)"
                             : "Generar con IA"}
                         </button>
+                        {refinementBox(ts.templateId, isGenerating)}
                         {generateError[ts.templateId] && (
                           <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[ts.templateId]}</div>
                         )}

@@ -24,6 +24,10 @@ export type GenerateProposalInput = {
    * por el admin entre las fotos subidas para esa persona. Si no se manda,
    * se usa la primera foto de cada una. */
   selectedAssetIds?: Record<string, number>;
+  /** Instrucción de ajuste que el admin escribe en el panel cuando el
+   * resultado no salió como esperaba (ej. "cabeza más pequeña"). Se pasa como
+   * bloque de máxima prioridad al prompt — re-roll guiado. */
+  refinementPrompt?: string;
   generatedByUserId?: number | null;
 };
 
@@ -102,6 +106,7 @@ export class GenerateDemoProposalUseCase {
       title: derivePrintedTitle(template.name),
       poem,
       separator: resolveSeparator(categoryName),
+      adminRefinement: input.refinementPrompt,
     });
 
     // Mismo tamaño que usa la generación fresca de plantillas de orden — así

@@ -308,7 +308,9 @@ export class OrdersAdminController {
   /**
    * POST /api/admin/orders/:id/print-assets/generate
    * Query: templateId
-   * Body opcional: { selectedAssetIds: { [roleKey]: assetId } }
+   * Body opcional: { selectedAssetIds: { [roleKey]: assetId },
+   *   refinementPrompt?: string } — refinementPrompt: ajuste del admin para un
+   * re-roll guiado (ej. "cabeza más pequeña").
    * Genera Cara A y Cara B con IA (mismo prompt/fotos que el demo) y las sube
    * directo como archivos de imprenta — sin marca de agua, listo para el PDF.
    */
@@ -317,12 +319,14 @@ export class OrdersAdminController {
     @Param('id') id: string,
     @Query('templateId') templateId: string,
     @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+    @Body('refinementPrompt') refinementPrompt?: string,
   ) {
     if (!templateId) throw new BadRequestException('templateId is required');
     return this.generateOrderTemplateUseCase.execute({
       orderId: Number(id),
       templateId: Number(templateId),
       selectedAssetIds,
+      refinementPrompt,
     });
   }
 
