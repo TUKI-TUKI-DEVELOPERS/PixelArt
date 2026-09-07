@@ -1,4 +1,4 @@
-export type PhotobookThemeRecord = { id: number; name: string; coverPreviewKey: string; coverTemplateKey: string; backCoverKey: string | null; isActive: boolean };
+export type PhotobookThemeRecord = { id: number; name: string; coverPreviewKey: string; coverTemplateKey: string; backCoverKey: string | null; coverWrapKey: string | null; spineLabel: string | null; isActive: boolean };
 export type PhotobookProductRecord = { id: number; name: string; pricePerPageCents: number; minPages: number; currency: string; allowsCustomDimensions: boolean };
 
 export type CropData = { x: number; y: number; zoom?: number };

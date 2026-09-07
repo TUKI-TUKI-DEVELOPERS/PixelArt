@@ -26,12 +26,12 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
 
   async listThemes(): Promise<PhotobookThemeRecord[]> {
     const entities = await this.themeRepo.find({ where: { isActive: true }, order: { name: 'ASC' } });
-    return entities.map((e) => ({ id: Number(e.id), name: e.name, coverPreviewKey: e.coverPreviewKey, coverTemplateKey: e.coverTemplateKey, backCoverKey: e.backCoverKey, isActive: e.isActive }));
+    return entities.map((e) => ({ id: Number(e.id), name: e.name, coverPreviewKey: e.coverPreviewKey, coverTemplateKey: e.coverTemplateKey, backCoverKey: e.backCoverKey, coverWrapKey: e.coverWrapKey, spineLabel: e.spineLabel, isActive: e.isActive }));
   }
 
   async getTheme(id: number): Promise<PhotobookThemeRecord | null> {
     const e = await this.themeRepo.findOne({ where: { id: String(id) } });
-    return e ? { id: Number(e.id), name: e.name, coverPreviewKey: e.coverPreviewKey, coverTemplateKey: e.coverTemplateKey, backCoverKey: e.backCoverKey, isActive: e.isActive } : null;
+    return e ? { id: Number(e.id), name: e.name, coverPreviewKey: e.coverPreviewKey, coverTemplateKey: e.coverTemplateKey, backCoverKey: e.backCoverKey, coverWrapKey: e.coverWrapKey, spineLabel: e.spineLabel, isActive: e.isActive } : null;
   }
 
   async listProducts(): Promise<PhotobookProductRecord[]> {

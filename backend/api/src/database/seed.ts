@@ -71,6 +71,9 @@ export async function runSeed(): Promise<void> {
 
     // 0e. Campos nuevos en photobook_products y photobook_projects
     await client.query(`ALTER TABLE photobook_products ADD COLUMN IF NOT EXISTS allows_custom_dimensions BOOLEAN NOT NULL DEFAULT FALSE`);
+    // 0e-bis. Automatización de tapa/lomo: panorámica única + texto del lomo por tema
+    await client.query(`ALTER TABLE photobook_themes ADD COLUMN IF NOT EXISTS cover_wrap_key TEXT`);
+    await client.query(`ALTER TABLE photobook_themes ADD COLUMN IF NOT EXISTS spine_label TEXT`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_address TEXT`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_district TEXT`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS cover_title TEXT`);
@@ -1191,6 +1194,34 @@ export async function runSeed(): Promise<void> {
         back_cover_key     = EXCLUDED.back_cover_key
     `);
     console.log('[seed] photobook_themes ✓');
+
+    // 6b. Automatización tapa/lomo: panorámica única (cover_wrap_key) + texto del
+    // lomo (spine_label) por tema. Match por NOMBRE (no ids). Regla del lomo:
+    // Perú=ciudad, fuera de Perú=país. Bodas queda sin wrap → fallback al flujo viejo.
+    await client.query(`
+      UPDATE photobook_themes AS t SET cover_wrap_key = v.wrap, spine_label = v.label
+      FROM (VALUES
+        ('Francia',        'Photobooks/Wraps/Photobook_Paris_Wrap.png',          'Francia'),
+        ('México',         'Photobooks/Wraps/Photobook_Chichen_Itza_Wrap.png',   'México'),
+        ('Nueva York',     'Photobooks/Wraps/Photobook_New_York_Wrap.png',       'Estados Unidos'),
+        ('Roma',           'Photobooks/Wraps/Photobook_Coliseo_Romano_Wrap.png', 'Italia'),
+        ('Holanda',        'Photobooks/Wraps/Photobook_Amsterdam_Wrap.png',      'Holanda'),
+        ('Thailandia',     'Photobooks/Wraps/Photobook_Bangkok_Wrap.png',        'Thailandia'),
+        ('Río de Janeiro', 'Photobooks/Wraps/Photobook_Rio_Janeiro_Wrap.png',    'Brasil'),
+        ('Iquitos',        'Photobooks/Wraps/Photobook_Iquitos_Wrap.png',        'Iquitos'),
+        ('Machu Picchu',   'Photobooks/Wraps/Photobook_Machu_Picchu_Wrap.png',   'Cusco'),
+        ('Arequipa',       'Photobooks/Wraps/Photobook_Arequipa_Wrap.png',       'Arequipa'),
+        ('Ayacucho',       'Photobooks/Wraps/Photobook_Ayacucho_Wrap.png',       'Ayacucho'),
+        ('Huancayo',       'Photobooks/Wraps/Photobook_Huancayo_Wrap.png',       'Huancayo'),
+        ('Puno',           'Photobooks/Wraps/Photobook_Puno_Wrap.png',           'Puno'),
+        ('Cajamarca',      'Photobooks/Wraps/Photobook_Cajamarca_Wrap.png',      'Cajamarca'),
+        ('Punta Cana',     'Photobooks/Wraps/Photobook_Punta_Cana_Wrap.png',     'República Dominicana'),
+        ('Jamaica',        'Photobooks/Wraps/Photobook_Jamaica_Wrap.png',        'Jamaica'),
+        ('Miami',          'Photobooks/Wraps/Photobook_Miami_Wrap.png',          'Estados Unidos')
+      ) AS v(name, wrap, label)
+      WHERE t.name = v.name
+    `);
+    console.log('[seed] photobook_themes cover_wrap_key + spine_label ✓');
 
     // ── 7. photobook_products ────────────────────────────────────────────────
     // Desactivar producto anterior renombrado

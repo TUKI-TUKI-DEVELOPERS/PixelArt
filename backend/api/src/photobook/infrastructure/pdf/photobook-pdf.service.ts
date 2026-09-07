@@ -2,9 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as puppeteer from 'puppeteer-core';
 import { createPool, Pool } from 'generic-pool';
 import sharp from 'sharp';
-import { PhotobookRepositoryPort, ProjectDetailRecord } from '../../domain/ports/photobook-repository.port';
+import { PhotobookRepositoryPort, ProjectDetailRecord, PhotobookThemeRecord } from '../../domain/ports/photobook-repository.port';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
 import { AssetRepositoryPort } from '../../../assets/domain/ports/asset-repository.port';
+import { calculateSpineWidthMm, SANGRADO_MM } from '../../domain/services/photobook-spine.service';
+import { computeWrapLayout, WrapLayout } from '../../domain/services/photobook-wrap-layout.service';
+import { PhotobookCoverType, isValidPhotobookCoverType } from '../../domain/services/photobook-pricing.service';
+import { PRATA_WOFF2_BASE64 } from './fonts/prata-font';
 
 // Imagen placeholder (1x1 gris) para slots sin imagen o con error de carga
 const PLACEHOLDER_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8+PBhPQAIgAMG+4l0SAAAAABJRU5ErkJggg==';
@@ -66,8 +70,12 @@ export class PhotobookPdfService {
 
     const assetIds = Array.from(new Set(project.pages.flatMap((p) => p.slots.map((s) => s.assetId))));
     const assetMap = await this.prepareAssets(assetIds);
-    const coverBase64 = theme ? await this.downloadCoverAsBase64(theme.coverTemplateKey) : null;
-    const backCoverBase64 = theme?.backCoverKey ? await this.downloadCoverAsBase64(theme.backCoverKey) : null;
+    // Si el tema tiene panorámica (wrap), la tapa/contratapa se entregan como un
+    // archivo aparte (ver generateAndStoreCoverWrap) y NO van como páginas del
+    // interior. Sin panorámica (ej. Bodas) → fallback al flujo viejo de 2 páginas.
+    const hasWrap = !!theme?.coverWrapKey;
+    const coverBase64 = !hasWrap && theme ? await this.downloadCoverAsBase64(theme.coverTemplateKey) : null;
+    const backCoverBase64 = !hasWrap && theme?.backCoverKey ? await this.downloadCoverAsBase64(theme.backCoverKey) : null;
 
     const html = this.buildHtml(project, assetMap, widthCm, heightCm, coverBase64, backCoverBase64);
     const pdfBuffer = await this.renderPdf(html, widthCm, heightCm);
@@ -75,8 +83,16 @@ export class PhotobookPdfService {
     const storageKey = `photobook-renders/${projectId}.pdf`;
     await this.fileStorage.upload(storageKey, pdfBuffer, 'application/pdf');
     await this.repo.saveRender(projectId, storageKey);
-
     this.logger.log(`PDF listo: ${storageKey}`);
+
+    if (theme && theme.coverWrapKey) {
+      try {
+        await this.generateAndStoreCoverWrap(project, theme, widthCm, heightCm);
+      } catch (err) {
+        // El wrap es additivo: si falla, el interior ya quedó guardado. No romper el flujo.
+        this.logger.error(`Error generando wrap de tapa (proyecto #${projectId}): ${(err as Error).message}`);
+      }
+    }
   }
 
   getPdfUrl(pdfStorageKey: string): string {
@@ -222,6 +238,115 @@ export class PhotobookPdfService {
       const pdf = await page.pdf({
         width: `${widthCm}cm`,
         height: `${heightCm}cm`,
+        printBackground: true,
+        preferCSSPageSize: false,
+      });
+      return Buffer.from(pdf);
+    } finally {
+      await page.close();
+      await this.browserPool.release(browser);
+    }
+  }
+
+  // ── Wrap de tapa/lomo/contratapa (automatización nueva) ────────────────────
+
+  /** URL pública del wrap de tapa (archivo aparte). Key predecible por proyecto. */
+  getCoverWrapUrl(projectId: number): string {
+    return this.fileStorage.getPublicUrl(`photobook-renders/${projectId}-cover-wrap.pdf`);
+  }
+
+  /**
+   * Genera y guarda el wrap (contratapa|lomo|tapa) como PDF de una sola página
+   * ancha, aparte del PDF interior. El ancho del lomo sale de la fórmula por
+   * pedido (page_count + cover_type); el texto (título+año en tapa, spine_label
+   * en lomo) se compone por código. Solo se llama si el tema tiene coverWrapKey.
+   */
+  private async generateAndStoreCoverWrap(
+    project: ProjectDetailRecord,
+    theme: PhotobookThemeRecord,
+    coverWidthCm: number,
+    coverHeightCm: number,
+  ): Promise<void> {
+    const coverType: PhotobookCoverType = isValidPhotobookCoverType(project.coverType ?? '')
+      ? (project.coverType as PhotobookCoverType)
+      : 'TAPA_GRUESA'; // fallback conservador (lomo más ancho) si el pedido no trae cover_type válido
+    const spineMm = calculateSpineWidthMm(project.pageCount, coverType);
+    const layout = computeWrapLayout(coverWidthCm, coverHeightCm, spineMm, SANGRADO_MM);
+
+    const panoramicBase64 = await this.downloadWrapPanoramic(theme.coverWrapKey!, layout);
+    const title = theme.name.toUpperCase();
+    const year = new Date().getFullYear();
+    const spineLabel = (theme.spineLabel ?? theme.name).toUpperCase();
+
+    const html = this.buildWrapHtml(panoramicBase64, layout, title, year, spineLabel);
+    const pdf = await this.renderWrapPdf(html, layout);
+
+    const key = `photobook-renders/${project.id}-cover-wrap.pdf`;
+    await this.fileStorage.upload(key, pdf, 'application/pdf');
+    this.logger.log(`Wrap de tapa listo: ${key} (lomo ${spineMm}mm, ${coverType}, ${theme.name})`);
+  }
+
+  private async downloadWrapPanoramic(storageKey: string, layout: WrapLayout): Promise<string> {
+    const raw = await this.fileStorage.download(storageKey);
+    // Escala la panorámica al ancho del wrap con lanczos (mismo criterio que los
+    // interiores). La fuente es ~1536px, así que esto sube resolución de impresión.
+    const targetW = Math.min(4000, Math.round((layout.totalWidthCm / 2.54) * 180));
+    const buf = await sharp(raw)
+      .resize({ width: targetW, kernel: 'lanczos3', withoutEnlargement: false })
+      .jpeg({ quality: 90 })
+      .toBuffer();
+    return `data:image/jpeg;base64,${buf.toString('base64')}`;
+  }
+
+  private escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  private buildWrapHtml(panoramicBase64: string, layout: WrapLayout, title: string, year: number, spineLabel: string): string {
+    const { totalWidthCm, totalHeightCm, coverWidthCm, coverHeightCm, spineWidthCm, frontCoverLeftCm, spineLeftCm, spineCenterCm, bleedCm } = layout;
+    const titleTopCm = bleedCm + coverHeightCm * 0.2;
+    const scrimBandCm = spineWidthCm + 1.4; // banda del scrim algo más ancha que el lomo, se desvanece a los lados
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+    @font-face { font-family:'Prata'; font-style:normal; font-weight:400; src:url(data:font/woff2;base64,${PRATA_WOFF2_BASE64}) format('woff2'); }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @page { margin:0; size:${totalWidthCm}cm ${totalHeightCm}cm; }
+    html, body { width:${totalWidthCm}cm; height:${totalHeightCm}cm; }
+    .wrap { position:relative; width:${totalWidthCm}cm; height:${totalHeightCm}cm; overflow:hidden;
+      background-image:url('${panoramicBase64}'); background-size:cover; background-position:center 42%; }
+    .lomo-scrim { position:absolute; top:0; height:100%; left:${(spineCenterCm - scrimBandCm / 2).toFixed(3)}cm; width:${scrimBandCm.toFixed(3)}cm;
+      background:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0) 100%); }
+    .title-scrim { position:absolute; top:0; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; height:${(coverHeightCm * 0.62).toFixed(3)}cm;
+      background:radial-gradient(ellipse 55% 58% at 50% 33%, rgba(0,0,0,0.46) 0%, rgba(0,0,0,0) 68%); }
+    .tapa-text { position:absolute; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; top:${titleTopCm.toFixed(3)}cm; text-align:center; color:#fff; text-shadow:0 0.04cm 0.32cm rgba(0,0,0,0.4); }
+    .tapa-text .title { display:block; font-family:'Prata',serif; font-size:2.2cm; letter-spacing:0.14em; text-indent:0.14em; }
+    .tapa-text .divider { width:2.2cm; height:0.04cm; background:#fff; margin:0.44cm auto; opacity:0.88; }
+    .tapa-text .year { display:block; font-family:'Prata',serif; font-size:0.6cm; letter-spacing:0.30em; text-indent:0.30em; opacity:0.94; }
+    .lomo-text { position:absolute; top:50%; left:${spineLeftCm.toFixed(3)}cm; width:${spineWidthCm}cm; height:0; display:flex; align-items:center; justify-content:center; }
+    .lomo-text span { font-family:'Prata',serif; color:#fff; font-size:1.0cm; letter-spacing:0.22em; white-space:nowrap; transform:rotate(90deg); text-shadow:0 0.04cm 0.28cm rgba(0,0,0,0.45); }
+    </style></head><body>
+    <div class="wrap">
+      <div class="lomo-scrim"></div>
+      <div class="title-scrim"></div>
+      <div class="tapa-text"><span class="title">${this.escapeHtml(title)}</span><div class="divider"></div><span class="year">${year}</span></div>
+      <div class="lomo-text"><span>${this.escapeHtml(spineLabel)}</span></div>
+    </div>
+    </body></html>`;
+  }
+
+  private async renderWrapPdf(html: string, layout: WrapLayout): Promise<Buffer> {
+    const browser = await this.browserPool.acquire();
+    const page = await browser.newPage();
+    try {
+      page.setDefaultTimeout(90000);
+      await page.setViewport({
+        width: Math.round((layout.totalWidthCm / 2.54) * 96),
+        height: Math.round((layout.totalHeightCm / 2.54) * 96),
+        deviceScaleFactor: 2, // la panorámica fuente es de baja resolución; DSF 2 equilibra calidad/memoria en una página ancha
+      });
+      await page.setContent(html, { waitUntil: 'load' });
+      const pdf = await page.pdf({
+        width: `${layout.totalWidthCm}cm`,
+        height: `${layout.totalHeightCm}cm`,
         printBackground: true,
         preferCSSPageSize: false,
       });

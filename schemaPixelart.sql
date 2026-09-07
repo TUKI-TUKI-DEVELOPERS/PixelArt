@@ -596,6 +596,8 @@ CREATE TABLE photobook_themes (
   cover_preview_key TEXT NOT NULL,   -- preview en storage
   cover_template_key TEXT NOT NULL,  -- plantilla base para generar portada
   back_cover_key TEXT,               -- contraportada en storage
+  cover_wrap_key TEXT,               -- panorámica única tapa+lomo+contratapa (automatización nueva); NULL = usa el flujo viejo de 2 imágenes separadas
+  spine_label TEXT,                  -- texto del lomo (Perú=ciudad, fuera=país); NULL = usa name
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),

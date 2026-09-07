@@ -17,6 +17,12 @@ export class PhotobookThemeOrmEntity {
   @Column({ name: 'back_cover_key', type: 'text', nullable: true })
   backCoverKey!: string | null;
 
+  @Column({ name: 'cover_wrap_key', type: 'text', nullable: true })
+  coverWrapKey!: string | null;
+
+  @Column({ name: 'spine_label', type: 'text', nullable: true })
+  spineLabel!: string | null;
+
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
 
