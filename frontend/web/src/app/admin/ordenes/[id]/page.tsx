@@ -474,7 +474,13 @@ export default function OrdenDetallePage() {
     setPdfLoading(true);
     fetch(`${API}/api/admin/photobook/projects/${projectId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error("not ready"); })
-      .then((r: { pdfUrl: string; coverWrapUrl: string | null }) => { setPdfUrl(r.pdfUrl); setCoverWrapUrl(r.coverWrapUrl ?? null); })
+      .then((r: { pdfUrl: string; coverWrapUrl: string | null }) => {
+        // Cache-buster: la key en MinIO es fija por proyecto, así que sin esto el
+        // navegador sirve el PDF viejo tras regenerar (mismo patrón que el custom book).
+        const v = Date.now();
+        setPdfUrl(`${r.pdfUrl}?v=${v}`);
+        setCoverWrapUrl(r.coverWrapUrl ? `${r.coverWrapUrl}?v=${v}` : null);
+      })
       .catch(() => { setPdfUrl(null); setCoverWrapUrl(null); })
       .finally(() => setPdfLoading(false));
   }
@@ -812,8 +818,9 @@ export default function OrdenDetallePage() {
                         const res = await fetch(`${API}/api/admin/photobook/projects/${data.photobookProjectId}/render`);
                         if (res.ok) {
                           const r = await res.json();
-                          setPdfUrl(r.pdfUrl);
-                          setCoverWrapUrl(r.coverWrapUrl ?? null);
+                          const v = Date.now();
+                          setPdfUrl(`${r.pdfUrl}?v=${v}`);
+                          setCoverWrapUrl(r.coverWrapUrl ? `${r.coverWrapUrl}?v=${v}` : null);
                           setPdfSuccess(true);
                           setTimeout(() => setPdfSuccess(false), 4000);
                         }
