@@ -9,6 +9,8 @@ import { EmailService } from '../email/email.service';
 
 type OrderInfo = { orderId: number; totalAmountCents: number; paymentLink: { token: string; url: string; expiresAt: Date } };
 
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
+
 @Injectable()
 export class PhotobookService {
   private readonly logger = new Logger(PhotobookService.name);
@@ -139,6 +141,25 @@ export class PhotobookService {
       order = await this.createOrderFromProject(savedProject.id);
     } catch (err) {
       this.logger.warn(`No se pudo crear la orden automática para el proyecto #${savedProject.id}: ${(err as Error).message}`);
+    }
+
+    // Aviso al admin de que entró una solicitud de photobook (paridad con el
+    // flujo de libros personalizados). Igual que la orden automática de arriba,
+    // un fallo de correo no debe romper la respuesta: el proyecto ya se guardó.
+    try {
+      const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+      await this.emailService.queue({
+        eventType: 'NEW_PHOTOBOOK_REQUEST_TO_ADMIN',
+        orderId: order?.orderId ?? null,
+        toEmail: ADMIN_NOTIFICATION_EMAIL,
+        subject: 'PixelArt — Nueva solicitud de photobook',
+        payload: {
+          customerName: data.customerFullName,
+          adminUrl: `${frontendBase}/admin/photobooks/proyectos/${savedProject.id}`,
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`No se pudo encolar el aviso de photobook al admin para el proyecto #${savedProject.id}: ${(err as Error).message}`);
     }
 
     return { ...savedProject, order };

@@ -19,6 +19,7 @@ const TEMPLATE_BY_EVENT: Record<string, string> = {
   DELIVERY_FEEDBACK_REQUEST: 'delivery-feedback.html',
   NEW_PAYMENT_TO_ADMIN: 'payment-received-admin.html',
   NEW_DEMO_REQUEST_TO_ADMIN: 'demo-request-received-admin.html',
+  NEW_PHOTOBOOK_REQUEST_TO_ADMIN: 'photobook-request-received-admin.html',
   PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER: 'photobook-payment-received.html',
 };
 
