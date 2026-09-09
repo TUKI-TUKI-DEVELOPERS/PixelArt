@@ -26,6 +26,7 @@ export class PhotobookAdminController {
     if (!render) throw new NotFoundException('PDF no generado aún para este proyecto');
     return {
       pdfUrl: this.pdfService.getPdfUrl(render.pdfStorageKey),
+      coverWrapUrl: await this.pdfService.getCoverWrapUrlIfExists(Number(id)),
       generatedAt: render.generatedAt,
     };
   }

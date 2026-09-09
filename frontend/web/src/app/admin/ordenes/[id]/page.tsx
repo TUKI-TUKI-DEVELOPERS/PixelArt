@@ -103,6 +103,7 @@ export default function OrdenDetallePage() {
   const [acting, setActing] = useState(false);
   const [feedbackLink, setFeedbackLink] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [coverWrapUrl, setCoverWrapUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfRegenerating, setPdfRegenerating] = useState(false);
   const [pdfSuccess, setPdfSuccess] = useState(false);
@@ -473,8 +474,8 @@ export default function OrdenDetallePage() {
     setPdfLoading(true);
     fetch(`${API}/api/admin/photobook/projects/${projectId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error("not ready"); })
-      .then((r: { pdfUrl: string }) => setPdfUrl(r.pdfUrl))
-      .catch(() => setPdfUrl(null))
+      .then((r: { pdfUrl: string; coverWrapUrl: string | null }) => { setPdfUrl(r.pdfUrl); setCoverWrapUrl(r.coverWrapUrl ?? null); })
+      .catch(() => { setPdfUrl(null); setCoverWrapUrl(null); })
       .finally(() => setPdfLoading(false));
   }
 
@@ -812,6 +813,7 @@ export default function OrdenDetallePage() {
                         if (res.ok) {
                           const r = await res.json();
                           setPdfUrl(r.pdfUrl);
+                          setCoverWrapUrl(r.coverWrapUrl ?? null);
                           setPdfSuccess(true);
                           setTimeout(() => setPdfSuccess(false), 4000);
                         }
@@ -824,8 +826,15 @@ export default function OrdenDetallePage() {
                   <button
                     onClick={() => forceDownload(pdfUrl, `photobook_proyecto_${data.photobookProjectId}.pdf`)}
                     style={{ padding: "12px 24px", borderRadius: "10px", border: "none", background: "#2563eb", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(37,99,235,0.25)" }}>
-                    Descargar PDF
+                    Descargar interior
                   </button>
+                  {coverWrapUrl && (
+                    <button
+                      onClick={() => forceDownload(coverWrapUrl, `photobook_proyecto_${data.photobookProjectId}_tapa.pdf`)}
+                      style={{ padding: "12px 24px", borderRadius: "10px", border: "none", background: "#7c3aed", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(124,58,237,0.25)" }}>
+                      Descargar tapa
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (

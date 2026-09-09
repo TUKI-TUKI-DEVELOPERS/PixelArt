@@ -255,6 +255,14 @@ export class PhotobookPdfService {
     return this.fileStorage.getPublicUrl(`photobook-renders/${projectId}-cover-wrap.pdf`);
   }
 
+  /** URL del wrap de tapa SOLO si ya se generó. No todos los temas tienen wrap
+   * (depende de coverWrapKey) y su generación es best-effort, así que se
+   * verifica que el archivo exista en storage para no devolver un link roto. */
+  async getCoverWrapUrlIfExists(projectId: number): Promise<string | null> {
+    const key = `photobook-renders/${projectId}-cover-wrap.pdf`;
+    return (await this.fileStorage.exists(key)) ? this.fileStorage.getPublicUrl(key) : null;
+  }
+
   /**
    * Genera y guarda el wrap (contratapa|lomo|tapa) como PDF de una sola página
    * ancha, aparte del PDF interior. El ancho del lomo sale de la fórmula por
