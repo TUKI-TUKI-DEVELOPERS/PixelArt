@@ -39,6 +39,10 @@ export async function runSeed(): Promise<void> {
     // 0a. Enum values
     await client.query(`ALTER TYPE public_link_type ADD VALUE IF NOT EXISTS 'CHECKOUT'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'UNIFIED_CHECKOUT_SENT'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_DEMO_REQUEST_TO_ADMIN'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_PAYMENT_TO_ADMIN'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_PHOTOBOOK_REQUEST_TO_ADMIN'`);
 
     // 0b. Columna extra_templates_amount_cents en orders
     await client.query(`
