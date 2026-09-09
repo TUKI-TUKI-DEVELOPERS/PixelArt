@@ -320,7 +320,7 @@ export class PhotobookPdfService {
     html, body { width:${totalWidthCm}cm; height:${totalHeightCm}cm; }
     .wrap { position:relative; width:${totalWidthCm}cm; height:${totalHeightCm}cm; overflow:hidden;
       background-image:url('${panoramicBase64}'); background-size:cover; background-position:center 42%; }
-    .tapa-text { position:absolute; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; top:${titleTopCm.toFixed(3)}cm; text-align:center; color:#fff; text-shadow:0 0.03cm 0.1cm rgba(0,0,0,0.5); }
+    .tapa-text { position:absolute; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; top:${titleTopCm.toFixed(3)}cm; text-align:center; color:#fff; text-shadow:0 0.02cm 0.04cm rgba(0,0,0,0.35); }
     .tapa-text .title { display:block; font-family:'Prata',serif; font-size:2.2cm; letter-spacing:0.14em; text-indent:0.14em; }
     .tapa-text .divider { width:2.2cm; height:0.04cm; background:#fff; margin:0.44cm auto; opacity:0.88; }
     .tapa-text .year { display:block; font-family:'Prata',serif; font-size:0.6cm; letter-spacing:0.30em; text-indent:0.30em; opacity:0.94; }
