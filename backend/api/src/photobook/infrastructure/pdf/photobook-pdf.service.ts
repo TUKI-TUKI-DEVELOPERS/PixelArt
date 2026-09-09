@@ -311,9 +311,8 @@ export class PhotobookPdfService {
   }
 
   private buildWrapHtml(panoramicBase64: string, layout: WrapLayout, title: string, year: number, spineLabel: string): string {
-    const { totalWidthCm, totalHeightCm, coverWidthCm, coverHeightCm, spineWidthCm, frontCoverLeftCm, spineLeftCm, spineCenterCm, bleedCm } = layout;
+    const { totalWidthCm, totalHeightCm, coverWidthCm, coverHeightCm, spineWidthCm, frontCoverLeftCm, spineLeftCm, bleedCm } = layout;
     const titleTopCm = bleedCm + coverHeightCm * 0.2;
-    const scrimBandCm = spineWidthCm + 1.4; // banda del scrim algo más ancha que el lomo, se desvanece a los lados
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
     @font-face { font-family:'Prata'; font-style:normal; font-weight:400; src:url(data:font/woff2;base64,${PRATA_WOFF2_BASE64}) format('woff2'); }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -321,20 +320,14 @@ export class PhotobookPdfService {
     html, body { width:${totalWidthCm}cm; height:${totalHeightCm}cm; }
     .wrap { position:relative; width:${totalWidthCm}cm; height:${totalHeightCm}cm; overflow:hidden;
       background-image:url('${panoramicBase64}'); background-size:cover; background-position:center 42%; }
-    .lomo-scrim { position:absolute; top:0; height:100%; left:${(spineCenterCm - scrimBandCm / 2).toFixed(3)}cm; width:${scrimBandCm.toFixed(3)}cm;
-      background:linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0) 100%); }
-    .title-scrim { position:absolute; top:0; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; height:${(coverHeightCm * 0.62).toFixed(3)}cm;
-      background:radial-gradient(ellipse 55% 58% at 50% 33%, rgba(0,0,0,0.46) 0%, rgba(0,0,0,0) 68%); }
-    .tapa-text { position:absolute; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; top:${titleTopCm.toFixed(3)}cm; text-align:center; color:#fff; text-shadow:0 0.04cm 0.32cm rgba(0,0,0,0.4); }
+    .tapa-text { position:absolute; left:${frontCoverLeftCm.toFixed(3)}cm; width:${coverWidthCm}cm; top:${titleTopCm.toFixed(3)}cm; text-align:center; color:#fff; text-shadow:0 0.03cm 0.1cm rgba(0,0,0,0.5); }
     .tapa-text .title { display:block; font-family:'Prata',serif; font-size:2.2cm; letter-spacing:0.14em; text-indent:0.14em; }
     .tapa-text .divider { width:2.2cm; height:0.04cm; background:#fff; margin:0.44cm auto; opacity:0.88; }
     .tapa-text .year { display:block; font-family:'Prata',serif; font-size:0.6cm; letter-spacing:0.30em; text-indent:0.30em; opacity:0.94; }
     .lomo-text { position:absolute; top:50%; left:${spineLeftCm.toFixed(3)}cm; width:${spineWidthCm}cm; height:0; display:flex; align-items:center; justify-content:center; }
-    .lomo-text span { font-family:'Prata',serif; color:#fff; font-size:1.0cm; letter-spacing:0.22em; white-space:nowrap; transform:rotate(90deg); text-shadow:0 0.04cm 0.28cm rgba(0,0,0,0.45); }
+    .lomo-text span { font-family:'Prata',serif; color:#fff; font-size:1.0cm; letter-spacing:0.22em; white-space:nowrap; transform:rotate(90deg); }
     </style></head><body>
     <div class="wrap">
-      <div class="lomo-scrim"></div>
-      <div class="title-scrim"></div>
       <div class="tapa-text"><span class="title">${this.escapeHtml(title)}</span><div class="divider"></div><span class="year">${year}</span></div>
       <div class="lomo-text"><span>${this.escapeHtml(spineLabel)}</span></div>
     </div>
