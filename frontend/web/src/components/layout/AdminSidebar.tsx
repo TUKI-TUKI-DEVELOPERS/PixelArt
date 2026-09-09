@@ -63,15 +63,16 @@ export default function AdminSidebar() {
     Promise.all([
       fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
       fetch(`${API}/api/admin/orders`).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/api/admin/photobook/projects`).then((r) => r.json()).catch(() => []),
-    ]).then(([demosData, ordersData, photobooksData]) => {
-      const demos      = (Array.isArray(demosData)      ? demosData      : demosData.data      ?? []) as { status: string }[];
-      const orders     = (Array.isArray(ordersData)     ? ordersData     : ordersData.data     ?? []) as { status: string }[];
-      const photobooks = (Array.isArray(photobooksData) ? photobooksData : photobooksData.data ?? []) as { status: string }[];
+    ]).then(([demosData, ordersData]) => {
+      const demos  = (Array.isArray(demosData)  ? demosData  : demosData.data  ?? []) as { status: string }[];
+      const orders = (Array.isArray(ordersData) ? ordersData : ordersData.data ?? []) as { status: string; channel: string }[];
       setBadges({
         demos:      demos.filter((d) => d.status === "RECEIVED").length,
         payments:   orders.filter((o) => o.status === "UNDER_PAYMENT_REVIEW").length,
-        photobooks: photobooks.filter((p) => p.status === "CONFIRMED").length,
+        // Photobooks con comprobante esperando revisión — bandeja de entrada real
+        // (aparece cuando hay un pago por revisar y baja al aprobarlo), a diferencia
+        // del status CONFIRMED que es transitorio y siempre daba 0.
+        photobooks: orders.filter((o) => o.channel === "PHOTOBOOK" && o.status === "UNDER_PAYMENT_REVIEW").length,
       });
     });
   }, [pathname]); // re-fetch al navegar para mantener actualizado
