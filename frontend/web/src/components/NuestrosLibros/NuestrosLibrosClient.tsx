@@ -58,7 +58,6 @@ const CATEGORY_BOOK_MAP: Record<string, string[]> = {
     "Mi Familia",
   ],
   "Libros de Memorias Familiares": [
-    "Gracias por tu amor",
     "Mi angel guardian",
     "Siempre en mi corazon",
     "Siempre seras parte de mi",
@@ -148,12 +147,7 @@ const BOOK_EXTRA: Record<string, { tagline: string; reviewCount: number; descrip
     reviewCount: 90,
     description: "Para la mujer que nos mima, nos cuida y nos llena de amor incondicional. Un regalo que la hará llorar de emoción.",
   },
-  "Gracias por tu amor": {
-    tagline: "PORQUE SU AMOR VIVE PARA SIEMPRE EN TU CORAZÓN",
-    reviewCount: 160,
-    description: "Un libro homenaje para honrar a esa persona especial que dejó una huella imborrable. Cada página celebra los momentos únicos que compartieron juntos.",
-  },
-  "Mi angel guardian": {
+    "Mi angel guardian": {
     tagline: "SIEMPRE PRESENTE, SIEMPRE EN MI CORAZÓN",
     reviewCount: 145,
     description: "Un homenaje lleno de amor para esa persona que, aunque ya no está, sigue siendo tu ángel. Un recuerdo que preserva su presencia para siempre.",
@@ -226,8 +220,7 @@ const BOOK_HREF: Record<string, string> = {
   "Te amo, abuela": "/libros-personalizados/libros-de-familia/te-amo-abuela",
   "El Mejor Equipo": "/libros-personalizados/libros-de-familia/el-mejor-equipo",
   "Mi Familia": "/libros-personalizados/libros-de-familia/la-familia",
-  "Gracias por tu amor": "/libros-personalizados/libros-de-memorias-familiares/gracias-por-tu-amor",
-  "Mi angel guardian": "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian",
+    "Mi angel guardian": "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian",
   "Siempre en mi corazon": "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon",
   "Siempre seras parte de mi": "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi",
 };
@@ -247,8 +240,7 @@ const BOOK_THUMBNAIL: Record<string, string> = {
   "Aventura entre patas": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Miniatura.png",
   "Mi mejor amigo del mundo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png",
   "Mi amigo Miauravilloso": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png",
-  "Gracias por tu amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png",
-  "Mi angel guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
+    "Mi angel guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
   "Siempre en mi corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
   "Siempre seras parte de mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
 };
@@ -268,7 +260,6 @@ const BOOK_ORDER = [
   "Te amo, abuelo",
   "El Mejor Equipo",
   "Te amo, abuela",
-  "Gracias por tu amor",
   "Mi angel guardian",
   "Siempre en mi corazon",
   "Siempre seras parte de mi",

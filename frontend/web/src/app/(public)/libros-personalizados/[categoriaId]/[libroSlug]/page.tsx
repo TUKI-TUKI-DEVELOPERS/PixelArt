@@ -17,7 +17,6 @@ const BACKGROUND_KEYS: Record<string, string> = {
   "mi-mejor-amigo-del-mundo": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Mi_Mejor_Amigo_del_mundo.png",
   "mi-amigo-miauravilloso": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Mi_amigo_miauravilloso.png",
   "nuestro-angel-de-4-patas": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Nuestro_Angel_de_4_patas.png",
-  "gracias-por-tu-amor": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Gracias_por_tu_amor.png",
   "mi-angel-guardian": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Mi_angel_guardian.png",
   "siempre-en-mi-corazon": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_en_mi_corazon.png",
   "siempre-seras-parte-de-mi": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon.png",
@@ -92,11 +91,6 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
     "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Libros_Familia_Teamoabuelo_Central_2.png",
     "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo/Libros_Familia_Teamoabuelo_Central_3.png",
   ],
-  "gracias-por-tu-amor": [
-    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Gracias_por_tu_amor_Central.png",
-    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Gracias_por_tu_amor_Central_2.png",
-    "IA_Books/Memorial_Books_Page/Libros/Gracias_por_tu_amor/Libros_Memoria_Familiar_Gracias_por_tu_amor_Central_3.png",
-  ],
   "mi-angel-guardian": [
     "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Libros_Memoria_Familiar_Mi_angel_guardian_Central.png",
     "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian/Libros_Memoria_Familiar_Mi_angel_guardian_Central_2.png",
@@ -115,6 +109,7 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
 };
 
 const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
+const RETIRED_BOOK_SLUGS = new Set(["gracias-por-tu-amor"]);
 
 type DbIds = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number };
 
@@ -189,6 +184,8 @@ type Props = {
 
 export default async function LibroDetallePage({ params }: Props) {
   const { categoriaId, libroSlug } = await params;
+
+  if (RETIRED_BOOK_SLUGS.has(libroSlug)) notFound();
 
   const resolved = await resolveBookBySlug(categoriaId, libroSlug);
   if (!resolved) notFound();

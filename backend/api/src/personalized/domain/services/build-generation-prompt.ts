@@ -172,6 +172,20 @@ export function fillNamePlaceholders(text: string, values: NamePlaceholderValues
     .replace(/\b(mi)\s+mi\b/gi, '$1');
 }
 
+/** Los poemas impresos en páginas interiores deben dirigirse siempre por el
+ * apodo cariñoso del protagonista. Algunas cargas históricas usan
+ * {NOMBRE_DESTINATARIO}; normalizamos ese token solo para poemas, no para
+ * scene_visual ni reglas de identidad, donde el nombre legal sigue siendo útil
+ * para describir a la persona/mascota correcta. */
+export function fillPoemPlaceholders(text: string, values: NamePlaceholderValues): string {
+  const normalizedPoem = text.replaceAll('{NOMBRE_DESTINATARIO}', '{APODO_DESTINATARIO}');
+  const poemWithAddress = values.apodoDestinatario?.trim() && !normalizedPoem.includes('{APODO_DESTINATARIO}')
+    ? `Para {APODO_DESTINATARIO},\n\n${normalizedPoem}`
+    : normalizedPoem;
+
+  return fillNamePlaceholders(poemWithAddress, values);
+}
+
 type FamilyGroupCharacterMeta = {
   familyName?: string | null;
   papa?: { name?: string | null } | null;
@@ -210,6 +224,7 @@ function joinNamesOxford(names: string[]): string {
 }
 
 type HermanosCharacterMeta = {
+  teamNickname?: string | null;
   hermanos?: Array<{ name?: string | null } | null> | null;
 };
 
@@ -221,8 +236,10 @@ type HermanosCharacterMeta = {
  * menos el último en {NOMBRE_DESTINATARIO} (separados por coma) y el último
  * en {NOMBRE_DEDICANTE} — el subtítulo fijo "{NOMBRE_DESTINATARIO} &
  * {NOMBRE_DEDICANTE}" termina leyéndose como una lista natural ("Valentina,
- * Mateo & Sofía"). Devuelve null si characterMeta no tiene forma de
- * "hermanos" (no rompe ningún otro libro). */
+ * Mateo & Sofía"). El apodo grupal vive en characterMeta.teamNickname y se usa
+ * como {APODO_DESTINATARIO} para que los poemas hablen del equipo, no de una
+ * persona suelta. Devuelve null si characterMeta no tiene forma de "hermanos"
+ * (no rompe ningún otro libro). */
 export function resolveHermanosNameValues(
   characterMeta: Record<string, unknown> | null | undefined,
 ): NamePlaceholderValues | null {
@@ -235,6 +252,7 @@ export function resolveHermanosNameValues(
   const rest = names.slice(0, -1).join(', ');
   return {
     nombreDestinatario: rest || null,
+    ...(meta.teamNickname ? { apodoDestinatario: meta.teamNickname } : {}),
     nombreDedicante: last,
   };
 }

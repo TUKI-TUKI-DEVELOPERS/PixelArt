@@ -37,7 +37,6 @@ const SLUG_THUMBNAIL: Record<string, string> = {
   "te-amo-abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
   "el-mejor-equipo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png",
   "la-familia": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png",
-  "gracias-por-tu-amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png",
   "mi-angel-guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
   "siempre-en-mi-corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
   "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
@@ -314,27 +313,6 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     reviewCount: 0,
     accent: "#8b6bb1",
   },
-  "gracias-por-tu-amor": {
-    nombre: "Gracias por tu amor",
-    subtitulo: "Libro Memorial Personalizado",
-    tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ",
-    paraQuien: { texto: "De sobrinos a una tía", icono: "Feather" },
-    descripcionCorta:
-      "El homenaje más hermoso para quien nunca olvidarás:",
-    bullets: [
-      "Un libro que honra los momentos únicos que compartieron juntos: las risas, las aventuras y el amor que dejó una huella imborrable.",
-      "Cada página celebra quién fue esa persona especial y lo que significó para ti.",
-    ],
-    caracteristicas: [
-      { label: "Páginas", value: "10 a 15" },
-      { label: "Tamaño", value: "29 × 20 cm" },
-      { label: "Tapa", value: "Delgada / Gruesa" },
-      { label: "Material", value: "Hoja couché 200 gr Gloss" },
-    ],
-    precio: { desde: "S/ 130" },
-    reviewCount: 0,
-    accent: "#8b6bb1",
-  },
   "aventura-entre-patas": {
     nombre: "Aventura Entre Patas",
     subtitulo: "Libro Personalizado de Mascotas",
@@ -462,7 +440,6 @@ const FOTOS_RECOMENDADAS: Record<string, string[]> = {
   "mi-amigo-miauravilloso": ["Tu gato"],
   "mi-mejor-amigo-del-mundo": ["Tu mascota"],
   "nuestro-angel-de-4-patas": ["Tu mascota"],
-  "gracias-por-tu-amor": ["Tía", "Sobrino/a"],
   "mi-angel-guardian": ["Mamá o papá", "Hijo/a"],
   "siempre-en-mi-corazon": ["Abuelo/a", "Nieto/a"],
   "siempre-seras-parte-de-mi": ["Hermano/a", "Hermano/a que dedica"],
@@ -499,7 +476,6 @@ const RELATED_BOOKS: Record<string, RelatedBook[]> = {
     { name: "El Mejor Equipo", slug: "el-mejor-equipo", reviews: 180, tagline: "PORQUE SER HERMANOS SE MERECE UN LIBRO PROPIO" },
   ],
   "libros-de-memorias-familiares": [
-    { name: "Gracias por tu amor", slug: "gracias-por-tu-amor", reviews: 0, tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ" },
     { name: "Mi Ángel Guardián", slug: "mi-angel-guardian", reviews: 0, tagline: "PORQUE TU LUZ SIGUE BRILLANDO EN MÍ" },
     { name: "Siempre en mi Corazón", slug: "siempre-en-mi-corazon", reviews: 0, tagline: "PORQUE TU RECUERDO VIVE EN CADA LATIDO" },
     { name: "Siempre Serás Parte de Mi Corazón", slug: "siempre-seras-parte-de-mi", reviews: 0, tagline: "PORQUE NUESTRO VÍNCULO ES ETERNO" },
@@ -745,7 +721,7 @@ export default function LibroDetalleClient({
           {/* ── Cabecera de texto centrada ── */}
           <div style={{ textAlign: "center" }}>
             {(() => {
-              const isWhite = ["mi-amor", "1025-dias-enamorandome-de-ti", "aventura-entre-patas", "mi-amigo-miauravilloso", "papa-mi-heroe", "mama-mi-heroina", "te-amo-abuela", "te-amo-abuelo", "el-mejor-equipo", "gracias-por-tu-amor", "mi-angel-guardian"].includes(libroSlug);
+              const isWhite = ["mi-amor", "1025-dias-enamorandome-de-ti", "aventura-entre-patas", "mi-amigo-miauravilloso", "papa-mi-heroe", "mama-mi-heroina", "te-amo-abuela", "te-amo-abuelo", "el-mejor-equipo", "mi-angel-guardian"].includes(libroSlug);
               const outlineShadow = "0.5px 0.5px 0 rgba(0,0,0,0.15), -0.5px -0.5px 0 rgba(0,0,0,0.15), 0.5px -0.5px 0 rgba(0,0,0,0.15), -0.5px 0.5px 0 rgba(0,0,0,0.15)";
               const textColor = isWhite ? "#fff" : "#111";
               const categoryColor = libroSlug === "te-amo-abuelo" ? "#fff" : textColor;
@@ -936,7 +912,7 @@ export default function LibroDetalleClient({
                 style={{
                   fontSize: "16px",
                   fontWeight: 700,
-                  color: ["1025-dias-enamorandome-de-ti", "gracias-por-tu-amor", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug) ? "#fff" : info.accent,
+                  color: ["1025-dias-enamorandome-de-ti", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug) ? "#fff" : info.accent,
                   marginBottom: "20px",
                   textAlign: "center",
                 }}
@@ -951,7 +927,7 @@ export default function LibroDetalleClient({
                   fontWeight: 600,
                   color: libroSlug === "1025-dias-enamorandome-de-ti"
                     ? info.accent
-                    : ["gracias-por-tu-amor", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug)
+                    : ["mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug)
                     ? "#fff"
                     : "#111",
                 }}
@@ -975,7 +951,7 @@ export default function LibroDetalleClient({
                     style={{
                       fontSize: "16px",
                       lineHeight: 1.6,
-                      color: ["mi-mejor-amigo-del-mundo", "gracias-por-tu-amor", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug) ? "#fff" : "#444",
+                      color: ["mi-mejor-amigo-del-mundo", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(libroSlug) ? "#fff" : "#444",
                       paddingLeft: "28px",
                       position: "relative",
                     }}

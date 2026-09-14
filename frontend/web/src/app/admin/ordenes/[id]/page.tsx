@@ -539,23 +539,33 @@ export default function OrdenDetallePage() {
     finally { setActing(false); }
   }
 
-  // Textbox de ajuste opcional para la IA, debajo del botón de (re)generar.
   // Re-roll guiado: regenera la imagen entera con esta corrección de máxima
   // prioridad — no es un retoque quirúrgico sobre la imagen previa.
-  function refinementBox(templateId: number, isGenerating: boolean) {
+  function refinementBox(templateId: number, isGenerating: boolean, hasPreview: boolean) {
     return (
-      <div style={{ marginTop: "8px", maxWidth: "460px" }}>
+      <div style={{ border: "1px solid #ede9fe", background: "#fff", borderRadius: "10px", padding: "10px 12px", boxShadow: "0 1px 2px rgba(17,24,39,0.04)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "8px", marginBottom: "6px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 800, color: "#6d28d9", textTransform: "uppercase", letterSpacing: "0.35px" }}>
+            {hasPreview ? "Corrección para regenerar" : "Instrucción inicial opcional"}
+          </div>
+          <div style={{ fontSize: "10px", color: "#9ca3af", whiteSpace: "nowrap" }}>
+            Se aplica al próximo intento
+          </div>
+        </div>
         <textarea
           value={refinementByTemplate[templateId] ?? ""}
           onChange={(e) => setRefinementByTemplate((prev) => ({ ...prev, [templateId]: e.target.value }))}
           disabled={isGenerating}
-          rows={4}
-          placeholder="Ajuste opcional para la IA (ej. 'el pelo del hombre a rojo', 'más luz cálida')."
-          style={{ display: "block", width: "100%", minHeight: "88px", padding: "8px 10px", borderRadius: "8px", border: "1px solid #e5e7eb", fontSize: "12px", fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", color: "#374151", lineHeight: 1.4 }}
+          rows={3}
+          placeholder={hasPreview
+            ? "Ej: mantener la composición, pero corregir el rostro de la mujer y dar más luz cálida."
+            : "Ej: más luz cálida, ropa elegante, fondo menos cargado."
+          }
+          style={{ display: "block", width: "100%", minHeight: "72px", padding: "9px 10px", borderRadius: "8px", border: "1px solid #ddd6fe", background: "#faf9ff", fontSize: "12px", fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", color: "#374151", lineHeight: 1.4, outlineColor: "#7c3aed" }}
         />
-        <details style={{ marginTop: "4px" }}>
-          <summary style={{ fontSize: "11px", color: "#7c3aed", cursor: "pointer", fontWeight: 600 }}>Cómo escribir el ajuste</summary>
-          <ul style={{ margin: "4px 0 0", paddingLeft: "18px", fontSize: "11px", color: "#6b7280", lineHeight: 1.5 }}>
+        <details style={{ marginTop: "6px" }}>
+          <summary style={{ fontSize: "11px", color: "#7c3aed", cursor: "pointer", fontWeight: 600 }}>Cómo escribir mejor la corrección</summary>
+          <ul style={{ margin: "5px 0 0", paddingLeft: "18px", fontSize: "11px", color: "#6b7280", lineHeight: 1.5 }}>
             <li>Sé específico con a quién/qué: &ldquo;el pelo <b>del hombre</b> a rojo&rdquo;, no &ldquo;pelo rojo&rdquo;.</li>
             <li>Obedece bien: color, luz, ropa, fondo, expresión. Cuesta: tamaños y proporciones exactos.</li>
             <li>Un cambio por vez rinde más que varios juntos.</li>
@@ -974,7 +984,7 @@ export default function OrdenDetallePage() {
                           src={coverPreview.previewUrl}
                           alt="Portada"
                           onClick={() => setZoomedImage(coverPreview.previewUrl)}
-                          style={{ width: "130px", height: "92px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
+                          style={{ width: "130px", height: "92px", objectFit: "contain", background: "#fff", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
                         />
                       )}
                       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -1055,7 +1065,7 @@ export default function OrdenDetallePage() {
                           src={backCoverPreview.previewUrl}
                           alt="Contraportada"
                           onClick={() => setZoomedImage(backCoverPreview.previewUrl)}
-                          style={{ width: "130px", height: "92px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
+                          style={{ width: "130px", height: "92px", objectFit: "contain", background: "#fff", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
                         />
                       )}
                       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -1102,7 +1112,7 @@ export default function OrdenDetallePage() {
                         src={addonAsset.previewUrl}
                         alt="Add-on"
                         onClick={() => setZoomedImage(addonAsset.previewUrl)}
-                        style={{ width: "130px", height: "92px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
+                        style={{ width: "130px", height: "92px", objectFit: "contain", background: "#fff", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in", flexShrink: 0 }}
                       />
                     )}
                     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -1179,6 +1189,7 @@ export default function OrdenDetallePage() {
                 const isPending = pendingPages.length > 0;
                 const isConfirmed = !isPending && confirmedPages.length > 0;
                 const previewPages = isPending ? pendingPages : confirmedPages;
+                const hasRefinement = !!refinementByTemplate[t.templateId]?.trim();
                 return (
                   <div key={t.templateId} style={{ border: "1px solid #e5e7eb", borderRadius: "10px", padding: "12px 14px", background: "#fafafa" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: photoGroups.length > 0 || previewPages.length > 0 ? "8px" : "0" }}>
@@ -1195,108 +1206,111 @@ export default function OrdenDetallePage() {
                       )}
                     </div>
 
-                    <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
-                      {previewPages.length > 0 && (
-                        <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
-                          {previewPages
-                            .slice()
-                            .sort((a, b) => a.pagePart.localeCompare(b.pagePart))
-                            .map((p) => (
-                              <div key={p.id} style={{ position: "relative" }}>
-                                <img
-                                  src={p.previewUrl}
-                                  alt={`Cara ${p.pagePart}`}
-                                  onClick={() => setZoomedImage(p.previewUrl)}
-                                  style={{ width: "130px", height: "173px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb", display: "block", cursor: "zoom-in" }}
-                                />
-                                <span style={{ position: "absolute", bottom: "6px", right: "6px", fontSize: "11px", fontWeight: 700, color: "#fff", background: "rgba(0,0,0,0.6)", borderRadius: "4px", padding: "2px 7px" }}>
-                                  Cara {p.pagePart}
-                                </span>
-                              </div>
-                            ))}
-                        </div>
-                      )}
-
-                      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
-                        {photoGroups.length > 0 && (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-                            {photoGroups.map((g) => {
-                              const chosen = selectedPhoto[t.templateId]?.[g.roleKey] ?? g.ids[0];
-                              return (
-                                <div key={g.roleKey}>
-                                  <div style={{ fontSize: "9px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: "3px" }}>{g.label}</div>
-                                  <div style={{ display: "flex", gap: "4px" }}>
-                                    {g.ids.map((assetId) => {
-                                      const url = assetUrls[assetId];
-                                      const isChosen = assetId === chosen;
-                                      const isReplacing = uploadingAssetId === assetId;
-                                      return (
-                                        <div key={assetId} style={{ position: "relative", width: "38px", height: "38px", flexShrink: 0 }}>
-                                          <button type="button"
-                                            onClick={() => setSelectedPhoto((prev) => ({ ...prev, [t.templateId]: { ...prev[t.templateId], [g.roleKey]: assetId } }))}
-                                            style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "38px", height: "38px", overflow: "hidden", display: "block" }}
-                                            title={`Usar esta foto para ${g.label}`}>
-                                            {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
-                                          </button>
-                                          <label
-                                            style={{ position: "absolute", bottom: "-4px", right: "-4px", width: "16px", height: "16px", borderRadius: "50%", background: "#111", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", cursor: isReplacing ? "wait" : "pointer", border: "1.5px solid #fff" }}
-                                            title="Reemplazar esta foto puntual por una nueva (ej. si el cliente mandó una de mala calidad)">
-                                            {isReplacing ? "…" : "↻"}
-                                            <input type="file" accept="image/*" style={{ display: "none" }} disabled={isReplacing}
-                                              onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) handleReplaceCharacterPhoto(t.templateId, g.roleKey, assetId, file);
-                                                e.target.value = "";
-                                              }} />
-                                          </label>
-                                        </div>
-                                      );
-                                    })}
-                                    <label
-                                      style={{ width: "38px", height: "38px", borderRadius: "6px", border: "2px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", cursor: uploadingAssetId === g.roleKey ? "wait" : "pointer", fontSize: "16px", fontWeight: 700, color: "#9ca3af", flexShrink: 0 }}
-                                      title="Agregar una foto nueva como opción extra para este rol">
-                                      {uploadingAssetId === g.roleKey ? "…" : "+"}
-                                      <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploadingAssetId === g.roleKey}
-                                        onChange={(e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) handleReplaceCharacterPhoto(t.templateId, g.roleKey, undefined, file);
-                                          e.target.value = "";
-                                        }} />
-                                    </label>
-                                  </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
+                        {previewPages.length > 0 && (
+                          <div style={{ display: "flex", gap: 0, flexShrink: 0 }}>
+                            {previewPages
+                              .slice()
+                              .sort((a, b) => a.pagePart.localeCompare(b.pagePart))
+                              .map((p) => (
+                                <div key={p.id} style={{ position: "relative" }}>
+                                  <img
+                                    src={p.previewUrl}
+                                    alt={`Cara ${p.pagePart}`}
+                                    onClick={() => setZoomedImage(p.previewUrl)}
+                                    style={{ width: "130px", height: "92px", objectFit: "contain", background: "#fff", border: "1px solid #e5e7eb", borderLeft: p.pagePart === "B" ? "none" : "1px solid #e5e7eb", borderRight: p.pagePart === "A" ? "none" : "1px solid #e5e7eb", borderRadius: p.pagePart === "A" ? "8px 0 0 8px" : p.pagePart === "B" ? "0 8px 8px 0" : "8px", display: "block", cursor: "zoom-in" }}
+                                  />
+                                  <span style={{ position: "absolute", bottom: "6px", right: "6px", fontSize: "11px", fontWeight: 700, color: "#fff", background: "rgba(0,0,0,0.6)", borderRadius: "4px", padding: "2px 7px" }}>
+                                    Cara {p.pagePart}
+                                  </span>
                                 </div>
-                              );
-                            })}
+                              ))}
                           </div>
                         )}
-                        {uploadPhotoError[t.templateId] && (
-                          <div style={{ fontSize: "11px", color: "#dc2626" }}>{uploadPhotoError[t.templateId]}</div>
-                        )}
 
-                        <div>
-                          <button
-                            disabled={isGenerating}
-                            onClick={() => handleGenerateTemplate(t.templateId)}
-                            style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                            {(isGenerating || isVerifying) && <GenSpinner />}
-                            {isVerifying
-                              ? "Se cortó la conexión — verificando si terminó igual…"
-                              : isGenerating
-                              ? "Generando… (puede tardar 1-2 min, no cierres la página)"
-                              : previewPages.length > 0
-                              ? "Regenerar con IA"
-                              : "Generar con IA"}
-                          </button>
-                          {refinementBox(t.templateId, isGenerating)}
-                          {isVerifying && (
-                            <div style={{ marginTop: "6px", fontSize: "11px", color: "#92400e" }}>
-                              El servidor puede haber terminado igual — no vuelvas a apretar el botón, esto se resuelve solo en un momento.
+                        <div style={{ flex: 1, minWidth: "180px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                          {photoGroups.length > 0 && (
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                              {photoGroups.map((g) => {
+                                const chosen = selectedPhoto[t.templateId]?.[g.roleKey] ?? g.ids[0];
+                                return (
+                                  <div key={g.roleKey}>
+                                    <div style={{ fontSize: "9px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", marginBottom: "3px" }}>{g.label}</div>
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                      {g.ids.map((assetId) => {
+                                        const url = assetUrls[assetId];
+                                        const isChosen = assetId === chosen;
+                                        const isReplacing = uploadingAssetId === assetId;
+                                        return (
+                                          <div key={assetId} style={{ position: "relative", width: "38px", height: "38px", flexShrink: 0 }}>
+                                            <button type="button"
+                                              onClick={() => setSelectedPhoto((prev) => ({ ...prev, [t.templateId]: { ...prev[t.templateId], [g.roleKey]: assetId } }))}
+                                              style={{ padding: 0, border: isChosen ? "2px solid #7c3aed" : "2px solid transparent", borderRadius: "6px", cursor: "pointer", background: "none", width: "38px", height: "38px", overflow: "hidden", display: "block" }}
+                                              title={`Usar esta foto para ${g.label}`}>
+                                              {url ? <img src={url} alt={g.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#e5e7eb" }} />}
+                                            </button>
+                                            <label
+                                              style={{ position: "absolute", bottom: "-4px", right: "-4px", width: "16px", height: "16px", borderRadius: "50%", background: "#111", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "9px", cursor: isReplacing ? "wait" : "pointer", border: "1.5px solid #fff" }}
+                                              title="Reemplazar esta foto puntual por una nueva (ej. si el cliente mandó una de mala calidad)">
+                                              {isReplacing ? "…" : "↻"}
+                                              <input type="file" accept="image/*" style={{ display: "none" }} disabled={isReplacing}
+                                                onChange={(e) => {
+                                                  const file = e.target.files?.[0];
+                                                  if (file) handleReplaceCharacterPhoto(t.templateId, g.roleKey, assetId, file);
+                                                  e.target.value = "";
+                                                }} />
+                                            </label>
+                                          </div>
+                                        );
+                                      })}
+                                      <label
+                                        style={{ width: "38px", height: "38px", borderRadius: "6px", border: "2px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", cursor: uploadingAssetId === g.roleKey ? "wait" : "pointer", fontSize: "16px", fontWeight: 700, color: "#9ca3af", flexShrink: 0 }}
+                                        title="Agregar una foto nueva como opción extra para este rol">
+                                        {uploadingAssetId === g.roleKey ? "…" : "+"}
+                                        <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploadingAssetId === g.roleKey}
+                                          onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) handleReplaceCharacterPhoto(t.templateId, g.roleKey, undefined, file);
+                                            e.target.value = "";
+                                          }} />
+                                      </label>
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
-                          {generateError[t.templateId] && (
-                            <div style={{ marginTop: "6px", fontSize: "11px", color: "#dc2626" }}>{generateError[t.templateId]}</div>
+                          {uploadPhotoError[t.templateId] && (
+                            <div style={{ fontSize: "11px", color: "#dc2626" }}>{uploadPhotoError[t.templateId]}</div>
                           )}
                         </div>
+                      </div>
+
+                      {refinementBox(t.templateId, isGenerating, previewPages.length > 0)}
+
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
+                        <button
+                          disabled={isGenerating}
+                          onClick={() => handleGenerateTemplate(t.templateId)}
+                          style={{ padding: "8px 16px", borderRadius: "8px", border: "none", background: isVerifying ? "#f59e0b" : isGenerating ? "#c4b5fd" : "#7c3aed", color: "#fff", fontSize: "12px", fontWeight: 700, cursor: isGenerating ? "wait" : "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          {(isGenerating || isVerifying) && <GenSpinner />}
+                          {isVerifying
+                            ? "Se cortó la conexión — verificando si terminó igual…"
+                            : isGenerating
+                            ? "Generando… (puede tardar 1-2 min, no cierres la página)"
+                            : previewPages.length > 0
+                            ? (hasRefinement ? "Regenerar con esta corrección" : "Regenerar con IA")
+                            : (hasRefinement ? "Generar con esta instrucción" : "Generar con IA")}
+                        </button>
+                        {isVerifying && (
+                          <div style={{ fontSize: "11px", color: "#92400e" }}>
+                            El servidor puede haber terminado igual — no vuelvas a apretar el botón, esto se resuelve solo en un momento.
+                          </div>
+                        )}
+                        {generateError[t.templateId] && (
+                          <div style={{ fontSize: "11px", color: "#dc2626" }}>{generateError[t.templateId]}</div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1374,7 +1388,7 @@ export default function OrdenDetallePage() {
                       de ver la tapa/contratapa recién generada por IA antes de confirmarla). */}
                   <div style={{ width: "44px", height: "44px", borderRadius: "6px", overflow: "hidden", flexShrink: 0, background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {previewAsset
-                      ? <img src={previewAsset.previewUrl} alt="" onClick={() => setZoomedImage(previewAsset.previewUrl)} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} />
+                      ? <img src={previewAsset.previewUrl} alt="" onClick={() => setZoomedImage(previewAsset.previewUrl)} style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fff", cursor: "zoom-in" }} />
                       : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     }
                   </div>

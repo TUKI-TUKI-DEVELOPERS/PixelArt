@@ -473,7 +473,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "sentimos tu presencia en cada paso al caminar.\n" +
         "Tu amor no se fue, sigue vivo entre nosotros,\n" +
         "cuidándonos en silencio, como solo tú sabes hacerlo.\n" +
-        "Eres y serás siempre nuestra ángel guardián.",
+        "Eres y serás siempre nuestro ángel guardián.",
     },
     {
       label: "Legado",
@@ -503,23 +503,23 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "pero abrir este libro nos devuelve tu presencia entera.\n" +
         "Tu risa, tu abrazo, tu forma única de cuidar,\n" +
         "viven en cada página, sin nunca terminar.\n" +
-        "Gracias por haber sido nuestra ángel, aquí y desde el cielo.",
+        "Gracias por haber sido nuestro ángel, aquí y desde el cielo.",
     },
   ],
   "Siempre seras parte de mi": [
     {
       label: "Cómplices",
       HE_TO_SHE:
-        "{recipientNickname}, crecimos juntos inventando mundos enteros,\n" +
-        "haciendo locuras, sin miedo, siendo compañeros.\n" +
-        "Ya no estás para vivirlo, pero esa complicidad nunca se fue con vos,\n" +
-        "sigue viva en cada recuerdo que guardamos los dos.\n" +
+        "{recipientNickname}, crecimos lado a lado inventando mundos enteros,\n" +
+        "haciendo locuras, sin miedo, compartiendo recuerdos sinceros.\n" +
+        "Aunque ya no estás para vivirlo, esa complicidad no se fue,\n" +
+        "sigue viva en cada recuerdo y en todo lo que fue.\n" +
         "Tu historia, tu risa, tu espíritu viven aquí, para siempre.",
       SHE_TO_HE:
-        "{recipientNickname}, crecimos juntas inventando mundos enteros,\n" +
-        "haciendo locuras, sin miedo, siendo compañeras.\n" +
-        "Ya no estás para vivirlo, pero esa complicidad nunca se fue con vos,\n" +
-        "sigue viva en cada recuerdo que guardamos los dos.\n" +
+        "{recipientNickname}, crecimos lado a lado inventando mundos enteros,\n" +
+        "haciendo locuras, sin miedo, compartiendo recuerdos sinceros.\n" +
+        "Aunque ya no estás para vivirlo, esa complicidad no se fue,\n" +
+        "sigue viva en cada recuerdo y en todo lo que fue.\n" +
         "Tu historia, tu risa, tu espíritu viven aquí, para siempre.",
     },
     {
@@ -551,53 +551,6 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "Sentimos que sigues cuidando a esta familia, sin cesar,\n" +
         "guiándonos en silencio, como siempre supiste estar.\n" +
         "Siempre serás parte de nosotros, hermana.",
-    },
-  ],
-  "Gracias por tu amor": [
-    {
-      label: "El alma",
-      HE_TO_SHE:
-        "Las reuniones, {recipientNickname}, ya no son las mismas sin tu compañía,\n" +
-        "eras el alma de esta familia, nuestra guía.\n" +
-        "El que hacía reír a todos, el que unía y sostenía,\n" +
-        "el que con solo estar presente, ya alegraba el día.\n" +
-        "Este libro es para que nadie, jamás, te olvide.",
-      SHE_TO_HE:
-        "Las reuniones, {recipientNickname}, ya no son las mismas sin tu compañía,\n" +
-        "eras el alma de esta familia, nuestra guía.\n" +
-        "La que hacía reír a todos, la que unía y sostenía,\n" +
-        "la que con solo estar presente, ya alegraba el día.\n" +
-        "Este libro es para que nadie, jamás, te olvide.",
-    },
-    {
-      label: "Gratitud",
-      HE_TO_SHE:
-        "Gracias por tu amor, {recipientNickname}, tan grande y sincero,\n" +
-        "por cada abrazo en las reuniones, por tu consejo certero.\n" +
-        "Por hacernos sentir que esta familia tenía algo real,\n" +
-        "un tesoro compartido, algo único y sin igual.\n" +
-        "Tu amor nos marcó para siempre. Este libro es nuestro homenaje.",
-      SHE_TO_HE:
-        "Gracias por tu amor, {recipientNickname}, tan grande y sincero,\n" +
-        "por cada abrazo en las reuniones, por tu consejo certero.\n" +
-        "Por hacernos sentir que esta familia tenía algo real,\n" +
-        "un tesoro compartido, algo único y sin igual.\n" +
-        "Tu amor nos marcó para siempre. Este libro es nuestro homenaje.",
-    },
-    {
-      label: "Legado",
-      HE_TO_SHE:
-        "Tu partida dejó un silencio que todos sentimos, {recipientNickname}, profundo,\n" +
-        "pero dejaste algo que nadie nos quita en este mundo:\n" +
-        "el recuerdo de tenerte cerca, tu calor, tu compañía,\n" +
-        "tu generosidad sin reservas, presente cada día.\n" +
-        "Este libro guarda todo eso, para siempre.",
-      SHE_TO_HE:
-        "Tu partida dejó un silencio que todos sentimos, {recipientNickname}, profundo,\n" +
-        "pero dejaste algo que nadie nos quita en este mundo:\n" +
-        "el recuerdo de tenerte cerca, tu calor, tu compañía,\n" +
-        "tu generosidad sin reservas, presente cada día.\n" +
-        "Este libro guarda todo eso, para siempre.",
     },
   ],
   // ── Mascotas ─────────────────────────────────────────────────────────────────
@@ -747,33 +700,33 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "— {dedicatorName}",
     },
   ],
-  "Aventura Entre Patas": [
+  "Aventura entre patas": [
     {
       label: "Aventurera",
       HE_TO_SHE:
         "Porque las mejores aventuras son las que vivimos en compañía,\n" +
         "este libro celebra cada locura, cada risa, cada alegría.\n" +
-        "Cada momento que {recipientNickname} y los peques compartieron,\n" +
-        "crecer juntos, con un amigo peludo, fue lo mejor que pudieron.\n" +
+        "Cada momento que {recipientNickname} compartió con su familia,\n" +
+        "crecer juntos, entre juegos y patitas, fue pura alegría.\n" +
         "Una aventura sin final.",
       SHE_TO_HE:
         "Porque las mejores aventuras son las que vivimos en compañía,\n" +
         "este libro celebra cada locura, cada risa, cada alegría.\n" +
-        "Cada momento que {recipientNickname} y los peques compartieron,\n" +
-        "crecer juntos, con un amigo peludo, fue lo mejor que pudieron.\n" +
+        "Cada momento que {recipientNickname} compartió con su familia,\n" +
+        "crecer juntos, entre juegos y patitas, fue pura alegría.\n" +
         "Una aventura sin final.",
     },
     {
       label: "Emotiva",
       HE_TO_SHE:
-        "Hay algo mágico en ver a {recipientNickname} y a los niños jugar,\n" +
-        "los secretos que comparten, las carreras sin parar.\n" +
+        "Hay algo mágico en ver a {recipientNickname} jugar en familia,\n" +
+        "los secretos que comparten, las carreras llenas de alegría.\n" +
         "Los abrazos que no terminan, la complicidad sin final,\n" +
         "este libro guarda esos momentos, algo tan especial.\n" +
         "Para siempre.",
       SHE_TO_HE:
-        "Hay algo mágico en ver a {recipientNickname} y a los niños jugar,\n" +
-        "los secretos que comparten, las carreras sin parar.\n" +
+        "Hay algo mágico en ver a {recipientNickname} jugar en familia,\n" +
+        "los secretos que comparten, las carreras llenas de alegría.\n" +
         "Los abrazos que no terminan, la complicidad sin final,\n" +
         "este libro guarda esos momentos, algo tan especial.\n" +
         "Para siempre.",
@@ -840,7 +793,7 @@ const DEDICATION_OPTIONS: Record<string, DedicationOption[]> = {
         "Porque más que hermanos, somos el mejor equipo.",
     },
   ],
-  "La Familia": [
+  "Mi Familia": [
     {
       label: "Con amor",
       HE_TO_SHE:
@@ -905,8 +858,14 @@ function resolveDedicationText(
     .replace(/\{familyName\}/g, familyName || "nuestra familia");
 }
 
+const DEDICATION_BOOK_ALIASES: Record<string, string> = {
+  "Aventura Entre Patas": "Aventura entre patas",
+  "La Familia": "Mi Familia",
+};
+
 function getDedicationOptions(libroNombre: string): DedicationOption[] {
-  return DEDICATION_OPTIONS[libroNombre] ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
+  const canonicalBookName = DEDICATION_BOOK_ALIASES[libroNombre] ?? libroNombre;
+  return DEDICATION_OPTIONS[canonicalBookName] ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
 }
 
 // HE_TO_HE usa template HE_TO_SHE, SHE_TO_SHE usa template SHE_TO_HE
@@ -936,6 +895,7 @@ function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
 // patrón que Amor: gender_direction + template_preview_key propio por
 // dirección) — ver usesDirectionTemplates más abajo.
 const FAMILIA_DIRECTION_BOOKS = new Set(["Papá, Mi Héroe", "Mamá, Mi Heroína", "Te amo, abuelo", "Te amo, abuela"]);
+const AVENTURA_ENTRE_PATAS_BOOKS = new Set(["Aventura entre patas", "Aventura Entre Patas"]);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Acepta + opcional (código de país) y 6-15 dígitos, con espacios/guiones
@@ -1100,7 +1060,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const [owner3Name, setOwner3Name] = useState("");
   const owner2Upload = usePhotoUpload("uploads/customers");
   const owner3Upload = usePhotoUpload("uploads/customers");
-  const isAventuraEntrePatas = libroNombre === "Aventura Entre Patas";
+  const isAventuraEntrePatas = AVENTURA_ENTRE_PATAS_BOOKS.has(libroNombre);
 
   // Familia-grupo — nombre de la familia y miembros
   const [familyName, setFamilyName] = useState("");
@@ -1117,8 +1077,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const hijo2Upload = usePhotoUpload("uploads/customers");
   const hijo3Upload = usePhotoUpload("uploads/customers");
 
-  // Hermanos — número de hermanos y género por integrante
+  // Hermanos — número de hermanos, apodo grupal y género por integrante
   const [numHermanos, setNumHermanos] = useState<2 | 3>(2);
+  const [teamNickname, setTeamNickname] = useState("");
   const [hermano1Gender, setHermano1Gender] = useState<"M" | "F" | "">("");
   const [hermano2Gender, setHermano2Gender] = useState<"M" | "F" | "">("");
   const [hermano3Gender, setHermano3Gender] = useState<"M" | "F" | "">("");
@@ -1411,6 +1372,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             : wizardMode === "hermanos"
             ? {
                 mode: "hermanos",
+                teamNickname: teamNickname || null,
                 hermanos: [
                   { name: hijo1Name, gender: hermano1Gender, assetIds: hijo1Upload.photos.map((p) => p.id) },
                   { name: hijo2Name, gender: hermano2Gender, assetIds: hijo2Upload.photos.map((p) => p.id) },
@@ -1995,7 +1957,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           // ── HERMANOS ──
           if (wizardMode === "hermanos") {
             const hermanoGenders = [hermano1Gender, hermano2Gender, hermano3Gender].slice(0, numHermanos);
-            const step1Valid = hermanoGenders.every((g) => g !== "");
+            const step1Valid = !!teamNickname.trim() && hermanoGenders.every((g) => g !== "");
             return (
               <div>
                 <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>¡Creemos el libro de los hermanos!</h3>
@@ -2009,6 +1971,18 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                       {n} hermanos
                     </button>
                   ))}
+                </div>
+
+                <div style={{ marginBottom: "24px" }}>
+                  <label style={{ fontSize: "13px", fontWeight: 700, color: "#555", display: "block", marginBottom: "8px" }}>
+                    Apodo del equipo <span style={{ color: "#999", fontWeight: 400 }}>(ej: Los inseparables, Equipo Pérez)</span>
+                  </label>
+                  <input
+                    value={teamNickname}
+                    onChange={(e) => setTeamNickname(e.target.value)}
+                    placeholder="Los inseparables"
+                    style={{ width: "100%", padding: "11px 14px", borderRadius: "10px", border: `1.5px solid ${teamNickname ? accent : "#e5e7eb"}`, fontSize: "15px", fontFamily: "inherit", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s ease" }}
+                  />
                 </div>
 
                 {/* Gender picker por hermano */}
@@ -2027,7 +2001,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   );
                 })}
 
-                {step1Valid && summaryBox(`${numHermanos} hermanos: ${hermanoGenders.map((g, i) => (g === "F" ? `Hermana ${i + 1}` : `Hermano ${i + 1}`)).join(", ")}`)}
+                {step1Valid && summaryBox(`${teamNickname.trim()}: ${numHermanos} hermanos — ${hermanoGenders.map((g, i) => (g === "F" ? `Hermana ${i + 1}` : `Hermano ${i + 1}`)).join(", ")}`)}
 
                 <div style={{ display: "flex", gap: "12px", flexDirection: isMobile ? "column" : "row" }}>
                   {navBtn("Anterior", () => setCurrentStep(0))}
@@ -2570,11 +2544,13 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <h3 style={{ margin: "0 0 20px 0", fontSize: "24px", fontWeight: 700 }}>8. Resumen de tu solicitud</h3>
                 <div style={{ borderRadius: "14px", border: "1px solid #f0f0f0", overflow: "hidden", marginBottom: "24px" }}>
                   <SummaryRow label="Libro" value={libroNombre} />
-                  <SummaryRow label="Para" value={recipientNickname ? `${recipientName} (${recipientNickname})` : recipientName} />
+                  <SummaryRow label="Para" value={wizardMode === "hermanos" ? teamNickname : recipientNickname ? `${recipientName} (${recipientNickname})` : recipientName} />
                   <SummaryRow
                     label="De"
                     value={
-                      isAventuraEntrePatas && numOwners > 1
+                      wizardMode === "hermanos"
+                        ? [hijo1Name, hijo2Name, ...(numHermanos >= 3 ? [hijo3Name] : [])].filter(Boolean).join(", ")
+                        : isAventuraEntrePatas && numOwners > 1
                         ? [dedicatorName, owner2Name, ...(numOwners >= 3 ? [owner3Name] : [])].filter(Boolean).join(", ")
                         : dedicatorName
                     }
@@ -2582,10 +2558,12 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <SummaryRow
                     label="Fotos"
                     value={`${
-                      recipientUpload.photos.length +
-                      dedicatorUpload.photos.length +
-                      (isAventuraEntrePatas && numOwners >= 2 ? owner2Upload.photos.length : 0) +
-                      (isAventuraEntrePatas && numOwners >= 3 ? owner3Upload.photos.length : 0)
+                      wizardMode === "hermanos"
+                        ? hijo1Upload.photos.length + hijo2Upload.photos.length + (numHermanos >= 3 ? hijo3Upload.photos.length : 0)
+                        : recipientUpload.photos.length +
+                          dedicatorUpload.photos.length +
+                          (isAventuraEntrePatas && numOwners >= 2 ? owner2Upload.photos.length : 0) +
+                          (isAventuraEntrePatas && numOwners >= 3 ? owner3Upload.photos.length : 0)
                     } fotos subidas`}
                   />
                   <SummaryRow label="Escenarios" value={selectedTemplates.map((id) => templates.find((t) => t.id === id)?.name ?? `#${id}`).join(", ")} />

@@ -260,20 +260,6 @@ const CATEGORY_BOOKS: Record<string, BookData[]> = {
   ],
   "libros-de-memorias-familiares": [
     {
-      id: "memorias-2",
-      slug: "gracias-por-tu-amor",
-      catalogName: "Gracias por tu amor",
-      name: "Gracias por tu amor",
-      productType: "CUSTOM_BOOK",
-      description:
-        "Un libro homenaje para honrar a esa persona especial que siempre será parte de tu corazón. Cada página celebra los momentos únicos que compartieron juntos.",
-      coverImageUrl: null,
-      variants: [{ id: "vm1", coverType: "TAPA_DURA", basePriceCents: 13000 }],
-      categoryBadge: "MEMORIAS FAMILIARES",
-      tagline: "PORQUE SIEMPRE SERÁS PARTE DE MÍ",
-      reviewCount: 0,
-    },
-    {
       id: "memorias-5",
       slug: "siempre-seras-parte-de-mi",
       catalogName: "Siempre seras parte de mi",
@@ -627,7 +613,6 @@ export default function CategoriaClient({
     "el-mejor-equipo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png",
     "la-familia": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png",
     // Memorias Familiares
-    "gracias-por-tu-amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png",
     "mi-angel-guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
     "siempre-en-mi-corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
     "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",

@@ -108,7 +108,6 @@ export default async function HomePage() {
   const love1025HomeUrl = getAssetUrl(K.ourBooksLove1025DiasHome);
   const miauravillosoHomeUrl = getAssetUrl(K.ourBooksPetsMiauravillosoHome);
   const mejorAmigoHomeUrl = getAssetUrl(K.ourBooksPetsMejorAmigoHome);
-  const memoriasGraciasHomeUrl = getAssetUrl(K.ourBooksMemoriasGraciasHome);
   const memoriasAngelHomeUrl = getAssetUrl(K.ourBooksMemoriasAngelGuardianHome);
   const memoriasSiempreCorazonHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreCorazonHome);
   const memoriasSiempreSerasHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreSerásHome);
@@ -394,17 +393,6 @@ export default async function HomePage() {
       image: mejorEquipoHomeUrl,
       href: "/libros-personalizados/libros-de-familia/el-mejor-equipo",
       category: "family" as BookCategory,
-      price: "S/ 130.00",
-      pages: 30,
-    },
-    {
-      title: "Gracias por Tu Amor",
-      subtitle: "Homenaje a quien siempre estará en tu corazón",
-      description:
-        "Un libro para honrar a esa persona especial que dejó una huella imborrable. Cada página celebra los momentos únicos que compartieron juntos.",
-      image: memoriasGraciasHomeUrl,
-      href: "/libros-personalizados/libros-de-memorias-familiares/gracias-por-tu-amor",
-      category: "memories" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
     },

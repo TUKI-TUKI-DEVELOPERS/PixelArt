@@ -47,8 +47,6 @@ export const HOME_ASSET_KEYS = {
   ourBooksFamilyElMejorEquipoHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura_Home.png',
 
   // SECTION OUR BOOKS - Memorias Familiares
-  ourBooksMemoriasGracias: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura.png',
-  ourBooksMemoriasGraciasHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_GraciasPorTuAmor_Miniatura_Home.png',
   ourBooksMemoriasAngelGuardian: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png',
   ourBooksMemoriasAngelGuardianHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura_Home.png',
   ourBooksMemoriasSiempreCorazon: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png',

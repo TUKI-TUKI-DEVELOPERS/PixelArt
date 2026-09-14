@@ -9,9 +9,11 @@ import { ImageGenerationPort } from '../../../personalized/domain/ports/image-ge
 import {
   buildGenerationPrompt,
   fillNamePlaceholders,
+  fillPoemPlaceholders,
   derivePrintedTitle,
   resolveSeparator,
   resolveFamilyGroupNameValues,
+  resolveHermanosNameValues,
   needsDualIdentity,
   SPREAD_SIZE,
 } from '../../../personalized/domain/services/build-generation-prompt';
@@ -109,18 +111,19 @@ export class GenerateOrderTemplateUseCase {
     const modelName = await this.personalizedRepo.findModelNameById(template.modelId);
     const sharedBlocks = await this.personalizedRepo.findSharedBlocks();
 
-    const nameValues = resolveFamilyGroupNameValues(demoRow.character_meta) ?? {
-      nombreDestinatario: demoRow.recipient_name,
-      apodoDestinatario: demoRow.recipient_nickname,
-      nombreDedicante: demoRow.dedicator_name,
-    };
+    const nameValues = resolveFamilyGroupNameValues(demoRow.character_meta) ??
+      resolveHermanosNameValues(demoRow.character_meta) ?? {
+        nombreDestinatario: demoRow.recipient_name,
+        apodoDestinatario: demoRow.recipient_nickname,
+        nombreDedicante: demoRow.dedicator_name,
+      };
 
     // El poema del prompt de generación SIEMPRE es el de la plantilla —
     // wantsCustomDedication/dedicationText es para la página de dedicatoria
     // aparte del PDF (custom-book-pdf.service.ts), nunca para el poema
     // ilustrado. Antes esto pisaba el poema de TODAS las plantillas con el
     // mismo texto libre del cliente cuando pedía dedicatoria personalizada.
-    const poem = fillNamePlaceholders(template.poemTemplate, nameValues);
+    const poem = fillPoemPlaceholders(template.poemTemplate, nameValues);
 
     const prompt = buildGenerationPrompt({
       sharedBlocks,
