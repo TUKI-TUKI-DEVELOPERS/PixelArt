@@ -27,6 +27,7 @@ UPDATE personalized_models SET slug = 'mi-amigo-miauravilloso' WHERE name = 'Mi 
 UPDATE personalized_models SET slug = 'mi-mejor-amigo-del-mundo' WHERE name = 'Mi mejor amigo del mundo';
 UPDATE personalized_models SET slug = 'nuestro-angel-de-4-patas' WHERE name = 'Nuestro Angel de 4 patas';
 UPDATE personalized_models SET slug = 'papa-mi-heroe' WHERE name = 'Papá, Mi Héroe';
+UPDATE personalized_models SET slug = 'papa-mi-heroe-adulto' WHERE name = 'Papá, Mi Héroe Adulto';
 UPDATE personalized_models SET slug = 'mama-mi-heroina' WHERE name = 'Mamá, Mi Heroína';
 UPDATE personalized_models SET slug = 'te-amo-abuelo' WHERE name = 'Te amo, abuelo';
 UPDATE personalized_models SET slug = 'te-amo-abuela' WHERE name = 'Te amo, abuela';

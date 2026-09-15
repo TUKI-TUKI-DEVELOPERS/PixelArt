@@ -212,6 +212,7 @@ export async function runSeed(): Promise<void> {
       { categoryId: cat['Libros de Mascotas'], name: 'Mi mejor amigo del mundo' },
       // Libros de Familia
       { categoryId: cat['Libros de Familia'], name: 'Papá, Mi Héroe' },
+      { categoryId: cat['Libros de Familia'], name: 'Papá, Mi Héroe Adulto' },
       { categoryId: cat['Libros de Familia'], name: 'Mamá, Mi Heroína' },
       { categoryId: cat['Libros de Familia'], name: 'Te amo, abuelo' },
       { categoryId: cat['Libros de Familia'], name: 'Te amo, abuela' },
@@ -500,6 +501,51 @@ export async function runSeed(): Promise<void> {
           'PLANTILLA_18_El_Hombre_Que_Me_Enseñó_Cómo_Debo_Ser_Tratada.png',
           'PLANTILLA_19_Cuando_Me_Haces_Sentir_La_Más_Bonita.png',
           'PLANTILLA_20_Seré_Tu_Niña_Para_Siempre.png',
+        ],
+      },
+      'Papá, Mi Héroe Adulto': {
+        base: 'IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas',
+        files: [
+          'Plantilla_1_El_Heroe_Que_Sostiene_En_Silencio.png',
+          'Plantilla_2_El_Taller_De_Tus_Consejos.png',
+          'Plantilla_3_Tu_Brujula_En_Los_Dias_Dificiles.png',
+          'Plantilla_4_El_Mapa_De_Tu_Ejemplo.png',
+          'Plantilla_5_La_Fuerza_Que_No_Hace_Ruido.png',
+          'Plantilla_6_Mi_Guardian_De_Todos_Los_Dias.png',
+          'Plantilla_7_La_Primera_Voz_Que_Me_Guio.png',
+          'Plantilla_8_Donde_Aprendi_A_Levantarme.png',
+          'Plantilla_9_El_Arquitecto_De_Mis_Suenos.png',
+          'Plantilla_10_El_Escudo_Que_Me_Dio_Valor.png',
+          'Plantilla_11_El_Maestro_De_La_Calma.png',
+          'Plantilla_12_El_Hombre_Que_Me_Enseno_A_Ser_Mejor.png',
+          'Plantilla_13_Tus_Pasos_Mi_Camino.png',
+          'Plantilla_14_Nuestro_Cafe_De_Hombres_Grandes.png',
+          'Plantilla_15_La_Paciencia_Que_Me_Formo.png',
+          'Plantilla_16_Las_Conversaciones_Que_Guardo.png',
+          'Plantilla_17_Cuando_Me_Ensenaste_A_No_Rendirme.png',
+          'Plantilla_18_El_Valor_De_Hacer_Lo_Correcto.png',
+          'Plantilla_19_La_Casa_Que_Siempre_Vuelve.png',
+          'Plantilla_20_Siempre_Sere_Tu_Hijo.png',
+          'Plantilla_21_La_Mano_Que_Me_Levanto.png',
+          'Plantilla_22_Nuestro_Baile_Con_El_Tiempo.png',
+          'Plantilla_23_Mi_Primer_Refugio.png',
+          'Plantilla_24_El_Abrazo_Que_Me_Dio_Alas.png',
+          'Plantilla_25_Tu_Forma_De_Cuidarme.png',
+          'Plantilla_26_El_Hombre_Que_Me_Enseno_Mi_Valor.png',
+          'Plantilla_27_La_Promesa_De_Volver_A_Casa.png',
+          'Plantilla_28_Mi_Guardian_De_Luz.png',
+          'Plantilla_29_El_Consejo_Que_Me_Acompana.png',
+          'Plantilla_30_La_Calma_Detras_De_Mis_Pasos.png',
+          'Plantilla_31_La_Fuerza_Que_Me_Hizo_Libre.png',
+          'Plantilla_32_El_Amor_Que_No_Exige_Nada.png',
+          'Plantilla_33_Las_Historias_Que_Aun_Me_Guian.png',
+          'Plantilla_34_Cuando_Me_Miraste_Con_Orgullo.png',
+          'Plantilla_35_La_Casa_De_Tus_Brazos.png',
+          'Plantilla_36_Tu_Voz_En_Mis_Decisiones.png',
+          'Plantilla_37_Mi_Heroe_Sin_Armadura.png',
+          'Plantilla_38_El_Respeto_Que_Aprendi_De_Ti.png',
+          'Plantilla_39_La_Ternura_Que_Me_Sostuvo.png',
+          'Plantilla_40_Siempre_Sere_Tu_Hija.png',
         ],
       },
       'Mamá, Mi Heroína': {
@@ -910,6 +956,14 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] personalized_templates content backfill (Papá Mi Héroe — hijo) ✓');
 
+    // "Papá, Mi Héroe Adulto" — piloto adulto separado del libro infantil.
+    // Mantiene la versión infantil intacta y carga 40 plantillas maduras
+    // (20 hijo adulto→papá, 20 hija adulta→papá) con su propio slug/assets.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-papa-mi-heroe-adult-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Papá Mi Héroe — adulto) ✓');
+
     // "Mamá, Mi Heroína" — agrega la versión hija→mamá (antes solo existía
     // hijo→mamá), mismo patrón que "Papá, Mi Héroe" arriba.
     await client.query(
@@ -1068,6 +1122,7 @@ export async function runSeed(): Promise<void> {
       { modelName: 'Mi amigo Miauravilloso',         storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png' },
       { modelName: 'Mi mejor amigo del mundo',       storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png' },
       { modelName: 'Papá, Mi Héroe',                 storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png' },
+      { modelName: 'Papá, Mi Héroe Adulto',          storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png' },
       { modelName: 'Mamá, Mi Heroína',               storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png' },
       { modelName: 'Te amo, abuelo',                 storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png' },
       { modelName: 'Te amo, abuela',                 storageKey: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png' },
@@ -1110,6 +1165,7 @@ export async function runSeed(): Promise<void> {
       { name: 'Mi amigo Miauravilloso',          type: 'CUSTOM_BOOK', desc: 'Crea el tributo más hermoso a ese felino que te elige, que ronronea en tu regazo, que te mira con ojos hipnóticos y que convierte tu casa en su reino.' },
       { name: 'Mi mejor amigo del mundo',        type: 'CUSTOM_BOOK', desc: 'Un libro personalizado que celebra la relación especial entre una persona y su perro.' },
       { name: 'Papá, Mi Héroe',                  type: 'CUSTOM_BOOK', desc: 'Libro personalizado donde una hija celebra a su padre, reconociendo todo lo que lo hace especial.' },
+      { name: 'Papá, Mi Héroe Adulto',           type: 'CUSTOM_BOOK', desc: 'Libro personalizado adulto para celebrar a papá desde la gratitud madura de un hijo o hija adulta.' },
       { name: 'Mamá, Mi Heroína',                type: 'CUSTOM_BOOK', desc: 'Libro personalizado que celebra el amor incondicional, la fortaleza, el sacrificio y la ternura de mamá.' },
       { name: 'Te amo, abuelo',                  type: 'CUSTOM_BOOK', desc: 'Un libro personalizado que honra el vínculo sagrado entre abuelos y nietos, capturando la sabiduría, ternura, historias compartidas y ese amor incondicional.' },
       { name: 'Te amo, abuela',                  type: 'CUSTOM_BOOK', desc: 'Libro personalizado que honra el vínculo sagrado entre abuelas y nietos, capturando la sabiduría, ternura y ese amor incondicional que solo las abuelas saben dar.' },
