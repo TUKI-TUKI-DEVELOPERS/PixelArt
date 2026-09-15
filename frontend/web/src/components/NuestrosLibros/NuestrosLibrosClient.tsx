@@ -51,6 +51,7 @@ const CATEGORY_BOOK_MAP: Record<string, string[]> = {
   ],
   "Libros de Familia": [
     "Papá, Mi Héroe",
+    "Papá, Mi Héroe Adulto",
     "Mamá, Mi Heroína",
     "Te amo, abuelo",
     "Te amo, abuela",
@@ -96,6 +97,11 @@ const BOOK_EXTRA: Record<string, { tagline: string; reviewCount: number; descrip
     tagline: "PARA EL HOMBRE QUE ME ENSEÑO A SER VALIENTE",
     reviewCount: 185,
     description: "Un libro donde una hija celebra a su padre, reconociendo todo lo que lo hace especial. Cada página captura momentos únicos y enseñanzas.",
+  },
+  "Papá, Mi Héroe Adulto": {
+    tagline: "PARA EL PAPÁ QUE SOSTUVO MI CAMINO",
+    reviewCount: 0,
+    description: "Una versión madura y emotiva para honrar a papá desde la gratitud de un hijo o hija adulta.",
   },
   "1025 Días enamorándome de ti": {
     tagline: "EL MEJOR CONTEO ES EL DE NOSOTROS",
@@ -215,6 +221,7 @@ const BOOK_HREF: Record<string, string> = {
   "Mi amigo Miauravilloso": "/libros-personalizados/libros-de-mascotas/mi-amigo-miauravilloso",
   "Mi mejor amigo del mundo": "/libros-personalizados/libros-de-mascotas/mi-mejor-amigo-del-mundo",
   "Papá, Mi Héroe": "/libros-personalizados/libros-de-familia/papa-mi-heroe",
+  "Papá, Mi Héroe Adulto": "/libros-personalizados/libros-de-familia/papa-mi-heroe-adulto",
   "Mamá, Mi Heroína": "/libros-personalizados/libros-de-familia/mama-mi-heroina",
   "Te amo, abuelo": "/libros-personalizados/libros-de-familia/te-amo-abuelo",
   "Te amo, abuela": "/libros-personalizados/libros-de-familia/te-amo-abuela",
@@ -231,6 +238,7 @@ const BOOK_THUMBNAIL: Record<string, string> = {
   "Mi Amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_Miamor_Miniatura.png",
   "1025 Días enamorándome de ti": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_xDiasEnamorandomeDeTi_Miniatura.png",
   "Papá, Mi Héroe": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png",
+  "Papá, Mi Héroe Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
   "Mamá, Mi Heroína": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png",
   "Te amo, abuelo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png",
   "Te amo, abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
@@ -250,6 +258,7 @@ const BOOK_ORDER = [
   "10 Razones por las que Te Amo",
   "Nuestro Angel de 4 patas",
   "Papá, Mi Héroe",
+  "Papá, Mi Héroe Adulto",
   "1025 Días enamorándome de ti",
   "Aventura entre patas",
   "Mamá, Mi Heroína",
@@ -454,7 +463,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
     for (const b of customBooks) {
       if (!ordered.includes(b)) ordered.push(b);
     }
-    return ordered
+    const cards = ordered
       .filter((b) => !!BOOK_THUMBNAIL[b.name])
       .map((b) => ({
         ...b,
@@ -465,6 +474,23 @@ export default function NuestrosLibrosClient({ books }: Props) {
         description: BOOK_EXTRA[b.name]?.description ?? null,
         href: BOOK_HREF[b.name],
       }));
+
+    const papaHero = cards.find((b) => b.name === "Papá, Mi Héroe");
+    const papaHeroAdult = cards.find((b) => b.name === "Papá, Mi Héroe Adulto");
+
+    return cards.flatMap((book) => {
+      if (book.name === "Papá, Mi Héroe Adulto") return [];
+      if (book.name !== "Papá, Mi Héroe" || !papaHero || !papaHeroAdult) return [book];
+
+      return [{
+        ...book,
+        name: "Papá, mi héroe",
+        versions: [
+          { ...papaHero, label: "Versión Infantil", name: "Papá, mi héroe" },
+          { ...papaHeroAdult, label: "Versión Adultos", name: "Papá, mi héroe" },
+        ],
+      }];
+    });
   }, [books]);
 
   const filteredBooks = useMemo(() => {

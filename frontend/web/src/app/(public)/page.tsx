@@ -84,6 +84,7 @@ export default async function HomePage() {
   const loveBookUrl = getAssetUrl(K.ourBooksLove10Razones);
   const loveBookHomeUrl = getAssetUrl(K.ourBooksLove10RazonesHome);
   const familyHeroHomeUrl = getAssetUrl(K.ourBooksFamilyPapaHeroeHome);
+  const familyHeroAdultHomeUrl = getAssetUrl(K.ourBooksFamilyPapaHeroeAdultoHome);
   const petAngelUrl = getAssetUrl(K.ourBooksPetsAngel);
   const petAngelHomeUrl = getAssetUrl(K.ourBooksPetsAngelHome);
   const photobookMachuPicchuUrl = getAssetUrl(K.ourBooksPhotobooksMachuPicchu);
@@ -327,7 +328,7 @@ export default async function HomePage() {
       pages: 24,
     },
     {
-      title: "Papá, Mi Héroe",
+      title: "Papá, mi héroe",
       subtitle: "Libro personalizado para celebrar a papá",
       description:
         "Un libro donde una hija celebra a su padre, reconociendo todo lo que lo hace especial. Cada página captura momentos únicos y enseñanzas.",
@@ -337,6 +338,22 @@ export default async function HomePage() {
       price: "S/ 130.00",
       pages: 30,
       paraQuien: ["papa", "hijos"],
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Un libro donde una hija celebra a su padre, reconociendo todo lo que lo hace especial. Cada página captura momentos únicos y enseñanzas.",
+          image: familyHeroHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/papa-mi-heroe",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una versión madura y emotiva para honrar al papá que sostuvo tu camino, con escenas sobrias, familiares y llenas de memoria.",
+          image: familyHeroAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/papa-mi-heroe-adulto",
+        },
+      ],
     },
     {
       title: "Te Amo, Abuelo",

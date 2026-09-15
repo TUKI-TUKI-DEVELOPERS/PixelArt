@@ -32,6 +32,7 @@ const SLUG_THUMBNAIL: Record<string, string> = {
   "mi-amigo-miauravilloso": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png",
   "mi-mejor-amigo-del-mundo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png",
   "papa-mi-heroe": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png",
+  "papa-mi-heroe-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
   "mama-mi-heroina": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png",
   "te-amo-abuelo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png",
   "te-amo-abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
@@ -143,6 +144,27 @@ const LIBROS_INFO: Record<string, LibroInfo> = {
     ],
     precio: { desde: "S/ 130" },
     reviewCount: 185,
+    accent: "#2b86bf",
+  },
+  "papa-mi-heroe-adulto": {
+    nombre: "Papá, Mi Héroe Adulto",
+    subtitulo: "Libro Personalizado de Familia",
+    tagline: "PARA EL PAPÁ QUE SOSTUVO MI CAMINO",
+    paraQuien: { texto: "De hijos adultos a papá", icono: "Users" },
+    descripcionCorta:
+      "Crea un homenaje maduro y emotivo para papá:",
+    bullets: [
+      "Una versión adulta para celebrar a papá desde la gratitud, la memoria y el respeto de un hijo o hija que ya creció.",
+      "Cada página transforma escenas cotidianas y familiares en un reconocimiento sereno, sobrio y profundamente personal.",
+    ],
+    caracteristicas: [
+      { label: "Páginas", value: "10 a 15" },
+      { label: "Tamaño", value: "29 × 20 cm" },
+      { label: "Tapa", value: "Delgada / Gruesa" },
+      { label: "Material", value: "Hoja couché 200 gr Gloss" },
+    ],
+    precio: { desde: "S/ 130" },
+    reviewCount: 0,
     accent: "#2b86bf",
   },
   "te-amo-abuelo": {
@@ -431,6 +453,7 @@ const FOTOS_RECOMENDADAS: Record<string, string[]> = {
   "1025-dias-enamorandome-de-ti": ["Persona 1", "Persona 2"],
   "mi-amor": ["Persona 1", "Persona 2"],
   "papa-mi-heroe": ["Papá", "Hija"],
+  "papa-mi-heroe-adulto": ["Papá", "Hijo/a adulto/a"],
   "mama-mi-heroina": ["Mamá", "Hijo"],
   "te-amo-abuelo": ["Abuelo", "Nieto"],
   "te-amo-abuela": ["Abuela", "Nieto"],
@@ -469,6 +492,7 @@ const RELATED_BOOKS: Record<string, RelatedBook[]> = {
   ],
   "libros-de-familia": [
     { name: "Papá, Mi Héroe", slug: "papa-mi-heroe", reviews: 185, tagline: "PARA EL HOMBRE QUE ME ENSEÑO A SER VALIENTE" },
+    { name: "Papá, Mi Héroe Adulto", slug: "papa-mi-heroe-adulto", reviews: 0, tagline: "PARA EL PAPÁ QUE SOSTUVO MI CAMINO" },
     { name: "Mamá, Mi Heroína", slug: "mama-mi-heroina", reviews: 182, tagline: "EL REGALO QUE TU MAMÁ GUARDARÁ PARA SIEMPRE" },
     { name: "Te Amo, Abuelo", slug: "te-amo-abuelo", reviews: 185, tagline: "ÉL TE CONTO HISTORIAS, AHORA TU DALE UN TESORO" },
     { name: "Te Amo, Abuela", slug: "te-amo-abuela", reviews: 90, tagline: "PORQUE EL AMOR DE UNA ABUELA NUNCA SE OLVIDA" },
@@ -721,7 +745,7 @@ export default function LibroDetalleClient({
           {/* ── Cabecera de texto centrada ── */}
           <div style={{ textAlign: "center" }}>
             {(() => {
-              const isWhite = ["mi-amor", "1025-dias-enamorandome-de-ti", "aventura-entre-patas", "mi-amigo-miauravilloso", "papa-mi-heroe", "mama-mi-heroina", "te-amo-abuela", "te-amo-abuelo", "el-mejor-equipo", "mi-angel-guardian"].includes(libroSlug);
+              const isWhite = ["mi-amor", "1025-dias-enamorandome-de-ti", "aventura-entre-patas", "mi-amigo-miauravilloso", "papa-mi-heroe", "papa-mi-heroe-adulto", "mama-mi-heroina", "te-amo-abuela", "te-amo-abuelo", "el-mejor-equipo", "mi-angel-guardian"].includes(libroSlug);
               const outlineShadow = "0.5px 0.5px 0 rgba(0,0,0,0.15), -0.5px -0.5px 0 rgba(0,0,0,0.15), 0.5px -0.5px 0 rgba(0,0,0,0.15), -0.5px 0.5px 0 rgba(0,0,0,0.15)";
               const textColor = isWhite ? "#fff" : "#111";
               const categoryColor = libroSlug === "te-amo-abuelo" ? "#fff" : textColor;

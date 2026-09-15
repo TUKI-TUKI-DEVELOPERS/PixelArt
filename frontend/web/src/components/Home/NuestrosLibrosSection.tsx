@@ -14,6 +14,13 @@ export type BookCategory = 'love' | 'pets' | 'family' | 'memories' | 'photobooks
 
 export type ParaQuienKey = 'pareja' | 'mama' | 'papa' | 'hijos' | 'abuelos';
 
+export type BookVersion = {
+  label: string;
+  description: string;
+  image: string;
+  href: string;
+};
+
 export type Book = {
   title: string;
   subtitle: string;
@@ -26,6 +33,7 @@ export type Book = {
   priceCents?: number;
   promoPrice?: number;
   pages?: number;
+  versions?: BookVersion[];
   /* A quién está dedicado el libro — taxonomía real, no se infiere del texto */
   paraQuien?: ParaQuienKey[];
 };

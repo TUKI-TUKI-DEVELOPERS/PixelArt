@@ -303,7 +303,10 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
                 pointerEvents: dropdownOpen ? "auto" : "none",
                 transition: "opacity 0.2s ease, transform 0.2s ease",
                 border: `1px solid rgba(0, 0, 0, 0.06)`,
-                overflow: "hidden",
+                maxHeight: "calc(100vh - 116px)",
+                overflowX: "hidden",
+                overflowY: "auto",
+                overscrollBehavior: "contain",
                 zIndex: 10,
               }}
             >

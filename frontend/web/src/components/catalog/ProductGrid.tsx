@@ -11,7 +11,7 @@ type Variant = {
   basePriceCents: number;
 };
 
-type Book = {
+type BaseBook = {
   id: string;
   name: string;
   productType: string;
@@ -22,6 +22,14 @@ type Book = {
   tagline?: string;
   reviewCount?: number;
   href?: string;
+};
+
+type BookVersion = BaseBook & {
+  label: string;
+};
+
+type Book = BaseBook & {
+  versions?: BookVersion[];
 };
 
 type ActivePromo = {
@@ -102,14 +110,28 @@ export default function ProductGrid({ books, promos = [] }: Props) {
         const category = book.categoryBadge
           ? BADGE_TO_CATEGORY[book.categoryBadge]
           : undefined;
-        const cheapest = book.variants.length
-          ? book.variants.reduce((a, b) =>
-              a.basePriceCents < b.basePriceCents ? a : b
-            )
-          : null;
-        const priceCents = cheapest?.basePriceCents;
-        const price      = priceCents !== undefined ? formatPrice(priceCents) : undefined;
-        const promoPrice = priceCents !== undefined ? applyBestPromo(priceCents, promos, Number(book.id)) : undefined;
+        const getPricing = (item: BaseBook) => {
+          const cheapest = item.variants.length
+            ? item.variants.reduce((a, b) =>
+                a.basePriceCents < b.basePriceCents ? a : b
+              )
+            : null;
+          const priceCents = cheapest?.basePriceCents;
+          return {
+            priceCents,
+            price: priceCents !== undefined ? formatPrice(priceCents) : undefined,
+            promoPrice: priceCents !== undefined ? applyBestPromo(priceCents, promos, Number(item.id)) : undefined,
+          };
+        };
+        const { priceCents, price, promoPrice } = getPricing(book);
+        const versions = book.versions?.map((version) => ({
+          label: version.label,
+          subtitle: version.tagline ?? "",
+          description: version.description ?? "",
+          image: version.coverImageUrl ?? "",
+          href: version.href ?? "#",
+          ...getPricing(version),
+        }));
 
         return (
           <motion.div
@@ -133,6 +155,7 @@ export default function ProductGrid({ books, promos = [] }: Props) {
               price={price}
               priceCents={priceCents}
               promoPrice={promoPrice}
+              versions={versions}
             />
           </motion.div>
         );

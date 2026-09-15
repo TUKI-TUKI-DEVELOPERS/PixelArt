@@ -1,9 +1,11 @@
 'use client';
 
-import type React from 'react';
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { tokens } from '@/lib/design-tokens';
+import { hexToRgba } from '@/lib/colors';
 import type { BookCategory } from './NuestrosLibrosSection';
 
 const CATEGORY_COLORS: Record<BookCategory, string> = {
@@ -16,6 +18,17 @@ const CATEGORY_COLORS: Record<BookCategory, string> = {
 
 const CARD_SHADOW       = '0 8px 32px rgba(0, 0, 0, 0.08)';
 const CARD_SHADOW_HOVER = '0 24px 64px rgba(0, 0, 0, 0.16)';
+
+type BookCardVersion = {
+  label: string;
+  subtitle?: string;
+  description?: string;
+  image?: string;
+  href?: string;
+  price?: string;
+  priceCents?: number;
+  promoPrice?: number;
+};
 
 type BookCardProps = {
   title: string;
@@ -30,6 +43,7 @@ type BookCardProps = {
   promoPrice?: number;
   pages?: number;
   rating?: number;
+  versions?: BookCardVersion[];
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -69,9 +83,25 @@ function formatCents(cents: number) {
 
 export default function BookCard({
   title, subtitle, description, image,
-  href = '#', category, price, priceCents, promoPrice, rating = 5,
+  href = '#', category, price, priceCents, promoPrice, rating = 5, versions,
 }: BookCardProps) {
+  const [activeVersionIndex, setActiveVersionIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const categoryColor = category ? CATEGORY_COLORS[category] : tokens.colors.photobooks.accent;
+  const activeVersion = versions?.[activeVersionIndex];
+  const hasVersions = !!versions && versions.length > 1;
+  const displaySubtitle = activeVersion?.subtitle ?? subtitle;
+  const displayDescription = activeVersion?.description ?? description;
+  const displayImage = activeVersion?.image ?? image;
+  const displayHref = activeVersion?.href ?? href;
+  const displayImageLoaded = displayImage ? !!loadedImages[displayImage] : false;
+  const displayPrice = activeVersion?.price ?? price;
+  const displayPriceCents = activeVersion?.priceCents ?? priceCents;
+  const displayPromoPrice = activeVersion?.promoPrice ?? promoPrice;
+  const imageBoxWidth = 310;
+  const imageBoxHeight = 210;
+  const articlePaddingTop = '112px';
+  const topZonePadding = '108px 16px 16px';
 
   return (
     /*
@@ -82,7 +112,7 @@ export default function BookCard({
       <article
         style={{
           position:       'relative',
-          paddingTop:     '95px',
+          paddingTop:     articlePaddingTop,
           cursor:         'pointer',
           height:         '100%',
           transformStyle: 'preserve-3d',
@@ -152,7 +182,7 @@ export default function BookCard({
         }}
       >
         {/* ── IMAGEN FLOTANTE — translateZ la saca del plano del card ── */}
-        {image && (
+        {displayImage && (
           <div
             data-book-image=""
             style={{
@@ -160,7 +190,7 @@ export default function BookCard({
               top:           0,
               left:          0,
               right:         0,
-              height:        '175px',
+              height:        `${imageBoxHeight}px`,
               display:       'flex',
               alignItems:    'flex-end',
               justifyContent:'center',
@@ -170,18 +200,45 @@ export default function BookCard({
               transition:    'transform 0.35s ease, filter 0.35s ease',
             }}
           >
-            <Image
-              src={image}
-              alt={title}
-              width={260}
-              height={175}
-              style={{
-                maxWidth:  '100%',
-                width:     '260px',
-                height:    '175px',
-                objectFit: 'contain',
-              }}
-            />
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={displayImage}
+                initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.985, y: -6 }}
+                transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'center',
+                }}
+              >
+                <Image
+                  src={displayImage}
+                  alt={title}
+                  width={imageBoxWidth}
+                  height={imageBoxHeight}
+                  onLoad={() => {
+                    setLoadedImages((prev) => (
+                      displayImage && !prev[displayImage]
+                        ? { ...prev, [displayImage]: true }
+                        : prev
+                    ));
+                  }}
+                  style={{
+                    maxWidth:  '100%',
+                    width:     `${imageBoxWidth}px`,
+                    height:    `${imageBoxHeight}px`,
+                    objectFit: 'contain',
+                    opacity: displayImageLoaded ? 1 : 0,
+                    filter: displayImageLoaded ? 'blur(0px)' : 'blur(4px)',
+                    transition: 'opacity 0.34s ease, filter 0.34s ease',
+                  }}
+                />
+              </motion.div>
+            </AnimatePresence>
           </div>
         )}
 
@@ -222,7 +279,7 @@ export default function BookCard({
             style={{
               position:   'relative',
               background: tokens.colors.neutral.surface.subtle,
-              padding:    '88px 16px 16px',
+              padding:    topZonePadding,
             }}
           >
             <div style={{
@@ -241,6 +298,66 @@ export default function BookCard({
             textAlign:     'center',
             gap:           '8px',
           }}>
+            {hasVersions && (
+              <div
+                aria-label="Versiones disponibles"
+                style={{
+                  position: 'relative',
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${versions?.length ?? 1}, minmax(0, 1fr))`,
+                  padding: '4px',
+                  marginBottom: '4px',
+                  borderRadius: tokens.borderRadius.full,
+                  background: hexToRgba(categoryColor, 0.09),
+                  overflow: 'hidden',
+                }}
+              >
+                <motion.div
+                  aria-hidden="true"
+                  animate={{ x: `${activeVersionIndex * 100}%` }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.7 }}
+                  style={{
+                    position: 'absolute',
+                    top: '4px',
+                    bottom: '4px',
+                    left: '4px',
+                    width: `calc((100% - 8px) / ${versions?.length ?? 1})`,
+                    borderRadius: tokens.borderRadius.full,
+                    background: categoryColor,
+                    boxShadow: `0 6px 14px ${hexToRgba(categoryColor, 0.24)}`,
+                  }}
+                />
+                {versions?.map((version, index) => {
+                  const active = index === activeVersionIndex;
+                  return (
+                    <button
+                      key={version.label}
+                      type="button"
+                      onClick={() => setActiveVersionIndex(index)}
+                      aria-pressed={active}
+                      style={{
+                        position: 'relative',
+                        zIndex: 1,
+                        border: 'none',
+                        borderRadius: tokens.borderRadius.full,
+                        padding: '6px 8px',
+                        background: 'transparent',
+                        color: active ? '#fff' : categoryColor,
+                        fontFamily: 'inherit',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'color 0.18s ease',
+                      }}
+                    >
+                      {version.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             <h3 style={{
               margin:     0,
               fontSize:   tokens.typography.body.size,
@@ -258,10 +375,10 @@ export default function BookCard({
               color:      categoryColor,
               fontWeight: 600,
             }}>
-              {subtitle}
+              {displaySubtitle}
             </p>
 
-            {description && (
+            {displayDescription && (
               <p style={{
                 margin:     0,
                 fontSize:   '13px',
@@ -273,26 +390,26 @@ export default function BookCard({
                 WebkitBoxOrient: 'vertical',
                 overflow:   'hidden',
               }}>
-                {description}
+                {displayDescription}
               </p>
             )}
 
-            {(price || priceCents !== undefined) && (
+            {(displayPrice || displayPriceCents !== undefined) && (
               <div style={{ margin: '4px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                {promoPrice !== undefined && priceCents !== undefined && (
+                {displayPromoPrice !== undefined && displayPriceCents !== undefined && (
                   <span style={{ fontSize: '13px', color: '#9ca3af', textDecoration: 'line-through' }}>
-                    Desde {formatCents(priceCents)}
+                    Desde {formatCents(displayPriceCents)}
                   </span>
                 )}
                 <p style={{
                   margin:     0,
                   fontSize:   tokens.typography.body.size,
                   fontWeight: 800,
-                  color:      promoPrice !== undefined ? '#e74c6f' : tokens.colors.neutral.text.primary,
+                  color:      displayPromoPrice !== undefined ? '#e74c6f' : tokens.colors.neutral.text.primary,
                 }}>
-                  Desde {promoPrice !== undefined && priceCents !== undefined
-                    ? formatCents(promoPrice)
-                    : price}
+                  Desde {displayPromoPrice !== undefined && displayPriceCents !== undefined
+                    ? formatCents(displayPromoPrice)
+                    : displayPrice}
                 </p>
               </div>
             )}
@@ -305,7 +422,7 @@ export default function BookCard({
             <div style={{ flex: 1 }} />
 
             <Link
-              href={href}
+              href={displayHref}
               style={{
                 display:        'inline-flex',
                 alignItems:     'center',

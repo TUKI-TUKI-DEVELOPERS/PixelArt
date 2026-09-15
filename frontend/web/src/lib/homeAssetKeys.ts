@@ -39,6 +39,8 @@ export const HOME_ASSET_KEYS = {
   ourBooksFamilyAbuelaHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura_Home.png',
   ourBooksFamilyPapaHeroe: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png',
   ourBooksFamilyPapaHeroeHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura_Home.png',
+  ourBooksFamilyPapaHeroeAdulto: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png',
+  ourBooksFamilyPapaHeroeAdultoHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura_Home.png',
   ourBooksFamilyMamaHeroina: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png',
   ourBooksFamilyMamaHeroinaHome: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura_Home.png',
   ourBooksFamilyLaFamilia: 'IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png',

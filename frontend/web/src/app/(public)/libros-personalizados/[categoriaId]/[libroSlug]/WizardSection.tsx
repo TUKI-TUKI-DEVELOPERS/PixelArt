@@ -861,6 +861,7 @@ function resolveDedicationText(
 const DEDICATION_BOOK_ALIASES: Record<string, string> = {
   "Aventura Entre Patas": "Aventura entre patas",
   "La Familia": "Mi Familia",
+  "Papá, Mi Héroe Adulto": "Papá, Mi Héroe",
 };
 
 function getDedicationOptions(libroNombre: string): DedicationOption[] {
@@ -891,10 +892,14 @@ function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
   return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(libroNombre) ? "F" : "M";
 }
 
+function isPapaBook(libroNombre: string): boolean {
+  return libroNombre === "Papá, Mi Héroe" || libroNombre === "Papá, Mi Héroe Adulto";
+}
+
 // Libros de Familia con plantillas separadas por dirección de género (mismo
 // patrón que Amor: gender_direction + template_preview_key propio por
 // dirección) — ver usesDirectionTemplates más abajo.
-const FAMILIA_DIRECTION_BOOKS = new Set(["Papá, Mi Héroe", "Mamá, Mi Heroína", "Te amo, abuelo", "Te amo, abuela"]);
+const FAMILIA_DIRECTION_BOOKS = new Set(["Papá, Mi Héroe", "Papá, Mi Héroe Adulto", "Mamá, Mi Heroína", "Te amo, abuelo", "Te amo, abuela"]);
 const AVENTURA_ENTRE_PATAS_BOOKS = new Set(["Aventura entre patas", "Aventura Entre Patas"]);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1822,7 +1827,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             // ── FAMILIA ──
             if (wizardMode === "familia") {
               const recipientG = getFamiliaRecipientGender(libroNombre);
-              const recipientLabel = libroNombre === "Papá, Mi Héroe" ? "papá"
+              const recipientLabel = isPapaBook(libroNombre) ? "papá"
                 : libroNombre === "Mamá, Mi Heroína" ? "mamá"
                 : libroNombre === "Te amo, abuelo" ? "abuelo"
                 : libroNombre === "Te amo, abuela" ? "abuela"
@@ -2106,7 +2111,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 {wizardMode === "mascotas" ? `Datos de tu mascota (${recipientGender === "F" ? "hembra" : "macho"})`
                   : wizardMode === "memorial" ? (recipientGender === "F" ? "Datos en memoria de ella" : "Datos en memoria de él")
                   : wizardMode === "familia" ? (
-                      libroNombre === "Papá, Mi Héroe" ? "Datos del papá"
+                      isPapaBook(libroNombre) ? "Datos del papá"
                       : libroNombre === "Mamá, Mi Heroína" ? "Datos de la mamá"
                       : libroNombre === "Te amo, abuelo" ? "Datos del abuelo"
                       : libroNombre === "Te amo, abuela" ? "Datos de la abuela"

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { tokens } from '@/lib/design-tokens';
@@ -38,10 +39,17 @@ export function categoryPatternBackground(category: BookCategory, color: string)
 }
 
 export default function NuestrosLibrosCard({
-  title, description, image, href = '#', category, price, priceCents, promoPrice,
+  title, description, image, href = '#', category, price, priceCents, promoPrice, versions,
 }: Book) {
   const [liked, setLiked] = useState(false);
+  const [activeVersionIndex, setActiveVersionIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const meta = category ? CATEGORY_META[category] : { label: '', color: tokens.colors.neutral.text.primary, icon: 'book' };
+  const activeVersion = versions?.[activeVersionIndex];
+  const displayImage = activeVersion?.image ?? image;
+  const displayDescription = activeVersion?.description ?? description;
+  const displayHref = activeVersion?.href ?? href;
+  const displayImageLoaded = displayImage ? !!loadedImages[displayImage] : false;
 
   return (
     /*
@@ -152,23 +160,108 @@ export default function NuestrosLibrosCard({
             transition: 'transform 0.35s ease',
           }}
         >
-        {image && (
-          <Image
-            src={image}
-            alt={title}
-            fill
-            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 360px"
+        {versions && versions.length > 1 && (
+          <div
+            aria-label="Versiones disponibles"
             style={{
-              objectFit: 'contain',
-              /* Los mockups de Photobooks (ref. Machu Picchu) llenan su lienzo ~100%,
-                 sin margen interno. Los covers de libros personalizados cargan ~35%
-                 de margen de seguridad a propósito (evita que la inclinación corte
-                 una esquina). Con la misma caja y objectFit:contain, el que tiene
-                 menos margen se ve más grande — este scale iguala el tamaño visual. */
-              transform: category === 'photobooks' ? 'scale(0.65)' : undefined,
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              right: '10px',
+              zIndex: 3,
+              display: 'grid',
+              gridTemplateColumns: `repeat(${versions.length}, minmax(0, 1fr))`,
+              padding: '4px',
+              borderRadius: tokens.borderRadius.full,
+              background: 'rgba(255, 255, 255, 0.92)',
+              boxShadow: '0 6px 18px rgba(0,0,0,0.10)',
+              backdropFilter: 'blur(8px)',
+              overflow: 'hidden',
             }}
-          />
+          >
+            <motion.div
+              aria-hidden="true"
+              animate={{ x: `${activeVersionIndex * 100}%` }}
+              transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.7 }}
+              style={{
+                position: 'absolute',
+                top: '4px',
+                bottom: '4px',
+                left: '4px',
+                width: `calc((100% - 8px) / ${versions.length})`,
+                borderRadius: tokens.borderRadius.full,
+                background: meta.color,
+                boxShadow: `0 6px 14px ${hexToRgba(meta.color, 0.24)}`,
+              }}
+            />
+            {versions.map((version, index) => {
+              const active = index === activeVersionIndex;
+              return (
+                <button
+                  key={version.label}
+                  type="button"
+                  onClick={() => setActiveVersionIndex(index)}
+                  aria-pressed={active}
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    border: 'none',
+                    borderRadius: tokens.borderRadius.full,
+                    padding: '6px 8px',
+                    background: 'transparent',
+                    color: active ? '#fff' : meta.color,
+                    fontFamily: 'inherit',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'color 0.18s ease',
+                  }}
+                >
+                  {version.label}
+                </button>
+              );
+            })}
+          </div>
         )}
+        <AnimatePresence mode="wait" initial={false}>
+          {displayImage && (
+            <motion.div
+              key={displayImage}
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.985, y: -6 }}
+              transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+              style={{ position: 'absolute', inset: 0 }}
+            >
+              <Image
+                src={displayImage}
+                alt={title}
+                fill
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 360px"
+                onLoad={() => {
+                  setLoadedImages((prev) => (
+                    displayImage && !prev[displayImage]
+                      ? { ...prev, [displayImage]: true }
+                      : prev
+                  ));
+                }}
+                style={{
+                  objectFit: 'contain',
+                  opacity: displayImageLoaded ? 1 : 0,
+                  filter: displayImageLoaded ? 'blur(0px)' : 'blur(4px)',
+                  transition: 'opacity 0.34s ease, filter 0.34s ease, transform 0.34s ease',
+                  /* Los mockups de Photobooks (ref. Machu Picchu) llenan su lienzo ~100%,
+                     sin margen interno. Los covers de libros personalizados cargan ~35%
+                     de margen de seguridad a propósito (evita que la inclinación corte
+                     una esquina). Con la misma caja y objectFit:contain, el que tiene
+                     menos margen se ve más grande — este scale iguala el tamaño visual. */
+                  transform: category === 'photobooks' ? 'scale(0.65)' : undefined,
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         </div>
         <button
           type="button"
@@ -253,7 +346,7 @@ export default function NuestrosLibrosCard({
           {title}
         </h3>
 
-        {description && (
+        {displayDescription && (
           <p
             style={{
               margin: 0,
@@ -266,7 +359,7 @@ export default function NuestrosLibrosCard({
               overflow: 'hidden',
             }}
           >
-            {description}
+            {displayDescription}
           </p>
         )}
 
@@ -287,7 +380,7 @@ export default function NuestrosLibrosCard({
         )}
 
         <Link
-          href={href}
+          href={displayHref}
           style={{
             display: 'inline-flex',
             alignItems: 'center',

@@ -188,6 +188,20 @@ const CATEGORY_BOOKS: Record<string, BookData[]> = {
       reviewCount: 185,
     },
     {
+      id: "familia-1-adulto",
+      slug: "papa-mi-heroe-adulto",
+      catalogName: "Papá, Mi Héroe Adulto",
+      name: "Papá, Mi Héroe Adulto",
+      productType: "CUSTOM_BOOK",
+      description:
+        "Una versión adulta y emotiva para celebrar a papá desde la gratitud de un hijo o hija que ya creció.",
+      coverImageUrl: null,
+      variants: [{ id: "v7a", coverType: "TAPA_DURA", basePriceCents: 13000 }],
+      categoryBadge: "LIBRO DE FAMILIA",
+      tagline: "PARA EL PAPÁ QUE SOSTUVO MI CAMINO",
+      reviewCount: 0,
+    },
+    {
       id: "familia-2",
       slug: "te-amo-abuelo",
       catalogName: "Te amo, abuelo",
@@ -607,6 +621,7 @@ export default function CategoriaClient({
     "mi-mejor-amigo-del-mundo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png",
     // Familia
     "papa-mi-heroe": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png",
+    "papa-mi-heroe-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
     "mama-mi-heroina": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png",
     "te-amo-abuelo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png",
     "te-amo-abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
@@ -618,7 +633,7 @@ export default function CategoriaClient({
     "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
   };
 
-  const allBooks = booksRaw.map((b) => {
+  const resolvedBooks = booksRaw.map((b) => {
     const realId = catalogIds[b.catalogName] ? String(catalogIds[b.catalogName]) : b.id;
     // Prioridad: API (BD) → COVER_MAP estático (fallback) → null
     const coverImageUrl =
@@ -630,6 +645,22 @@ export default function CategoriaClient({
       coverImageUrl,
       href: `/libros-personalizados/${categoriaSlug}/${b.slug}`,
     };
+  });
+
+  const papaHero = resolvedBooks.find((b) => b.slug === "papa-mi-heroe");
+  const papaHeroAdult = resolvedBooks.find((b) => b.slug === "papa-mi-heroe-adulto");
+  const allBooks = resolvedBooks.flatMap((book) => {
+    if (book.slug === "papa-mi-heroe-adulto") return [];
+    if (book.slug !== "papa-mi-heroe" || !papaHero || !papaHeroAdult) return [book];
+
+    return [{
+      ...book,
+      name: "Papá, mi héroe",
+      versions: [
+        { ...papaHero, label: "Versión Infantil", name: "Papá, mi héroe" },
+        { ...papaHeroAdult, label: "Versión Adultos", name: "Papá, mi héroe" },
+      ],
+    }];
   });
   const hasHeroBg = !!assetUrls.heroBackground;
   const comunidadImages = [

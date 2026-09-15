@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import LibroDetalleClient from "./LibroDetalleClient";
 import { getAssetUrl } from "@/lib/assetUrl";
@@ -8,6 +10,7 @@ const BACKGROUND_KEYS: Record<string, string> = {
   "1025-dias-enamorandome-de-ti": "IA_Books/Backgrounds/Backgrounds_Libros_Amor_X_Dias_Enamorandome_de_ti.png",
   "10-razones-por-las-que-te-amo": "IA_Books/Backgrounds/Backgrounds_Libros_Amor_X_Razones_Por_Las_Que_Te_Amo.png",
   "papa-mi-heroe": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Papa_mi_heroe.png",
+  "papa-mi-heroe-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Papa_mi_heroe_Adulto.png",
   "la-familia": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_La_Familia.png",
   "el-mejor-equipo": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_El_mejor_equipo.png",
   "te-amo-abuelo": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Te_amo_abuelo.png",
@@ -80,6 +83,11 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
     "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Libros_Familia_Papamiheroe_Central.png",
     "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Libros_Familia_Papamiheroe_Central_2.png",
     "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Libros_Familia_Papamiheroe_Central_3.png",
+  ],
+  "papa-mi-heroe-adulto": [
+    "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Libros_Familia_Papamiheroe_Adulto_Central.png",
+    "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Libros_Familia_Papamiheroe_Adulto_Central_2.png",
+    "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Libros_Familia_Papamiheroe_Adulto_Central_3.png",
   ],
   "te-amo-abuela": [
     "IA_Books/Family_Books_Page/Libros/Te_amo_abuela/Libros_Familia_Teamoabuela_Central.png",
