@@ -964,6 +964,19 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] personalized_templates content backfill (Papá Mi Héroe — adulto) ✓');
 
+    // Resto de modelos adultos aprobados — versiones separadas/split que no
+    // sobrescriben los libros infantiles/originales.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-adult-remaining-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (adultos restantes) ✓');
+
+    // Cover assets de las versiones adultas generadas para web/category cards.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-adult-web-assets.sql'), 'utf8'),
+    );
+    console.log('[seed] adult web cover assets ✓');
+
     // "Mamá, Mi Heroína" — agrega la versión hija→mamá (antes solo existía
     // hijo→mamá), mismo patrón que "Papá, Mi Héroe" arriba.
     await client.query(

@@ -35,6 +35,40 @@ type ActivePromo = {
   discountValue: number;
 };
 
+const ADULT_BOOKS_BY_CATEGORY: Record<string, BookData[]> = {
+  "libros-de-familia": [
+    { id: "familia-mama-adulto", slug: "mama-mi-heroina-adulto", catalogName: "Mamá, Mi Heroína Adulto", name: "Mamá, Mi Heroína Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta para agradecer a mamá desde la memoria, la calma y la vida compartida.", coverImageUrl: null, variants: [{ id: "v12a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE FAMILIA", tagline: "PARA LA MAMÁ QUE SOSTUVO MI VIDA", reviewCount: 0 },
+    { id: "familia-abuelo-adulto", slug: "te-amo-abuelo-adulto", catalogName: "Te Amo, Abuelo Adulto", name: "Te Amo, Abuelo Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta para honrar al abuelo desde sus consejos, historias y legado.", coverImageUrl: null, variants: [{ id: "v8a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE FAMILIA", tagline: "PARA EL ABUELO QUE ME DEJÓ RAÍCES", reviewCount: 0 },
+    { id: "familia-abuela-adulto", slug: "te-amo-abuela-adulto", catalogName: "Te Amo, Abuela Adulto", name: "Te Amo, Abuela Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta para celebrar a la abuela desde la ternura, la memoria y el hogar.", coverImageUrl: null, variants: [{ id: "v12b", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE FAMILIA", tagline: "PARA LA ABUELA QUE HIZO HOGAR", reviewCount: 0 },
+    { id: "familia-equipo-adulto", slug: "el-mejor-equipo-adulto", catalogName: "El Mejor Equipo Adulto", name: "El Mejor Equipo Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta para hermanos que siguen siendo equipo en la vida real.", coverImageUrl: null, variants: [{ id: "v9a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE FAMILIA", tagline: "PARA LOS HERMANOS QUE SIGUEN SIENDO EQUIPO", reviewCount: 0 },
+    { id: "familia-la-familia-adulto", slug: "la-familia-adulto", catalogName: "Mi Familia Adulto", name: "Mi Familia Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta para celebrar una familia que siempre encuentra camino de regreso.", coverImageUrl: null, variants: [{ id: "v11a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE FAMILIA", tagline: "PARA LA FAMILIA QUE SIEMPRE VUELVE", reviewCount: 0 },
+  ],
+  "libros-de-memorias-familiares": [
+    { id: "mem-corazon-abuelo-adulto", slug: "siempre-en-mi-corazon-abuelo-adulto", catalogName: "Siempre en mi Corazón Abuelo Adulto", name: "Siempre en mi Corazón Abuelo Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta memorial para recordar al abuelo con una presencia clara y luminosa.", coverImageUrl: null, variants: [{ id: "vm1a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE MEMORIA", tagline: "PARA RECORDAR AL ABUELO QUE SIGUE PRESENTE", reviewCount: 0 },
+    { id: "mem-corazon-abuela-adulto", slug: "siempre-en-mi-corazon-abuela-adulto", catalogName: "Siempre en mi Corazón Abuela Adulto", name: "Siempre en mi Corazón Abuela Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta memorial para recordar a la abuela con ternura y presencia luminosa.", coverImageUrl: null, variants: [{ id: "vm1b", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE MEMORIA", tagline: "PARA RECORDAR A LA ABUELA QUE SIGUE PRESENTE", reviewCount: 0 },
+    { id: "mem-angel-padre-adulto", slug: "mi-angel-guardian-padre-adulto", catalogName: "Mi Ángel Guardián Padre Adulto", name: "Mi Ángel Guardián Padre Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta protectora para honrar a papá sin fantasía literal ni religiosidad kitsch.", coverImageUrl: null, variants: [{ id: "vm2a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE MEMORIA", tagline: "PARA EL PADRE QUE AÚN CUIDA MI CAMINO", reviewCount: 0 },
+    { id: "mem-angel-madre-adulto", slug: "mi-angel-guardian-madre-adulto", catalogName: "Mi Ángel Guardián Madre Adulto", name: "Mi Ángel Guardián Madre Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta protectora para honrar a mamá desde la luz, el cuidado y la memoria.", coverImageUrl: null, variants: [{ id: "vm2b", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE MEMORIA", tagline: "PARA LA MADRE QUE AÚN CUIDA MI CAMINO", reviewCount: 0 },
+    { id: "mem-siempre-seras-adulto", slug: "siempre-seras-parte-de-mi-adulto", catalogName: "Siempre Serás Parte de Mí Adulto", name: "Siempre Serás Parte de Mí Adulto", productType: "CUSTOM_BOOK", description: "Versión adulta de hermanos, con escenas vivas de complicidad y memoria compartida.", coverImageUrl: null, variants: [{ id: "vm3a", coverType: "TAPA_DURA", basePriceCents: 13000 }], categoryBadge: "LIBRO DE MEMORIA", tagline: "PARA EL HERMANO QUE SIEMPRE SERÁ PARTE DE MÍ", reviewCount: 0 },
+  ],
+};
+
+
+
+
+const ADULT_BASE_SLUGS: Record<string, string> = {
+  "mama-mi-heroina-adulto": "mama-mi-heroina",
+  "te-amo-abuelo-adulto": "te-amo-abuelo",
+  "te-amo-abuela-adulto": "te-amo-abuela",
+  "el-mejor-equipo-adulto": "el-mejor-equipo",
+  "la-familia-adulto": "la-familia",
+  "aventura-entre-patas-adulto": "aventura-entre-patas",
+  "siempre-en-mi-corazon-abuelo-adulto": "siempre-en-mi-corazon",
+  "siempre-en-mi-corazon-abuela-adulto": "siempre-en-mi-corazon",
+  "mi-angel-guardian-padre-adulto": "mi-angel-guardian",
+  "mi-angel-guardian-madre-adulto": "mi-angel-guardian",
+  "siempre-seras-parte-de-mi-adulto": "siempre-seras-parte-de-mi",
+};
+
 const CATEGORY_HERO: Record<
   string,
   { title: string; subtitle: string; description: string; accent: string }
@@ -606,7 +640,10 @@ export default function CategoriaClient({
   const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   const reduceMotion = useReducedMotion();
   const hero = CATEGORY_HERO[categoriaSlug];
-  const booksRaw = CATEGORY_BOOKS[categoriaSlug] ?? [];
+  const booksRaw = [
+    ...(CATEGORY_BOOKS[categoriaSlug] ?? []),
+    ...(ADULT_BOOKS_BY_CATEGORY[categoriaSlug] ?? []),
+  ];
 
   // Mapa slug → miniatura desde MinIO
   const COVER_MAP: Record<string, string> = {
@@ -631,6 +668,17 @@ export default function CategoriaClient({
     "mi-angel-guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
     "siempre-en-mi-corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
     "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
+    "mama-mi-heroina-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Adulto_Miniatura.webp",
+    "te-amo-abuelo-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Adulto_Miniatura.webp",
+    "te-amo-abuela-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Adulto_Miniatura.webp",
+    "el-mejor-equipo-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Adulto_Miniatura.webp",
+    "la-familia-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Adulto_Miniatura.webp",
+    "aventura-entre-patas-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Adulto_Miniatura.webp",
+    "siempre-en-mi-corazon-abuelo-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuelo_Adulto_Miniatura.webp",
+    "siempre-en-mi-corazon-abuela-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuela_Adulto_Miniatura.webp",
+    "mi-angel-guardian-padre-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianPadre_Adulto_Miniatura.webp",
+    "mi-angel-guardian-madre-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianMadre_Adulto_Miniatura.webp",
+    "siempre-seras-parte-de-mi-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMi_Adulto_Miniatura.webp",
   };
 
   const resolvedBooks = booksRaw.map((b) => {
@@ -647,20 +695,33 @@ export default function CategoriaClient({
     };
   });
 
-  const papaHero = resolvedBooks.find((b) => b.slug === "papa-mi-heroe");
-  const papaHeroAdult = resolvedBooks.find((b) => b.slug === "papa-mi-heroe-adulto");
+  const VERSION_GROUPS = [
+    { baseSlug: "papa-mi-heroe", displayName: "Papá, mi héroe", versions: [{ slug: "papa-mi-heroe", label: "Versión Infantil" }, { slug: "papa-mi-heroe-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "aventura-entre-patas", displayName: "Aventura Entre Patas", versions: [{ slug: "aventura-entre-patas", label: "Versión Infantil" }, { slug: "aventura-entre-patas-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "mama-mi-heroina", displayName: "Mamá, Mi Heroína", versions: [{ slug: "mama-mi-heroina", label: "Versión Infantil" }, { slug: "mama-mi-heroina-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "te-amo-abuelo", displayName: "Te Amo, Abuelo", versions: [{ slug: "te-amo-abuelo", label: "Versión Infantil" }, { slug: "te-amo-abuelo-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "te-amo-abuela", displayName: "Te Amo, Abuela", versions: [{ slug: "te-amo-abuela", label: "Versión Infantil" }, { slug: "te-amo-abuela-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "el-mejor-equipo", displayName: "El Mejor Equipo", versions: [{ slug: "el-mejor-equipo", label: "Versión Infantil" }, { slug: "el-mejor-equipo-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "la-familia", displayName: "Mi Familia", versions: [{ slug: "la-familia", label: "Versión Infantil" }, { slug: "la-familia-adulto", label: "Versión Adultos" }] },
+    { baseSlug: "siempre-en-mi-corazon", displayName: "Siempre en mi Corazón", versions: [{ slug: "siempre-en-mi-corazon", label: "Versión Original" }, { slug: "siempre-en-mi-corazon-abuelo-adulto", label: "Abuelo Adulto" }, { slug: "siempre-en-mi-corazon-abuela-adulto", label: "Abuela Adulto" }] },
+    { baseSlug: "mi-angel-guardian", displayName: "Mi Ángel Guardián", versions: [{ slug: "mi-angel-guardian", label: "Versión Original" }, { slug: "mi-angel-guardian-padre-adulto", label: "Padre Adulto" }, { slug: "mi-angel-guardian-madre-adulto", label: "Madre Adulto" }] },
+    { baseSlug: "siempre-seras-parte-de-mi", displayName: "Siempre Serás Parte de Mí", versions: [{ slug: "siempre-seras-parte-de-mi", label: "Versión Original" }, { slug: "siempre-seras-parte-de-mi-adulto", label: "Versión Adultos" }] },
+  ];
+  const hiddenVersionSlugs = new Set(VERSION_GROUPS.flatMap((group) => group.versions.slice(1).map((version) => version.slug)));
   const allBooks = resolvedBooks.flatMap((book) => {
-    if (book.slug === "papa-mi-heroe-adulto") return [];
-    if (book.slug !== "papa-mi-heroe" || !papaHero || !papaHeroAdult) return [book];
+    if (hiddenVersionSlugs.has(book.slug)) return [];
+    const group = VERSION_GROUPS.find((item) => item.baseSlug === book.slug);
+    if (!group) return [book];
 
-    return [{
-      ...book,
-      name: "Papá, mi héroe",
-      versions: [
-        { ...papaHero, label: "Versión Infantil", name: "Papá, mi héroe" },
-        { ...papaHeroAdult, label: "Versión Adultos", name: "Papá, mi héroe" },
-      ],
-    }];
+    const versions = group.versions
+      .map((version) => {
+        const match = resolvedBooks.find((candidate) => candidate.slug === version.slug);
+        return match ? { ...match, label: version.label, name: group.displayName } : null;
+      })
+      .filter(Boolean) as Array<BookData & { label: string }>;
+
+    if (versions.length < 2) return [book];
+    return [{ ...book, name: group.displayName, versions }];
   });
   const hasHeroBg = !!assetUrls.heroBackground;
   const comunidadImages = [

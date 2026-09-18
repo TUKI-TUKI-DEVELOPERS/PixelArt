@@ -100,18 +100,29 @@ export default async function HomePage() {
   const photobookPuntaCanaUrl   = getAssetUrl(K.ourBooksPhotobooksPuntaCana);
   const photobookRioUrl         = getAssetUrl(K.ourBooksPhotobooksRioJaneiro);
   const grandpaBookHomeUrl = getAssetUrl(K.ourBooksFamilyAbueloHome);
+  const grandpaBookAdultHomeUrl = getAssetUrl(K.ourBooksFamilyAbueloAdultoHome);
   const grandmaBookHomeUrl = getAssetUrl(K.ourBooksFamilyAbuelaHome);
+  const grandmaBookAdultHomeUrl = getAssetUrl(K.ourBooksFamilyAbuelaAdultoHome);
   const mamaHeroinaHomeUrl = getAssetUrl(K.ourBooksFamilyMamaHeroinaHome);
+  const mamaHeroinaAdultHomeUrl = getAssetUrl(K.ourBooksFamilyMamaHeroinaAdultoHome);
   const laFamiliaHomeUrl = getAssetUrl(K.ourBooksFamilyLaFamiliaHome);
+  const laFamiliaAdultHomeUrl = getAssetUrl(K.ourBooksFamilyLaFamiliaAdultoHome);
   const mejorEquipoHomeUrl = getAssetUrl(K.ourBooksFamilyElMejorEquipoHome);
+  const mejorEquipoAdultHomeUrl = getAssetUrl(K.ourBooksFamilyElMejorEquipoAdultoHome);
   const miAmorBookHomeUrl = getAssetUrl(K.ourBooksLoveMiAmorHome);
   const aventuraPatasHomeUrl = getAssetUrl(K.ourBooksPetsAventurasHome);
+  const aventuraPatasAdultHomeUrl = getAssetUrl(K.ourBooksPetsAventurasAdultoHome);
   const love1025HomeUrl = getAssetUrl(K.ourBooksLove1025DiasHome);
   const miauravillosoHomeUrl = getAssetUrl(K.ourBooksPetsMiauravillosoHome);
   const mejorAmigoHomeUrl = getAssetUrl(K.ourBooksPetsMejorAmigoHome);
   const memoriasAngelHomeUrl = getAssetUrl(K.ourBooksMemoriasAngelGuardianHome);
+  const memoriasAngelPadreAdultHomeUrl = getAssetUrl(K.ourBooksMemoriasAngelGuardianPadreAdultoHome);
+  const memoriasAngelMadreAdultHomeUrl = getAssetUrl(K.ourBooksMemoriasAngelGuardianMadreAdultoHome);
   const memoriasSiempreCorazonHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreCorazonHome);
+  const memoriasSiempreCorazonAbueloAdultHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreCorazonAbueloAdultoHome);
+  const memoriasSiempreCorazonAbuelaAdultHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreCorazonAbuelaAdultoHome);
   const memoriasSiempreSerasHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreSerásHome);
+  const memoriasSiempreSerasAdultHomeUrl = getAssetUrl(K.ourBooksMemoriasSiempreSerasAdultoHome);
   const photobooksHeroCutoutUrl = getAssetUrl(K.photobooksHeroCutout);
   const heroSilkLeftUrl = getAssetUrl(K.heroSilkLeftBackground);
   const whyChooseUsImageUrl = getAssetUrl(K.whyChooseUsImage);
@@ -366,6 +377,22 @@ export default async function HomePage() {
       price: "S/ 130.00",
       pages: 30,
       paraQuien: ["abuelos"],
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Honra el vínculo entre abuelos y nietos, capturando la sabiduría, ternura, historias compartidas y ese amor incondicional único.",
+          image: grandpaBookHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/te-amo-abuelo",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una versión adulta para agradecer al abuelo desde sus consejos, historias y legado familiar.",
+          image: grandpaBookAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/te-amo-abuelo-adulto",
+        },
+      ],
     },
     {
       title: "Te Amo, Abuela",
@@ -378,6 +405,22 @@ export default async function HomePage() {
       price: "S/ 130.00",
       pages: 30,
       paraQuien: ["abuelos"],
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Celebra a esa abuela que llena cada momento de ternura, cariño y sabiduría.",
+          image: grandmaBookHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/te-amo-abuela",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una versión madura para agradecerle a la abuela desde la memoria, la ternura y su legado familiar.",
+          image: grandmaBookAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/te-amo-abuela-adulto",
+        },
+      ],
     },
     {
       title: "Mamá, Mi Heroína",
@@ -390,6 +433,22 @@ export default async function HomePage() {
       price: "S/ 130.00",
       pages: 30,
       paraQuien: ["mama", "hijos"],
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Una historia luminosa para celebrar a mamá con escenas mágicas y lectura familiar.",
+          image: mamaHeroinaHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/mama-mi-heroina",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una edición emotiva para agradecerle a mamá desde una mirada adulta, sobria y familiar.",
+          image: mamaHeroinaAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/mama-mi-heroina-adulto",
+        },
+      ],
     },
     {
       title: "La Familia",
@@ -401,6 +460,22 @@ export default async function HomePage() {
       category: "family" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Un retrato familiar mágico, pensado para compartir con niños y celebrar estar juntos.",
+          image: laFamiliaHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/la-familia",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una versión adulta para celebrar raíces, pertenencia y generaciones con una estética más sobria.",
+          image: laFamiliaAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/la-familia-adulto",
+        },
+      ],
     },
     {
       title: "El Mejor Equipo",
@@ -412,6 +487,22 @@ export default async function HomePage() {
       category: "family" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Una aventura ilustrada para hermanos y familias que juegan, ríen y se acompañan.",
+          image: mejorEquipoHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/el-mejor-equipo",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una edición adulta sobre complicidad, lealtad y ese equipo que sigue unido con los años.",
+          image: mejorEquipoAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-familia/el-mejor-equipo-adulto",
+        },
+      ],
     },
     {
       title: "Mi Ángel Guardián",
@@ -423,6 +514,29 @@ export default async function HomePage() {
       category: "memories" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Un homenaje ilustrado y sensible para recordar a quien sigue cuidando desde el corazón.",
+          image: memoriasAngelHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian",
+        },
+        {
+          label: "Papá — Adultos",
+          description:
+            "Una versión adulta para recordar a papá como guía protectora, sobria y luminosa.",
+          image: memoriasAngelPadreAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian-padre-adulto",
+        },
+        {
+          label: "Mamá — Adultos",
+          description:
+            "Una versión adulta para recordar a mamá como refugio, cuidado y presencia interior.",
+          image: memoriasAngelMadreAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian-madre-adulto",
+        },
+      ],
     },
     {
       title: "Siempre en Mi Corazón",
@@ -434,6 +548,29 @@ export default async function HomePage() {
       category: "memories" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Un libro de memorias para preservar recuerdos con ternura y fantasía contenida.",
+          image: memoriasSiempreCorazonHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon",
+        },
+        {
+          label: "Abuelo — Adultos",
+          description:
+            "Una versión adulta para honrar al abuelo desde su legado, sus historias y su presencia luminosa.",
+          image: memoriasSiempreCorazonAbueloAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon-abuelo-adulto",
+        },
+        {
+          label: "Abuela — Adultos",
+          description:
+            "Una versión adulta para honrar a la abuela desde la ternura, la memoria y el amor que permanece.",
+          image: memoriasSiempreCorazonAbuelaAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon-abuela-adulto",
+        },
+      ],
     },
     {
       title: "Siempre Serás Parte de Mi Corazón",
@@ -445,6 +582,22 @@ export default async function HomePage() {
       category: "memories" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Un tributo ilustrado para guardar los momentos que siguen viviendo en el corazón.",
+          image: memoriasSiempreSerasHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una versión adulta sobre hermanos, complicidad y la presencia que permanece sin volverse fúnebre.",
+          image: memoriasSiempreSerasAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi-adulto",
+        },
+      ],
     },
     {
       title: "Mi Amor",
@@ -468,6 +621,22 @@ export default async function HomePage() {
       category: "pets" as BookCategory,
       price: "S/ 130.00",
       pages: 30,
+      versions: [
+        {
+          label: "Versión Infantil",
+          description:
+            "Aventuras ilustradas para celebrar a la mascota de la familia junto a los niños del hogar.",
+          image: aventuraPatasHomeUrl,
+          href: "/libros-personalizados/libros-de-mascotas/aventura-entre-patas",
+        },
+        {
+          label: "Versión Adultos",
+          description:
+            "Una versión adulta para honrar a ese compañero que camina tu vida con lealtad y ternura.",
+          image: aventuraPatasAdultHomeUrl,
+          href: "/libros-personalizados/libros-de-mascotas/aventura-entre-patas-adulto",
+        },
+      ],
     },
     {
       title: "1025 Días Enamorándome de Ti",

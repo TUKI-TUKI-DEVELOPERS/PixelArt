@@ -258,41 +258,113 @@ export const DESTACADOS = [
   },
 ];
 
-export const ADULT_AVAILABLE_BOOKS = [
+const PAPA_ADULT_BOOKS = [
   {
     label: "Papá, mi héroe",
     subtitle: "Un regalo emotivo para agradecerle a papá",
     tag: "PAPÁ",
     href: "/libros-personalizados/libros-de-familia/papa-mi-heroe-adulto",
     coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
-    icon: "moustache",
+    color: PIXELART_COLORS.A_BLUE,
+  },
+  {
+    label: "Mi Ángel Guardián — Papá",
+    subtitle: "Una memoria adulta y protectora",
+    tag: "PAPÁ",
+    href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian-padre-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianPadre_Adulto_Miniatura.webp",
     color: PIXELART_COLORS.A_BLUE,
   },
 ];
 
-export const ADULT_UPCOMING_BOOKS = [
+const MAMA_ADULT_BOOKS = [
   {
-    label: "Mamá, Mi Heroína — Edición Emotiva",
-    subtitle: "En preparación",
-    icon: "sparkles",
+    label: "Mamá, mi heroína",
+    subtitle: "Una edición emotiva para agradecerle a mamá",
+    tag: "MAMÁ",
+    href: "/libros-personalizados/libros-de-familia/mama-mi-heroina-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Adulto_Miniatura.webp",
     color: PIXELART_COLORS.L_PURPLE,
   },
   {
-    label: "Te amo, abuelo — Edición Emotiva",
-    subtitle: "En preparación",
-    icon: "infinity",
+    label: "Mi Ángel Guardián — Mamá",
+    subtitle: "Una memoria adulta y luminosa",
+    tag: "MAMÁ",
+    href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian-madre-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianMadre_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.L_PURPLE,
+  },
+];
+
+const HIJOS_ADULT_BOOKS = [
+  {
+    label: "Mi Familia",
+    subtitle: "Raíces, pertenencia y generaciones",
+    tag: "FAMILIA",
+    href: "/libros-personalizados/libros-de-familia/la-familia-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.X_YELLOW,
+  },
+  {
+    label: "El Mejor Equipo",
+    subtitle: "Complicidad y lealtad entre hermanos",
+    tag: "HERMANOS",
+    href: "/libros-personalizados/libros-de-familia/el-mejor-equipo-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.X_YELLOW,
+  },
+  {
+    label: "Siempre serás parte de mí",
+    subtitle: "Una presencia que acompaña sin volverse fúnebre",
+    tag: "HERMANOS",
+    href: "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMi_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.X_YELLOW,
+  },
+];
+
+const ABUELOS_ADULT_BOOKS = [
+  {
+    label: "Te amo, abuelo",
+    subtitle: "Agradecimiento adulto al legado del abuelo",
+    tag: "ABUELO",
+    href: "/libros-personalizados/libros-de-familia/te-amo-abuelo-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Adulto_Miniatura.webp",
     color: PIXELART_COLORS.T_TURQUOISE,
   },
   {
-    label: "Te amo, abuela — Edición Emotiva",
-    subtitle: "En preparación",
-    icon: "heart",
-    color: PIXELART_COLORS.R_PINK,
+    label: "Te amo, abuela",
+    subtitle: "Ternura y memoria para honrar a la abuela",
+    tag: "ABUELA",
+    href: "/libros-personalizados/libros-de-familia/te-amo-abuela-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.T_TURQUOISE,
   },
   {
-    label: "El Mejor Equipo — Edición Emotiva",
-    subtitle: "En preparación",
-    icon: "family",
+    label: "Siempre en mi corazón — Abuelo",
+    subtitle: "Memoria luminosa y esperanzadora",
+    tag: "ABUELO",
+    href: "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon-abuelo-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuelo_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.T_TURQUOISE,
+  },
+  {
+    label: "Siempre en mi corazón — Abuela",
+    subtitle: "Memoria luminosa y esperanzadora",
+    tag: "ABUELA",
+    href: "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon-abuela-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuela_Adulto_Miniatura.webp",
+    color: PIXELART_COLORS.T_TURQUOISE,
+  },
+];
+
+const MASCOTAS_ADULT_BOOKS = [
+  {
+    label: "Aventura Entre Patas",
+    subtitle: "Para el compañero que camina tu vida",
+    tag: "MASCOTAS",
+    href: "/libros-personalizados/libros-de-mascotas/aventura-entre-patas-adulto",
+    coverKey: "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Adulto_Miniatura.webp",
     color: PIXELART_COLORS.E_GREEN,
   },
 ];
@@ -338,11 +410,11 @@ export const RECIPIENT_NAV: RecipientNavItem[] = [
     href: "/libros-personalizados/libros-de-familia/papa-mi-heroe",
     icon: "moustache",
     color: PIXELART_COLORS.A_BLUE,
-    note: "Para celebrar a papá con cuentos ilustrados o una edición más editorial y emotiva.",
+    note: "Para celebrar a papá con cuentos ilustrados o ediciones adultas más sobrias y emotivas.",
     illustrated: PAPA_BOOKS,
-    emotive: ADULT_AVAILABLE_BOOKS,
+    emotive: PAPA_ADULT_BOOKS,
     upcoming: [],
-    spotlight: ADULT_AVAILABLE_BOOKS[0],
+    spotlight: PAPA_ADULT_BOOKS[0],
   },
   {
     label: "Mamá",
@@ -350,11 +422,11 @@ export const RECIPIENT_NAV: RecipientNavItem[] = [
     href: "/libros-personalizados/libros-de-familia/mama-mi-heroina",
     icon: "sparkles",
     color: PIXELART_COLORS.L_PURPLE,
-    note: "Historias luminosas para mamá, con nuevas ediciones emotivas en preparación.",
+    note: "Historias luminosas para mamá, con versiones adultas para agradecer y recordar con calma.",
     illustrated: MAMA_BOOKS,
-    emotive: [],
-    upcoming: [ADULT_UPCOMING_BOOKS[0]],
-    spotlight: MAMA_BOOKS[0],
+    emotive: MAMA_ADULT_BOOKS,
+    upcoming: [],
+    spotlight: MAMA_ADULT_BOOKS[0],
   },
   {
     label: "Pareja",
@@ -379,11 +451,11 @@ export const RECIPIENT_NAV: RecipientNavItem[] = [
     href: "/libros-personalizados/libros-de-familia",
     icon: "baby",
     color: PIXELART_COLORS.X_YELLOW,
-    note: "Libros familiares para jugar, agradecer y guardar recuerdos de infancia.",
+    note: "Libros familiares para jugar, agradecer y guardar recuerdos, con versiones adultas para hermanos y familia.",
     illustrated: HIJOS_BOOKS,
-    emotive: [],
-    upcoming: [ADULT_UPCOMING_BOOKS[3]],
-    spotlight: HIJOS_BOOKS[0],
+    emotive: HIJOS_ADULT_BOOKS,
+    upcoming: [],
+    spotlight: HIJOS_ADULT_BOOKS[0],
   },
   {
     label: "Abuelos",
@@ -391,11 +463,11 @@ export const RECIPIENT_NAV: RecipientNavItem[] = [
     href: "/libros-personalizados/libros-de-familia/te-amo-abuelo",
     icon: "infinity",
     color: PIXELART_COLORS.T_TURQUOISE,
-    note: "Para honrar a quienes sostienen la historia familiar con calma y cariño.",
+    note: "Para honrar a quienes sostienen la historia familiar con calma, cariño y memoria.",
     illustrated: ABUELOS_BOOKS,
-    emotive: [],
-    upcoming: [ADULT_UPCOMING_BOOKS[1], ADULT_UPCOMING_BOOKS[2]],
-    spotlight: ABUELOS_BOOKS[0],
+    emotive: ABUELOS_ADULT_BOOKS,
+    upcoming: [],
+    spotlight: ABUELOS_ADULT_BOOKS[0],
   },
   {
     label: "Mascotas",
@@ -410,9 +482,9 @@ export const RECIPIENT_NAV: RecipientNavItem[] = [
     illustratedAudienceLabel: "Mascotas",
     illustratedGlyph: "pet",
     illustrated: MASCOTAS_BOOKS,
-    emotive: [],
+    emotive: MASCOTAS_ADULT_BOOKS,
     upcoming: [],
-    spotlight: MASCOTAS_BOOKS[0],
+    spotlight: MASCOTAS_ADULT_BOOKS[0],
   },
 ];
 
@@ -447,9 +519,9 @@ function getVersionOptions(recipient: RecipientNavItem): VersionOption[] {
     options.push({
       key: "grownChildren",
       label: "Versión Adultos",
-      description: "Agradecimiento más realista para papá",
-      detail: "Un libro sobrio y emocional para decir gracias desde la mirada de un hijo o hija adulta.",
-      color: PIXELART_COLORS.A_BLUE,
+      description: "Ediciones más sobrias y emotivas",
+      detail: "Libros adultos para agradecer, recordar o celebrar vínculos familiares desde una mirada madura.",
+      color: recipient.color,
       glyph: "grown",
       books: recipient.emotive,
     });
@@ -597,7 +669,7 @@ export default function LibrosPersonalizadosMegaMenu({ onClose }: { onClose: () 
           <SelectedVersionPanel option={selectedOption} onClose={onClose} />
         </div>
 
-        <RecipientSpotlight recipient={activeRecipient} selectedOption={selectedOption} onClose={onClose} />
+        <RecipientSpotlight recipient={activeRecipient} onClose={onClose} />
       </div>
 
     </div>

@@ -4,6 +4,21 @@ import { notFound } from "next/navigation";
 import LibroDetalleClient from "./LibroDetalleClient";
 import { getAssetUrl } from "@/lib/assetUrl";
 
+
+const ADULT_BASE_SLUGS: Record<string, string> = {
+  "mama-mi-heroina-adulto": "mama-mi-heroina",
+  "te-amo-abuelo-adulto": "te-amo-abuelo",
+  "te-amo-abuela-adulto": "te-amo-abuela",
+  "el-mejor-equipo-adulto": "el-mejor-equipo",
+  "la-familia-adulto": "la-familia",
+  "aventura-entre-patas-adulto": "aventura-entre-patas",
+  "siempre-en-mi-corazon-abuelo-adulto": "siempre-en-mi-corazon",
+  "siempre-en-mi-corazon-abuela-adulto": "siempre-en-mi-corazon",
+  "mi-angel-guardian-padre-adulto": "mi-angel-guardian",
+  "mi-angel-guardian-madre-adulto": "mi-angel-guardian",
+  "siempre-seras-parte-de-mi-adulto": "siempre-seras-parte-de-mi",
+};
+
 /* ── Mapa slug → storage_key del background en MinIO ── */
 const BACKGROUND_KEYS: Record<string, string> = {
   "mi-amor": "IA_Books/Backgrounds/Backgrounds_Libros_Amor_Mi_Amor.png",
@@ -17,12 +32,23 @@ const BACKGROUND_KEYS: Record<string, string> = {
   "te-amo-abuela": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Te_amo_abuela.png",
   "mama-mi-heroina": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Mama_mi_heroina.png",
   "aventura-entre-patas": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Aventuras_Entre_Patas.png",
+  "aventura-entre-patas-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Aventuras_Entre_Patas_Adulto.webp",
   "mi-mejor-amigo-del-mundo": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Mi_Mejor_Amigo_del_mundo.png",
   "mi-amigo-miauravilloso": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Mi_amigo_miauravilloso.png",
   "nuestro-angel-de-4-patas": "IA_Books/Backgrounds/Backgrounds_Libros_Mascotas_Nuestro_Angel_de_4_patas.png",
   "mi-angel-guardian": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Mi_angel_guardian.png",
   "siempre-en-mi-corazon": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_en_mi_corazon.png",
   "siempre-seras-parte-de-mi": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon.png",
+  "mama-mi-heroina-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Mama_mi_heroina_Adulto.webp",
+  "te-amo-abuelo-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Te_amo_abuelo_Adulto.webp",
+  "te-amo-abuela-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Te_amo_abuela_Adulto.webp",
+  "el-mejor-equipo-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_El_mejor_equipo_Adulto.webp",
+  "la-familia-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_La_Familia_Adulto.webp",
+  "siempre-en-mi-corazon-abuelo-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_en_mi_corazon_abuelo_Adulto.webp",
+  "siempre-en-mi-corazon-abuela-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_en_mi_corazon_abuela_Adulto.webp",
+  "mi-angel-guardian-padre-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Mi_angel_guardian_padre_Adulto.webp",
+  "mi-angel-guardian-madre-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Mi_angel_guardian_madre_Adulto.webp",
+  "siempre-seras-parte-de-mi-adulto": "IA_Books/Backgrounds/Backgrounds_Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_Adulto.webp",
 };
 
 /* ── Mapa slug → storage_keys de imágenes centrales del carousel ── */
@@ -47,6 +73,11 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
     "IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Libros_Mascotas_Aventurasentrepatas_Central.png",
     "IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Libros_Mascotas_Aventurasentrepatas_Central_2.png",
     "IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas/Libros_Mascotas_Aventurasentrepatas_Central_3.png",
+  ],
+  "aventura-entre-patas-adulto": [
+    "IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas_Adulto/Libros_Mascotas_AventuraEntrePatas_Adulto_Central.webp",
+    "IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas_Adulto/Libros_Mascotas_AventuraEntrePatas_Adulto_Central_2.webp",
+    "IA_Books/Pet_Books_Page/Libros/Aventuras_Entre_Patas_Adulto/Libros_Mascotas_AventuraEntrePatas_Adulto_Central_3.webp",
   ],
   "mi-amigo-miauravilloso": [
     "IA_Books/Pet_Books_Page/Libros/Mi_Amigo_Miauravilloso/Libros_Mascotas_Miamigomiauravilloso_Central.png",
@@ -113,6 +144,56 @@ const CAROUSEL_KEYS: Record<string, string[]> = {
     "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon_Central.png",
     "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon_Central_2.png",
     "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi/Libros_Memoria_Familiar_Siempre_seras_parte_de_mi_corazon_Central_3.png",
+  ],
+  "mama-mi-heroina-adulto": [
+    "IA_Books/Family_Books_Page/Libros/Mama_mi_heroina_adulto/Libros_Familia_MamamiHeroina_Adulto_Central.webp",
+    "IA_Books/Family_Books_Page/Libros/Mama_mi_heroina_adulto/Libros_Familia_MamamiHeroina_Adulto_Central_2.webp",
+    "IA_Books/Family_Books_Page/Libros/Mama_mi_heroina_adulto/Libros_Familia_MamamiHeroina_Adulto_Central_3.webp",
+  ],
+  "te-amo-abuelo-adulto": [
+    "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo_adulto/Libros_Familia_TeAmoAbuelo_Adulto_Central.webp",
+    "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo_adulto/Libros_Familia_TeAmoAbuelo_Adulto_Central_2.webp",
+    "IA_Books/Family_Books_Page/Libros/Te_amo_abuelo_adulto/Libros_Familia_TeAmoAbuelo_Adulto_Central_3.webp",
+  ],
+  "te-amo-abuela-adulto": [
+    "IA_Books/Family_Books_Page/Libros/Te_amo_abuela_adulto/Libros_Familia_TeAmoAbuela_Adulto_Central.webp",
+    "IA_Books/Family_Books_Page/Libros/Te_amo_abuela_adulto/Libros_Familia_TeAmoAbuela_Adulto_Central_2.webp",
+    "IA_Books/Family_Books_Page/Libros/Te_amo_abuela_adulto/Libros_Familia_TeAmoAbuela_Adulto_Central_3.webp",
+  ],
+  "el-mejor-equipo-adulto": [
+    "IA_Books/Family_Books_Page/Libros/El_mejor_equipo_adulto/Libros_Familia_ElMejorEquipo_Adulto_Central.webp",
+    "IA_Books/Family_Books_Page/Libros/El_mejor_equipo_adulto/Libros_Familia_ElMejorEquipo_Adulto_Central_2.webp",
+    "IA_Books/Family_Books_Page/Libros/El_mejor_equipo_adulto/Libros_Familia_ElMejorEquipo_Adulto_Central_3.webp",
+  ],
+  "la-familia-adulto": [
+    "IA_Books/Family_Books_Page/Libros/La_familia_adulto/Libros_Familia_MiFamilia_Adulto_Central.webp",
+    "IA_Books/Family_Books_Page/Libros/La_familia_adulto/Libros_Familia_MiFamilia_Adulto_Central_2.webp",
+    "IA_Books/Family_Books_Page/Libros/La_familia_adulto/Libros_Familia_MiFamilia_Adulto_Central_3.webp",
+  ],
+  "siempre-en-mi-corazon-abuelo-adulto": [
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon_abuelo_adulto/Libros_Memoria_Familiar_SiempreEnMiCorazonAbuelo_Adulto_Central.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon_abuelo_adulto/Libros_Memoria_Familiar_SiempreEnMiCorazonAbuelo_Adulto_Central_2.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon_abuelo_adulto/Libros_Memoria_Familiar_SiempreEnMiCorazonAbuelo_Adulto_Central_3.webp",
+  ],
+  "siempre-en-mi-corazon-abuela-adulto": [
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon_abuela_adulto/Libros_Memoria_Familiar_SiempreEnMiCorazonAbuela_Adulto_Central.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon_abuela_adulto/Libros_Memoria_Familiar_SiempreEnMiCorazonAbuela_Adulto_Central_2.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_en_mi_corazon_abuela_adulto/Libros_Memoria_Familiar_SiempreEnMiCorazonAbuela_Adulto_Central_3.webp",
+  ],
+  "mi-angel-guardian-padre-adulto": [
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian_padre_adulto/Libros_Memoria_Familiar_MiAngelGuardianPadre_Adulto_Central.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian_padre_adulto/Libros_Memoria_Familiar_MiAngelGuardianPadre_Adulto_Central_2.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian_padre_adulto/Libros_Memoria_Familiar_MiAngelGuardianPadre_Adulto_Central_3.webp",
+  ],
+  "mi-angel-guardian-madre-adulto": [
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian_madre_adulto/Libros_Memoria_Familiar_MiAngelGuardianMadre_Adulto_Central.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian_madre_adulto/Libros_Memoria_Familiar_MiAngelGuardianMadre_Adulto_Central_2.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Mi_angel_guardian_madre_adulto/Libros_Memoria_Familiar_MiAngelGuardianMadre_Adulto_Central_3.webp",
+  ],
+  "siempre-seras-parte-de-mi-adulto": [
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi_adulto/Libros_Memoria_Familiar_SiempreSerasParteDeMi_Adulto_Central.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi_adulto/Libros_Memoria_Familiar_SiempreSerasParteDeMi_Adulto_Central_2.webp",
+    "IA_Books/Memorial_Books_Page/Libros/Siempre_seras_parte_de_mi_adulto/Libros_Memoria_Familiar_SiempreSerasParteDeMi_Adulto_Central_3.webp",
   ],
 };
 
@@ -200,8 +281,9 @@ export default async function LibroDetallePage({ params }: Props) {
   const { libroNombre, dbIds } = resolved;
 
   // Fetch in parallel: background + carousel images + datos dependientes de DB
-  const bgKey = BACKGROUND_KEYS[libroSlug];
-  const carouselKeys = CAROUSEL_KEYS[libroSlug] ?? [];
+  const assetSlug = ADULT_BASE_SLUGS[libroSlug] ?? libroSlug;
+  const bgKey = BACKGROUND_KEYS[libroSlug] ?? BACKGROUND_KEYS[assetSlug];
+  const carouselKeys = CAROUSEL_KEYS[libroSlug] ?? CAROUSEL_KEYS[assetSlug] ?? [];
 
   const backgroundUrl = bgKey ? getAssetUrl(bgKey) : null;
   const carouselImageUrls = carouselKeys.map((key) => getAssetUrl(key));

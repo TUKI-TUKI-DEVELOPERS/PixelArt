@@ -860,13 +860,28 @@ function resolveDedicationText(
 
 const DEDICATION_BOOK_ALIASES: Record<string, string> = {
   "Aventura Entre Patas": "Aventura entre patas",
+  "Aventura Entre Patas Adulto": "Aventura entre patas",
   "La Familia": "Mi Familia",
+  "Mi Familia Adulto": "Mi Familia",
+  "El Mejor Equipo Adulto": "El Mejor Equipo",
   "Papá, Mi Héroe Adulto": "Papá, Mi Héroe",
+  "Mamá, Mi Heroína Adulto": "Mamá, Mi Heroína",
+  "Te Amo, Abuelo Adulto": "Te amo, abuelo",
+  "Te Amo, Abuela Adulto": "Te amo, abuela",
+  "Siempre en mi Corazón Abuelo Adulto": "Siempre en mi Corazón",
+  "Siempre en mi Corazón Abuela Adulto": "Siempre en mi Corazón",
+  "Mi Ángel Guardián Padre Adulto": "Mi Ángel Guardián",
+  "Mi Ángel Guardián Madre Adulto": "Mi Ángel Guardián",
+  "Siempre Serás Parte de Mí Adulto": "Siempre Serás Parte de Mí",
 };
 
+function canonicalBookName(libroNombre: string): string {
+  return DEDICATION_BOOK_ALIASES[libroNombre] ?? libroNombre;
+}
+
 function getDedicationOptions(libroNombre: string): DedicationOption[] {
-  const canonicalBookName = DEDICATION_BOOK_ALIASES[libroNombre] ?? libroNombre;
-  return DEDICATION_OPTIONS[canonicalBookName] ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
+  const bookKey = canonicalBookName(libroNombre);
+  return DEDICATION_OPTIONS[bookKey] ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
 }
 
 // HE_TO_HE usa template HE_TO_SHE, SHE_TO_SHE usa template SHE_TO_HE
@@ -880,8 +895,9 @@ function getWizardMode(categoriaSlug: string, libroNombre: string): WizardMode {
   if (categoriaSlug === "libros-de-mascotas") return "mascotas";
   if (categoriaSlug === "libros-de-memorias-familiares") return "memorial";
   if (categoriaSlug === "libros-de-familia") {
-    if (libroNombre === "La Familia" || libroNombre === "Mi Familia") return "familia-grupo";
-    if (libroNombre === "El Mejor Equipo") return "hermanos";
+    const bookKey = canonicalBookName(libroNombre);
+    if (bookKey === "La Familia" || bookKey === "Mi Familia") return "familia-grupo";
+    if (bookKey === "El Mejor Equipo") return "hermanos";
     return "familia";
   }
   return "amor";
@@ -889,18 +905,18 @@ function getWizardMode(categoriaSlug: string, libroNombre: string): WizardMode {
 
 // Para "familia" el destinatario está implícito en el nombre del libro
 function getFamiliaRecipientGender(libroNombre: string): "M" | "F" {
-  return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(libroNombre) ? "F" : "M";
+  return ["Mamá, Mi Heroína", "Te amo, abuela"].includes(canonicalBookName(libroNombre)) ? "F" : "M";
 }
 
 function isPapaBook(libroNombre: string): boolean {
-  return libroNombre === "Papá, Mi Héroe" || libroNombre === "Papá, Mi Héroe Adulto";
+  return canonicalBookName(libroNombre) === "Papá, Mi Héroe";
 }
 
 // Libros de Familia con plantillas separadas por dirección de género (mismo
 // patrón que Amor: gender_direction + template_preview_key propio por
 // dirección) — ver usesDirectionTemplates más abajo.
-const FAMILIA_DIRECTION_BOOKS = new Set(["Papá, Mi Héroe", "Papá, Mi Héroe Adulto", "Mamá, Mi Heroína", "Te amo, abuelo", "Te amo, abuela"]);
-const AVENTURA_ENTRE_PATAS_BOOKS = new Set(["Aventura entre patas", "Aventura Entre Patas"]);
+const FAMILIA_DIRECTION_BOOKS = new Set(["Papá, Mi Héroe", "Mamá, Mi Heroína", "Te amo, abuelo", "Te amo, abuela"]);
+const AVENTURA_ENTRE_PATAS_BOOKS = new Set(["Aventura entre patas", "Aventura Entre Patas", "Aventura Entre Patas Adulto"]);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Acepta + opcional (código de país) y 6-15 dígitos, con espacios/guiones
@@ -1202,8 +1218,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     templates.map((t) => t.genderDirection).filter((d): d is string => d !== null),
   );
   const usesDirectionTemplates =
-    (wizardMode === "amor" || FAMILIA_DIRECTION_BOOKS.has(libroNombre)) && availableDirections.size > 0;
-  const usesMemorialGenderTemplates = wizardMode === "memorial" && availableDirections.size > 0;
+    (wizardMode === "amor" || FAMILIA_DIRECTION_BOOKS.has(canonicalBookName(libroNombre))) && availableDirections.size > 0;
+  const usesMemorialGenderTemplates = wizardMode === "memorial" && availableDirections.size > 1;
   const directionFor = (ded: "M" | "F", rec: "M" | "F"): GenderDirection =>
     ded === "M" && rec === "F" ? "HE_TO_SHE"
     : ded === "F" && rec === "M" ? "SHE_TO_HE"
@@ -1828,9 +1844,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             if (wizardMode === "familia") {
               const recipientG = getFamiliaRecipientGender(libroNombre);
               const recipientLabel = isPapaBook(libroNombre) ? "papá"
-                : libroNombre === "Mamá, Mi Heroína" ? "mamá"
-                : libroNombre === "Te amo, abuelo" ? "abuelo"
-                : libroNombre === "Te amo, abuela" ? "abuela"
+                : canonicalBookName(libroNombre) === "Mamá, Mi Heroína" ? "mamá"
+                : canonicalBookName(libroNombre) === "Te amo, abuelo" ? "abuelo"
+                : canonicalBookName(libroNombre) === "Te amo, abuela" ? "abuela"
                 : recipientG === "M" ? "él" : "ella";
               const step1Valid = dedicatorGender !== "";
               return (
@@ -1840,7 +1856,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ marginBottom: "28px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                       {(() => {
-                        const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
+                        const isAbuelo = canonicalBookName(libroNombre) === "Te amo, abuelo" || canonicalBookName(libroNombre) === "Te amo, abuela";
                         return (["M", "F"] as const).map((g) => (
                           <GenderCard key={`ded-${g}`} id={`ded-${g}`} g={g}
                             label={g === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija")}
@@ -1852,7 +1868,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     </div>
                   </div>
                   {(() => {
-                    const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
+                    const isAbuelo = canonicalBookName(libroNombre) === "Te amo, abuelo" || canonicalBookName(libroNombre) === "Te amo, abuela";
                     const dedicantLabel = dedicatorGender === "M" ? (isAbuelo ? "Nieto" : "Hijo") : (isAbuelo ? "Nieta" : "Hija");
                     return step1Valid && summaryBox(`${dedicantLabel} le dedica el libro a ${recipientLabel}`);
                   })()}
@@ -2112,9 +2128,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   : wizardMode === "memorial" ? (recipientGender === "F" ? "Datos en memoria de ella" : "Datos en memoria de él")
                   : wizardMode === "familia" ? (
                       isPapaBook(libroNombre) ? "Datos del papá"
-                      : libroNombre === "Mamá, Mi Heroína" ? "Datos de la mamá"
-                      : libroNombre === "Te amo, abuelo" ? "Datos del abuelo"
-                      : libroNombre === "Te amo, abuela" ? "Datos de la abuela"
+                      : canonicalBookName(libroNombre) === "Mamá, Mi Heroína" ? "Datos de la mamá"
+                      : canonicalBookName(libroNombre) === "Te amo, abuelo" ? "Datos del abuelo"
+                      : canonicalBookName(libroNombre) === "Te amo, abuela" ? "Datos de la abuela"
                       : recipientGender === "F" ? "Datos de ella" : "Datos de él"
                     )
                   : recipientGender === "F" ? "Datos de ella" : "Datos de él"}
@@ -2228,7 +2244,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   {wizardMode === "mascotas" ? (dedicatorGender === "M" ? "Datos del dueño" : "Datos de la dueña")
                     : wizardMode === "memorial" ? "¿Quién dedica este libro?"
                     : wizardMode === "familia" ? (() => {
-                      const isAbuelo = libroNombre === "Te amo, abuelo" || libroNombre === "Te amo, abuela";
+                      const isAbuelo = canonicalBookName(libroNombre) === "Te amo, abuelo" || canonicalBookName(libroNombre) === "Te amo, abuela";
                       return dedicatorGender === "M"
                         ? (isAbuelo ? "Datos del nieto" : "Datos del hijo")
                         : (isAbuelo ? "Datos de la nieta" : "Datos de la hija");
