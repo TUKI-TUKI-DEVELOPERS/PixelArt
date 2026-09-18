@@ -971,6 +971,12 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] personalized_templates content backfill (adultos restantes) ✓');
 
+    // "Aventura Entre Patas Adulto" — versión adulta separada del libro infantil.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-adult-aventuras-content.sql'), 'utf8'),
+    );
+    console.log('[seed] personalized_templates content backfill (Aventura Entre Patas — adulto) ✓');
+
     // Cover assets de las versiones adultas generadas para web/category cards.
     await client.query(
       readFileSync(join(__dirname, 'content/backfill-adult-web-assets.sql'), 'utf8'),
