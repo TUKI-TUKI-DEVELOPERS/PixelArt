@@ -8,6 +8,13 @@ import { EmailSenderPort } from './domain/ports/email-sender.port';
 const MAX_ATTEMPTS = 3;
 const WORKER_ID = `worker-${process.pid}`;
 
+const escapeHtml = (value: unknown) => String(value ?? '')
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
+
 // Cada evento usa un template propio, salvo los dos que en esencia mandan
 // lo mismo ("acá está tu link de pago/checkout") — comparten uno.
 const TEMPLATE_BY_EVENT: Record<string, string> = {
@@ -21,6 +28,9 @@ const TEMPLATE_BY_EVENT: Record<string, string> = {
   NEW_DEMO_REQUEST_TO_ADMIN: 'demo-request-received-admin.html',
   NEW_PHOTOBOOK_REQUEST_TO_ADMIN: 'photobook-request-received-admin.html',
   PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER: 'photobook-payment-received.html',
+  PHOTOBOOK_COVER_APPROVAL_SENT: 'photobook-cover-approval.html',
+  PHOTOBOOK_COVER_CHANGES_REQUESTED_TO_ADMIN: 'photobook-cover-adjustment-requested-admin.html',
+  PHOTOBOOK_EDITOR_CODE_SENT: 'photobook-editor-code.html',
 };
 
 type OutboxRow = {
@@ -113,13 +123,17 @@ export class EmailWorkerService {
 
     const amountCents = payload.totalAmountCents;
     const vars: Record<string, string> = {
-      customerName: String(payload.customerName ?? ''),
+      customerName: escapeHtml(payload.customerName),
       actionUrl: String(
-        payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.feedbackUrl ?? payload.adminUrl ?? '',
+        payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.coverApprovalUrl ?? payload.editorPortalUrl ?? payload.feedbackUrl ?? payload.adminUrl ?? '',
       ),
       totalAmount: typeof amountCents === 'number' ? `S/ ${(amountCents / 100).toFixed(2)}` : '',
       estimatedDeliveryDate: String(payload.estimatedDeliveryDate ?? ''),
       rejectionReason: String(payload.rejectionReason ?? 'No especificado'),
+      expiresAt: String(payload.expiresAt ?? ''),
+      editorCode: escapeHtml(payload.editorCode),
+      adjustmentSurface: escapeHtml(payload.adjustmentSurface),
+      adjustmentMessage: escapeHtml(payload.adjustmentMessage),
     };
 
     for (const [key, value] of Object.entries(vars)) {

@@ -5,7 +5,7 @@ export type CropData = { x: number; y: number; zoom?: number };
 
 export type CreateProjectData = {
   photobookProductId: number;
-  photobookThemeId: number;
+  photobookThemeId: number | null;
   customerEmail: string;
   customerFullName: string;
   customerPhone: string;
@@ -30,7 +30,7 @@ export type CreateProjectData = {
 
 export type DraftInput = {
   photobookProductId: number;
-  photobookThemeId: number;
+  photobookThemeId: number | null;
   state: Record<string, unknown>;
 };
 
@@ -44,7 +44,7 @@ export type DraftRecord = {
 export type ProjectRecord = {
   id: number;
   photobookProductId: number;
-  photobookThemeId: number;
+  photobookThemeId: number | null;
   draftToken: string;
   customerEmail: string | null;
   customerFullName: string | null;

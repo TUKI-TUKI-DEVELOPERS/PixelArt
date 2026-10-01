@@ -11,6 +11,15 @@ export type CreateOrderData = {
   rushFeeCents?: number;
   extraTemplatesAmountCents?: number;
   estimatedDeliveryDate?: string | null;
+  status?: string;
+};
+
+export type ActivatePhotobookOrderData = {
+  photobookProjectId: number;
+  customerFullName: string;
+  customerEmail: string;
+  customerPhone: string;
+  baseAmountCents: number;
 };
 
 export type OrderRecord = {
@@ -48,5 +57,7 @@ export abstract class OrderRepositoryPort {
   abstract findByPublicToken(token: string): Promise<OrderRecord | null>;
   abstract updateStatus(id: number, newStatus: string, note?: string): Promise<void>;
   abstract updateExtraTemplates(id: number, extraTemplatesAmountCents: number): Promise<void>;
+  abstract ensurePhotobookConfigurationOrder(data: ActivatePhotobookOrderData): Promise<OrderRecord>;
+  abstract activatePhotobookOrder(data: ActivatePhotobookOrderData): Promise<OrderRecord>;
   abstract getStatusEvents(orderId: number): Promise<StatusEvent[]>;
 }

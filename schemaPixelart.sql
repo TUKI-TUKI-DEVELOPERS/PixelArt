@@ -13,6 +13,7 @@ CREATE TYPE personalized_book_demo_request_status AS ENUM (
 );
 
 CREATE TYPE order_status AS ENUM (
+  'CONFIGURING_PHOTOBOOK',
   'AWAITING_PAYMENT_PROOF',
   'UNDER_PAYMENT_REVIEW',
   'PAYMENT_VERIFIED',
@@ -39,7 +40,10 @@ CREATE TYPE email_event_type AS ENUM (
   'NEW_DEMO_REQUEST_TO_ADMIN',
   'NEW_PAYMENT_TO_ADMIN',
   'PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER',
-  'NEW_PHOTOBOOK_REQUEST_TO_ADMIN'
+  'NEW_PHOTOBOOK_REQUEST_TO_ADMIN',
+  'PHOTOBOOK_COVER_APPROVAL_SENT',
+  'PHOTOBOOK_COVER_CHANGES_REQUESTED_TO_ADMIN',
+  'PHOTOBOOK_EDITOR_CODE_SENT'
 );
 
 CREATE TYPE refund_status AS ENUM (
@@ -50,13 +54,32 @@ CREATE TYPE public_link_type AS ENUM (
   'DEMO_VIEW',
   'PAYMENT_UPLOAD',
   'FEEDBACK',
-  'CHECKOUT'
+  'CHECKOUT',
+  'PHOTOBOOK_COVER_APPROVAL'
 );
 
 CREATE TYPE photobook_project_status AS ENUM (
   'DRAFT',
   'CONFIRMED',
   'CONVERTED_TO_ORDER'
+);
+
+CREATE TYPE custom_photobook_request_status AS ENUM (
+  'PENDING_REVIEW',
+  'DESIGN_IN_PROGRESS',
+  'AWAITING_CUSTOMER',
+  'CHANGES_REQUESTED',
+  'EDITOR_READY',
+  'EDITOR_IN_PROGRESS',
+  'AWAITING_PAYMENT',
+  'READY_FOR_PRODUCTION',
+  'CLOSED'
+);
+
+CREATE TYPE custom_photobook_cover_mode AS ENUM (
+  'PIXELART_DESIGNED',
+  'CUSTOMER_ARTWORK',
+  'PHOTO_BASED'
 );
 
 -- =========================================
@@ -437,6 +460,7 @@ CREATE TABLE public_links (
 
   demo_request_id BIGINT REFERENCES demo_request(id) ON DELETE CASCADE,
   order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+  custom_photobook_request_id BIGINT,
 
   reissued_from_id BIGINT REFERENCES public_links(id),
 
@@ -448,21 +472,23 @@ CREATE TABLE public_links (
 CREATE INDEX IF NOT EXISTS public_links_token_idx ON public_links(token);
 CREATE INDEX IF NOT EXISTS public_links_demo_request_id_idx ON public_links(demo_request_id);
 CREATE INDEX IF NOT EXISTS public_links_order_id_idx ON public_links(order_id);
+CREATE INDEX IF NOT EXISTS public_links_custom_photobook_request_id_idx ON public_links(custom_photobook_request_id);
 CREATE INDEX IF NOT EXISTS public_links_expires_at_idx ON public_links(expires_at);
 
 -- 1) Que tenga al menos una referencia
 ALTER TABLE public_links
   ADD CONSTRAINT chk_public_links_has_reference
-  CHECK (demo_request_id IS NOT NULL OR order_id IS NOT NULL);
+  CHECK (demo_request_id IS NOT NULL OR order_id IS NOT NULL OR custom_photobook_request_id IS NOT NULL);
 
 -- 2) Que el tipo obligue la referencia correcta
 ALTER TABLE public_links
   ADD CONSTRAINT chk_public_links_type_reference
   CHECK (
-    (link_type = 'DEMO_VIEW'      AND demo_request_id IS NOT NULL AND order_id IS NULL) OR
-    (link_type = 'PAYMENT_UPLOAD' AND order_id IS NOT NULL AND demo_request_id IS NULL) OR
-    (link_type = 'FEEDBACK'       AND order_id IS NOT NULL AND demo_request_id IS NULL) OR
-    (link_type = 'CHECKOUT'       AND order_id IS NOT NULL AND demo_request_id IS NULL)
+    (link_type = 'DEMO_VIEW'      AND demo_request_id IS NOT NULL AND order_id IS NULL AND custom_photobook_request_id IS NULL) OR
+    (link_type = 'PAYMENT_UPLOAD' AND order_id IS NOT NULL AND demo_request_id IS NULL AND custom_photobook_request_id IS NULL) OR
+    (link_type = 'FEEDBACK'       AND order_id IS NOT NULL AND demo_request_id IS NULL AND custom_photobook_request_id IS NULL) OR
+    (link_type = 'CHECKOUT'       AND order_id IS NOT NULL AND demo_request_id IS NULL AND custom_photobook_request_id IS NULL) OR
+    (link_type = 'PHOTOBOOK_COVER_APPROVAL' AND custom_photobook_request_id IS NOT NULL AND demo_request_id IS NULL AND order_id IS NULL)
   );
 
 -- =========================================
@@ -608,6 +634,135 @@ CREATE TABLE photobook_themes (
   UNIQUE (name)
 );
 
+-- Solicitud de photobook a medida: brief inicial, sin pago ni fotos interiores.
+-- Las referencias del cliente se almacenan en custom_photobook_request_reference_assets.
+CREATE TABLE custom_photobook_requests (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  status custom_photobook_request_status NOT NULL DEFAULT 'PENDING_REVIEW',
+  occasion TEXT NOT NULL,
+  requested_theme TEXT NOT NULL,
+  cover_title TEXT,
+  cover_mode custom_photobook_cover_mode NOT NULL,
+  brief TEXT NOT NULL,
+  customer_full_name TEXT NOT NULL,
+  customer_email TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+
+  -- Se completan después de la revisión: contratapa + tapa frontal + lomo.
+  front_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+  back_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+  cover_wrap_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+  cover_approved_at TIMESTAMPTZ,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS custom_photobook_requests_status_idx
+  ON custom_photobook_requests(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS custom_photobook_requests_customer_email_idx
+  ON custom_photobook_requests(customer_email);
+
+ALTER TABLE public_links
+  ADD CONSTRAINT fk_public_links_custom_photobook_request
+  FOREIGN KEY (custom_photobook_request_id) REFERENCES custom_photobook_requests(id) ON DELETE CASCADE;
+
+CREATE TABLE custom_photobook_request_reference_assets (
+  request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+  asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (request_id, asset_id)
+);
+
+CREATE INDEX IF NOT EXISTS custom_photobook_request_reference_assets_asset_idx
+  ON custom_photobook_request_reference_assets(asset_id);
+
+-- Las nuevas solicitudes usan cuatro slots fijos: dos para tapa y dos para contratapa.
+-- Solicitudes anteriores pueden no tener filas aquí y conservan el flujo de referencias legado.
+CREATE TABLE IF NOT EXISTS custom_photobook_request_reference_slots (
+  request_id BIGINT NOT NULL,
+  asset_id BIGINT NOT NULL,
+  surface TEXT NOT NULL CHECK (surface IN ('FRONT_COVER', 'BACK_COVER')),
+  slot_index SMALLINT NOT NULL CHECK (slot_index IN (1, 2)),
+  PRIMARY KEY (request_id, surface, slot_index),
+  UNIQUE (request_id, asset_id),
+  CONSTRAINT custom_photobook_reference_slots_request_asset_fk
+    FOREIGN KEY (request_id, asset_id)
+    REFERENCES custom_photobook_request_reference_assets(request_id, asset_id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS custom_photobook_request_reference_slots_request_asset_idx
+  ON custom_photobook_request_reference_slots(request_id, asset_id);
+
+-- Comentarios del cliente sobre una cubierta enviada. Solo puede haber un ajuste abierto por solicitud.
+CREATE TABLE IF NOT EXISTS custom_photobook_cover_adjustment_requests (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+  surface TEXT NOT NULL CHECK (surface IN ('FRONT_COVER', 'BACK_COVER', 'BOTH')),
+  message TEXT NOT NULL CHECK (char_length(btrim(message)) BETWEEN 5 AND 1200),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  resolved_at TIMESTAMPTZ NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS custom_photobook_cover_adjustment_requests_one_open_idx
+  ON custom_photobook_cover_adjustment_requests(request_id)
+  WHERE resolved_at IS NULL;
+
+-- Código de acceso y sesiones opacas para el editor completo de photobooks a medida.
+CREATE TABLE IF NOT EXISTS custom_photobook_editor_access_codes (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+  code_hash CHAR(64) NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  revoked_at TIMESTAMPTZ NULL,
+  last_redeemed_at TIMESTAMPTZ NULL,
+  redeem_count INTEGER NOT NULL DEFAULT 0 CHECK (redeem_count >= 0),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS custom_photobook_editor_access_codes_one_active_idx
+  ON custom_photobook_editor_access_codes(request_id)
+  WHERE revoked_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS custom_photobook_editor_sessions (
+  id UUID PRIMARY KEY,
+  request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  revoked_at TIMESTAMPTZ NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS custom_photobook_editor_sessions_active_request_idx
+  ON custom_photobook_editor_sessions(request_id, expires_at)
+  WHERE revoked_at IS NULL;
+
+-- Cada superficie conserva solo la propuesta de trabajo vigente; al regenerar se reemplaza la anterior.
+CREATE TABLE custom_photobook_request_designs (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+  surface TEXT NOT NULL CHECK (surface IN ('FRONT_COVER', 'BACK_COVER')),
+  asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE RESTRICT,
+  source_design_id BIGINT REFERENCES custom_photobook_request_designs(id) ON DELETE SET NULL,
+  is_selected BOOLEAN NOT NULL DEFAULT false,
+  assembled_prompt TEXT NOT NULL,
+  provider TEXT NOT NULL DEFAULT 'openai',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX custom_photobook_request_designs_request_surface_created_idx
+  ON custom_photobook_request_designs(request_id, surface, created_at DESC);
+
+-- Solo una propuesta elegida por superficie puede guiar la cubierta aprobable.
+CREATE UNIQUE INDEX custom_photobook_request_designs_selected_front_idx
+  ON custom_photobook_request_designs(request_id)
+  WHERE surface = 'FRONT_COVER' AND is_selected;
+CREATE UNIQUE INDEX custom_photobook_request_designs_selected_back_idx
+  ON custom_photobook_request_designs(request_id)
+  WHERE surface = 'BACK_COVER' AND is_selected;
+
 -- Producto photobook (precio por página, min páginas, etc.)
 CREATE TABLE photobook_products (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -627,7 +782,7 @@ CREATE TABLE photobook_projects (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
   photobook_product_id BIGINT NOT NULL REFERENCES photobook_products(id),
-  photobook_theme_id BIGINT NOT NULL REFERENCES photobook_themes(id),
+  photobook_theme_id BIGINT REFERENCES photobook_themes(id),
 
   -- identifica el borrador desde la URL del editor (sin requerir cuenta de cliente)
   draft_token UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -666,6 +821,10 @@ CREATE INDEX IF NOT EXISTS photobook_projects_theme_id_idx ON photobook_projects
 CREATE INDEX IF NOT EXISTS photobook_projects_customer_email_idx ON photobook_projects(customer_email);
 CREATE INDEX IF NOT EXISTS photobook_projects_status_idx ON photobook_projects(status);
 CREATE UNIQUE INDEX IF NOT EXISTS photobook_projects_draft_token_key ON photobook_projects(draft_token);
+
+-- El proyecto solo existe después de aprobar la solicitud a medida.
+ALTER TABLE custom_photobook_requests
+  ADD COLUMN linked_photobook_project_id BIGINT UNIQUE REFERENCES photobook_projects(id) ON DELETE SET NULL;
 
 -- calculated_total_cents ya no es price_per_page_cents * page_count: depende de
 -- cover_type (tapa delgada/gruesa) + tarifa por hoja + rush_fee_cents. La

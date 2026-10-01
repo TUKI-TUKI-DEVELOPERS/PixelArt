@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const API = "";
 
-type Badges = { demos: number; payments: number; photobooks: number };
+type Badges = { demos: number; payments: number; photobooks: number; customPhotobooks: number };
 
 const NAV_SECTIONS = [
   {
@@ -25,6 +25,7 @@ const NAV_SECTIONS = [
     title: "Photobooks",
     items: [
       { label: "Solicitudes Photobooks", href: "/admin/photobooks/proyectos", icon: "camera", badgeKey: "photobooks" as keyof Badges },
+      { label: "Photobooks a medida", href: "/admin/photobooks/a-medida", icon: "inbox", badgeKey: "customPhotobooks" as keyof Badges },
     ],
   },
   {
@@ -57,22 +58,37 @@ function NavIcon({ name, color }: { name: string; color: string }) {
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [badges, setBadges] = useState<Badges>({ demos: 0, payments: 0, photobooks: 0 });
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
+  const [badges, setBadges] = useState<Badges>({ demos: 0, payments: 0, photobooks: 0, customPhotobooks: 0 });
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const syncSidebar = () => {
+      setIsCompactViewport(media.matches);
+      setCollapsed(media.matches);
+    };
+    syncSidebar();
+    media.addEventListener("change", syncSidebar);
+    return () => media.removeEventListener("change", syncSidebar);
+  }, []);
 
   useEffect(() => {
     Promise.all([
       fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
       fetch(`${API}/api/admin/orders`).then((r) => r.json()).catch(() => []),
-    ]).then(([demosData, ordersData]) => {
-      const demos  = (Array.isArray(demosData)  ? demosData  : demosData.data  ?? []) as { status: string }[];
+      fetch("/admin-api/photobook/custom-requests").then((r) => r.json()).catch(() => []),
+    ]).then(([demosData, ordersData, customPhotobooksData]) => {
+      const demos = (Array.isArray(demosData) ? demosData : demosData.data ?? []) as { status: string }[];
       const orders = (Array.isArray(ordersData) ? ordersData : ordersData.data ?? []) as { status: string; channel: string }[];
+      const customPhotobooks = (Array.isArray(customPhotobooksData) ? customPhotobooksData : customPhotobooksData.data ?? []) as { status: string }[];
       setBadges({
-        demos:      demos.filter((d) => d.status === "RECEIVED").length,
-        payments:   orders.filter((o) => o.status === "UNDER_PAYMENT_REVIEW").length,
+        demos: demos.filter((d) => d.status === "RECEIVED").length,
+        payments: orders.filter((o) => o.status === "UNDER_PAYMENT_REVIEW").length,
         // Photobooks con comprobante esperando revisión — bandeja de entrada real
         // (aparece cuando hay un pago por revisar y baja al aprobarlo), a diferencia
         // del status CONFIRMED que es transitorio y siempre daba 0.
         photobooks: orders.filter((o) => o.channel === "PHOTOBOOK" && o.status === "UNDER_PAYMENT_REVIEW").length,
+        customPhotobooks: customPhotobooks.filter((request) => request.status === "PENDING_REVIEW").length,
       });
     });
   }, [pathname]); // re-fetch al navegar para mantener actualizado
@@ -112,7 +128,9 @@ export default function AdminSidebar() {
           </div>
         )}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? "Expandir navegación" : "Contraer navegación"}
+            disabled={isCompactViewport}
+            onClick={() => setCollapsed(!collapsed)}
           style={{
             background: "rgba(255,255,255,0.08)",
             border: "none",

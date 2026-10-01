@@ -8,8 +8,8 @@ export class PhotobookProjectOrmEntity {
   @Column({ name: 'photobook_product_id', type: 'bigint' })
   photobookProductId!: string;
 
-  @Column({ name: 'photobook_theme_id', type: 'bigint' })
-  photobookThemeId!: string;
+  @Column({ name: 'photobook_theme_id', type: 'bigint', nullable: true })
+  photobookThemeId!: string | null;
 
   @Column({ name: 'draft_token', type: 'uuid' })
   draftToken!: string;

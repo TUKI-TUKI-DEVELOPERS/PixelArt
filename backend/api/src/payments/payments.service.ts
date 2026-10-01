@@ -121,7 +121,8 @@ export class PaymentsService {
         `UPDATE payment_proofs SET status = 'APPROVED', reviewed_at = NOW(), reviewed_by_user_id = 1 WHERE order_id = $1`,
         [orderId],
       );
-      // Also advance order to UNDER_PAYMENT_REVIEW first
+      // The admin order controller advances the status to PAYMENT_VERIFIED after
+      // this proof is approved, so this method only persists the payment review.
       await this.dataSource.query(
         `UPDATE orders SET status = 'UNDER_PAYMENT_REVIEW' WHERE id = $1 AND status = 'AWAITING_PAYMENT_PROOF'`,
         [orderId],

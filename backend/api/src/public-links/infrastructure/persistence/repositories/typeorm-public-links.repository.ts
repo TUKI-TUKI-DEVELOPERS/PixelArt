@@ -25,6 +25,7 @@ export class TypeOrmPublicLinksRepository extends PublicLinksRepositoryPort {
       expiresAt,
       demoRequestId: data.demoRequestId ? String(data.demoRequestId) : null,
       orderId: data.orderId ? String(data.orderId) : null,
+      customPhotobookRequestId: data.customPhotobookRequestId ? String(data.customPhotobookRequestId) : null,
     });
     const saved = await this.repo.save(entity);
     const reloaded = await this.repo.findOneByOrFail({ id: saved.id });

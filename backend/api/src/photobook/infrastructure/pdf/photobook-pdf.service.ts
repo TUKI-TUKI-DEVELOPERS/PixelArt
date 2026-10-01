@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 import * as puppeteer from 'puppeteer-core';
 import { createPool, Pool } from 'generic-pool';
 import sharp from 'sharp';
@@ -30,6 +31,7 @@ export class PhotobookPdfService {
     private readonly repo: PhotobookRepositoryPort,
     private readonly fileStorage: FileStoragePort,
     private readonly assetRepo: AssetRepositoryPort,
+    private readonly dataSource: DataSource,
   ) {
     this.browserPool = createPool(
       {
@@ -66,7 +68,7 @@ export class PhotobookPdfService {
     const widthCm = project.customWidthCm ?? DEFAULT_WIDTH_CM;
     const heightCm = project.customHeightCm ?? DEFAULT_HEIGHT_CM;
 
-    const theme = await this.repo.getTheme(project.photobookThemeId);
+    const theme = project.photobookThemeId === null ? null : await this.repo.getTheme(project.photobookThemeId);
 
     const assetIds = Array.from(new Set(project.pages.flatMap((p) => p.slots.map((s) => s.assetId))));
     const assetMap = await this.prepareAssets(assetIds);
@@ -85,13 +87,15 @@ export class PhotobookPdfService {
     await this.repo.saveRender(projectId, storageKey);
     this.logger.log(`PDF listo: ${storageKey}`);
 
-    if (theme && theme.coverWrapKey) {
-      try {
+    try {
+      if (theme && theme.coverWrapKey) {
         await this.generateAndStoreCoverWrap(project, theme, widthCm, heightCm);
-      } catch (err) {
-        // El wrap es additivo: si falla, el interior ya quedó guardado. No romper el flujo.
-        this.logger.error(`Error generando wrap de tapa (proyecto #${projectId}): ${(err as Error).message}`);
+      } else if (!theme) {
+        await this.generateAndStoreCustomCoverWrap(project, widthCm, heightCm);
       }
+    } catch (err) {
+      // El wrap es additivo: si falla, el interior ya quedó guardado. No romper el flujo.
+      this.logger.error(`Error generando wrap de tapa (proyecto #${projectId}): ${(err as Error).message}`);
     }
   }
 
@@ -332,6 +336,86 @@ export class PhotobookPdfService {
       <div class="lomo-text"><span>${this.escapeHtml(spineLabel)}</span></div>
     </div>
     </body></html>`;
+  }
+
+  private async generateAndStoreCustomCoverWrap(
+    project: ProjectDetailRecord,
+    coverWidthCm: number,
+    coverHeightCm: number,
+  ): Promise<void> {
+    const rows: { front_storage_key: string | null; back_storage_key: string | null; cover_title: string | null; requested_theme: string }[] = await this.dataSource.query(
+      `SELECT front_asset.storage_key AS front_storage_key,
+              back_asset.storage_key AS back_storage_key,
+              r.cover_title,
+              r.requested_theme
+       FROM custom_photobook_requests r
+       LEFT JOIN assets front_asset ON front_asset.id = r.front_cover_asset_id
+       LEFT JOIN assets back_asset ON back_asset.id = r.back_cover_asset_id
+       WHERE r.linked_photobook_project_id = $1
+       LIMIT 1`,
+      [project.id],
+    );
+    const request = rows[0];
+    if (!request?.front_storage_key || !request.back_storage_key) return;
+
+    const coverType: PhotobookCoverType = isValidPhotobookCoverType(project.coverType ?? '')
+      ? (project.coverType as PhotobookCoverType)
+      : 'TAPA_GRUESA';
+    const spineMm = calculateSpineWidthMm(project.pageCount, coverType);
+    const layout = computeWrapLayout(coverWidthCm, coverHeightCm, spineMm, SANGRADO_MM);
+    const [front, back] = await Promise.all([
+      this.downloadCoverAsBase64(request.front_storage_key),
+      this.downloadCoverAsBase64(request.back_storage_key),
+    ]);
+    const spineColor = await this.sampleInnerEdgeColor(request.front_storage_key);
+    const spineLabel = (request.cover_title || request.requested_theme).toUpperCase();
+    const html = this.buildCustomWrapHtml(front, back, layout, spineColor, spineLabel);
+    const pdf = await this.renderWrapPdf(html, layout);
+    const key = `photobook-renders/${project.id}-cover-wrap.pdf`;
+    await this.fileStorage.upload(key, pdf, 'application/pdf');
+    this.logger.log(`Wrap de tapa a medida listo: ${key} (lomo ${spineMm}mm, ${coverType})`);
+  }
+
+  private async sampleInnerEdgeColor(frontStorageKey: string): Promise<string> {
+    try {
+      const raw = await this.fileStorage.download(frontStorageKey);
+      const image = sharp(raw);
+      const metadata = await image.metadata();
+      if (!metadata.width || !metadata.height) throw new Error('La tapa frontal no tiene dimensiones válidas');
+
+      // The front cover sits to the right of the spine, so its inner edge is left.
+      // Crop a narrow vertical strip before averaging; resizing a square cover directly
+      // to 1×1 would average the entire illustration instead.
+      const sampleWidth = Math.max(1, Math.min(metadata.width, Math.round(metadata.width * 0.03)));
+      const sample = await image
+        .extract({ left: 0, top: 0, width: sampleWidth, height: metadata.height })
+        .resize(1, 1, { fit: 'fill' })
+        .raw()
+        .toBuffer();
+      return `rgb(${sample[0]}, ${sample[1]}, ${sample[2]})`;
+    } catch {
+      return '#1f2933';
+    }
+  }
+
+  private buildCustomWrapHtml(frontBase64: string, backBase64: string, layout: WrapLayout, spineColor: string, spineLabel: string): string {
+    const { totalWidthCm, totalHeightCm, coverWidthCm, coverHeightCm, spineWidthCm, frontCoverLeftCm, backCoverLeftCm, spineLeftCm, bleedCm } = layout;
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+    @font-face { font-family:'Prata'; font-style:normal; font-weight:400; src:url(data:font/woff2;base64,${PRATA_WOFF2_BASE64}) format('woff2'); }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    @page { margin:0; size:${totalWidthCm}cm ${totalHeightCm}cm; }
+    html, body { width:${totalWidthCm}cm; height:${totalHeightCm}cm; }
+    .wrap { position:relative; width:${totalWidthCm}cm; height:${totalHeightCm}cm; overflow:hidden; background:${spineColor}; }
+    .cover { position:absolute; top:${bleedCm.toFixed(3)}cm; width:${coverWidthCm}cm; height:${coverHeightCm}cm; object-fit:cover; display:block; }
+    .back { left:${backCoverLeftCm.toFixed(3)}cm; }
+    .front { left:${frontCoverLeftCm.toFixed(3)}cm; }
+    .spine { position:absolute; left:${spineLeftCm.toFixed(3)}cm; top:${bleedCm.toFixed(3)}cm; width:${spineWidthCm}cm; height:${coverHeightCm}cm; display:flex; align-items:center; justify-content:center; }
+    .spine span { font-family:'Prata',serif; color:#fff; font-size:0.85cm; letter-spacing:0.18em; white-space:nowrap; transform:rotate(90deg); text-shadow:0 0.04cm 0.18cm rgba(0,0,0,.35); }
+    </style></head><body><div class="wrap">
+      <img class="cover back" src="${backBase64}" alt="" />
+      <img class="cover front" src="${frontBase64}" alt="" />
+      <div class="spine"><span>${this.escapeHtml(spineLabel)}</span></div>
+    </div></body></html>`;
   }
 
   private async renderWrapPdf(html: string, layout: WrapLayout): Promise<Buffer> {

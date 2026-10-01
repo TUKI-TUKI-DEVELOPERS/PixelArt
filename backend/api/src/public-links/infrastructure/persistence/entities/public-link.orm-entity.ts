@@ -23,6 +23,9 @@ export class PublicLinkOrmEntity {
   @Column({ name: 'order_id', type: 'bigint', nullable: true })
   orderId!: string | null;
 
+  @Column({ name: 'custom_photobook_request_id', type: 'bigint', nullable: true })
+  customPhotobookRequestId!: string | null;
+
   @Column({ name: 'reissued_from_id', type: 'bigint', nullable: true })
   reissuedFromId!: string | null;
 

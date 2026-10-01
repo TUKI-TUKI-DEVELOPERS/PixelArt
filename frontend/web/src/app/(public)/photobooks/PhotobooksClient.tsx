@@ -291,6 +291,40 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           0%, 100% { transform: scale(1); }
           50%       { transform: scale(1.07); }
         }
+        .photobooks-custom-cover-teaser { border-bottom: 1px solid #e7edf2; background: #fff; }
+        .photobooks-custom-cover-teaser-inner { display: grid; grid-template-columns: 146px minmax(0, 1fr) auto; align-items: center; gap: clamp(20px, 3vw, 42px); width: min(100% - 48px, 1120px); margin: 0 auto; padding: 20px 0; }
+        .photobooks-custom-cover-preview { display: grid; grid-template-columns: 1fr 20px 1.15fr; width: 140px; height: 86px; transform: perspective(500px) rotateY(-10deg) rotateX(2deg) rotateZ(-1deg); box-shadow: 8px 10px 0 rgba(17, 34, 51, .12), 15px 16px 22px rgba(17, 34, 51, .18); }
+        .photobooks-custom-cover-preview > div { position: relative; overflow: hidden; padding: 9px; }
+        .photobooks-custom-cover-back { display: flex; align-items: flex-end; background: #edf5f8; color: #153346; }
+        .photobooks-custom-cover-back::before { position: absolute; right: -18px; bottom: -26px; width: 64px; height: 64px; border: 11px solid #99d6f8; border-radius: 50%; content: ""; }
+        .photobooks-custom-cover-back span, .photobooks-custom-cover-front > span { position: relative; z-index: 1; font-size: 7px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+        .photobooks-custom-cover-spine { display: grid; place-items: center; background: #e55a45; color: #fff; }
+        .photobooks-custom-cover-spine span { font-size: 6px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); }
+        .photobooks-custom-cover-front { display: flex; flex-direction: column; justify-content: space-between; background: #2d8fd5; color: #fff; }
+        .photobooks-custom-cover-front::before { position: absolute; top: 9px; right: 9px; width: 8px; height: 8px; border: 1px solid #f6d65d; border-radius: 50%; content: ""; }
+        .photobooks-custom-cover-front strong { font-family: ${tokens.fonts.display}; font-size: 19px; font-weight: 400; letter-spacing: -.04em; line-height: .87; }
+        .photobooks-custom-cover-copy p { margin: 0 0 4px; color: #2d8fd5; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+        .photobooks-custom-cover-copy h2 { margin: 0; color: #111; font-family: ${tokens.fonts.display}; font-size: clamp(22px, 2.1vw, 29px); font-weight: 400; letter-spacing: -.02em; line-height: 1.05; text-wrap: balance; }
+        .photobooks-custom-cover-copy > span { display: block; max-width: 62ch; margin-top: 6px; color: #53606c; font-size: 14px; line-height: 1.5; }
+        .photobooks-custom-cover-link { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 42px; padding: 0 18px; border: 1px solid #2d8fd5; border-radius: 999px; color: #176fae; font-size: 14px; font-weight: 800; text-decoration: none; transition: background-color 180ms ease, color 180ms ease, transform 180ms cubic-bezier(.22, 1, .36, 1); white-space: nowrap; }
+        .photobooks-custom-cover-link:hover { transform: translateY(-2px); background: #2d8fd5; color: #fff; }
+        .photobooks-custom-cover-link:focus-visible { outline: 3px solid #80c5ee; outline-offset: 3px; }
+        @media (max-width: 700px) {
+          .photobooks-custom-cover-teaser-inner { grid-template-columns: 88px minmax(0, 1fr); gap: 14px; width: min(100% - 40px, 1120px); padding: 18px 0; }
+          .photobooks-custom-cover-preview { width: 84px; height: 58px; grid-template-columns: 1fr 12px 1.15fr; box-shadow: 5px 7px 0 rgba(17, 34, 51, .12), 9px 11px 14px rgba(17, 34, 51, .16); }
+          .photobooks-custom-cover-preview > div { padding: 6px; }
+          .photobooks-custom-cover-back::before { right: -13px; bottom: -18px; width: 45px; height: 45px; border-width: 8px; }
+          .photobooks-custom-cover-back span, .photobooks-custom-cover-front > span { font-size: 5px; }
+          .photobooks-custom-cover-spine span { font-size: 4px; }
+          .photobooks-custom-cover-front::before { top: 6px; right: 6px; width: 5px; height: 5px; }
+          .photobooks-custom-cover-front strong { font-size: 12px; }
+          .photobooks-custom-cover-copy p { margin-bottom: 3px; font-size: 10px; }
+          .photobooks-custom-cover-copy h2 { font-size: 20px; }
+          .photobooks-custom-cover-copy > span { margin-top: 4px; font-size: 13px; line-height: 1.4; }
+          .photobooks-custom-cover-link { grid-column: 2; justify-self: start; min-height: 36px; padding: 0; border: 0; border-radius: 0; color: #176fae; font-size: 13px; }
+          .photobooks-custom-cover-link:hover { transform: none; background: transparent; color: #0e5d92; }
+        }
+        @media (prefers-reduced-motion: reduce) { .photobooks-custom-cover-link { transition: none; } }
       `}</style>
       <section
         ref={heroSectionRef}
@@ -680,6 +714,8 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
         </div>
       </section>
 
+      <CustomCoverTeaser />
+
       {/* ═══ CATÁLOGO DE PORTADAS ═══ */}
       <section
         id="catalogo-section"
@@ -725,6 +761,7 @@ export default function PhotobooksClient({ apiThemes, heroImageUrl, qualityImage
           {visibleThemes.map((theme) => (
             <PhotobookCard key={theme.id} theme={theme} />
           ))}
+          <CustomPhotobookCard />
         </div>
 
         {hasMore && (
@@ -1372,6 +1409,106 @@ function PhotobookCard({ theme }: { theme: PhotobookTheme }) {
         </div>
       </article>
     </div>
+  );
+}
+
+function CustomCoverTeaser() {
+  return (
+    <section className="photobooks-custom-cover-teaser" aria-labelledby="photobooks-custom-cover-title">
+      <div className="photobooks-custom-cover-teaser-inner">
+        <div className="photobooks-custom-cover-preview" aria-hidden="true">
+          <div className="photobooks-custom-cover-back"><span>Contratapa</span></div>
+          <div className="photobooks-custom-cover-spine"><span>Tu historia</span></div>
+          <div className="photobooks-custom-cover-front"><span>Tapa</span><strong>Tu<br />título</strong></div>
+        </div>
+        <div className="photobooks-custom-cover-copy">
+          <p>Photobook a medida</p>
+          <h2 id="photobooks-custom-cover-title">¿Tu historia necesita una tapa propia?</h2>
+          <span>También diseñamos tapa, lomo y contratapa para ideas que no están en el catálogo.</span>
+        </div>
+        <Link className="photobooks-custom-cover-link" href="/photobooks/a-medida">
+          Crear a medida <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function CustomPhotobookCard() {
+  const coverWidth = "min(100%, 278px)";
+  const coverHeight = "188px";
+
+  return (
+    <article
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100%",
+        overflow: "hidden",
+        border: "1px solid #bfe1f4",
+        borderRadius: "16px",
+        background: "#fff",
+        boxShadow: "0 4px 8px rgba(17,17,17,0.08)",
+      }}
+    >
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", minHeight: "268px", padding: "18px 20px", overflow: "hidden", background: "#102233" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", color: "#d9edf9", fontSize: "10px", fontWeight: 800, letterSpacing: "0.08em", lineHeight: 1.3 }}>
+          <span>CUBIERTA COMPLETA</span>
+          <span style={{ color: "#79c9f4", textAlign: "right" }}>CONTRATAPA · LOMO · TAPA</span>
+        </div>
+
+        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", paddingTop: "10px" }}>
+          <div aria-hidden="true" style={{ display: "grid", gridTemplateColumns: "minmax(76px, 1fr) 32px minmax(104px, 1.22fr)", width: coverWidth, height: coverHeight, transform: "perspective(700px) rotateY(-9deg) rotateX(2deg) rotateZ(-1deg)", boxShadow: "14px 16px 0 rgba(0,0,0,0.18), 22px 24px 34px rgba(0,0,0,0.32)" }}>
+            <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", overflow: "hidden", padding: "14px", background: "#eef4f6", color: "#123041" }}>
+              <span style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.07em" }}>CONTRATAPA</span>
+              <strong style={{ position: "relative", zIndex: 1, maxWidth: "7ch", fontFamily: tokens.fonts.display, fontSize: "20px", fontWeight: 400, lineHeight: 0.98 }}>Una historia que merece quedarse.</strong>
+              <span style={{ position: "absolute", right: "-26px", bottom: "-36px", width: "105px", height: "105px", border: "18px solid #99d6f8", borderRadius: "50%" }} />
+              <i style={{ position: "relative", zIndex: 1, display: "block", width: "28px", height: "3px", background: "#2d8fd5" }} />
+            </div>
+            <div style={{ display: "grid", placeItems: "center", background: "#e55a45", color: "#fff" }}>
+              <span style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.06em", writingMode: "vertical-rl", transform: "rotate(180deg)" }}>TU HISTORIA</span>
+            </div>
+            <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", overflow: "hidden", padding: "14px", background: "#2d8fd5", color: "#fff" }}>
+              <span style={{ fontSize: "8px", fontWeight: 800, letterSpacing: "0.07em" }}>TAPA</span>
+              <span style={{ position: "absolute", top: "14px", right: "14px", width: "13px", height: "13px", border: "2px solid #f6d65d", borderRadius: "50%" }} />
+              <strong style={{ fontFamily: tokens.fonts.display, fontSize: "33px", fontWeight: 400, letterSpacing: "-0.04em", lineHeight: 0.86 }}>Tu<br />título</strong>
+              <span style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.03em" }}>Photobook a medida</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", padding: "26px 22px 28px", textAlign: "center" }}>
+        <h3 style={{ margin: 0, color: "#111", fontFamily: tokens.fonts.display, fontSize: "28px", fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1.05 }}>
+          Photobook a medida
+        </h3>
+        <p style={{ maxWidth: "31ch", margin: "14px 0 24px", color: "#555", fontSize: "14px", lineHeight: 1.55 }}>
+          Para el viaje, celebración o idea que no está en el catálogo. Diseñamos tapa, lomo y contratapa antes de que organices tus fotos.
+        </p>
+        <div style={{ flex: 1 }} />
+        <Link
+          href="/photobooks/a-medida"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: "190px",
+            minHeight: "42px",
+            borderRadius: "999px",
+            background: "#2d8fd5",
+            boxShadow: "0 4px 8px rgba(17,17,17,0.14)",
+            color: "#fff",
+            fontSize: "14px",
+            fontWeight: 800,
+            letterSpacing: "0.02em",
+            textDecoration: "none",
+          }}
+        >
+          Cuéntanos tu idea
+        </Link>
+      </div>
+    </article>
   );
 }
 

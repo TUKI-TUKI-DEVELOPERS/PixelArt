@@ -24,7 +24,7 @@ type CharacterMeta =
   | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
   | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
   | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
-  | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
+  | { mode: "amor" | "mascotas" | "familia" | "memorial"; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
 type OrderDetail = {
@@ -32,6 +32,7 @@ type OrderDetail = {
   totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null;
   demoRequestId: number | null;
   photobookProjectId: number | null;
+  photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null;
   statusEvents: { id: number; oldStatus: string | null; newStatus: string; note: string | null; createdAt: string }[];
   paymentProof: { id: number; status: string; paymentMethod: string; amountCents: number; voucherUrl: string } | null;
   templateSelections: { templateId: number; templateName: string | null; slotIndex: number; hasPromptContent: boolean }[];
@@ -50,6 +51,7 @@ type PrintAsset = {
 };
 
 const STATUS_MAP: Record<string, { bg: string; text: string; label: string; accent: string }> = {
+  CONFIGURING_PHOTOBOOK:    { bg: "#f3f4f6", text: "#4b5563", label: "Configurando photobook", accent: "#6b7280" },
   AWAITING_PAYMENT_PROOF: { bg: "#fef3c7", text: "#92400e", label: "Esperando Pago",   accent: "#f59e0b" },
   UNDER_PAYMENT_REVIEW:   { bg: "#dbeafe", text: "#1e40af", label: "Revisando Pago",   accent: "#3b82f6" },
   PAYMENT_VERIFIED:       { bg: "#d1fae5", text: "#065f46", label: "Pago Verificado",  accent: "#22c55e" },
@@ -61,6 +63,7 @@ const STATUS_MAP: Record<string, { bg: string; text: string; label: string; acce
 };
 
 const STATUS_ORDER = [
+  "CONFIGURING_PHOTOBOOK",
   "AWAITING_PAYMENT_PROOF",
   "UNDER_PAYMENT_REVIEW",
   "PAYMENT_VERIFIED",
@@ -739,7 +742,16 @@ export default function OrdenDetallePage() {
         </div>
       </div>
 
-      {/* ── 3. Voucher de pago ── */}
+      {data.channel === "PHOTOBOOK" && data.photobookDelivery && (
+            <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", padding: "18px 20px" }}>
+              <div style={{ fontSize: "15px", fontWeight: 700, color: "#111", marginBottom: "10px" }}>Dirección de entrega</div>
+              <div style={{ fontSize: "14px", color: "#374151", lineHeight: 1.6 }}>
+                {[data.photobookDelivery.address, data.photobookDelivery.district, data.photobookDelivery.city, data.photobookDelivery.region, data.photobookDelivery.department].filter(Boolean).join(" · ") || "Pendiente de completar por el cliente"}
+              </div>
+            </div>
+          )}
+
+          {/* ── 3. Voucher de pago ── */}
       <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", overflow: "hidden" }}>
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Voucher de pago</span>

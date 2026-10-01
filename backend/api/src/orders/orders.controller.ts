@@ -84,6 +84,23 @@ export class OrdersAdminController {
       demoAssetIds = assetRows.map((r) => Number(r.asset_id));
     }
 
+    let photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null = null;
+    if (order?.channel === 'PHOTOBOOK' && order.photobookProjectId) {
+      const rows: { delivery_address: string | null; delivery_district: string | null; delivery_city: string | null; delivery_region: string | null; delivery_department: string | null }[] = await this.dataSource.query(
+        `SELECT delivery_address, delivery_district, delivery_city, delivery_region, delivery_department
+         FROM photobook_projects WHERE id = $1`,
+        [order.photobookProjectId],
+      );
+      const delivery = rows[0];
+      if (delivery) photobookDelivery = {
+        address: delivery.delivery_address,
+        district: delivery.delivery_district,
+        city: delivery.delivery_city,
+        region: delivery.delivery_region,
+        department: delivery.delivery_department,
+      };
+    }
+
     // Diseño del libro (degradado + dedicatoria editable por el admin) — ver
     // custom-book-pdf.service.ts, que usa estos mismos valores para el PDF.
     const [designRow] = await this.dataSource.query(
@@ -99,6 +116,7 @@ export class OrdersAdminController {
       characterMeta,
       demoAssetIds,
       demoDedicationText,
+      photobookDelivery,
       dedicationText: designRow?.dedication_text ?? null,
       gradientColorStart: designRow?.gradient_color_start ?? '#DF1F74',
       gradientColorEnd: designRow?.gradient_color_end ?? '#804187',
@@ -116,6 +134,14 @@ export class OrdersAdminController {
       await this.ordersService.advanceStatus(Number(id), 'PAYMENT_VERIFIED', 'Pago aprobado por admin');
       const order = await this.ordersService.findById(Number(id));
       if (order) {
+        if (order.channel === 'PHOTOBOOK' && order.photobookProjectId) {
+          await this.dataSource.query(
+            `UPDATE custom_photobook_requests
+             SET status = 'READY_FOR_PRODUCTION', updated_at = now()
+             WHERE linked_photobook_project_id = $1 AND status = 'AWAITING_PAYMENT'`,
+            [order.photobookProjectId],
+          );
+        }
         await this.emailService.queue({
           eventType: 'PAYMENT_APPROVED_TO_CUSTOMER',
           orderId: order.id,

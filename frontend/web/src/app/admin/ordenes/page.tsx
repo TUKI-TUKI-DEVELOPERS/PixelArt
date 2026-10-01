@@ -8,6 +8,7 @@ const API = "";
 type Order = { id: number; channel: string; status: string; customerFullName: string; customerEmail: string; totalAmountCents: number; createdAt: string };
 
 const STATUS_MAP: Record<string, { bg: string; text: string; label: string }> = {
+  CONFIGURING_PHOTOBOOK:    { bg: "#f3f4f6", text: "#4b5563", label: "Configurando photobook" },
   AWAITING_PAYMENT_PROOF: { bg: "#fef3c7", text: "#92400e", label: "Esperando Pago" },
   UNDER_PAYMENT_REVIEW:   { bg: "#dbeafe", text: "#1e40af", label: "Revisando Pago" },
   PAYMENT_VERIFIED:       { bg: "#d1fae5", text: "#065f46", label: "Pago Verificado" },
@@ -25,6 +26,7 @@ const NEXT_STATUS: Record<string, string> = {
 };
 
 const KANBAN_COLUMNS = [
+  { status: "CONFIGURING_PHOTOBOOK", label: "Configurando", accent: "#6b7280", dim: "#f9fafb" },
   { status: "AWAITING_PAYMENT_PROOF", label: "Esperando Pago", accent: "#f59e0b", dim: "#fef9ee" },
   { status: "UNDER_PAYMENT_REVIEW",   label: "Revisando Pago", accent: "#3b82f6", dim: "#eff6ff" },
   { status: "PAYMENT_VERIFIED",       label: "Pago Verificado", accent: "#22c55e", dim: "#f0fdf4" },
