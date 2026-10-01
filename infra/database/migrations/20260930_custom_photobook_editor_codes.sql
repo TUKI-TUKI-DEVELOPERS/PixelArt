@@ -33,6 +33,6 @@ CREATE INDEX IF NOT EXISTS custom_photobook_editor_sessions_active_request_idx
 -- Retire the incomplete legacy editor path without deleting historical links.
 UPDATE public_links
 SET revoked_at = now()
-WHERE link_type = 'PHOTOBOOK_EDITOR' AND revoked_at IS NULL;
+WHERE link_type::text = 'PHOTOBOOK_EDITOR' AND revoked_at IS NULL;
 
 COMMIT;
