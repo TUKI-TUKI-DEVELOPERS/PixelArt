@@ -1,0 +1,43 @@
+{
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1600x944",
+  "attempt_limit": 2,
+  "total_cost_usd": 0.1198,
+  "results": [
+    {
+      "key": "14_corazon_abuela_retablo_bordado",
+      "book": "Siempre en mi Corazón — Abuela Adulto",
+      "direction": "Nieta adulta → Abuela recordada",
+      "title": "EL PUENTE QUE TEJIÓ NUESTRA MEMORIA",
+      "change": "Replace the ordinary handmade scene with a tangible, Peru-rooted magical reunion across an original woven bridge.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot-v3/14_corazon_abuela_retablo_bordado.webp",
+      "cost_usd": 0.04,
+      "error": null
+    },
+    {
+      "key": "15_siempre_seras_hermano_pichanga",
+      "book": "Siempre Serás Parte de Mí Adulto",
+      "direction": "Hermano → Hermano recordado",
+      "title": "LA PICHANGA QUE SEGUIMOS JUGANDO",
+      "change": "Replace a normal football scene with a live-action, impossible-match adventure where the magic drives the action.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot-v3/15_siempre_seras_hermano_pichanga.webp",
+      "cost_usd": 0.0399,
+      "error": null
+    },
+    {
+      "key": "16_siempre_seras_hermana_pichanga",
+      "book": "Siempre Serás Parte de Mí Adulto",
+      "direction": "Hermana → Hermana recordada",
+      "title": "LA PICHANGA QUE SEGUIMOS JUGANDO",
+      "change": "Replace a normal football scene with a live-action, impossible-match adventure where the magic drives the action.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot-v3/16_siempre_seras_hermana_pichanga.webp",
+      "cost_usd": 0.0399,
+      "error": null
+    }
+  ],
+  "contact_sheet": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/adult-books/peru-adult-first-template-pilot/v3/contact-sheet-peru-first-templates-v3.jpg"
+}

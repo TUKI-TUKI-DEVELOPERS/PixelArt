@@ -1,0 +1,12 @@
+.env
+.venv/
+output/
+__pycache__/
+.DS_Store
+
+# Imágenes de revisión y pruebas: pesan ~37MB y se regeneran desde los prompts.
+# Lo que se versiona es la fuente: prompts (.md), poemas y scripts (.py), configs (.json), SQL.
+*.jpg
+*.jpeg
+*.png
+*.webp

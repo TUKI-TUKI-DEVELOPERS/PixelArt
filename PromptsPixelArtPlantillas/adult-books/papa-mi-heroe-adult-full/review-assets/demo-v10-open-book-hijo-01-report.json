@@ -1,0 +1,32 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — template 01 Hijo → Papá — V10 physical open-book reference pilot",
+  "status": "ok",
+  "output": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v10-open-book-ai-pilot/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV10.png",
+  "webp_output": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v10-open-book-ai-pilot/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV10.webp",
+  "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_1_Mi_Superhéroe_Personal.png",
+  "reference_method": "textless infant open-book preview supplied to images.edit; page rim and binding crease retained",
+  "model": "gpt-image-2",
+  "edit_size": "1536x1024",
+  "final_size": "1600x944",
+  "cost_usd_excluding_input_image_tokens": 0.0433,
+  "usage": {
+    "input_tokens": 1928,
+    "input_tokens_details": {
+      "image_tokens": 1500,
+      "text_tokens": 428
+    },
+    "output_tokens": 1372,
+    "total_tokens": 3300,
+    "output_tokens_details": {
+      "image_tokens": 1372,
+      "text_tokens": 0
+    }
+  },
+  "error": null,
+  "postprocess": {
+    "binding_finish": "deterministic central physical binding crease and inward page shadow applied after generation",
+    "script": "PromptsPixelArtPlantillas/scripts/finish_papa_adult_demo_v10_binding_pilot.py",
+    "pre_binding_backup": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v10-open-book-ai-pilot/work/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV10-before-binding.png"
+  },
+  "deployment": "not uploaded to MinIO and not linked in PostgreSQL; review-only asset"
+}

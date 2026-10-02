@@ -1,0 +1,180 @@
+{
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1600x944",
+  "attempt_limit": 2,
+  "total_cost_usd": 0.6652,
+  "results": [
+    {
+      "key": "01_papa_hijo_danzante",
+      "book": "Papá, Mi Héroe Adulto",
+      "direction": "Hijo adulto → Papá",
+      "title": "MI DANZANTE DE TIJERAS",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/01_papa_hijo_danzante.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "02_papa_hija_danzante",
+      "book": "Papá, Mi Héroe Adulto",
+      "direction": "Hija adulta → Papá",
+      "title": "MI DANZANTE DE TIJERAS",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/02_papa_hija_danzante.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "03_mama_hijo_festejo",
+      "book": "Mamá, Mi Heroína Adulto",
+      "direction": "Hijo adulto → Mamá",
+      "title": "BAILANDO FESTEJO CON MI VIDA",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/03_mama_hijo_festejo.webp",
+      "cost_usd": 0.0391,
+      "error": null
+    },
+    {
+      "key": "04_mama_hija_festejo",
+      "book": "Mamá, Mi Heroína Adulto",
+      "direction": "Hija adulta → Mamá",
+      "title": "BAILANDO FESTEJO CON MI VIDA",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/04_mama_hija_festejo.webp",
+      "cost_usd": 0.0391,
+      "error": null
+    },
+    {
+      "key": "05_abuelo_nieto_marinera",
+      "book": "Te Amo, Abuelo Adulto",
+      "direction": "Nieto adulto → Abuelo",
+      "title": "BAILANDO MARINERA CONTIGO",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/05_abuelo_nieto_marinera.webp",
+      "cost_usd": 0.039,
+      "error": null
+    },
+    {
+      "key": "06_abuelo_nieta_marinera",
+      "book": "Te Amo, Abuelo Adulto",
+      "direction": "Nieta adulta → Abuelo",
+      "title": "BAILANDO MARINERA CONTIGO",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/06_abuelo_nieta_marinera.webp",
+      "cost_usd": 0.039,
+      "error": null
+    },
+    {
+      "key": "07_abuela_nieto_tejedor",
+      "book": "Te Amo, Abuela Adulto",
+      "direction": "Nieto adulto → Abuela",
+      "title": "LA TEJEDORA DE HISTORIAS QUE NO SE DESCOSEN",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/07_abuela_nieto_tejedor.webp",
+      "cost_usd": 0.0391,
+      "error": null
+    },
+    {
+      "key": "08_abuela_nieta_tejedor",
+      "book": "Te Amo, Abuela Adulto",
+      "direction": "Nieta adulta → Abuela",
+      "title": "LA TEJEDORA DE HISTORIAS QUE NO SE DESCOSEN",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/08_abuela_nieta_tejedor.webp",
+      "cost_usd": 0.0391,
+      "error": null
+    },
+    {
+      "key": "08_equipo_mundial",
+      "book": "El Mejor Equipo Adulto",
+      "direction": "Hermanos adultos",
+      "title": "GANAMOS EL MUNDIAL CON PERÚ",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/08_equipo_mundial.webp",
+      "cost_usd": 0.0391,
+      "error": null
+    },
+    {
+      "key": "09_familia_festejo",
+      "book": "Mi Familia Adulto",
+      "direction": "Familia grupal",
+      "title": "SI BAILÁRAMOS FESTEJO JUNTOS",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/09_familia_festejo.webp",
+      "cost_usd": 0.039,
+      "error": null
+    },
+    {
+      "key": "10_aventura_huella_marinera",
+      "book": "Aventura Entre Patas Adulto",
+      "direction": "Dueños adultos → Perro",
+      "title": "LA HUELLA QUE BAILÓ MARINERA",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/10_aventura_huella_marinera.webp",
+      "cost_usd": 0.0391,
+      "error": null
+    },
+    {
+      "key": "11_angel_padre_velada",
+      "book": "Mi Ángel Guardián Padre Adulto",
+      "direction": "Hijo adulto → Padre recordado",
+      "title": "EL FAROL DE LA VELADA QUE ME GUÍA",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/11_angel_padre_velada.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "12_angel_madre_velas",
+      "book": "Mi Ángel Guardián Madre Adulto",
+      "direction": "Hija adulta → Madre recordada",
+      "title": "LA LUZ DE LAS VELAS QUE ABRAZA MI CAMINO",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/12_angel_madre_velas.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "13_corazon_abuelo_album_marinera",
+      "book": "Siempre en mi Corazón — Abuelo Adulto",
+      "direction": "Nieta adulta → Abuelo recordado",
+      "title": "EL ÁLBUM DE LA MARINERA QUE GUARDÓ TU PASO",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/13_corazon_abuelo_album_marinera.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "14_corazon_abuela_retablo_bordado",
+      "book": "Siempre en mi Corazón — Abuela Adulto",
+      "direction": "Nieta adulta → Abuela recordada",
+      "title": "EL RETABLO BORDADO DE TU MEMORIA",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/14_corazon_abuela_retablo_bordado.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "15_siempre_seras_hermano_pichanga",
+      "book": "Siempre Serás Parte de Mí Adulto",
+      "direction": "Hermano → Hermano recordado",
+      "title": "LA PICHANGA QUE SEGUIMOS JUGANDO",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/15_siempre_seras_hermano_pichanga.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    },
+    {
+      "key": "16_siempre_seras_hermana_pichanga",
+      "book": "Siempre Serás Parte de Mí Adulto",
+      "direction": "Hermana → Hermana recordada",
+      "title": "LA PICHANGA QUE SEGUIMOS JUGANDO",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/_peru-adult-first-template-pilot/16_siempre_seras_hermana_pichanga.webp",
+      "cost_usd": 0.0392,
+      "error": null
+    }
+  ],
+  "contact_sheet": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/adult-books/peru-adult-first-template-pilot/contact-sheet-peru-first-templates-v1.jpg"
+}

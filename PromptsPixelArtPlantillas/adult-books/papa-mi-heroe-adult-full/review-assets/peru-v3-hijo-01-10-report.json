@@ -1,0 +1,94 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — Hijo adulto → Papá — templates 01–10 — PeruV3",
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1600x944",
+  "attempt_limit": 2,
+  "total_cost_usd": 0,
+  "output_directory": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3",
+  "font": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/fonts/Montserrat-VariableFont_wght.ttf",
+  "text_compositing": "deterministic Montserrat overlay after text-free image generation",
+  "contact_sheet": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/adult-books/papa-mi-heroe-adult-full/review-assets/contact-sheet-peru-v3-hijo-01-10.jpg",
+  "results": [
+    {
+      "number": 1,
+      "title": "MI SUPERHÉROE PERSONAL",
+      "status": "failed",
+      "path": null,
+      "cost_usd": null,
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "number": 2,
+      "title": "MI CABALLERO DE ARMADURA BRILLANTE",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_02_mi_caballero_de_armadura_brillante_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 3,
+      "title": "MI REY",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_03_mi_rey_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 4,
+      "title": "MI ÁNGEL GUARDIÁN",
+      "status": "failed",
+      "path": null,
+      "cost_usd": null,
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "number": 5,
+      "title": "MI PIRATA AVENTURERO",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_05_mi_pirata_aventurero_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 6,
+      "title": "MI GUERRERO PROTECTOR",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_06_mi_guerrero_protector_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 7,
+      "title": "MI CAPITÁN / PILOTO",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_07_mi_capitan_piloto_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 8,
+      "title": "MI VIKINGO VALIENTE",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_08_mi_vikingo_valiente_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 9,
+      "title": "MI ARQUITECTO DE SUEÑOS",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_09_mi_arquitecto_de_suenos_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    },
+    {
+      "number": 10,
+      "title": "MI GLADIADOR",
+      "status": "skipped",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/peru-v3/Plantilla_10_mi_gladiador_Hijo_a_Papa_PeruV3.png",
+      "cost_usd": null,
+      "error": null
+    }
+  ]
+}

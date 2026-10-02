@@ -1,0 +1,27 @@
+{
+  "scope": "Papá adult DemoV9 remaining first-two templates",
+  "method": "approved reference-layout image edit",
+  "total_cost_usd_excluding_input_image_tokens": 0.0428,
+  "results": [
+    {
+      "direction": "Hija adulta → Papá",
+      "number": 2,
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hija_a_papa_DemoV9.png",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1824,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 324
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3196,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    }
+  ]
+}

@@ -52,4 +52,7 @@ coverage/
 # Pipeline standalone de generación de contenido con IA (venv, scripts,
 # imágenes generadas) — vive en el root del repo pero no es parte de la app,
 # nunca se commitea (575MB+).
-PromptsPixelArtPlantillas/
+# PromptsPixelArtPlantillas tiene su propio .gitignore: deja fuera output/, .venv/,
+# .env y las imágenes de revisión, y versiona los prompts, poemas y scripts.
+# Local Pi runtime state
+.atl/

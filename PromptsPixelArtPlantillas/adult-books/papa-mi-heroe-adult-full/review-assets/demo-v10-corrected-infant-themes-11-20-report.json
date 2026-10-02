@@ -1,0 +1,676 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — corrected V10 positions 11–20 from exact infant themes",
+  "status": "deployed_local_minio",
+  "method": "gpt-image-2 image edit from matching textless infant open-book reference + deterministic binding finish + deterministic local typography",
+  "source_model_id": 8,
+  "target_model_id": 9775,
+  "forbidden_reference_class": "Any Papa_mi_heroe_adulto preview key",
+  "lineage": [
+    {
+      "target_template_id": 2098,
+      "target_direction": "HE_TO_HE",
+      "position": 11,
+      "source_template_id": 1998,
+      "source_name": "Mi Samurái De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_11_Mi_Samurái.png",
+      "adult_title": "Mi Samurái"
+    },
+    {
+      "target_template_id": 2099,
+      "target_direction": "HE_TO_HE",
+      "position": 12,
+      "source_template_id": 1999,
+      "source_name": "Mi Titán De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_12_Mi_Titán.png",
+      "adult_title": "Mi Titán"
+    },
+    {
+      "target_template_id": 2100,
+      "target_direction": "HE_TO_HE",
+      "position": 13,
+      "source_template_id": 2000,
+      "source_name": "Mi Primer Héroe De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_13_Mi_Primer_Héroe.png",
+      "adult_title": "Mi Primer Héroe"
+    },
+    {
+      "target_template_id": 2101,
+      "target_direction": "HE_TO_HE",
+      "position": 14,
+      "source_template_id": 2001,
+      "source_name": "Cuando Bailamos en la Sala De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_14_Cuando_Bailamos_en_la_Sala.png",
+      "adult_title": "Cuando Bailamos en la Sala"
+    },
+    {
+      "target_template_id": 2102,
+      "target_direction": "HE_TO_HE",
+      "position": 15,
+      "source_template_id": 2002,
+      "source_name": "Me Enseñaste Que Soy un Rey De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_15_Me_Enseñaste_Que_Soy_un_Rey.png",
+      "adult_title": "Me Enseñaste que Soy un Rey"
+    },
+    {
+      "target_template_id": 2103,
+      "target_direction": "HE_TO_HE",
+      "position": 16,
+      "source_template_id": 2003,
+      "source_name": "Nuestras Citas de Padre e Hijo De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_16_Nuestras_Citas_de_Padre_e_Hijo.png",
+      "adult_title": "Nuestras Citas de Padre e Hijo"
+    },
+    {
+      "target_template_id": 2104,
+      "target_direction": "HE_TO_HE",
+      "position": 17,
+      "source_template_id": 2004,
+      "source_name": "Cuando Me Peinas Aunque No Sepas De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_17_Cuando_Me_Peinas_Aunque_No_Sepas.png",
+      "adult_title": "Cuando me Peinas Aunque No Sepas"
+    },
+    {
+      "target_template_id": 2105,
+      "target_direction": "HE_TO_HE",
+      "position": 18,
+      "source_template_id": 2005,
+      "source_name": "El Hombre Que Me Enseñó a Ser un Hombre de Bien De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_18_El_Hombre_Que_Me_Enseñó_a_Ser_un_Hombre_de_Bien.png",
+      "adult_title": "El Hombre que me Enseñó a Ser un Hombre de Bien"
+    },
+    {
+      "target_template_id": 2106,
+      "target_direction": "HE_TO_HE",
+      "position": 19,
+      "source_template_id": 2006,
+      "source_name": "Cuando Me Haces Sentir El Más Valiente De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_19_Cuando_Me_Haces_Sentir_El_Más_Valiente.png",
+      "adult_title": "Cuando me Haces Sentir el Más Valiente"
+    },
+    {
+      "target_template_id": 2107,
+      "target_direction": "HE_TO_HE",
+      "position": 20,
+      "source_template_id": 2007,
+      "source_name": "Seré Tu Niño Para Siempre De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_20_Seré_Tu_Niño_Para_Siempre.png",
+      "adult_title": "Seré tu Niño Para Siempre"
+    },
+    {
+      "target_template_id": 2118,
+      "target_direction": "SHE_TO_HE",
+      "position": 11,
+      "source_template_id": 1528,
+      "source_name": "Mi Samurái De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_11_Mi_Samurái.png",
+      "adult_title": "Mi Samurái"
+    },
+    {
+      "target_template_id": 2119,
+      "target_direction": "SHE_TO_HE",
+      "position": 12,
+      "source_template_id": 1529,
+      "source_name": "Mi Titán De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_12_Mi_Titán.png",
+      "adult_title": "Mi Titán"
+    },
+    {
+      "target_template_id": 2120,
+      "target_direction": "SHE_TO_HE",
+      "position": 13,
+      "source_template_id": 1530,
+      "source_name": "Mi Primer Amor De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_13_Mi_Primer_Amor.png",
+      "adult_title": "Mi Primer Amor"
+    },
+    {
+      "target_template_id": 2121,
+      "target_direction": "SHE_TO_HE",
+      "position": 14,
+      "source_template_id": 1531,
+      "source_name": "Cuando Bailamos en la Sala De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_14_Cuando_Bailamos_en_la_Sala.png",
+      "adult_title": "Cuando Bailamos en la Sala"
+    },
+    {
+      "target_template_id": 2122,
+      "target_direction": "SHE_TO_HE",
+      "position": 15,
+      "source_template_id": 1532,
+      "source_name": "Me Enseñaste Que Soy Una Princesa De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_15_Me_Enseñaste_Que_Soy_Una_Princesa.png",
+      "adult_title": "Me Enseñaste que Soy una Princesa"
+    },
+    {
+      "target_template_id": 2123,
+      "target_direction": "SHE_TO_HE",
+      "position": 16,
+      "source_template_id": 1533,
+      "source_name": "Nuestras Citas de Padre e Hija De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_16_Nuestras_Citas_de_Padre_e_Hija.png",
+      "adult_title": "Nuestras Citas de Padre e Hija"
+    },
+    {
+      "target_template_id": 2124,
+      "target_direction": "SHE_TO_HE",
+      "position": 17,
+      "source_template_id": 1534,
+      "source_name": "Cuando Me Peinas Aunque No Sepas De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_17_Cuando_Me_Peinas_Aunque_No_Sepas.png",
+      "adult_title": "Cuando me Peinas Aunque No Sepas"
+    },
+    {
+      "target_template_id": 2125,
+      "target_direction": "SHE_TO_HE",
+      "position": 18,
+      "source_template_id": 1535,
+      "source_name": "El Hombre Que Me Enseñó Cómo Debo Ser Tratada De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_18_El_Hombre_Que_Me_Enseñó_Cómo_Debo_Ser_Tratada.png",
+      "adult_title": "El Hombre que me Enseñó Cómo Debo Ser Tratada"
+    },
+    {
+      "target_template_id": 2126,
+      "target_direction": "SHE_TO_HE",
+      "position": 19,
+      "source_template_id": 1536,
+      "source_name": "Cuando Me Haces Sentir La Más Bonita De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_19_Cuando_Me_Haces_Sentir_La_Más_Bonita.png",
+      "adult_title": "Cuando me Haces Sentir la Más Bonita"
+    },
+    {
+      "target_template_id": 2127,
+      "target_direction": "SHE_TO_HE",
+      "position": 20,
+      "source_template_id": 1537,
+      "source_name": "Seré Tu Niña Para Siempre De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_20_Seré_Tu_Niña_Para_Siempre.png",
+      "adult_title": "Seré tu Niña Para Siempre"
+    }
+  ],
+  "outputs": [
+    {
+      "target_template_id": 2098,
+      "source_template_id": 1998,
+      "title": "Mi Samurái",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_11_mi_samurai_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1972,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 472
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3344,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2099,
+      "source_template_id": 1999,
+      "title": "Mi Titán",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_12_mi_titan_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1972,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 472
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3344,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2100,
+      "source_template_id": 2000,
+      "title": "Mi Primer Héroe",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_13_mi_primer_heroe_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1977,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 477
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3349,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2101,
+      "source_template_id": 2001,
+      "title": "Cuando Bailamos en la Sala",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_14_cuando_bailamos_en_la_sala_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1973,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 473
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3345,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2102,
+      "source_template_id": 2002,
+      "title": "Me Enseñaste que Soy un Rey",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_15_me_ensenaste_que_soy_un_rey_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1975,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 475
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3347,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2103,
+      "source_template_id": 2003,
+      "title": "Nuestras Citas de Padre e Hijo",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_16_nuestras_citas_de_padre_e_hijo_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1969,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 469
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3341,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2104,
+      "source_template_id": 2004,
+      "title": "Cuando me Peinas Aunque No Sepas",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_17_cuando_me_peinas_aunque_no_sepas_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1981,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 481
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3353,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2105,
+      "source_template_id": 2005,
+      "title": "El Hombre que me Enseñó a Ser un Hombre de Bien",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_18_el_hombre_que_me_enseno_a_ser_un_hombre_de_bien_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1974,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 474
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3346,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2106,
+      "source_template_id": 2006,
+      "title": "Cuando me Haces Sentir el Más Valiente",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_19_cuando_me_haces_sentir_el_mas_valiente_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1972,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 472
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3344,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2107,
+      "source_template_id": 2007,
+      "title": "Seré tu Niño Para Siempre",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_20_sere_tu_nino_para_siempre_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1963,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 463
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3335,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2118,
+      "source_template_id": 1528,
+      "title": "Mi Samurái",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_11_mi_samurai_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1972,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 472
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3344,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2119,
+      "source_template_id": 1529,
+      "title": "Mi Titán",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_12_mi_titan_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1972,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 472
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3344,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2120,
+      "source_template_id": 1530,
+      "title": "Mi Primer Amor",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_13_mi_primer_amor_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1973,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 473
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3345,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2121,
+      "source_template_id": 1531,
+      "title": "Cuando Bailamos en la Sala",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_14_cuando_bailamos_en_la_sala_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1973,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 473
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3345,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2122,
+      "source_template_id": 1532,
+      "title": "Me Enseñaste que Soy una Princesa",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_15_me_ensenaste_que_soy_una_princesa_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1977,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 477
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3349,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2123,
+      "source_template_id": 1533,
+      "title": "Nuestras Citas de Padre e Hija",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_16_nuestras_citas_de_padre_e_hija_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1969,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 469
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3341,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2124,
+      "source_template_id": 1534,
+      "title": "Cuando me Peinas Aunque No Sepas",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_17_cuando_me_peinas_aunque_no_sepas_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1979,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 479
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3351,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2125,
+      "source_template_id": 1535,
+      "title": "El Hombre que me Enseñó Cómo Debo Ser Tratada",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_18_el_hombre_que_me_enseno_como_debo_ser_tratada_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1982,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 482
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3354,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2126,
+      "source_template_id": 1536,
+      "title": "Cuando me Haces Sentir la Más Bonita",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_19_cuando_me_haces_sentir_la_mas_bonita_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1980,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 480
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3352,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2127,
+      "source_template_id": 1537,
+      "title": "Seré tu Niña Para Siempre",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-corrected-infant-themes-11-20/webp/plantilla_20_sere_tu_nina_para_siempre_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0435,
+      "usage": {
+        "input_tokens": 1969,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 469
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3341,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    }
+  ],
+  "total_cost_usd_excluding_input_image_tokens": 0.8704,
+  "visual_review": "All twenty themes were reviewed individually. A zero-cost local title-safe recomposition was applied after generation; pre-recomposition WebP files remain under the output before-title-safe directory.",
+  "deployment_manifest": "minio-papa-v10-corrected-infant-themes-11-20-deployment-manifest.json",
+  "deployment": "20 corrected source-locked rows activated on adult model 9775; infant model 8 unchanged."
+}

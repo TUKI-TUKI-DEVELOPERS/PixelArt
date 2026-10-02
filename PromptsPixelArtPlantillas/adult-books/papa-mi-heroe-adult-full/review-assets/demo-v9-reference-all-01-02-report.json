@@ -1,0 +1,31 @@
+{
+  "method": "V9 image-edit using the current approved infant flat layout as composition reference; deterministic local typography",
+  "uploads_or_app_data_changes": "none",
+  "total_cost_usd_excluding_input_image_tokens": 0.171,
+  "outputs": [
+    {
+      "template": "01 Hijo → Papá",
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV9.png",
+      "dimensions": "1600x944",
+      "cost_usd_excluding_input_image_tokens": 0.0427
+    },
+    {
+      "template": "01 Hija → Papá",
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/Plantilla_01_mi_superheroe_personal_hija_a_papa_DemoV9.png",
+      "dimensions": "1600x944",
+      "cost_usd_excluding_input_image_tokens": 0.0427
+    },
+    {
+      "template": "02 Hijo → Papá",
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hijo_a_papa_DemoV9.png",
+      "dimensions": "1600x944",
+      "cost_usd_excluding_input_image_tokens": 0.0428
+    },
+    {
+      "template": "02 Hija → Papá",
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hija_a_papa_DemoV9.png",
+      "dimensions": "1600x944",
+      "cost_usd_excluding_input_image_tokens": 0.0428
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# Full adult review — El Mejor Equipo Adulto
+
+- Status: **PASS**
+- Templates: `20`
+- Real cost: `$0.7620`
+- Contact sheet: `review-assets/contact-sheet-full-adult.jpg`
+- Output format: `WebP`
+- Model/config: `gpt-image-2`, `quality: medium`, `1600x944`, `moderation: auto`
+
+## Visual review
+
+Sibling/team concept reads as adult complicity and movement; no pets or childlike treatment.
+
+## Rules checked
+
+- Existing child/original product remains untouched.
+- Adult storage path is isolated.
+- Title/poem remain readable at contact-sheet scale.
+- Non-pet products prohibit animals.
+- Memorial products preserve the minimal dove ornament below the poem when applicable.
+
+## Result
+
+Approved for local DB/MinIO integration. Adult web thumbnails/assets remain a separate future task.

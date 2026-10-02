@@ -1,0 +1,499 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — V10 physical-open-book remaining positions 11–20 per direction",
+  "method": "gpt-image-2 image edit from matching existing adult open-book reference + deterministic binding finish + deterministic local typography",
+  "outputs": [
+    {
+      "template_id": 2098,
+      "position": 11,
+      "title": "EL MAESTRO DE LA CALMA",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_11_el_maestro_de_la_calma_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2000,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 500
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2099,
+      "position": 12,
+      "title": "EL HOMBRE QUE ME ENSEÑÓ A SER MEJOR",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_12_el_hombre_que_me_enseno_a_ser_mejor_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2004,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 504
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3376,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2100,
+      "position": 13,
+      "title": "TUS PASOS, MI CAMINO",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_13_tus_pasos_mi_camino_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2005,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 505
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3377,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2101,
+      "position": 14,
+      "title": "NUESTRO CAFÉ DE HOMBRES GRANDES",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_14_nuestro_cafe_de_hombres_grandes_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 1998,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 498
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3370,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2102,
+      "position": 15,
+      "title": "LA PACIENCIA QUE ME FORMÓ",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_15_la_paciencia_que_me_formo_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1996,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 496
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3368,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2103,
+      "position": 16,
+      "title": "LAS CONVERSACIONES QUE GUARDO",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_16_las_conversaciones_que_guardo_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1993,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 493
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3365,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2104,
+      "position": 17,
+      "title": "CUANDO ME ENSEÑASTE A NO RENDIRME",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_17_cuando_me_ensenaste_a_no_rendirme_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2002,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 502
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3374,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2105,
+      "position": 18,
+      "title": "EL VALOR DE HACER LO CORRECTO",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_18_el_valor_de_hacer_lo_correcto_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2002,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 502
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3374,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2106,
+      "position": 19,
+      "title": "LA CASA QUE SIEMPRE VUELVE",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_19_la_casa_que_siempre_vuelve_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2005,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 505
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3377,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2107,
+      "position": 20,
+      "title": "SIEMPRE SERÉ TU HIJO",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_20_siempre_sere_tu_hijo_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2004,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 504
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3376,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2118,
+      "position": 11,
+      "title": "LA FUERZA QUE ME HIZO LIBRE",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_11_la_fuerza_que_me_hizo_libre_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2004,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 504
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3376,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2119,
+      "position": 12,
+      "title": "EL AMOR QUE NO EXIGE NADA",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_12_el_amor_que_no_exige_nada_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1997,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 497
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3369,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2120,
+      "position": 13,
+      "title": "LAS HISTORIAS QUE AÚN ME GUÍAN",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_13_las_historias_que_aun_me_guian_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2001,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 501
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3373,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2121,
+      "position": 14,
+      "title": "CUANDO ME MIRASTE CON ORGULLO",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_14_cuando_me_miraste_con_orgullo_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2001,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 501
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3373,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2122,
+      "position": 15,
+      "title": "LA CASA DE TUS BRAZOS",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_15_la_casa_de_tus_brazos_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1997,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 497
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3369,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2123,
+      "position": 16,
+      "title": "TU VOZ EN MIS DECISIONES",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_16_tu_voz_en_mis_decisiones_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1995,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 495
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3367,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2124,
+      "position": 17,
+      "title": "MI HÉROE SIN ARMADURA",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_17_mi_heroe_sin_armadura_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0436,
+      "usage": {
+        "input_tokens": 1997,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 497
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3369,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2125,
+      "position": 18,
+      "title": "EL RESPETO QUE APRENDÍ DE TI",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_18_el_respeto_que_aprendi_de_ti_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2001,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 501
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3373,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2126,
+      "position": 19,
+      "title": "LA TERNURA QUE ME SOSTUVO",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_19_la_ternura_que_me_sostuvo_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2007,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 507
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3379,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template_id": 2127,
+      "position": 20,
+      "title": "SIEMPRE SERÉ TU HIJA",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v10-open-book-remaining-11-20/webp/plantilla_20_siempre_sere_tu_hija_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0437,
+      "usage": {
+        "input_tokens": 2000,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 500
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3372,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    }
+  ],
+  "total_cost_usd_excluding_input_image_tokens": 0.8734,
+  "visual_review": "All twenty assets reviewed individually before deployment.",
+  "deployment": {
+    "status": "deployed_local_minio",
+    "model_id": 9775,
+    "manifest": "minio-papa-v10-remaining-11-20-deployment-manifest.json",
+    "v10_rows_activated": 20,
+    "infant_model_unchanged": true
+  },
+  "known_follow_up": "The adult model also contains 20 separately retained legacy duplicate rows (2468-2487). They were not modified or deleted; explicit user approval is required before deduplication.",
+  "status": "superseded_by_corrected_infant_theme_batch",
+  "superseded_by": "demo-v10-corrected-infant-themes-11-20-report.json",
+  "note": "This batch used legacy adult themes and was replaced in model 9775 by the source-locked infant-theme corrected batch."
+}

@@ -1,0 +1,374 @@
+{
+  "method": "V9 image edit from infant flat layout, deterministic local typography, WebP export",
+  "outputs": [
+    {
+      "template": 3,
+      "title": "MI REY",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_03_mi_rey_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1826,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 326
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3198,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 3,
+      "title": "MI REY",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_03_mi_rey_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1826,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 326
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3198,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 4,
+      "title": "MI ÁNGEL GUARDIÁN",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_04_mi_angel_guardian_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1837,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 337
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3209,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 4,
+      "title": "MI ÁNGEL GUARDIÁN",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_04_mi_angel_guardian_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1837,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 337
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3209,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 5,
+      "title": "MI PIRATA AVENTURERO",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_05_mi_pirata_aventurero_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1833,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 333
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3205,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 5,
+      "title": "MI PIRATA AVENTURERO",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_05_mi_pirata_aventurero_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1833,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 333
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3205,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 6,
+      "title": "MI GUERRERO PROTECTOR",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_06_mi_guerrero_protector_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1830,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 330
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3202,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 6,
+      "title": "MI GUERRERO PROTECTOR",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_06_mi_guerrero_protector_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1830,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 330
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3202,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 7,
+      "title": "MI CAPITÁN / PILOTO",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_07_mi_capitan_piloto_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0428,
+      "usage": {
+        "input_tokens": 1831,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 331
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3203,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 7,
+      "title": "MI CAPITÁN / PILOTO",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_07_mi_capitan_piloto_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0432,
+      "usage": {
+        "input_tokens": 1901,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 401
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3273,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 8,
+      "title": "MI VIKINGO VALIENTE",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_08_mi_vikingo_valiente_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0432,
+      "usage": {
+        "input_tokens": 1907,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 407
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3279,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 8,
+      "title": "MI VIKINGO VALIENTE",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_08_mi_vikingo_valiente_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0432,
+      "usage": {
+        "input_tokens": 1907,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 407
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3279,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 9,
+      "title": "MI ARQUITECTO DE SUEÑOS",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_09_mi_arquitecto_de_suenos_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0432,
+      "usage": {
+        "input_tokens": 1905,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 405
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3277,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 9,
+      "title": "MI ARQUITECTO DE SUEÑOS",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_09_mi_arquitecto_de_suenos_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0432,
+      "usage": {
+        "input_tokens": 1905,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 405
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3277,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 10,
+      "title": "MI GLADIADOR",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_10_mi_gladiador_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0431,
+      "usage": {
+        "input_tokens": 1897,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 397
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3269,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "template": 10,
+      "title": "MI GLADIADOR",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_10_mi_gladiador_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0431,
+      "usage": {
+        "input_tokens": 1897,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 397
+        },
+        "output_tokens": 1372,
+        "total_tokens": 3269,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    }
+  ],
+  "total_cost_usd_excluding_input_image_tokens": 0.6874
+}

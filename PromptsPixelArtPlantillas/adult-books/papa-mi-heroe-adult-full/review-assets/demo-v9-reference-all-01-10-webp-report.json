@@ -1,0 +1,134 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — V9 templates 01–10 — both adult child directions",
+  "method": "infant flat layout reference through images.edit plus deterministic local typography",
+  "upload_status": "not uploaded to MinIO",
+  "outputs": [
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_01_mi_superheroe_personal_hija_a_papa.webp",
+      "bytes": 486556,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_01_mi_superheroe_personal_hijo_a_papa.webp",
+      "bytes": 474224,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_02_mi_caballero_de_armadura_brillante_hija_a_papa.webp",
+      "bytes": 473798,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_02_mi_caballero_de_armadura_brillante_hijo_a_papa.webp",
+      "bytes": 449980,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_03_mi_rey_hija_a_papa.webp",
+      "bytes": 586506,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_03_mi_rey_hijo_a_papa.webp",
+      "bytes": 518590,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_04_mi_angel_guardian_hija_a_papa.webp",
+      "bytes": 420660,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_04_mi_angel_guardian_hijo_a_papa.webp",
+      "bytes": 410552,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_05_mi_pirata_aventurero_hija_a_papa.webp",
+      "bytes": 566406,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_05_mi_pirata_aventurero_hijo_a_papa.webp",
+      "bytes": 541636,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_06_mi_guerrero_protector_hija_a_papa.webp",
+      "bytes": 421586,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_06_mi_guerrero_protector_hijo_a_papa.webp",
+      "bytes": 438302,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_07_mi_capitan_piloto_hija_a_papa.webp",
+      "bytes": 437842,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_07_mi_capitan_piloto_hijo_a_papa.webp",
+      "bytes": 529852,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_08_mi_vikingo_valiente_hija_a_papa.webp",
+      "bytes": 427698,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_08_mi_vikingo_valiente_hijo_a_papa.webp",
+      "bytes": 482376,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_09_mi_arquitecto_de_suenos_hija_a_papa.webp",
+      "bytes": 539480,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_09_mi_arquitecto_de_suenos_hijo_a_papa.webp",
+      "bytes": 628686,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_10_mi_gladiador_hija_a_papa.webp",
+      "bytes": 484650,
+      "format": "webp",
+      "dimensions": "1600x944"
+    },
+    {
+      "file": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_10_mi_gladiador_hijo_a_papa.webp",
+      "bytes": 450958,
+      "format": "webp",
+      "dimensions": "1600x944"
+    }
+  ],
+  "accepted_render_cost_usd_excluding_input_image_tokens": 0.8584,
+  "actual_render_cost_usd_excluding_input_image_tokens": 0.9868,
+  "extra_corrective_render_cost_usd_excluding_input_image_tokens": 0.1284,
+  "no_cost_recompositions": [
+    "template 07 both directions",
+    "template 09 both directions"
+  ]
+}

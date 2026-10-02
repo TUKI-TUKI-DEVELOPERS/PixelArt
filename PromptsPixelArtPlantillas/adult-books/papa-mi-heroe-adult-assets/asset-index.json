@@ -1,0 +1,50 @@
+[
+  {
+    "label": "Background",
+    "filename": "Backgrounds_Libros_Familia_Papa_mi_heroe_Adulto.png",
+    "path": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto Assets/web-assets/Backgrounds_Libros_Familia_Papa_mi_heroe_Adulto.png",
+    "storage_key": "IA_Books/Backgrounds/Backgrounds_Libros_Familia_Papa_mi_heroe_Adulto.png",
+    "dimensions": "1600x944",
+    "cost_usd": 0.0374
+  },
+  {
+    "label": "Miniatura catálogo",
+    "filename": "IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
+    "path": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto Assets/web-assets/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
+    "storage_key": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
+    "dimensions": "1600x1200",
+    "cost_usd": 0.0532
+  },
+  {
+    "label": "Miniatura home",
+    "filename": "IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura_Home.png",
+    "path": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto Assets/web-assets/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura_Home.png",
+    "storage_key": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura_Home.png",
+    "dimensions": "1440x1600",
+    "cost_usd": 0.0688
+  },
+  {
+    "label": "Central 1",
+    "filename": "Libros_Familia_Papamiheroe_Adulto_Central.png",
+    "path": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto Assets/web-assets/Libros_Familia_Papamiheroe_Adulto_Central.png",
+    "storage_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Libros_Familia_Papamiheroe_Adulto_Central.png",
+    "dimensions": "1536x1024",
+    "cost_usd": 0.043
+  },
+  {
+    "label": "Central 2",
+    "filename": "Libros_Familia_Papamiheroe_Adulto_Central_2.png",
+    "path": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto Assets/web-assets/Libros_Familia_Papamiheroe_Adulto_Central_2.png",
+    "storage_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Libros_Familia_Papamiheroe_Adulto_Central_2.png",
+    "dimensions": "1536x1024",
+    "cost_usd": 0.0428
+  },
+  {
+    "label": "Central 3",
+    "filename": "Libros_Familia_Papamiheroe_Adulto_Central_3.png",
+    "path": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto Assets/web-assets/Libros_Familia_Papamiheroe_Adulto_Central_3.png",
+    "storage_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Libros_Familia_Papamiheroe_Adulto_Central_3.png",
+    "dimensions": "1536x1024",
+    "cost_usd": 0.0428
+  }
+]

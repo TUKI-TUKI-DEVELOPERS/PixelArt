@@ -1,0 +1,13 @@
+{
+  "scope": "V10 visual review only — Papá, Mi Héroe Adulto template 01 Hijo→Papá",
+  "status": "deployed_local_minio_for_review",
+  "model_id": 9775,
+  "template_id": 2088,
+  "gender_direction": "HE_TO_HE",
+  "template_name": "Mi superhéroe personal De Hijo a Papá",
+  "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v10-open-book-ai-pilot/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV10.webp",
+  "source_sha256": "1b44f6baa13d2c2ba4349c7c49f3a8e9e1eb5890ca978912350628fe297fd5f4",
+  "previous_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_1_El_Heroe_Que_Sostiene_En_Silencio.webp",
+  "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_1_Mi_Superheroe_Personal_V10.webp",
+  "rollback": "Restore the previous_preview_key and prior template name; V9 object was not overwritten."
+}
