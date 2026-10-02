@@ -1206,6 +1206,91 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] personalized_templates content backfill (Siempre en mi Corazón) ✓');
 
+    // Reconstruye el contenido de los libros adultos desde su libro infantil.
+    // Siete de los doce tenían UNA sola escena repetida en todas sus plantillas y
+    // nombres inventados. Va después de todos los backfills de contenido adulto,
+    // para ganarles a los que insertan la versión formulaica.
+    await client.query(
+      readFileSync(join(__dirname, 'content/rebuild-adult-books-from-infant.sql'), 'utf8'),
+    );
+    console.log('[seed] libros adultos reconstruidos desde su versión infantil ✓');
+
+    // Normaliza las escenas de Aventura Entre Patas Adulto después de la
+    // reconstrucción, que conserva lenguaje infantil en los 20 temas.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-aventura-adult-escenas.sql'), 'utf8'),
+    );
+    console.log('[seed] escenas adultas (Aventura Entre Patas) ✓');
+
+    // Poemas originales de "Mamá, Mi Heroína Adulto": el libro traía UN solo
+    // esqueleto repetido en sus 40 plantillas. Va después de la reconstrucción,
+    // que no toca poemas, para no pisarse con ella.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-mama-mi-heroina-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Mamá Mi Heroína — adulto) ✓');
+
+    // Poemas originales de "Te Amo, Abuela Adulto": mismo caso que Mamá, el libro
+    // traía un solo esqueleto repetido en sus 40 plantillas.
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-te-amo-abuela-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Te Amo Abuela — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-te-amo-abuelo-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Te Amo Abuelo — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-el-mejor-equipo-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (El Mejor Equipo — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-mi-familia-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Mi Familia — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-siempre-en-mi-corazon-abuelo-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Siempre en mi Corazón Abuelo — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-siempre-en-mi-corazon-abuela-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Siempre en mi Corazón Abuela — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-mi-angel-guardian-padre-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Mi Ángel Guardián Padre — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-mi-angel-guardian-madre-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Mi Ángel Guardián Madre — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-siempre-seras-parte-de-mi-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Siempre Serás Parte de Mí — adulto) ✓');
+
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-aventura-entre-patas-adult-poems.sql'), 'utf8'),
+    );
+    console.log('[seed] poemas originales (Aventura Entre Patas — adulto) ✓');
+
+    // Desactiva las plantillas sobrantes de "Papá, Mi Héroe": el catálogo
+    // mostraba 30 por dirección en vez de 20, por una reinserción de las
+    // posiciones 1-10 del libro infantil y una serie adulta 1-10 abandonada.
+    // Va después de todos los backfills para limpiar lo que ellos inserten.
+    await client.query(
+      readFileSync(join(__dirname, 'content/deactivate-papa-mi-heroe-duplicate-templates.sql'), 'utf8'),
+    );
+    console.log('[seed] plantillas duplicadas de Papá Mi Héroe desactivadas ✓');
+
     // Slugs reales de categorías/modelos (para las URLs de los QR de la
     // página de venta cruzada) — copiados 1:1 del mapa LIBRO_NAMES que hoy
     // vive hardcodeado en el frontend.

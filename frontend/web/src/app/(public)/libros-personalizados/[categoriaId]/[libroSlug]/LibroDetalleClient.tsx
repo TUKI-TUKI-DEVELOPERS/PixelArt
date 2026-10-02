@@ -502,12 +502,22 @@ const FOTOS_RECOMENDADAS: Record<string, string[]> = {
   "papa-mi-heroe": ["Papá", "Hija"],
   "papa-mi-heroe-adulto": ["Papá", "Hijo/a adulto/a"],
   "mama-mi-heroina": ["Mamá", "Hijo"],
+  "mama-mi-heroina-adulto": ["Mamá", "Hijo/a adulto/a"],
+  "te-amo-abuelo-adulto": ["Abuelo", "Nieto/a adulto/a"],
+  "te-amo-abuela-adulto": ["Abuela", "Nieto/a adulto/a"],
+  "el-mejor-equipo-adulto": ["Hermano/a 1", "Hermano/a 2"],
+  "la-familia-adulto": ["Papá", "Mamá", "Hijo/a adulto/a"],
+  "mi-angel-guardian-padre-adulto": ["Papá", "Hijo/a adulto/a"],
+  "mi-angel-guardian-madre-adulto": ["Mamá", "Hijo/a adulto/a"],
+  "siempre-en-mi-corazon-abuelo-adulto": ["Abuelo", "Nieto/a adulto/a"],
+  "siempre-en-mi-corazon-abuela-adulto": ["Abuela", "Nieto/a adulto/a"],
+  "siempre-seras-parte-de-mi-adulto": ["Hermano/a recordado/a", "Hermano/a que dedica"],
   "te-amo-abuelo": ["Abuelo", "Nieto"],
   "te-amo-abuela": ["Abuela", "Nieto"],
   "el-mejor-equipo": ["Hermano/a 1", "Hermano/a 2"],
   "la-familia": ["Papá", "Mamá", "Hijo/a"],
   "aventura-entre-patas": ["Niño/a", "Mascota"],
-  "aventura-entre-patas-adulto": ["Dueño/a 1", "Mascota"],
+  "aventura-entre-patas-adulto": ["Dueño/a", "Mascota"],
   "mi-amigo-miauravilloso": ["Tu gato"],
   "mi-mejor-amigo-del-mundo": ["Tu mascota"],
   "nuestro-angel-de-4-patas": ["Tu mascota"],
@@ -684,6 +694,10 @@ export default function LibroDetalleClient({
 }: Props) {
   const { isMobile, isSmallMobile } = useWindowSize();
   const assetSlug = ADULT_BASE_SLUGS[libroSlug] ?? libroSlug;
+  /* La guía "Así deben verse tus fotos" usa el slug propio del libro cuando tiene
+     el suyo: ADULT_BASE_SLUGS manda los adultos al libro infantil, y ahí el
+     dedicante es un niño de ocho años en vez del adulto de treinta y dos. */
+  const fotosSlug = FOTOS_RECOMENDADAS[libroSlug] ? libroSlug : assetSlug;
   const baseInfo = LIBROS_INFO[libroSlug] ?? LIBROS_INFO[assetSlug] ?? DEFAULT_INFO;
   const info = { ...baseInfo, nombre: LIBROS_INFO[libroSlug]?.nombre ?? libroNombre };
   const [currentStep, setCurrentStep] = useState(0);
@@ -1123,7 +1137,7 @@ export default function LibroDetalleClient({
           renderiza (aunque el libro no tenga fotos) para no perder ese
           offset. ── */}
       <div style={{ paddingTop: isMobile ? "32px" : "152px" }}>
-      {FOTOS_RECOMENDADAS[assetSlug] && (
+      {FOTOS_RECOMENDADAS[fotosSlug] && (
         <div style={{ padding: isMobile ? "0 24px 8px" : "0 48px 8px", maxWidth: "900px", margin: "0 auto" }}>
           <h2 style={{ textAlign: "center", fontSize: isMobile ? "22px" : "26px", fontWeight: 700, color: "#111", margin: "0 0 8px 0", fontFamily: tokens.fonts.display }}>
             Así deben verse tus fotos
@@ -1132,11 +1146,11 @@ export default function LibroDetalleClient({
             Ejemplos ilustrativos (no son personas reales) — subí una foto así de cada uno para el mejor resultado.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
-            {FOTOS_RECOMENDADAS[assetSlug].map((rol, i) => (
+            {FOTOS_RECOMENDADAS[fotosSlug].map((rol, i) => (
               <div key={i} style={{ width: "170px" }}>
                 <div style={{ position: "relative", borderRadius: "14px", overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", aspectRatio: "4/5", background: "#f3f3f3" }}>
                   <img
-                    src={getAssetUrl(`IA_Books/FotosRecomendadas/${assetSlug}-${i + 1}.png`)}
+                    src={getAssetUrl(`IA_Books/FotosRecomendadas/${fotosSlug}-${i + 1}.png`)}
                     alt={`Ejemplo de foto — ${rol}`}
                     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   />

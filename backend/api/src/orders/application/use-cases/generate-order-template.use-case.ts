@@ -130,9 +130,12 @@ export class GenerateOrderTemplateUseCase {
       isPetCategory,
       needsHumanIdentityToo: needsDualIdentity(modelName),
       sceneVisual: fillNamePlaceholders(template.sceneVisual, nameValues),
-      backgroundDetails: template.backgroundDetails ?? '',
-      magicEffects: template.magicEffects ?? '',
-      lightingColor: template.lightingColor ?? '',
+      // Mismo relleno que la escena: fondo y efectos también traen placeholders
+      // de nombre en varias plantillas, y sin esto la llave literal viajaba
+      // dentro del prompt (ver generate-demo-proposal.use-case.ts).
+      backgroundDetails: fillNamePlaceholders(template.backgroundDetails ?? '', nameValues),
+      magicEffects: fillNamePlaceholders(template.magicEffects ?? '', nameValues),
+      lightingColor: fillNamePlaceholders(template.lightingColor ?? '', nameValues),
       title: derivePrintedTitle(template.name),
       poem,
       separator: resolveSeparator(categoryName),

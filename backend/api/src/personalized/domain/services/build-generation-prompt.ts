@@ -72,8 +72,13 @@ export type BuildGenerationPromptInput = {
  * memorial/duelo (Rainbow Bridge) donde el dueño real posando junto a su
  * mascota fallecida es el corazón emocional del producto. "Aventura entre
  * patas" tiene hasta 3 dueños (niños) reales, cuyas fotos matchean contra el
- * mismo texto colectivo ("los niños") sin importar cuántos sean. */
-const DUAL_IDENTITY_MODELS = new Set(['Nuestro Angel de 4 patas', 'Aventura entre patas']);
+ * mismo texto colectivo ("los niños") sin importar cuántos sean. La versión adulta
+ * tiene entre uno y tres dueños adultos reales. */
+const DUAL_IDENTITY_MODELS = new Set([
+  'Nuestro Angel de 4 patas',
+  'Aventura entre patas',
+  'Aventura Entre Patas Adulto',
+]);
 
 export function needsDualIdentity(modelName?: string | null): boolean {
   return DUAL_IDENTITY_MODELS.has(modelName ?? '');

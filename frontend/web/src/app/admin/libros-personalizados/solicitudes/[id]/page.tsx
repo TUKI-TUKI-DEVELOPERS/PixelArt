@@ -48,7 +48,7 @@ type CharacterMeta =
   | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
   | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
   | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
-  | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
+  | { mode: "amor" | "mascotas" | "familia" | "memorial"; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
 type DemoDetail = {

@@ -103,9 +103,13 @@ export class GenerateDemoProposalUseCase {
       isPetCategory,
       needsHumanIdentityToo: needsDualIdentity(modelName),
       sceneVisual: fillNamePlaceholders(template.sceneVisual, nameValues),
-      backgroundDetails: template.backgroundDetails ?? '',
-      magicEffects: template.magicEffects ?? '',
-      lightingColor: template.lightingColor ?? '',
+      // Fondo, efectos e iluminación también traen placeholders de nombre: 10 y 19
+      // plantillas adultas los usan en background_details y magic_effects. Sin
+      // rellenarlos, la llave literal {NOMBRE_DESTINATARIO} viajaba dentro del
+      // prompt a gpt-image-2.
+      backgroundDetails: fillNamePlaceholders(template.backgroundDetails ?? '', nameValues),
+      magicEffects: fillNamePlaceholders(template.magicEffects ?? '', nameValues),
+      lightingColor: fillNamePlaceholders(template.lightingColor ?? '', nameValues),
       title: derivePrintedTitle(template.name),
       poem,
       separator: resolveSeparator(categoryName),
