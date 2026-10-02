@@ -15,9 +15,9 @@ y el piso aguantó ya
 los pasos de cumbia vieja
 que nadie en casa deja
 
-Papá llevaba el ritmo con el pie,
-mamá giraba sin saber por qué,
-mi hermano bajaba la luz
+Alguien llevaba el ritmo con el pie,
+otro giraba sin saber por qué,
+y se bajaba la luz
 y se creía andaluz
 
 Hoy bailo poco y con miedo,
@@ -50,12 +50,12 @@ WHERE template_preview_key = $mifamilia7yok$IA_Books/Family_Books_Page/Libros/La
 UPDATE personalized_templates SET
   poem_template = $mifamilia6yop$El sillón se volvió galeón
 y la escoba, nuestro timón,
-mamá izó la bandera
+en casa izamos la bandera
 y el pasillo fue ribera
 
 Buscábamos un cofre viejo
 lleno de risa y espejo,
-papá hacía de capitán
+tú hacías de capitán
 y yo, de grumete holgazán
 
 Hoy firmo papeles en tierra,
@@ -69,8 +69,8 @@ WHERE template_preview_key = $mifamilia6yok$IA_Books/Family_Books_Page/Libros/La
 UPDATE personalized_templates SET
   poem_template = $mifamilia12yop$La manguera fue trapecio
 y el perro, público necio,
-mamá domaba el rosal
-y papá era el mariscal
+en casa domaban el rosal
+y otro era el mariscal
 
 Yo caminaba en la cuerda
 de ropa, sin que se pierda
@@ -107,8 +107,8 @@ WHERE template_preview_key = $mifamilia5yok$IA_Books/Family_Books_Page/Libros/La
 UPDATE personalized_templates SET
   poem_template = $mifamilia14yop$La luz bajaba despacito
 y el cuarto se hacía bonito,
-mamá leía en voz pausada
-y papá roncaba en la almohada
+se leía en voz pausada
+y alguien roncaba en la almohada
 
 Con {APODO_DESTINATARIO} elegíamos el final
 cuando el libro iba mal,
@@ -150,7 +150,7 @@ la cena quedó suspendida
 
 Servíamos pizza de luna
 a un marciano sin fortuna,
-mi hermana cobraba en estrellas
+y cobrábamos en estrellas
 y yo barría centellas
 
 Hoy almuerzo de pie, apurado,
@@ -167,8 +167,8 @@ piedra hueca por clamor,
 la cueva nos dio salón
 y la hoguera, reflexión
 
-Papá rugía el estribillo,
-mamá seguía el martillo,
+Rugíamos todos el estribillo,
+y alguno marcaba el martillo,
 yo entraba fuera de tono
 y nadie me dejó solo
 
@@ -181,12 +181,12 @@ WHERE template_preview_key = $mifamilia1yok$IA_Books/Family_Books_Page/Libros/La
 
 -- 10. Si Tuviéramos Superpoderes
 UPDATE personalized_templates SET
-  poem_template = $mifamilia10yop${APODO_DESTINATARIO}, mamá frenaba la hora
+  poem_template = $mifamilia10yop${APODO_DESTINATARIO}, en casa frenaban la hora
 con una mano y sin demora,
-papá cargaba el ropero
+y alguien cargaba el ropero
 usando un solo dedo fiero
 
-Mi hermana veía a través
+Alguien veía a través
 de la puerta, y de mi estrés,
 yo solo sabía esconderme
 y nadie dejó de quererme
@@ -202,8 +202,8 @@ WHERE template_preview_key = $mifamilia10yok$IA_Books/Family_Books_Page/Libros/L
 UPDATE personalized_templates SET
   poem_template = $mifamilia18yop$El horno soplaba su aliento
 y la harina, un firmamento,
-mamá glaseaba las tortas
-y papá robaba las cortas
+se glaseaban las tortas
+y alguien robaba las cortas
 
 Yo lamía la cuchara
 y nadie me miraba rara,
@@ -221,11 +221,11 @@ WHERE template_preview_key = $mifamilia18yok$IA_Books/Family_Books_Page/Libros/L
 UPDATE personalized_templates SET
   poem_template = $mifamilia4yop${APODO_DESTINATARIO}, la bocina sonaba
 y el semáforo no cambiaba,
-papá inventó un pregón
+inventamos un pregón
 y el atasco fue invención
 
 Contábamos autos azules,
-mamá repartía gajos dulces,
+repartíamos gajos dulces,
 el claxon llevaba el son
 y el calor, la bendición
 
@@ -245,8 +245,8 @@ con el arcoíris de paisaje
 
 Las nubes pasaban despacio,
 el pueblo cupo en un espacio,
-mamá señalaba el río
-y papá soltaba el hastío
+señalábamos el río
+y se soltaba el hastío
 
 Hoy vuelo en clase apretada,
 con la ventana cerrada,
@@ -264,7 +264,7 @@ y salió la cena servida
 
 Anotábamos el invento
 con {APODO_DESTINATARIO} y mucho aliento,
-mi hermano probó primero
+y lo probamos primero
 y aprobó el experimento
 
 Hoy mido el café al gramo,
@@ -297,8 +297,8 @@ WHERE template_preview_key = $mifamilia2yok$IA_Books/Family_Books_Page/Libros/La
 UPDATE personalized_templates SET
   poem_template = $mifamilia15yop$El tobogán fue muralla
 y el arenero, batalla,
-mamá reinaba en la banca
-y papá cuidaba la tranca
+reinábamos en la banca
+y otro cuidaba la tranca
 
 Repartíamos títulos falsos:
 duque del columpio, descalzos,
@@ -335,8 +335,8 @@ WHERE template_preview_key = $mifamilia20yok$IA_Books/Family_Books_Page/Libros/L
 UPDATE personalized_templates SET
   poem_template = $mifamilia17yop$El pasillo fue compuerta
 y la cocina, cubierta,
-papá piloteaba el sillón
-y mamá leía el tablón
+tú piloteabas el sillón
+y otro leía el tablón
 
 En las manchas más concretas
 contábamos, {APODO_DESTINATARIO}, planetas
@@ -354,7 +354,7 @@ WHERE template_preview_key = $mifamilia17yok$IA_Books/Family_Books_Page/Libros/L
 UPDATE personalized_templates SET
   poem_template = $mifamilia16yop${APODO_DESTINATARIO}, la tina echaba vapor
 y el jabón hacía rumor,
-mi hermana era una sirena
+y había una sirena
 y yo, un pulpo sin pena
 
 Las burbujas subían al techo
