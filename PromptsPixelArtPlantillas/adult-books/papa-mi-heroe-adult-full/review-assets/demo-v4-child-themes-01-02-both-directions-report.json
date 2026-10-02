@@ -1,0 +1,73 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — restored child themes — templates 01–02 — both directions — DemoV4",
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1600x944",
+  "attempt_limit": 2,
+  "total_cost_usd": 0.154,
+  "output_directory": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v4-child-themes-pilot",
+  "text_compositing": "deterministic Montserrat overlay after text-free image generation",
+  "contact_sheet": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/adult-books/papa-mi-heroe-adult-full/review-assets/contact-sheet-demo-v4-child-themes-01-02-both-directions.jpg",
+  "results": [
+    {
+      "number": 1,
+      "direction": "Hijo adulto → Papá",
+      "slug": "mi_superheroe_personal_hijo_a_papa",
+      "title": "MI SUPERHÉROE PERSONAL",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; Mateo, su hijo adulto peruano-latino ficticio de 32 años, expresión agradecida y madura.",
+      "scene": "En la azotea de una casa contemporánea al caer la noche, Leo y Mateo sostienen juntos una estrella caída entre sus manos. Leo viste abrigo azul profundo contemporáneo y Mateo ropa urbana sobria; no llevan capas, uniformes ni emblemas. El gesto expresa que el heroísmo real es acompañar y levantar al otro.",
+      "magic": "La estrella se abre alrededor de ambos en una bóveda protectora, física e imposible, de luz azul y cobre que cubre la ciudad. La magia nace de la acción compartida, no de partículas decorativas.",
+      "palette": "Azul noche, cobre cálido, dorado tenue y luces lejanas de ciudad.",
+      "poem": "Papá Leo,\ncuando el mundo pesa demasiado,\ntu forma de estar a mi lado\nconvierte el miedo en camino.\n\nNo llevas capa ni emblema:\nllevas paciencia, verdad y abrigo.\nPor eso, en cada noche difícil,\nsigues siendo mi superhéroe personal.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v4-child-themes-pilot/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV4.png",
+      "cost_usd": 0.0385,
+      "error": null
+    },
+    {
+      "number": 2,
+      "direction": "Hijo adulto → Papá",
+      "slug": "mi_caballero_de_armadura_brillante_hijo_a_papa",
+      "title": "MI CABALLERO DE ARMADURA BRILLANTE",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; Mateo, su hijo adulto peruano-latino ficticio de 32 años, expresión agradecida y madura.",
+      "scene": "Leo y Mateo caminan juntos por un puente de piedra imposible suspendido sobre una quebrada al amanecer. Leo lleva una armadura ceremonial original y elegante de plata mate y cobre, sin símbolos, franquicias ni armas; Mateo lleva abrigo contemporáneo y sostiene una brújula. Leo le ofrece la mano a Mateo para cruzar; no hay combate ni violencia.",
+      "magic": "Con cada paso, el puente se prolonga delante de ambos y los grabados de la armadura se encienden como una ruta de constelaciones. El puente es la magia central y representa confianza adulta.",
+      "palette": "Plata suave, cobre, azul de amanecer y piedra gris cálida.",
+      "poem": "Hay puentes que parecen imposibles\ncuando uno los mira desde lejos;\npero la confianza aprende a cruzarlos\npaso a paso, sin hacer ruido.\n\nPapá Leo, tu palabra fue mi armadura:\nme enseñaste a avanzar erguido.\nGracias por ser mi caballero\nde alma noble y mirada brillante.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v4-child-themes-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hijo_a_papa_DemoV4.png",
+      "cost_usd": 0.0385,
+      "error": null
+    },
+    {
+      "number": 1,
+      "direction": "Hija adulta → Papá",
+      "slug": "mi_superheroe_personal_hija_a_papa",
+      "title": "MI SUPERHÉROE PERSONAL",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; María, su hija adulta peruano-latina ficticia de 30 años, expresión agradecida y madura.",
+      "scene": "En la azotea de una casa contemporánea al caer la noche, Leo y María sostienen juntos una estrella caída entre sus manos. Leo viste abrigo azul profundo contemporáneo y María ropa urbana sobria; no llevan capas, uniformes ni emblemas. El gesto expresa que el heroísmo real es acompañar y levantar al otro.",
+      "magic": "La estrella se abre alrededor de ambos en una bóveda protectora, física e imposible, de luz azul y cobre que cubre la ciudad. La magia nace de la acción compartida, no de partículas decorativas.",
+      "palette": "Azul noche, cobre cálido, dorado tenue y luces lejanas de ciudad.",
+      "poem": "Papá Leo,\ncuando el mundo pesa demasiado,\ntu forma de estar a mi lado\nconvierte el miedo en camino.\n\nNo llevas capa ni emblema:\nllevas paciencia, verdad y abrigo.\nPor eso, en cada noche difícil,\nsigues siendo mi superhéroe personal.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v4-child-themes-pilot/Plantilla_01_mi_superheroe_personal_hija_a_papa_DemoV4.png",
+      "cost_usd": 0.0385,
+      "error": null
+    },
+    {
+      "number": 2,
+      "direction": "Hija adulta → Papá",
+      "slug": "mi_caballero_de_armadura_brillante_hija_a_papa",
+      "title": "MI CABALLERO DE ARMADURA BRILLANTE",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; María, su hija adulta peruano-latina ficticia de 30 años, expresión agradecida y madura.",
+      "scene": "Leo y María caminan juntos por un puente de piedra imposible suspendido sobre una quebrada al amanecer. Leo lleva una armadura ceremonial original y elegante de plata mate y cobre, sin símbolos, franquicias ni armas; María lleva abrigo contemporáneo y sostiene una brújula. Leo le ofrece la mano a María para cruzar; no hay combate ni violencia.",
+      "magic": "Con cada paso, el puente se prolonga delante de ambos y los grabados de la armadura se encienden como una ruta de constelaciones. El puente es la magia central y representa confianza adulta.",
+      "palette": "Plata suave, cobre, azul de amanecer y piedra gris cálida.",
+      "poem": "Hay puentes que parecen imposibles\ncuando una los mira desde lejos;\npero la confianza aprende a cruzarlos\npaso a paso, sin hacer ruido.\n\nPapá Leo, tu palabra fue mi armadura:\nme enseñaste a avanzar erguida.\nGracias por ser mi caballero\nde alma noble y mirada brillante.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v4-child-themes-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hija_a_papa_DemoV4.png",
+      "cost_usd": 0.0385,
+      "error": null
+    }
+  ]
+}

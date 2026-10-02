@@ -1,0 +1,226 @@
+{
+  "scope": "Papá, Mi Héroe templates 01–10 both adult child directions",
+  "status": "rolled_back_wrong_infant_model",
+  "object_content_type": "image/webp",
+  "objects": [
+    {
+      "template_id": 1518,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_01_mi_superheroe_personal_hija_a_papa.webp",
+      "source_sha256": "aef53b7cc77dc6f969080821add841998a1d3234006e0b50644efc00abeb6406",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_1_Mi_Superhéroe_Personal.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_1_Mi_Superhéroe_Personal.webp"
+    },
+    {
+      "template_id": 1519,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_02_mi_caballero_de_armadura_brillante_hija_a_papa.webp",
+      "source_sha256": "1cc1024afaf0e2984a5fadc394faa66146ee1da74ba9b8f88e5ab818645913d9",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_2_Mi_Caballero_de_Armadura_Brillante.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_2_Mi_Caballero_de_Armadura_Brillante.webp"
+    },
+    {
+      "template_id": 1520,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_03_mi_rey_hija_a_papa.webp",
+      "source_sha256": "2e7de29ad909213d75370ec79d0d74674889a203c27fd8a324330da6e37e8269",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_3_Mi_Rey.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_3_Mi_Rey.webp"
+    },
+    {
+      "template_id": 1521,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_04_mi_angel_guardian_hija_a_papa.webp",
+      "source_sha256": "a5ba7b2a4d62a0d0ccf3fb118eb3204ef1e865c2bfc8bb74dfdf498e674bd1ad",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_4_Mi_Ángel_Guardián.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_4_Mi_Ángel_Guardián.webp"
+    },
+    {
+      "template_id": 1522,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_05_mi_pirata_aventurero_hija_a_papa.webp",
+      "source_sha256": "0b4bc750ff679bdc6a7e2b99071d5a0d488d5cecc987bf5702faed3bffaf5d56",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_5_Mi_Pirata_Aventurero.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_5_Mi_Pirata_Aventurero.webp"
+    },
+    {
+      "template_id": 1523,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_06_mi_guerrero_protector_hija_a_papa.webp",
+      "source_sha256": "5288cb7159c273e83fd4134a04051c6e97199eec104a89f148c8009fdb6252e5",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_6_Mi_Guerrero_Protector.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_6_Mi_Guerrero_Protector.webp"
+    },
+    {
+      "template_id": 1524,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_07_mi_capitan_piloto_hija_a_papa.webp",
+      "source_sha256": "141c7c6295fa875e621c5a64bd8e3ee83b528e82a8bec4177649858cc3515e15",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_7_Mi_Capitán_Piloto.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_7_Mi_Capitán_Piloto.webp"
+    },
+    {
+      "template_id": 1525,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_08_mi_vikingo_valiente_hija_a_papa.webp",
+      "source_sha256": "eb623273aad053b7e32509c348c6d558e5d4960d9ae4816b9b4db3e08d83dc81",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_8_Mi_Vikingo_Valiente.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_8_Mi_Vikingo_Valiente.webp"
+    },
+    {
+      "template_id": 1526,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_09_mi_arquitecto_de_suenos_hija_a_papa.webp",
+      "source_sha256": "3f5b8494f3347e067780668c9ac0b1dc15e47d289946a251a4aec0d323f6690e",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_9_Mi_Arquitecto_de_Sueños.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_9_Mi_Arquitecto_de_Sueños.webp"
+    },
+    {
+      "template_id": 1527,
+      "gender_direction": "SHE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_10_mi_gladiador_hija_a_papa.webp",
+      "source_sha256": "cbaaf610294f34109913ca9285905b6b528698475802d853b6828a355fb0034b",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_10_Mi_Gladiador.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_10_Mi_Gladiador.webp"
+    },
+    {
+      "template_id": 1988,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_01_mi_superheroe_personal_hijo_a_papa.webp",
+      "source_sha256": "102033e7172d094ad6657ad9ca936198c9fb7440bd49d42e31aeccecb9d805d5",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_1_Mi_Superhéroe_Personal.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_1_Mi_Superhéroe_Personal.webp"
+    },
+    {
+      "template_id": 1989,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_02_mi_caballero_de_armadura_brillante_hijo_a_papa.webp",
+      "source_sha256": "c4c471f33082df1a26e127c0293531e9eedffab8e943ef7c2314af642ff49257",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_2_Mi_Caballero_de_Armadura_Brillante.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_2_Mi_Caballero_de_Armadura_Brillante.webp"
+    },
+    {
+      "template_id": 1990,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_03_mi_rey_hijo_a_papa.webp",
+      "source_sha256": "82a855d6780dbd9f7b54275815a6e092430278d1f981bb6874b7641f89cd1cfb",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_3_Mi_Rey.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_3_Mi_Rey.webp"
+    },
+    {
+      "template_id": 1991,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_04_mi_angel_guardian_hijo_a_papa.webp",
+      "source_sha256": "10c5bf18d350de0af96ffc00a0edc2d89d968a93f8bd186a3737e5103f23b9fb",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_4_Mi_Ángel_Guardián.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_4_Mi_Ángel_Guardián.webp"
+    },
+    {
+      "template_id": 1992,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_05_mi_pirata_aventurero_hijo_a_papa.webp",
+      "source_sha256": "4ab15353ec2daf1d3c04b029f32fcf84d677ce23ff496907d8095f645e458837",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_5_Mi_Pirata_Aventurero.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_5_Mi_Pirata_Aventurero.webp"
+    },
+    {
+      "template_id": 1993,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_06_mi_guerrero_protector_hijo_a_papa.webp",
+      "source_sha256": "72e42720c4858d5be7db3e1c3d409df69c1dc09d0c940a5d66e631d0dbeec1c7",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_6_Mi_Guerrero_Protector.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_6_Mi_Guerrero_Protector.webp"
+    },
+    {
+      "template_id": 1994,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_07_mi_capitan_piloto_hijo_a_papa.webp",
+      "source_sha256": "1d86269bcdf6d626b805e3000af5be441bc8d2f86333fbd526398a18e70fefd5",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_7_Mi_Capitán_Piloto.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_7_Mi_Capitán_Piloto.webp"
+    },
+    {
+      "template_id": 1995,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_08_mi_vikingo_valiente_hijo_a_papa.webp",
+      "source_sha256": "a9d70d52f9eec3c74685dd579711343554dc4229d603d68cfa1bf6361775d141",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_8_Mi_Vikingo_Valiente.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_8_Mi_Vikingo_Valiente.webp"
+    },
+    {
+      "template_id": 1996,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_09_mi_arquitecto_de_suenos_hijo_a_papa.webp",
+      "source_sha256": "18fbf6062715b463ba4686b0ba331f3c38894d588203747c029924f42a37360c",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_9_Mi_Arquitecto_de_Sueños.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_9_Mi_Arquitecto_de_Sueños.webp"
+    },
+    {
+      "template_id": 1997,
+      "gender_direction": "HE_TO_HE",
+      "source": "PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v9-reference-pilot/webp/plantilla_10_mi_gladiador_hijo_a_papa.webp",
+      "source_sha256": "919c0c8f350ff4efe38d65166ac678e5f31fec02fc64a958ef908c9ad3d5ff40",
+      "old_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_10_Mi_Gladiador.png",
+      "new_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_10_Mi_Gladiador.webp"
+    }
+  ],
+  "minio_bucket": "pixelart-assets",
+  "uploaded_object_count": 20,
+  "minio_verification": "20 objects matched local source size and Content-Type image/webp",
+  "database_rows_updated": [
+    1518,
+    1519,
+    1520,
+    1521,
+    1522,
+    1523,
+    1524,
+    1525,
+    1526,
+    1527,
+    1988,
+    1989,
+    1990,
+    1991,
+    1992,
+    1993,
+    1994,
+    1995,
+    1996,
+    1997,
+    2448,
+    2449,
+    2450,
+    2451,
+    2452,
+    2453,
+    2454,
+    2455,
+    2456,
+    2457,
+    2458,
+    2459,
+    2460,
+    2461,
+    2462,
+    2463,
+    2464,
+    2465,
+    2466,
+    2467
+  ],
+  "database_row_update_count": 40,
+  "duplicate_rows_detected": 20,
+  "database_verification": {
+    "HE_TO_HE_first_ten_webp_rows": 20,
+    "SHE_TO_HE_first_ten_webp_rows": 20
+  },
+  "original_pngs": "preserved under their original object keys; only preview pointers changed to .webp",
+  "rollback": {
+    "database_preview_pointers_restored_to_png": 40,
+    "next_fetch_cache_cleared": true,
+    "web_container_restarted_healthy": true,
+    "orphaned_webp_objects": 20,
+    "note": "WebP objects remain in MinIO but no database row references them."
+  }
+}

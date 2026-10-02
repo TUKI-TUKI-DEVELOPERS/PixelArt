@@ -1,0 +1,73 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — original child visuals with adult characters and invisible text negative space — templates 01–02 — both directions — DemoV7",
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "size": "1600x944",
+  "attempt_limit": 2,
+  "total_cost_usd": 0.1574,
+  "output_directory": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v7-invisible-negative-space-pilot",
+  "text_compositing": "deterministic Montserrat overlay after text-free image generation",
+  "contact_sheet": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/adult-books/papa-mi-heroe-adult-full/review-assets/contact-sheet-demo-v7-invisible-negative-space-01-02-both-directions.jpg",
+  "results": [
+    {
+      "number": 1,
+      "direction": "Hijo adulto → Papá",
+      "slug": "mi_superheroe_personal_hijo_a_papa",
+      "title": "MI SUPERHÉROE PERSONAL",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; Mateo, su hijo adulto peruano-latino ficticio de 32 años, expresión agradecida y madura.",
+      "scene": "Como en la plantilla infantil original, Leo aparece como un superhéroe adulto original sobre una plataforma elevada frente a una ciudad al atardecer. Lleva un traje heroico elegante azul profundo, dorado y plata, sin logotipos ni símbolos reconocibles, con una capa larga que fluye debajo de la altura de los hombros. Su postura es noble y protectora, con ambos brazos bajos. Leo y Mateo, su hijo adulto con ropa contemporánea azul y gris, están completos y claramente visibles en la mitad inferior centro-izquierda de la composición; sus cabezas tienen una amplia distancia por debajo del título y ningún cuerpo entra en el espacio natural del poema. Ningún niño ni personaje de franquicia.",
+      "magic": "Rayos de luz dorada emanan de una insignia abstracta y original en el pecho de Leo, mientras auroras y constelaciones rodean el cielo sobre la ciudad. La magia sucede alrededor de ambos y hace que la escena sea fantástica sin ocultar sus rostros ni convertirlos en siluetas.",
+      "palette": "Azul noche, cobre cálido, dorado tenue y luces lejanas de ciudad.",
+      "poem": "Papá Leo,\ncuando el mundo pesa demasiado,\ntu forma de estar a mi lado\nconvierte el miedo en camino.\n\nNo llevas capa ni emblema:\nllevas paciencia, verdad y abrigo.\nPor eso, en cada noche difícil,\nsigues siendo mi superhéroe personal.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v7-invisible-negative-space-pilot/Plantilla_01_mi_superheroe_personal_hijo_a_papa_DemoV7.png",
+      "cost_usd": 0.0394,
+      "error": null
+    },
+    {
+      "number": 2,
+      "direction": "Hijo adulto → Papá",
+      "slug": "mi_caballero_de_armadura_brillante_hijo_a_papa",
+      "title": "MI CABALLERO DE ARMADURA BRILLANTE",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; Mateo, su hijo adulto peruano-latino ficticio de 32 años, expresión agradecida y madura.",
+      "scene": "Como en la plantilla infantil original, Leo y Mateo aparecen con claridad ante un castillo fantástico de piedra gris, torres altas y estandartes abstractos azul y dorado. Leo es un caballero adulto noble y protector, pero viste un abrigo ceremonial azul profundo y ropa elegante contemporánea, no una armadura metálica pesada; una protección translúcida de luz con forma de armadura flota alrededor de sus hombros. Mateo, su hijo adulto, está junto a él con ropa de explorador contemporánea y expresión de admiración. No hay combate, golpes ni armas en uso.",
+      "magic": "El castillo se eleva sobre nubes y un arco de luz dorada cruza el cielo. La protección luminosa alrededor de Leo brilla como una armadura imposible de constelaciones, mientras pétalos de luz y banderas abstractas vuelan alrededor de ambos. La fantasía sucede alrededor de los personajes y no tapa sus rostros.",
+      "palette": "Plata suave, cobre, azul de amanecer y piedra gris cálida.",
+      "poem": "Hay puentes que parecen imposibles\ncuando uno los mira desde lejos;\npero la confianza aprende a cruzarlos\npaso a paso, sin hacer ruido.\n\nPapá Leo, tu palabra fue mi armadura:\nme enseñaste a avanzar erguido.\nGracias por ser mi caballero\nde alma noble y mirada brillante.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v7-invisible-negative-space-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hijo_a_papa_DemoV7.png",
+      "cost_usd": 0.0393,
+      "error": null
+    },
+    {
+      "number": 1,
+      "direction": "Hija adulta → Papá",
+      "slug": "mi_superheroe_personal_hija_a_papa",
+      "title": "MI SUPERHÉROE PERSONAL",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; María, su hija adulta peruano-latina ficticia de 30 años, expresión agradecida y madura.",
+      "scene": "Como en la plantilla infantil original, Leo aparece como un superhéroe adulto original sobre una plataforma elevada frente a una ciudad al atardecer. Lleva un traje heroico elegante azul profundo, dorado y plata, sin logotipos ni símbolos reconocibles, con una capa larga que fluye debajo de la altura de los hombros. Su postura es noble y protectora, con ambos brazos bajos. Leo y María, su hija adulta con ropa contemporánea azul y gris, están completos y claramente visibles en la mitad inferior centro-izquierda de la composición; sus cabezas tienen una amplia distancia por debajo del título y ningún cuerpo entra en el espacio natural del poema. Ninguna niña ni personaje de franquicia.",
+      "magic": "Rayos de luz dorada emanan de una insignia abstracta y original en el pecho de Leo, mientras auroras y constelaciones rodean el cielo sobre la ciudad. La magia sucede alrededor de ambos y hace que la escena sea fantástica sin ocultar sus rostros ni convertirlos en siluetas.",
+      "palette": "Azul noche, cobre cálido, dorado tenue y luces lejanas de ciudad.",
+      "poem": "Papá Leo,\ncuando el mundo pesa demasiado,\ntu forma de estar a mi lado\nconvierte el miedo en camino.\n\nNo llevas capa ni emblema:\nllevas paciencia, verdad y abrigo.\nPor eso, en cada noche difícil,\nsigues siendo mi superhéroe personal.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v7-invisible-negative-space-pilot/Plantilla_01_mi_superheroe_personal_hija_a_papa_DemoV7.png",
+      "cost_usd": 0.0394,
+      "error": null
+    },
+    {
+      "number": 2,
+      "direction": "Hija adulta → Papá",
+      "slug": "mi_caballero_de_armadura_brillante_hija_a_papa",
+      "title": "MI CABALLERO DE ARMADURA BRILLANTE",
+      "characters": "Papá Leo, hombre peruano-latino ficticio de 58 años, cabello entrecano y expresión cálida; María, su hija adulta peruano-latina ficticia de 30 años, expresión agradecida y madura.",
+      "scene": "Como en la plantilla infantil original, Leo y María aparecen con claridad ante un castillo fantástico de piedra gris, torres altas y estandartes abstractos azul y dorado. Leo es un caballero adulto noble y protector, pero viste un abrigo ceremonial azul profundo y ropa elegante contemporánea, no una armadura metálica pesada; una protección translúcida de luz con forma de armadura flota alrededor de sus hombros. María, su hija adulta, está junto a él con ropa de exploradora contemporánea y expresión de admiración. No hay combate, golpes ni armas en uso.",
+      "magic": "El castillo se eleva sobre nubes y un arco de luz dorada cruza el cielo. La protección luminosa alrededor de Leo brilla como una armadura imposible de constelaciones, mientras pétalos de luz y banderas abstractas vuelan alrededor de ambos. La fantasía sucede alrededor de los personajes y no tapa sus rostros.",
+      "palette": "Plata suave, cobre, azul de amanecer y piedra gris cálida.",
+      "poem": "Hay puentes que parecen imposibles\ncuando una los mira desde lejos;\npero la confianza aprende a cruzarlos\npaso a paso, sin hacer ruido.\n\nPapá Leo, tu palabra fue mi armadura:\nme enseñaste a avanzar erguida.\nGracias por ser mi caballero\nde alma noble y mirada brillante.",
+      "status": "ok",
+      "path": "/Users/prom1/Desktop/Pixelart/PromptsPixelArtPlantillas/output/Papá, Mi Héroe Adulto/demo-v7-invisible-negative-space-pilot/Plantilla_02_mi_caballero_de_armadura_brillante_hija_a_papa_DemoV7.png",
+      "cost_usd": 0.0393,
+      "error": null
+    }
+  ]
+}

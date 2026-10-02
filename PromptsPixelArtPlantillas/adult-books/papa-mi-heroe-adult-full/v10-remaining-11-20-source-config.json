@@ -1,0 +1,186 @@
+{
+  "model_id": 9775,
+  "source": "adult preview metadata captured before V10 deployment",
+  "templates": [
+    {
+      "id": 2098,
+      "gender_direction": "HE_TO_HE",
+      "position": 11,
+      "name": "El maestro de la calma De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_11_El_Maestro_De_La_Calma.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un muelle tranquilo al amanecer. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos están sentados pescando o mirando el agua, compartiendo silencio cómodo y consejo sin prisa. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntu calma no fue silencio al azar,\nfue una manera profunda de amar.\nCuando la prisa quería ganar,\ntu voz me enseñaba a respirar.\n\nHoy guardo ese ritmo para decidir,\npara no romperme, para resistir.\nSi el mundo acelera mi forma de andar,\ntu paz me devuelve mi propio lugar."
+    },
+    {
+      "id": 2099,
+      "gender_direction": "HE_TO_HE",
+      "position": 12,
+      "name": "El hombre que me enseñó a ser mejor De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_12_El_Hombre_Que_Me_Enseno_A_Ser_Mejor.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una calle antigua de barrio al atardecer, frente a una puerta o fachada familiar. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos caminan juntos después de una conversación importante. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nno me pediste perfecta dirección,\nme hablaste de esfuerzo, respeto y razón.\nTu vida mostró sin necesidad\nde grandes discursos qué es dignidad.\n\nHoy quiero ser hombre de bien al andar,\nmirar a los ojos, saber escuchar.\nSi logro ser justo, valiente y leal,\nes porque tu ejemplo me dio lo esencial."
+    },
+    {
+      "id": 2100,
+      "gender_direction": "HE_TO_HE",
+      "position": 13,
+      "name": "Tus pasos, mi camino De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_13_Tus_Pasos_Mi_Camino.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un sendero de montaña amplio. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos caminan uno al lado del otro, no adelante y atrás, mostrando que el hijo ya creció pero reconoce el camino recibido. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntus pasos no fueron mandato ni ley,\nfueron horizonte, montaña y fe.\nMe diste distancia para descubrir,\ny un punto seguro al cual regresar.\n\nHoy piso la vida con más claridad,\ncon toda tu fuerza y mi libertad.\nSi miro hacia atrás para continuar,\ntus huellas me enseñan a no claudicar."
+    },
+    {
+      "id": 2101,
+      "gender_direction": "HE_TO_HE",
+      "position": 14,
+      "name": "Nuestro café de hombres grandes De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_14_Nuestro_Cafe_De_Hombres_Grandes.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una cafetería tranquila y elegante. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos conversan frente a dos cafés, con una mesa pequeña y ambiente íntimo. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nya no hablamos solo de juego y deber,\nhoy compartimos lo que cuesta entender.\nEntre dos cafés y una conversación,\ntu historia me ofrece nueva dirección.\n\nHoy puedo escucharte también descansar,\ny verte más humano, más cerca, más real.\nSer hijo de adulto me enseña a mirar\nal hombre que fuiste para sostener mi hogar."
+    },
+    {
+      "id": 2102,
+      "gender_direction": "HE_TO_HE",
+      "position": 15,
+      "name": "La paciencia que me formó De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_15_La_Paciencia_Que_Me_Formo.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un pequeño jardín o invernadero familiar. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos cuidan una planta grande o un árbol joven, símbolo de crecimiento paciente. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntu paciencia fue taller y jardín,\nme dejó crecer sin cortar mi raíz.\nNo apuraste el fruto ni exigiste flor,\nsupiste esperar con fe y con amor.\n\nHoy miro mis logros con más humildad,\ncon tiempo, cuidado y serenidad.\nSi algo en mí aprende a permanecer,\nes por tu paciencia ayudándome a crecer."
+    },
+    {
+      "id": 2103,
+      "gender_direction": "HE_TO_HE",
+      "position": 16,
+      "name": "Las conversaciones que guardo De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_16_Las_Conversaciones_Que_Guardo.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre dentro de un auto detenido en un mirador nocturno o estacionamiento tranquilo, como esas conversaciones largas padre-hijo después de manejar. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nhay frases tuyas que vuelven a mí,\ncomo una ventana que sabe abrir.\nNo fueron sermones ni obligación:\nfueron semillas en mi corazón.\n\nHoy guardo esas charlas como un lugar,\nun banco tranquilo donde descansar.\nSi el ruido del mundo me quiere vencer,\ntu voz me recuerda quién debo ser."
+    },
+    {
+      "id": 2104,
+      "gender_direction": "HE_TO_HE",
+      "position": 17,
+      "name": "Cuando me enseñaste a no rendirme De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_17_Cuando_Me_Ensenaste_A_No_Rendirme.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una pista o escalera urbana al amanecer, después de ejercicio. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos suben juntos los últimos escalones con esfuerzo tranquilo. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ncuando el cansancio me quiso doblar,\ntu fe silenciosa me hizo avanzar.\nNo me quitaste la cuesta al subir,\nme diste motivos para resistir.\n\nHoy sé que rendirse no es siempre caer,\npero levantarse también es crecer.\nSi vuelvo a intentarlo con dignidad,\nes porque tu ejemplo me dio voluntad."
+    },
+    {
+      "id": 2105,
+      "gender_direction": "HE_TO_HE",
+      "position": 18,
+      "name": "El valor de hacer lo correcto De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_18_El_Valor_De_Hacer_Lo_Correcto.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una oficina o estudio sobrio con una mesa limpia, documentos, una pluma y luz de ventana. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos conversan sobre una decisión importante. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nme hablaste de honrar la verdad,\naunque costara perder comodidad.\nTu vida me dijo con simple claridad\nque ser buena persona también es luchar.\n\nHoy llevo esa regla sin presumir,\nhacer lo correcto, cuidar y cumplir.\nSi el camino fácil me quiere tentar,\ntu ejemplo me enseña a no negociar."
+    },
+    {
+      "id": 2106,
+      "gender_direction": "HE_TO_HE",
+      "position": 19,
+      "name": "La casa que siempre vuelve De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_19_La_Casa_Que_Siempre_Vuelve.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en el porche o entrada de una casa familiar al atardecer. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos se encuentran frente a la puerta, con una luz cálida saliendo desde adentro. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nla vida me llevó por más de un lugar,\npero tu cariño me supo esperar.\nNo fue una cadena ni una condición:\nfue casa encendida dentro del corazón.\n\nHoy vuelvo a tu risa, tu mesa y tu voz,\na ese refugio que hiciste por dos.\nSi el mundo me cansa de tanto girar,\ntu amor sigue siendo mi forma de hogar."
+    },
+    {
+      "id": 2107,
+      "gender_direction": "HE_TO_HE",
+      "position": 20,
+      "name": "Siempre seré tu hijo De Hijo a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_20_Siempre_Sere_Tu_Hijo.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una playa tranquila al atardecer. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos caminan junto al mar, con una conversación serena y una emoción contenida.\n\n## Hijo adulto → papá El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y el dedicante es su hijo adulto ({NOMBRE_DEDICANTE}); nunca representar al dedicante como niño.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ncrecí, tuve sueños, caminos y voz,\npero hay una parte que vuelve a los dos.\nNo importa la edad ni cuánto cambié:\nen tu abrazo encuentro lo que siempre fui.\n\nHoy soy hombre adulto, con vida y razón,\ny aun así te guardo en mi corazón.\nSi el tiempo me lleva más lejos de aquí,\nsiempre seré tu hijo, cerquita de ti."
+    },
+    {
+      "id": 2118,
+      "gender_direction": "SHE_TO_HE",
+      "position": 11,
+      "name": "La fuerza que me hizo libre De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_31_La_Fuerza_Que_Me_Hizo_Libre.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una carretera panorámica o puente amplio con viento suave. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos observan el horizonte, como símbolo de libertad y raíces. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntu fuerza no quiso elegir por mí,\nme abrió la ventana para descubrir.\nMe diste raíces, me diste valor,\ny alas firmes para escuchar mi voz.\n\nHoy soy más libre porque supe volver,\nporque tu cariño no quiso poseer.\nSi vuelo alto sin olvidar mi hogar,\nes porque tu amor me enseñó a confiar."
+    },
+    {
+      "id": 2119,
+      "gender_direction": "SHE_TO_HE",
+      "position": 12,
+      "name": "El amor que no exige nada De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_32_El_Amor_Que_No_Exige_Nada.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un comedor familiar elegante con mesa puesta para una comida tranquila. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos conversan con calidez. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntu amor no pidió que dejara de ser,\nme dio un lugar propio donde florecer.\nNo hizo preguntas para merecer,\nsolo estuvo cerca para sostener.\n\nHoy entiendo esa forma tan limpia de amar,\nsin cuentas pendientes, sin nada que cobrar.\nSi puedo querer con respeto y verdad,\nes porque aprendí de tu generosidad."
+    },
+    {
+      "id": 2120,
+      "gender_direction": "SHE_TO_HE",
+      "position": 13,
+      "name": "Las historias que aún me guían De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_33_Las_Historias_Que_Aun_Me_Guian.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una biblioteca o sala con álbumes familiares. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos revisan un álbum abierto con fotos antiguas. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntus historias me hicieron mirar\nque cada caída se puede contar.\nNo fueron leyendas para presumir,\nfueron caminos para resistir.\n\nHoy vuelven de pronto con nueva verdad,\nme hablan de esfuerzo, amor y humildad.\nSi pierdo memoria de lo esencial,\ntu historia regresa como un faro real."
+    },
+    {
+      "id": 2121,
+      "gender_direction": "SHE_TO_HE",
+      "position": 14,
+      "name": "Cuando me miraste con orgullo De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_34_Cuando_Me_Miraste_Con_Orgullo.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un momento de logro adulto: {NOMBRE_DEDICANTE} sostiene una carpeta, diploma o proyecto profesional, mientras {NOMBRE_DESTINATARIO} la mira con orgullo sereno. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntu orgullo no hizo ruido al llegar,\nfue una mirada difícil de olvidar.\nEn ella encontré mi propio valor,\ntu fe silenciosa, tu inmenso amor.\n\nHoy guardo ese brillo para continuar,\ncuando mis fuerzas quieren descansar.\nSi logro pararme con seguridad,\nes porque tu orgullo me dio dignidad."
+    },
+    {
+      "id": 2122,
+      "gender_direction": "SHE_TO_HE",
+      "position": 15,
+      "name": "La casa de tus brazos De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_35_La_Casa_De_Tus_Brazos.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una sala familiar donde {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos comparten un abrazo paternal sobrio y cálido, sin romanticismo. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntus brazos no fueron pared ni prisión,\nfueron una casa para el corazón.\nEn ellos aprendí que volver a empezar\npuede ser sencillo si existe un hogar.\n\nHoy, aunque la vida me cambie el lugar,\ntu abrazo me enseña dónde descansar.\nSi pierdo mi centro en medio del día,\ntu amor me devuelve calma y alegría."
+    },
+    {
+      "id": 2123,
+      "gender_direction": "SHE_TO_HE",
+      "position": 16,
+      "name": "Tu voz en mis decisiones De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_36_Tu_Voz_En_Mis_Decisiones.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una esquina urbana elegante con señales de calles o caminos, {NOMBRE_DEDICANTE} adulta mirando distintas direcciones junto a {NOMBRE_DESTINATARIO}. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nhay días que debo elegir sin saber,\ny tu voz me ayuda a permanecer.\nNo decide por mí ni apaga mi voz,\nme presta memoria, cuidado y valor.\n\nHoy tomo caminos con más claridad,\ncon toda mi historia y mi libertad.\nSi dudo un instante, te vuelvo a escuchar,\ny encuentro mi forma sincera de andar."
+    },
+    {
+      "id": 2124,
+      "gender_direction": "SHE_TO_HE",
+      "position": 17,
+      "name": "Mi héroe sin armadura De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_37_Mi_Heroe_Sin_Armadura.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un balcón o terraza al amanecer. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos miran la ciudad mientras comparten café. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nno hizo falta espada, corona ni metal,\ntu amor cotidiano fue lo principal.\nCon manos cansadas y corazón fiel,\nhiciste milagros sin quererlos vender.\n\nHoy sé que un héroe también puede ser\nquien llega temprano y cumple otra vez.\nSi admiro tu vida con tanta emoción,\nes por tu grandeza sin exhibición."
+    },
+    {
+      "id": 2125,
+      "gender_direction": "SHE_TO_HE",
+      "position": 18,
+      "name": "El respeto que aprendí de ti De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_38_El_Respeto_Que_Aprendi_De_Ti.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una sala elegante donde {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos conversan frente a frente con respeto, quizá en una mesa con té o café. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\nde ti aprendí que amar es cuidar,\nmirar a los ojos, saber escuchar.\nTu forma de hablarme con dignidad\nme dio una medida de la verdad.\n\nHoy no acepto menos de lo que soy,\ncamino más firme por donde voy.\nSi sé que respeto también es amor,\nes porque tu vida me dio ese valor."
+    },
+    {
+      "id": 2126,
+      "gender_direction": "SHE_TO_HE",
+      "position": 19,
+      "name": "La ternura que me sostuvo De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_39_La_Ternura_Que_Me_Sostuvo.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en una cocina o comedor temprano por la mañana. {NOMBRE_DESTINATARIO} pone una manta o abrigo sobre los hombros de {NOMBRE_DEDICANTE} adulta mientras comparten un momento de cuidado. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ntu ternura no quiso llamar la atención,\nfue manta en invierno, fue suave canción.\nEn gestos pequeños supiste dejar\nun modo profundo de hacerme sanar.\n\nHoy llevo ese abrigo dentro de mí,\npara los días que pesan aquí.\nSi el mundo se enfría, recuerdo tu amor,\ny vuelve despacio mi propio calor."
+    },
+    {
+      "id": 2127,
+      "gender_direction": "SHE_TO_HE",
+      "position": 20,
+      "name": "Siempre seré tu hija De Hija a Papá",
+      "template_preview_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_40_Siempre_Sere_Tu_Hija.png",
+      "scene_visual": "Una única fotografía continua, plana y a sangre completa, con tono maduro, familiar y emocional. La escena ocurre en un malecón o paseo junto al mar al atardecer. {NOMBRE_DESTINATARIO} y {NOMBRE_DEDICANTE} adultos caminan conversando con serenidad. El destinatario es el papá adulto ({NOMBRE_DESTINATARIO}) y la dedicante es su hija adulta ({NOMBRE_DEDICANTE}); nunca representar a la dedicante como niña ni como pareja romántica.",
+      "poem_template": "Para {APODO_DESTINATARIO},\ncrecí, hice vida, aprendí a volar,\npero hay un lazo que sabe quedar.\nNo importa la edad ni el lugar donde esté:\ntu amor me recuerda de dónde partí.\n\nHoy soy mujer fuerte, con rumbo y raíz,\ny aún tu mirada me vuelve feliz.\nSi el tiempo me lleva más lejos de aquí,\nsiempre seré tu hija, cerquita de ti."
+    }
+  ]
+}

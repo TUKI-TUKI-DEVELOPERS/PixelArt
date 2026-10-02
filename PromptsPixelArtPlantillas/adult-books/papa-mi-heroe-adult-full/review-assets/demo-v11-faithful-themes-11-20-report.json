@@ -1,0 +1,112 @@
+{
+  "scope": "Papá, Mi Héroe Adulto — corrected V10 positions 11–20 from exact infant themes",
+  "status": "generated",
+  "method": "gpt-image-2 image edit from matching textless infant open-book reference + deterministic binding finish + deterministic local typography",
+  "source_model_id": 8,
+  "target_model_id": 9775,
+  "forbidden_reference_class": "Any Papa_mi_heroe_adulto preview key",
+  "lineage": [
+    {
+      "target_template_id": 2101,
+      "target_direction": "HE_TO_HE",
+      "position": 14,
+      "source_template_id": 2001,
+      "source_name": "Cuando Bailamos en la Sala De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_14_Cuando_Bailamos_en_la_Sala.png",
+      "adult_title": "Cuando Bailamos en la Sala"
+    },
+    {
+      "target_template_id": 2107,
+      "target_direction": "HE_TO_HE",
+      "position": 20,
+      "source_template_id": 2007,
+      "source_name": "Seré Tu Niño Para Siempre De Hijo a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas_Hijo/PLANTILLA_20_Seré_Tu_Niño_Para_Siempre.png",
+      "adult_title": "Seré Tu Niño Para Siempre"
+    },
+    {
+      "target_template_id": 2121,
+      "target_direction": "SHE_TO_HE",
+      "position": 14,
+      "source_template_id": 1531,
+      "source_name": "Cuando Bailamos en la Sala De Hija a Papá",
+      "reference_key": "IA_Books/Family_Books_Page/Libros/Papa_mi_heroe/Plantillas/PLANTILLA_14_Cuando_Bailamos_en_la_Sala.png",
+      "adult_title": "Cuando Bailamos en la Sala"
+    }
+  ],
+  "outputs": [
+    {
+      "target_template_id": 2101,
+      "source_template_id": 2001,
+      "title": "Cuando Bailamos en la Sala",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v11-faithful-themes-11-20/webp/plantilla_14_cuando_bailamos_en_la_sala_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0477,
+      "usage": {
+        "input_tokens": 2817,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 1317
+        },
+        "output_tokens": 1372,
+        "total_tokens": 4189,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2107,
+      "source_template_id": 2007,
+      "title": "Seré Tu Niño Para Siempre",
+      "direction": "Hijo adulto → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v11-faithful-themes-11-20/webp/plantilla_20_sere_tu_nino_para_siempre_hijo_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0485,
+      "usage": {
+        "input_tokens": 2977,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 1477
+        },
+        "output_tokens": 1372,
+        "total_tokens": 4349,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    },
+    {
+      "target_template_id": 2121,
+      "source_template_id": 1531,
+      "title": "Cuando Bailamos en la Sala",
+      "direction": "Hija adulta → Papá",
+      "status": "ok",
+      "output": "output/Papá, Mi Héroe Adulto/demo-v11-faithful-themes-11-20/webp/plantilla_14_cuando_bailamos_en_la_sala_hija_a_papa.webp",
+      "dimensions": "1600x944",
+      "format": "webp",
+      "cost_usd": 0.0477,
+      "usage": {
+        "input_tokens": 2814,
+        "input_tokens_details": {
+          "image_tokens": 1500,
+          "text_tokens": 1314
+        },
+        "output_tokens": 1372,
+        "total_tokens": 4186,
+        "output_tokens_details": {
+          "image_tokens": 1372,
+          "text_tokens": 0
+        }
+      }
+    }
+  ],
+  "total_cost_usd_excluding_input_image_tokens": 0.1439
+}
