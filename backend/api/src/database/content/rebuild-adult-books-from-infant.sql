@@ -18,7 +18,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_1_he_to_hec$Rayos de luz dorada emanan del pecho del papá y partículas brillantes flotan alrededor de ambos. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$r9775_1_he_to_hec$,
   lighting_color = $r9775_1_he_to_hed$Iluminación cinematográfica dramática con rayos de luz dorada atravesando las nubes. Predominan tonos dorados, azul profundo y naranja de atardecer. Atmósfera épica y poderosa.$r9775_1_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_1_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_1_Mi_Superheroe_Personal_V10.webp$r9775_1_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 1
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_1_she_to_hen$Mi Superhéroe Personal De Hija a Papá$r9775_1_she_to_hen$,
@@ -31,7 +34,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_1_she_to_hec$Rayos de luz dorada emanan del pecho del papá y partículas brillantes flotan alrededor de ambos. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$r9775_1_she_to_hec$,
   lighting_color = $r9775_1_she_to_hed$Iluminación cinematográfica dramática con rayos de luz dorada atravesando las nubes. Predominan tonos dorados, azul profundo y naranja de atardecer. Atmósfera épica y poderosa.$r9775_1_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_1_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_21_Mi_Superheroe_Personal_V10.webp$r9775_1_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 21
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_2_he_to_hen$Mi Caballero de Armadura Brillante De Hijo a Papá$r9775_2_he_to_hen$,
@@ -44,7 +50,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_2_he_to_hec$La armadura del papá brilla con reflejos dorados de luz solar, y pétalos de flores medievales flotan suavemente en el aire. La magia debe sentirse noble y completamente integrada dentro de una fotografía realista.$r9775_2_he_to_hec$,
   lighting_color = $r9775_2_he_to_hed$Iluminación de día medieval dorado con tonos cálidos, sombras suaves. Predominan plateado, dorado y azul real. Atmósfera de nobleza y valentía.$r9775_2_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_2_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_2_Mi_Caballero_de_Armadura_Brillante_V10.webp$r9775_2_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 2
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_2_she_to_hen$Mi Caballero de Armadura Brillante De Hija a Papá$r9775_2_she_to_hen$,
@@ -57,7 +66,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_2_she_to_hec$La armadura del papá brilla con reflejos dorados de luz solar, y pétalos de flores medievales flotan suavemente en el aire. La magia debe sentirse noble y completamente integrada dentro de una fotografía realista.$r9775_2_she_to_hec$,
   lighting_color = $r9775_2_she_to_hed$Iluminación de día medieval dorado con tonos cálidos, sombras suaves. Predominan plateado, dorado y azul real. Atmósfera de nobleza y valentía.$r9775_2_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_2_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_22_Mi_Caballero_de_Armadura_Brillante_V10.webp$r9775_2_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 22
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_3_he_to_hen$Mi Rey De Hijo a Papá$r9775_3_he_to_hen$,
@@ -70,7 +82,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_3_he_to_hec$Luz divina dorada cae desde arriba iluminando el trono. La magia debe sentirse majestuosa y completamente integrada dentro de una fotografía realista.$r9775_3_he_to_hec$,
   lighting_color = $r9775_3_he_to_hed$Iluminación dramática con rayos de luz dorada desde arriba, sombras suaves. Predominan dorado, púrpura profundo y rojo real. Atmósfera de poder noble y amor familiar.$r9775_3_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_3_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_3_Mi_Rey_V10.webp$r9775_3_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 3
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_3_she_to_hen$Mi Rey De Hija a Papá$r9775_3_she_to_hen$,
@@ -83,7 +98,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_3_she_to_hec$Luz divina dorada cae desde arriba iluminando el trono. La magia debe sentirse majestuosa y completamente integrada dentro de una fotografía realista.$r9775_3_she_to_hec$,
   lighting_color = $r9775_3_she_to_hed$Iluminación dramática con rayos de luz dorada desde arriba, sombras suaves. Predominan dorado, púrpura profundo y rojo real. Atmósfera de poder noble y amor familiar.$r9775_3_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_3_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_23_Mi_Rey_V10.webp$r9775_3_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 23
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_4_he_to_hen$Mi Ángel Guardián De Hijo a Papá$r9775_4_he_to_hen$,
@@ -96,7 +114,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_4_he_to_hec$Plumas blancas flotan suavemente en el aire junto con partículas de luz dorada. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$r9775_4_he_to_hec$,
   lighting_color = $r9775_4_he_to_hed$Iluminación celestial suave con tonos dorados y blancos, sombras delicadas. Atmósfera de paz y amor divino.$r9775_4_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_4_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_4_Mi_Angel_Guardian_V10.webp$r9775_4_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 4
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_4_she_to_hen$Mi Ángel Guardián De Hija a Papá$r9775_4_she_to_hen$,
@@ -109,7 +130,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_4_she_to_hec$Plumas blancas flotan suavemente en el aire junto con partículas de luz dorada. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$r9775_4_she_to_hec$,
   lighting_color = $r9775_4_she_to_hed$Iluminación celestial suave con tonos dorados y blancos, sombras delicadas. Atmósfera de paz y amor divino.$r9775_4_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_4_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_24_Mi_Angel_Guardian_V10.webp$r9775_4_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 24
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_5_he_to_hen$Mi Pirata Aventurero De Hijo a Papá$r9775_5_he_to_hen$,
@@ -122,7 +146,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_5_he_to_hec$El cofre del tesoro cercano brilla con destellos dorados de monedas y joyas. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$r9775_5_he_to_hec$,
   lighting_color = $r9775_5_he_to_hed$Iluminación de atardecer cálido con tonos dorados y naranjas, sombras dinámicas. Atmósfera de aventura épica y complicidad padre e hijo.$r9775_5_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_5_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_5_Mi_Pirata_Aventurero_V10.webp$r9775_5_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 5
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_5_she_to_hen$Mi Pirata Aventurero De Hija a Papá$r9775_5_she_to_hen$,
@@ -135,7 +162,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_5_she_to_hec$El cofre del tesoro cercano brilla con destellos dorados de monedas y joyas. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$r9775_5_she_to_hec$,
   lighting_color = $r9775_5_she_to_hed$Iluminación de atardecer cálido con tonos dorados y naranjas, sombras dinámicas. Atmósfera de aventura épica y complicidad padre-hija.$r9775_5_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_5_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_25_Mi_Pirata_Aventurero_V10.webp$r9775_5_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 25
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_6_he_to_hen$Mi Guerrero Protector De Hijo a Papá$r9775_6_he_to_hen$,
@@ -148,7 +178,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_6_he_to_hec$El escudo del papá refleja destellos dorados del atardecer. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$r9775_6_he_to_hec$,
   lighting_color = $r9775_6_he_to_hed$Iluminación dramática de atardecer con tonos rojos y dorados, sombras fuertes. Atmósfera épica de batalla ganada por amor.$r9775_6_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_6_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_6_Mi_Guerrero_Protector_V10.webp$r9775_6_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 6
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_6_she_to_hen$Mi Guerrero Protector De Hija a Papá$r9775_6_she_to_hen$,
@@ -161,7 +194,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_6_she_to_hec$El escudo del papá refleja destellos dorados del atardecer. La magia debe sentirse épica y completamente integrada dentro de una fotografía realista.$r9775_6_she_to_hec$,
   lighting_color = $r9775_6_she_to_hed$Iluminación dramática de atardecer con tonos rojos y dorados, sombras fuertes. Atmósfera épica de batalla ganada por amor.$r9775_6_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_6_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_26_Mi_Guerrero_Protector_V10.webp$r9775_6_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 26
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_7_he_to_hen$Mi Capitán Piloto De Hijo a Papá$r9775_7_he_to_hen$,
@@ -174,7 +210,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_7_he_to_hec$La brújula dorada en manos del papá brilla suavemente. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$r9775_7_he_to_hec$,
   lighting_color = $r9775_7_he_to_hed$Iluminación de atardecer aéreo con tonos azules y dorados, sombras suaves. Atmósfera de aventura segura y confianza.$r9775_7_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_7_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_7_Mi_Capitan_Piloto_V10.webp$r9775_7_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 7
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_7_she_to_hen$Mi Capitán Piloto De Hija a Papá$r9775_7_she_to_hen$,
@@ -187,7 +226,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_7_she_to_hec$La brújula dorada en manos del papá brilla suavemente. La magia debe sentirse aventurera y completamente integrada dentro de una fotografía realista.$r9775_7_she_to_hec$,
   lighting_color = $r9775_7_she_to_hed$Iluminación de atardecer aéreo con tonos azules y dorados, sombras suaves. Atmósfera de aventura segura y confianza.$r9775_7_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_7_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_27_Mi_Capitan_Piloto_V10.webp$r9775_7_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 27
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_8_he_to_hen$Mi Vikingo Valiente De Hijo a Papá$r9775_8_he_to_hen$,
@@ -200,7 +242,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_8_he_to_hec$Símbolos rúnicos brillan sutilmente sobre el escudo del papá. La magia debe sentirse ancestral y completamente integrada dentro de una fotografía realista.$r9775_8_he_to_hec$,
   lighting_color = $r9775_8_he_to_hed$Iluminación dramática nórdica con tonos grises, azules y plateados, sombras fuertes. Atmósfera épica vikinga.$r9775_8_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_8_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_8_Mi_Vikingo_Valiente_V10.webp$r9775_8_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 8
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_8_she_to_hen$Mi Vikingo Valiente De Hija a Papá$r9775_8_she_to_hen$,
@@ -213,7 +258,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_8_she_to_hec$Símbolos rúnicos brillan sutilmente sobre el escudo del papá. La magia debe sentirse ancestral y completamente integrada dentro de una fotografía realista.$r9775_8_she_to_hec$,
   lighting_color = $r9775_8_she_to_hed$Iluminación dramática nórdica con tonos grises, azules y plateados, sombras fuertes. Atmósfera épica vikinga.$r9775_8_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_8_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_28_Mi_Vikingo_Valiente_V10.webp$r9775_8_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 28
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_9_he_to_hen$Mi Arquitecto de Sueños De Hijo a Papá$r9775_9_he_to_hen$,
@@ -226,7 +274,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_9_he_to_hec$Los planos brillantes se transforman lentamente en estructuras de luz dorada mientras flotan. La magia debe sentirse creativa y completamente integrada dentro de una fotografía realista.$r9775_9_he_to_hec$,
   lighting_color = $r9775_9_he_to_hed$Iluminación creativa con tonos azules, blancos y dorados, sombras suaves. Atmósfera de inspiración y construcción de sueños.$r9775_9_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_9_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_9_Mi_Arquitecto_de_Suenos_V10.webp$r9775_9_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 9
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_9_she_to_hen$Mi Arquitecto de Sueños De Hija a Papá$r9775_9_she_to_hen$,
@@ -239,7 +290,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_9_she_to_hec$Los planos brillantes se transforman lentamente en estructuras de luz dorada mientras flotan. La magia debe sentirse creativa y completamente integrada dentro de una fotografía realista.$r9775_9_she_to_hec$,
   lighting_color = $r9775_9_she_to_hed$Iluminación creativa con tonos azules, blancos y dorados, sombras suaves. Atmósfera de inspiración y construcción de sueños.$r9775_9_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_9_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_29_Mi_Arquitecto_de_Suenos_V10.webp$r9775_9_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 29
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_10_he_to_hen$Mi Gladiador De Hijo a Papá$r9775_10_he_to_hen$,
@@ -252,7 +306,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_10_he_to_hec$Pétalos de flores caen suavemente celebrando la victoria del papá. La magia debe sentirse triunfal y completamente integrada dentro de una fotografía realista.$r9775_10_he_to_hec$,
   lighting_color = $r9775_10_he_to_hed$Iluminación dorada romana con tonos cálidos, sombras dramáticas. Atmósfera de victoria épica y orgullo familiar.$r9775_10_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_10_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_10_Mi_Gladiador_V10.webp$r9775_10_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 10
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_10_she_to_hen$Mi Gladiador De Hija a Papá$r9775_10_she_to_hen$,
@@ -265,7 +322,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_10_she_to_hec$Pétalos de flores caen suavemente celebrando la victoria del papá. La magia debe sentirse triunfal y completamente integrada dentro de una fotografía realista.$r9775_10_she_to_hec$,
   lighting_color = $r9775_10_she_to_hed$Iluminación dorada romana con tonos cálidos, sombras dramáticas. Atmósfera de victoria épica y orgullo familiar.$r9775_10_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_10_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_30_Mi_Gladiador_V10.webp$r9775_10_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 30
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_11_he_to_hen$Mi Samurái De Hijo a Papá$r9775_11_he_to_hen$,
@@ -278,7 +338,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_11_he_to_hec$Pétalos de cerezo caen suavemente alrededor de ambos. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$r9775_11_he_to_hec$,
   lighting_color = $r9775_11_he_to_hed$Iluminación suave japonesa con tonos rosados y dorados, sombras delicadas. Atmósfera de honor y tradición.$r9775_11_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_11_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_11_Mi_Samurai_V10.webp$r9775_11_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 11
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_11_she_to_hen$Mi Samurái De Hija a Papá$r9775_11_she_to_hen$,
@@ -291,7 +354,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_11_she_to_hec$Pétalos de cerezo caen suavemente alrededor de ambos. La magia debe sentirse serena y completamente integrada dentro de una fotografía realista.$r9775_11_she_to_hec$,
   lighting_color = $r9775_11_she_to_hed$Iluminación suave japonesa con tonos rosados y dorados, sombras delicadas. Atmósfera de honor y tradición.$r9775_11_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_11_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_31_Mi_Samurai_V10.webp$r9775_11_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 31
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_12_he_to_hen$Mi Titán De Hijo a Papá$r9775_12_he_to_hen$,
@@ -304,7 +370,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_12_he_to_hec$Partículas doradas y azules flotan alrededor del titán, con ondas de energía suaves. La magia debe sentirse monumental y completamente integrada dentro de una fotografía realista.$r9775_12_he_to_hec$,
   lighting_color = $r9775_12_he_to_hed$Iluminación cósmica dramática con tonos azules profundos, dorados y púrpuras, sombras épicas. Atmósfera de poder absoluto y amor protector.$r9775_12_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_12_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_12_Mi_Titan_V10.webp$r9775_12_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 12
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_12_she_to_hen$Mi Titán De Hija a Papá$r9775_12_she_to_hen$,
@@ -317,7 +386,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_12_she_to_hec$Partículas doradas y azules flotan alrededor del titán, con ondas de energía suaves. La magia debe sentirse monumental y completamente integrada dentro de una fotografía realista.$r9775_12_she_to_hec$,
   lighting_color = $r9775_12_she_to_hed$Iluminación cósmica dramática con tonos azules profundos, dorados y púrpuras, sombras épicas. Atmósfera de poder absoluto y amor protector.$r9775_12_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_12_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_32_Mi_Titan_V10.webp$r9775_12_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 32
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_13_he_to_hen$Mi Primer Héroe De Hijo a Papá$r9775_13_he_to_hen$,
@@ -330,7 +402,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_13_he_to_hec$La luz natural crea un halo dorado suave alrededor del abrazo. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$r9775_13_he_to_hec$,
   lighting_color = $r9775_13_he_to_hed$Iluminación natural cálida con tonos dorados suaves, sombras delicadas. Atmósfera de ternura absoluta y amor puro.$r9775_13_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_13_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_13_Mi_Primer_Heroe_V10.webp$r9775_13_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 13
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_13_she_to_hen$Mi Primer Amor De Hija a Papá$r9775_13_she_to_hen$,
@@ -343,7 +418,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_13_she_to_hec$La luz natural crea un halo dorado suave alrededor del abrazo. La magia debe sentirse íntima y completamente integrada dentro de una fotografía realista.$r9775_13_she_to_hec$,
   lighting_color = $r9775_13_she_to_hed$Iluminación natural cálida con tonos dorados suaves, sombras delicadas. Atmósfera de ternura absoluta y amor puro.$r9775_13_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_13_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_33_Mi_Primer_Amor_V10.webp$r9775_13_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 33
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_14_he_to_hen$Cuando Bailamos en la Sala De Hijo a Papá$r9775_14_he_to_hen$,
@@ -356,7 +434,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_14_he_to_hec$Un sutil efecto de movimiento captura el giro y el salto de su hijo. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$r9775_14_he_to_hec$,
   lighting_color = $r9775_14_he_to_hed$Iluminación natural cálida con tonos dorados, efecto de movimiento capturado. Atmósfera de alegría y diversión.$r9775_14_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_14_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_14_Cuando_Bailamos_En_La_Sala_V10.webp$r9775_14_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 14
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_14_she_to_hen$Cuando Bailamos en la Sala De Hija a Papá$r9775_14_she_to_hen$,
@@ -369,7 +450,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_14_she_to_hec$Un sutil efecto de movimiento captura el giro del vestido de su hija. La magia debe sentirse alegre y completamente integrada dentro de una fotografía realista.$r9775_14_she_to_hec$,
   lighting_color = $r9775_14_she_to_hed$Iluminación natural cálida con tonos dorados, efecto de movimiento capturado. Atmósfera de alegría y diversión.$r9775_14_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_14_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_34_Cuando_Bailamos_En_La_Sala_V10.webp$r9775_14_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 34
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_15_he_to_hen$Me Enseñaste Que Soy un Rey De Hijo a Papá$r9775_15_he_to_hen$,
@@ -382,7 +466,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_15_he_to_hec$La corona brilla suavemente reflejándose en el espejo. La magia debe sentirse empoderadora y completamente integrada dentro de una fotografía realista.$r9775_15_he_to_hec$,
   lighting_color = $r9775_15_he_to_hed$Iluminación dorada suave con reflejos en el espejo, sombras delicadas. Atmósfera de magia realista y empoderamiento.$r9775_15_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_15_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_15_Me_Ensenaste_Que_Soy_Un_Rey_V10.webp$r9775_15_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 15
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_15_she_to_hen$Me Enseñaste Que Soy Una Princesa De Hija a Papá$r9775_15_she_to_hen$,
@@ -395,7 +482,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_15_she_to_hec$La corona brilla suavemente reflejándose en el espejo. La magia debe sentirse empoderadora y completamente integrada dentro de una fotografía realista.$r9775_15_she_to_hec$,
   lighting_color = $r9775_15_she_to_hed$Iluminación dorada suave con reflejos en el espejo, sombras delicadas. Atmósfera de magia realista y empoderamiento.$r9775_15_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_15_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_35_Me_Ensenaste_Que_Soy_Una_Princesa_V10.webp$r9775_15_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 35
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_16_he_to_hen$Nuestras Citas de Padre e Hijo De Hijo a Papá$r9775_16_he_to_hen$,
@@ -408,7 +498,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_16_he_to_hec$Ninguno: escena cotidiana y cálida, sin elementos mágicos añadidos.$r9775_16_he_to_hec$,
   lighting_color = $r9775_16_he_to_hed$Iluminación natural cálida con tonos dorados y pasteles, sombras suaves. Atmósfera de complicidad y tiempo de calidad.$r9775_16_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_16_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_16_Nuestras_Citas_De_Padre_E_Hijo_V10.webp$r9775_16_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 16
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_16_she_to_hen$Nuestras Citas de Padre e Hija De Hija a Papá$r9775_16_she_to_hen$,
@@ -421,7 +514,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_16_she_to_hec$Ninguno: escena cotidiana y cálida, sin elementos mágicos añadidos.$r9775_16_she_to_hec$,
   lighting_color = $r9775_16_she_to_hed$Iluminación natural cálida con tonos dorados y pasteles, sombras suaves. Atmósfera de complicidad y tiempo de calidad.$r9775_16_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_16_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_36_Nuestras_Citas_De_Padre_E_Hija_V10.webp$r9775_16_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 36
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_17_he_to_hen$Cuando Me Peinas Aunque No Sepas De Hijo a Papá$r9775_17_he_to_hen$,
@@ -434,7 +530,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_17_he_to_hec$Ninguno: escena puramente cómica y cotidiana, sin elementos mágicos añadidos.$r9775_17_he_to_hec$,
   lighting_color = $r9775_17_he_to_hed$Iluminación natural de mañana con tonos cálidos, sombras suaves. Atmósfera de comedia familiar amorosa.$r9775_17_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_17_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_17_Cuando_Me_Peinas_Aunque_No_Sepas_V10.webp$r9775_17_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 17
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_17_she_to_hen$Cuando Me Peinas Aunque No Sepas De Hija a Papá$r9775_17_she_to_hen$,
@@ -447,7 +546,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_17_she_to_hec$Ninguno: escena puramente cómica y cotidiana, sin elementos mágicos añadidos.$r9775_17_she_to_hec$,
   lighting_color = $r9775_17_she_to_hed$Iluminación natural de mañana con tonos cálidos, sombras suaves. Atmósfera de comedia familiar amorosa.$r9775_17_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_17_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_37_Cuando_Me_Peinas_Aunque_No_Sepas_V10.webp$r9775_17_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 37
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_18_he_to_hen$El Hombre Que Me Enseñó a Ser un Hombre de Bien De Hijo a Papá$r9775_18_he_to_hen$,
@@ -460,7 +562,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_18_he_to_hec$Ninguno: escena seria y documental, sin elementos mágicos añadidos.$r9775_18_he_to_hec$,
   lighting_color = $r9775_18_he_to_hed$Iluminación natural suave con tonos cálidos pero serios, sombras delicadas. Atmósfera de lección de vida importante.$r9775_18_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_18_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_18_El_Hombre_Que_Me_Enseno_A_Ser_Un_Hombre_De_Bien_V10.webp$r9775_18_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 18
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_18_she_to_hen$El Hombre Que Me Enseñó Cómo Debo Ser Tratada De Hija a Papá$r9775_18_she_to_hen$,
@@ -473,7 +578,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_18_she_to_hec$Ninguno: escena seria y documental, sin elementos mágicos añadidos.$r9775_18_she_to_hec$,
   lighting_color = $r9775_18_she_to_hed$Iluminación natural suave con tonos cálidos pero serios, sombras delicadas. Atmósfera de lección de vida importante.$r9775_18_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_18_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_38_El_Hombre_Que_Me_Enseno_Como_Debo_Ser_Tratada_V10.webp$r9775_18_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 38
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_19_he_to_hen$Cuando Me Haces Sentir El Más Valiente De Hijo a Papá$r9775_19_he_to_hen$,
@@ -486,7 +594,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_19_he_to_hec$Un efecto sutil de spotlight dorado ilumina a su hijo como si su papá lo viera brillar. La magia debe sentirse mágica y completamente integrada dentro de una fotografía realista.$r9775_19_he_to_hec$,
   lighting_color = $r9775_19_he_to_hed$Iluminación natural cálida con efecto de spotlight dorado sobre su hijo, sombras suaves. Atmósfera de admiración pura y empoderamiento.$r9775_19_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_19_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_19_Cuando_Me_Haces_Sentir_El_Mas_Valiente_V10.webp$r9775_19_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 19
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_19_she_to_hen$Cuando Me Haces Sentir La Más Bonita De Hija a Papá$r9775_19_she_to_hen$,
@@ -499,7 +610,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_19_she_to_hec$Un efecto sutil de spotlight dorado ilumina a su hija como si su papá la viera brillar. La magia debe sentirse mágica y completamente integrada dentro de una fotografía realista.$r9775_19_she_to_hec$,
   lighting_color = $r9775_19_she_to_hed$Iluminación natural cálida con efecto de spotlight dorado sobre su hija, sombras suaves.  Atmósfera de admiración pura y empoderamiento.$r9775_19_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_19_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_39_Cuando_Me_Haces_Sentir_La_Mas_Bonita_V10.webp$r9775_19_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 39
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_20_he_to_hen$Seré Tu Niño Para Siempre De Hijo a Papá$r9775_20_he_to_hen$,
@@ -513,7 +627,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   lighting_color = $r9775_20_he_to_hed$Iluminación dorada atemporal con efecto de memoria y futuro, sombras suaves. Atmósfera de emoción profunda y promesa eterna.
 $r9775_20_he_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_20_he_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_20_Sere_Tu_Nino_Para_Siempre_V10.webp$r9775_20_he_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'HE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 20
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9775_20_she_to_hen$Seré Tu Niña Para Siempre De Hija a Papá$r9775_20_she_to_hen$,
@@ -526,7 +643,10 @@ Todos los protagonistas son adultos de estatura normal y comparable: el hijo o l
   magic_effects = $r9775_20_she_to_hec$Pétalos y hojas doradas caen suavemente en ambos momentos, conectando visualmente el pasado y el futuro. La magia debe sentirse atemporal y completamente integrada dentro de una fotografía realista.$r9775_20_she_to_hec$,
   lighting_color = $r9775_20_she_to_hed$Iluminación dorada atemporal con efecto de memoria y futuro, sombras suaves. Atmósfera de emoción profunda y promesa eterna.$r9775_20_she_to_hed$,
   updated_at = now()
-WHERE template_preview_key = $r9775_20_she_to_hek$IA_Books/Family_Books_Page/Libros/Papa_mi_heroe_adulto/Plantillas/Plantilla_40_Sere_Tu_Nina_Para_Siempre_V10.webp$r9775_20_she_to_hek$ AND is_active;
+WHERE model_id = (SELECT id FROM personalized_models WHERE name = 'Papá, Mi Héroe Adulto')
+  AND gender_direction = 'SHE_TO_HE'
+  AND (regexp_replace(template_preview_key,'^.*Plantilla_0*(\d+)_.*$','\1'))::int = 40
+  AND is_active;
 
 UPDATE personalized_templates SET
   name = $r9861_1_he_to_shen$Mi Superheroína Sin Capa De Hijo a Mamá$r9861_1_he_to_shen$,
