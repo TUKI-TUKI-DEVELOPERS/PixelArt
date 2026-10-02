@@ -879,9 +879,22 @@ function canonicalBookName(libroNombre: string): string {
   return DEDICATION_BOOK_ALIASES[libroNombre] ?? libroNombre;
 }
 
+function normalizeBookName(libroNombre: string): string {
+  return canonicalBookName(libroNombre)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 function getDedicationOptions(libroNombre: string): DedicationOption[] {
   const bookKey = canonicalBookName(libroNombre);
-  return DEDICATION_OPTIONS[bookKey] ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
+  const normalizedBookKey = normalizeBookName(bookKey);
+  const normalizedOption = Object.entries(DEDICATION_OPTIONS).find(
+    ([key]) => normalizeBookName(key) === normalizedBookKey,
+  )?.[1];
+  return DEDICATION_OPTIONS[bookKey]
+    ?? normalizedOption
+    ?? DEDICATION_OPTIONS["10 Razones por las que Te Amo"];
 }
 
 // HE_TO_HE usa template HE_TO_SHE, SHE_TO_SHE usa template SHE_TO_HE
@@ -1082,6 +1095,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const owner2Upload = usePhotoUpload("uploads/customers");
   const owner3Upload = usePhotoUpload("uploads/customers");
   const isAventuraEntrePatas = AVENTURA_ENTRE_PATAS_BOOKS.has(libroNombre);
+  const isSiempreSerasParteDeMi = normalizeBookName(libroNombre) === "siempre seras parte de mi";
 
   // Familia-grupo — nombre de la familia y miembros
   const [familyName, setFamilyName] = useState("");
@@ -1219,7 +1233,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   );
   const usesDirectionTemplates =
     (wizardMode === "amor" || FAMILIA_DIRECTION_BOOKS.has(canonicalBookName(libroNombre))) && availableDirections.size > 0;
-  const usesMemorialGenderTemplates = wizardMode === "memorial" && availableDirections.size > 1;
+  const usesMemorialGenderTemplates = wizardMode === "memorial" && availableDirections.size > 0;
   const directionFor = (ded: "M" | "F", rec: "M" | "F"): GenderDirection =>
     ded === "M" && rec === "F" ? "HE_TO_SHE"
     : ded === "F" && rec === "M" ? "SHE_TO_HE"
@@ -1230,6 +1244,13 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     : usesMemorialGenderTemplates
     ? templates.filter((t) => t.genderDirection === recipientGender)
     : templates;
+  const singleMemorialDirection = usesMemorialGenderTemplates && availableDirections.size === 1
+    ? [...availableDirections][0] as "M" | "F"
+    : null;
+
+  useEffect(() => {
+    if (singleMemorialDirection) setRecipientGender(singleMemorialDirection);
+  }, [singleMemorialDirection]);
 
   const activeGlobalPromo = promos.find(
     (p) =>
@@ -1290,7 +1311,11 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     !!form.customerFullName &&
     !!form.customerEmail && emailFormatValid &&
     !!form.customerPhone && phoneFormatValid &&
-    !!form.shippingAddressLine1;
+    !!form.shippingAddressLine1 &&
+    // Ciudad y región son obligatorias: sin ellas el envío queda sin destino
+    // utilizable y había que pedírselas al cliente después, por WhatsApp.
+    !!form.shippingCity.trim() &&
+    !!form.shippingRegion.trim();
 
   async function handleSubmit() {
     if (!dbIds) return;
@@ -1319,7 +1344,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             ...(numOwners >= 2 ? owner2Upload.photos.map((p) => p.id) : []),
             ...(numOwners >= 3 ? owner3Upload.photos.map((p) => p.id) : []),
           ]
-        : wizardMode === "memorial" && libroNombre === "Siempre seras parte de mi"
+        : wizardMode === "memorial" && isSiempreSerasParteDeMi
         ? [
             ...recipientUpload.photos.map((p) => p.id),
             ...dedicatorUpload.photos.map((p) => p.id),
@@ -1400,7 +1425,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   ...(numHermanos >= 3 ? [{ name: hijo3Name, gender: hermano3Gender, assetIds: hijo3Upload.photos.map((p) => p.id) }] : []),
                 ],
               }
-            : wizardMode === "memorial" && libroNombre === "Siempre seras parte de mi"
+            : wizardMode === "memorial" && isSiempreSerasParteDeMi
             ? {
                 mode: "memorial-hermanos",
                 totalSiblings: numSiblings,
@@ -1808,9 +1833,9 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
               // nombrarlas tal cual, no con el genérico Él/Ella que no dice en
               // honor a quién es el libro.
               const memorialLabels: { m: string; f: string } | null =
-                libroNombre === "Siempre en mi corazon" ? { m: "Abuelo", f: "Abuela" }
-                : libroNombre === "Mi angel guardian" ? { m: "Padre", f: "Madre" }
-                : libroNombre === "Siempre seras parte de mi" ? { m: "Hermano", f: "Hermana" }
+                normalizeBookName(libroNombre) === "siempre en mi corazon" ? { m: "Abuelo", f: "Abuela" }
+                : normalizeBookName(libroNombre) === "mi angel guardian" ? { m: "Padre", f: "Madre" }
+                : isSiempreSerasParteDeMi ? { m: "Hermano", f: "Hermana" }
                 : null;
               const recipientWord = (g: "M" | "F") => memorialLabels ? (g === "M" ? memorialLabels.m : memorialLabels.f) : (g === "M" ? "él" : "ella");
               return (
@@ -1823,7 +1848,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                     </p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                       {(["M", "F"] as const).map((g) => (
-                        <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} label={memorialLabels ? recipientWord(g) : undefined} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} />
+                        <GenderCard key={`rec-${g}`} id={`rec-${g}`} g={g} label={memorialLabels ? recipientWord(g) : undefined} isSelected={recipientGender === g} onClick={() => setRecipientGender(g)} disabled={usesMemorialGenderTemplates && !availableDirections.has(g)} />
                       ))}
                     </div>
                   </div>
@@ -2001,6 +2026,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <input
                     value={teamNickname}
                     onChange={(e) => setTeamNickname(e.target.value)}
+                    maxLength={12}
                     placeholder="Los inseparables"
                     style={{ width: "100%", padding: "11px 14px", borderRadius: "10px", border: `1.5px solid ${teamNickname ? accent : "#e5e7eb"}`, fontSize: "15px", fontFamily: "inherit", outline: "none", boxSizing: "border-box", transition: "border-color 0.2s ease" }}
                   />
@@ -2179,7 +2205,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
             // ── Siempre seras parte de mi — hermanos sobrevivientes ──
             // numSiblings = total de hermanos (incluyendo el fallecido ya subido en step 2)
             // Hermanos a subir aquí = numSiblings - 1
-            if (wizardMode === "memorial" && libroNombre === "Siempre seras parte de mi") {
+            if (wizardMode === "memorial" && isSiempreSerasParteDeMi) {
               const sibSvg = <svg width="28" height="34" viewBox="0 0 48 60" fill="none"><circle cx="24" cy="13" r="10" stroke={accent} strokeWidth="2.5"/><path d="M4 56 C4 34 44 34 44 56" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/></svg>;
               const livingCount = numSiblings - 1;
               const deceasedName = recipientNickname.trim() || recipientName.trim() || "tu hermano";
@@ -2532,8 +2558,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <FormField label="Teléfono *" value={form.customerPhone} onChange={(v) => updateForm("customerPhone", v)} type="tel" isMobile={isMobile} error={phoneError} />
                   <FormField label="Dirección *" value={form.shippingAddressLine1} onChange={(v) => updateForm("shippingAddressLine1", v)} fullWidth isMobile={isMobile} />
                   <FormField label="Dirección línea 2" value={form.shippingAddressLine2} onChange={(v) => updateForm("shippingAddressLine2", v)} isMobile={isMobile} />
-                  <FormField label="Ciudad" value={form.shippingCity} onChange={(v) => updateForm("shippingCity", v)} isMobile={isMobile} />
-                  <FormField label="Región" value={form.shippingRegion} onChange={(v) => updateForm("shippingRegion", v)} isMobile={isMobile} />
+                  <FormField label="Ciudad *" value={form.shippingCity} onChange={(v) => updateForm("shippingCity", v)} isMobile={isMobile} />
+                  <FormField label="Región *" value={form.shippingRegion} onChange={(v) => updateForm("shippingRegion", v)} isMobile={isMobile} />
                   <FormField label="Referencia" value={form.shippingReference} onChange={(v) => updateForm("shippingReference", v)} fullWidth isMobile={isMobile} />
                   <FormField label="Mensaje adicional (opcional)" value={form.messageOptional} onChange={(v) => updateForm("messageOptional", v)} fullWidth isMobile={isMobile} />
                 </div>
@@ -2817,6 +2843,11 @@ function CharacterCard({
               value={nickname}
               onChange={onNicknameChange}
               isMobile={isMobile}
+              /* Tope de cordura: el apodo se imprime dentro de un verso del
+                 poema, así que un texto largo deja el verso ilegible. No es
+                 una garantía de ancho — ese depende de las letras, no de la
+                 cantidad: "iiiiiiiiii" y "WWWWWWWWWW" miden 60 y 240 px. */
+              maxLength={12}
             />
           )}
         </div>
@@ -2889,7 +2920,7 @@ function CharacterCard({
 // ── Helper components ─────────────────────────────────────────────────────────
 
 function FormField({
-  label, value, onChange, type = "text", fullWidth, isMobile, min, max, error,
+  label, value, onChange, type = "text", fullWidth, isMobile, min, max, maxLength, error,
 }: {
   label: string;
   value: string;
@@ -2899,6 +2930,7 @@ function FormField({
   isMobile?: boolean;
   min?: string;
   max?: string;
+  maxLength?: number;
   error?: string;
 }) {
   return (
@@ -2911,6 +2943,7 @@ function FormField({
         value={value}
         min={min}
         max={max}
+        maxLength={maxLength}
         onChange={(e) => onChange(e.target.value)}
         style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: error ? "1px solid #dc2626" : "1px solid #e5e7eb", fontSize: "14px", fontFamily: "inherit", boxSizing: "border-box", outline: "none" }}
       />
