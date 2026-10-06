@@ -1380,15 +1380,30 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           recipientName: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : recipientName || null,
           recipientNickname: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : recipientNickname || null,
           dedicatorName: wizardMode === "familia-grupo" || wizardMode === "hermanos" ? null : dedicatorName || null,
-          // "familia" (Papá/Mamá/Abuelo/Abuela) y 3 de los 4 libros de "mascotas"
-          // (todos menos Aventura Entre Patas) preguntan género de ambos roles, así
-          // que el efecto que calcula genderDirection corre y guarda un HE_TO_SHE/
-          // SHE_TO_HE que no significa nada ahí: esas plantillas nunca tuvieron
-          // versión dual, su gender_direction es siempre NULL. Guardar ese valor
-          // rompía el filtro de plantillas disponibles en el checkout (0 matches,
-          // "No hay más plantillas disponibles"). Aventura Entre Patas y los 4
-          // libros de "memorial" nunca piden género del dedicante, así que ya
+          // "familia-grupo"/"hermanos" (Mi Familia, El Mejor Equipo) y 3 de los 4
+          // libros de "mascotas" (todos menos Aventura Entre Patas) preguntan género
+          // de ambos roles, así que el efecto que calcula genderDirection corre y
+          // guarda un HE_TO_SHE/SHE_TO_HE que no significa nada ahí: esas plantillas
+          // nunca tuvieron versión dual, su gender_direction es siempre NULL. Guardar
+          // ese valor rompía el filtro de plantillas disponibles en el checkout (0
+          // matches, "No hay más plantillas disponibles"). Aventura Entre Patas y
+          // los 4 libros de "memorial" nunca piden género del dedicante, así que ya
           // quedaban en null solos — no hace falta agregarlos acá.
+          //
+          // "familia" (Papá Mi Héroe, Mamá Mi Heroína, Te amo abuelo/abuela) es la
+          // EXCEPCIÓN dentro de "familia": a diferencia de los otros modos de esta
+          // lista, SÍ son libros de dirección real (ver FAMILIA_DIRECTION_BOOKS) —
+          // nunca tuvieron el problema de arriba. Hasta el 2026-08-25 cada uno tenía
+          // solo una dirección con contenido real (la otra, huérfana), así que mandar
+          // null acá no rompía nada. Desde que se completó la segunda dirección de
+          // los 4 (100 plantillas nuevas, commit 8ce6ace) SÍ hace falta mandar la
+          // dirección real — si no, el checkout busca gender_direction IS NULL en un
+          // libro donde ninguna plantilla es NULL (todas HE_TO_HE/SHE_TO_HE o
+          // HE_TO_SHE/SHE_TO_SHE) y queda en 0 resultados, mismo síntoma de arriba
+          // pero para el modo contrario. Por eso "familia" NO entra en la lista de
+          // modos que fuerzan null — cae al fallback de abajo, que ya calcula bien
+          // esa dirección (ver usesDirectionTemplates/FAMILIA_DIRECTION_BOOKS).
+          //
           // "memorial" es un caso aparte: nunca pregunta género del dedicante (por
           // eso genderDirection, el de esquema HE_TO_SHE/SHE_TO_HE, siempre queda
           // vacío ahí) — pero 2 de sus 4 libros (Mi Ángel Guardián, Siempre en mi
@@ -1401,7 +1416,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           // afectados por mandar esto — el fix de backend los sigue ignorando bien.
           genderDirection:
             wizardMode === "memorial" ? (recipientGender || null)
-            : ["familia-grupo", "hermanos", "familia", "mascotas"].includes(wizardMode) ? null
+            : ["familia-grupo", "hermanos", "mascotas"].includes(wizardMode) ? null
             : genderDirection || null,
           characterMeta: wizardMode === "familia-grupo"
             ? {
