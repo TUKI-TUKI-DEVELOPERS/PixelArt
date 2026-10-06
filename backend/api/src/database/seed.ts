@@ -1222,6 +1222,16 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] cláusula de edades corregida (libros adultos de elenco variable) ✓');
 
+    // Fix: la cláusula de edades (incluso ya corregida arriba) seguía dando
+    // un rango numérico fijo por rol, lo que contradice la regla de
+    // identidad_humano de usar la edad real de la foto de referencia. Saca
+    // el número en los 12 libros adultos y deja solo la regla de
+    // estatura/proporción.
+    await client.query(
+      readFileSync(join(__dirname, 'content/fix-adult-age-clause-remove-fixed-numbers.sql'), 'utf8'),
+    );
+    console.log('[seed] rango de edad numérico eliminado (los 12 libros adultos) ✓');
+
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
     // modelo via cover_asset_id. Usa encode(digest(...)) para hash determinístico.
