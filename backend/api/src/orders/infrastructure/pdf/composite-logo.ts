@@ -10,7 +10,12 @@ import { join } from 'path';
 const COVER_LOGO_WIDTH_RATIO = 0.18;
 const COVER_MARGIN_RATIO = 0.03;
 const BACK_COVER_LOGO_WIDTH_RATIO = 0.2;
-const BACK_COVER_TOP_RATIO = 0.12;
+// Re-validado con el cliente 2026-10-06 durante el piloto de tapa/contratapa
+// de los libros adultos: pasó de arriba-centro (0.12) a pegado justo debajo
+// del bloque de texto / línea de cierre ("Impreso con cariño..."), que es
+// donde el cliente lo prefirió. contratapa_composicion_reglas (BD) también
+// se actualizó para reservar la franja de abajo en vez de la de arriba.
+const BACK_COVER_TOP_RATIO = 0.76;
 
 let logoSvgBuffer: Buffer | null = null;
 function getLogoSvgBuffer(): Buffer {

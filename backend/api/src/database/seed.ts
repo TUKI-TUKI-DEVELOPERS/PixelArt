@@ -1232,6 +1232,22 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] rango de edad numérico eliminado (los 12 libros adultos) ✓');
 
+    // Fix: la zona reservada para el logo de PixelArt (tapa esquina inferior
+    // derecha, contratapa debajo del bloque de texto) faltaba/estaba
+    // desactualizada en los bloques compartidos — sin esto la IA podía dejar
+    // pelo/objetos justo donde se pega el logo después por código.
+    await client.query(
+      readFileSync(join(__dirname, 'content/fix-tapa-contratapa-logo-zone.sql'), 'utf8'),
+    );
+    console.log('[seed] zona reservada del logo en tapa/contratapa ✓');
+
+    // Tapa, contratapa y tagline de los 11 libros adultos que no tenían nada
+    // (Papá, Mi Héroe Adulto ya estaba resuelto desde antes).
+    await client.query(
+      readFileSync(join(__dirname, 'content/backfill-tapa-contratapa-adultos.sql'), 'utf8'),
+    );
+    console.log('[seed] tapa/contratapa de los 11 libros adultos restantes ✓');
+
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
     // modelo via cover_asset_id. Usa encode(digest(...)) para hash determinístico.
