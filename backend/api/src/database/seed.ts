@@ -1213,6 +1213,15 @@ export async function runSeed(): Promise<void> {
     );
     console.log('[seed] contenido de tapa (6 libros pendientes) ✓');
 
+    // Fix: la cláusula de edades del rebuild adulto-desde-infantil asumía un
+    // dúo padre/madre + hijo/hija en los 12 libros adultos. En los de elenco
+    // variable de la misma generación (hermanos, dueños) eso inventaba un
+    // personaje sin foto de referencia.
+    await client.query(
+      readFileSync(join(__dirname, 'content/fix-adult-variable-cast-age-clause.sql'), 'utf8'),
+    );
+    console.log('[seed] cláusula de edades corregida (libros adultos de elenco variable) ✓');
+
     // ── 3.5. model cover assets (miniaturas de libros personalizados) ──────────
     // Registra los assets de miniaturas en la tabla assets y los vincula a cada
     // modelo via cover_asset_id. Usa encode(digest(...)) para hash determinístico.
