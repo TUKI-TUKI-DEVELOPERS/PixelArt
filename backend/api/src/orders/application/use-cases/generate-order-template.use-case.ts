@@ -136,7 +136,7 @@ export class GenerateOrderTemplateUseCase {
       backgroundDetails: fillNamePlaceholders(template.backgroundDetails ?? '', nameValues),
       magicEffects: fillNamePlaceholders(template.magicEffects ?? '', nameValues),
       lightingColor: fillNamePlaceholders(template.lightingColor ?? '', nameValues),
-      title: derivePrintedTitle(template.name),
+      title: derivePrintedTitle(template.name, modelName),
       poem,
       separator: resolveSeparator(categoryName),
       adminRefinement: input.refinementPrompt,

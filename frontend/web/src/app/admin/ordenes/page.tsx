@@ -131,7 +131,7 @@ export default function OrdenesPage() {
   const [acting,  setActing]  = useState<number | null>(null);
 
   function loadOrders() {
-    fetch(`${API}/api/admin/orders`)
+    fetch(`/admin-api/orders`)
       .then((r) => r.json())
       .then((data) => setOrders(Array.isArray(data) ? data : data.data ?? []))
       .catch(() => {});
@@ -142,7 +142,7 @@ export default function OrdenesPage() {
   async function reviewPayment(orderId: number, action: "APPROVE" | "REJECT") {
     setActing(orderId);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${orderId}/review-payment`, {
+      const res = await fetch(`/admin-api/orders/${orderId}/review-payment`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
@@ -155,7 +155,7 @@ export default function OrdenesPage() {
   async function advanceStatus(orderId: number, nextStatus: string) {
     setActing(orderId);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${orderId}/advance-status`, {
+      const res = await fetch(`/admin-api/orders/${orderId}/advance-status`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newStatus: nextStatus }),
       });

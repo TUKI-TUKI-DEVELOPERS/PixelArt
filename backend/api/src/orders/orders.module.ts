@@ -17,6 +17,8 @@ import { EmailModule } from '../email/email.module';
 import { PhotobookModule } from '../photobook/photobook.module';
 import { AssetsModule } from '../assets/assets.module';
 import { PersonalizedModule } from '../personalized/personalized.module';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { PersonalizedModule } from '../personalized/personalized.module';
   ],
   controllers: [OrdersAdminController],
   providers: [
+    JwtAuthGuard,
+    RolesGuard,
     OrdersService,
     TypeOrmOrderRepository,
     { provide: OrderRepositoryPort, useExisting: TypeOrmOrderRepository },

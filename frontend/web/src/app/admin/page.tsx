@@ -64,7 +64,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/admin/orders`).then((r) => r.json()).catch(() => []),
+      fetch(`/admin-api/orders`).then((r) => r.json()).catch(() => []),
       fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
       fetch(`${API}/api/admin/feedback`).then((r) => r.json()).catch(() => []),
     ]).then(([ordersData, demosData, feedbackData]) => {

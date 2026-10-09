@@ -16,5 +16,10 @@ export abstract class FileStoragePort {
 
   abstract download(key: string): Promise<Buffer>;
 
+  /** Encrypted, non-public object storage for reroll source images and manifests. */
+  abstract uploadPrivate(key: string, buffer: Buffer): Promise<void>;
+
+  abstract downloadPrivate(key: string): Promise<Buffer>;
+
   abstract exists(key: string): Promise<boolean>;
 }

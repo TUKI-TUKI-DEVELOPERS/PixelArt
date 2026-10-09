@@ -129,9 +129,11 @@ export default function OrdenDetallePage() {
   // hace falta un Set/Record keyed por id).
   const [coverGenerating, setCoverGenerating] = useState(false);
   const [coverGenerateError, setCoverGenerateError] = useState("");
+  const [coverRefinementPrompt, setCoverRefinementPrompt] = useState("");
   const [coverVerifying, setCoverVerifying] = useState(false);
   const [backCoverGenerating, setBackCoverGenerating] = useState(false);
   const [backCoverGenerateError, setBackCoverGenerateError] = useState("");
+  const [backCoverRefinementPrompt, setBackCoverRefinementPrompt] = useState("");
   const [backCoverVerifying, setBackCoverVerifying] = useState(false);
   // Add-on: sin IA (maquetación local con Puppeteer), no necesita el
   // mecanismo de "verificando" de Portada/Contraportada — no depende de una
@@ -164,7 +166,7 @@ export default function OrdenDetallePage() {
   const PDF_ELIGIBLE_STATUSES = ["PAYMENT_VERIFIED", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
 
   function load() {
-    fetch(`${API}/api/admin/orders/${id}`)
+    fetch(`/admin-api/orders/${id}`)
       .then((r) => r.json())
       .then((order: OrderDetail) => {
         setData(order);
@@ -183,7 +185,7 @@ export default function OrdenDetallePage() {
           // Las plantillas que ya tenían un original limpio de la demo se cargan
           // solas (sin gastar una llamada nueva a OpenAI) antes de leer los
           // archivos de imprenta, para que ya aparezcan como pendientes de revisar.
-          fetch(`${API}/api/admin/orders/${order.id}/print-assets/backfill-from-demo`, { method: "POST" })
+          fetch(`/admin-api/orders/${order.id}/print-assets/backfill-from-demo`, { method: "POST" })
             .catch(() => {})
             .finally(() => loadPrintAssets(order.id));
           loadCbRender(order.id);
@@ -214,7 +216,7 @@ export default function OrdenDetallePage() {
     for (let attempt = 0; attempt < 30; attempt++) {
       await new Promise((r) => setTimeout(r, 4000));
       try {
-        const res = await fetch(`${API}/api/admin/orders/${orderId}/print-assets`);
+        const res = await fetch(`/admin-api/orders/${orderId}/print-assets`);
         if (!res.ok) continue;
         const list: PrintAsset[] = await res.json();
         const done = list.some(
@@ -233,7 +235,7 @@ export default function OrdenDetallePage() {
     for (let attempt = 0; attempt < 30; attempt++) {
       await new Promise((r) => setTimeout(r, 4000));
       try {
-        const res = await fetch(`${API}/api/admin/orders/${orderId}/print-assets`);
+        const res = await fetch(`/admin-api/orders/${orderId}/print-assets`);
         if (!res.ok) continue;
         const list: PrintAsset[] = await res.json();
         const done = list.some(
@@ -269,7 +271,7 @@ export default function OrdenDetallePage() {
       if (!uploadRes.ok) throw new Error("No se pudo subir la foto");
       const uploaded = await uploadRes.json();
 
-      const linkRes = await fetch(`${API}/api/admin/orders/${data.id}/character-photos`, {
+      const linkRes = await fetch(`/admin-api/orders/${data.id}/character-photos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roleKey, oldAssetId, newAssetId: uploaded.id }),
@@ -294,7 +296,7 @@ export default function OrdenDetallePage() {
     const startedAt = Date.now();
     try {
       const res = await fetch(
-        `${API}/api/admin/orders/${data.id}/print-assets/generate?templateId=${templateId}`,
+        `/admin-api/orders/${data.id}/print-assets/generate?templateId=${templateId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -337,10 +339,10 @@ export default function OrdenDetallePage() {
     setCoverGenerateError("");
     const startedAt = Date.now();
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-cover`, {
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/generate-cover`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedAssetIds: selectedPhoto[COVER_PHOTO_KEY] ?? {} }),
+        body: JSON.stringify({ selectedAssetIds: selectedPhoto[COVER_PHOTO_KEY] ?? {}, refinementPrompt: coverRefinementPrompt.trim() || undefined }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -370,7 +372,7 @@ export default function OrdenDetallePage() {
     setBackCoverGenerateError("");
     const startedAt = Date.now();
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST" });
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refinementPrompt: backCoverRefinementPrompt.trim() || undefined }) });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as { message?: string }).message ?? "Error al generar la contratapa");
@@ -395,7 +397,7 @@ export default function OrdenDetallePage() {
     setAddonGenerating(true);
     setAddonGenerateError("");
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-addon`, {
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/generate-addon`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ selectedModelIds: selectedCrossSellIds }),
@@ -419,7 +421,7 @@ export default function OrdenDetallePage() {
     if (opening && addonCandidates.length === 0) {
       setAddonCandidatesLoading(true);
       try {
-        const res = await fetch(`${API}/api/admin/orders/${data.id}/cross-sell-candidates`);
+        const res = await fetch(`/admin-api/orders/${data.id}/cross-sell-candidates`);
         if (res.ok) setAddonCandidates(await res.json());
       } finally {
         setAddonCandidatesLoading(false);
@@ -439,7 +441,7 @@ export default function OrdenDetallePage() {
     if (!data) return;
     setConfirmingAll(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/confirm`, { method: "POST" });
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/confirm`, { method: "POST" });
       if (!res.ok) throw new Error();
       loadPrintAssets(data.id);
     } catch {
@@ -453,7 +455,7 @@ export default function OrdenDetallePage() {
     if (!data) return;
     setSavingDesign(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-design`, {
+      const res = await fetch(`/admin-api/orders/${data.id}/print-design`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -489,14 +491,14 @@ export default function OrdenDetallePage() {
   }
 
   function loadPrintAssets(orderId: number) {
-    fetch(`${API}/api/admin/orders/${orderId}/print-assets`)
+    fetch(`/admin-api/orders/${orderId}/print-assets`)
       .then((r) => r.json())
       .then((list: PrintAsset[]) => setPrintAssets(Array.isArray(list) ? list : []))
       .catch(() => {});
   }
 
   function loadCbRender(orderId: number) {
-    fetch(`${API}/api/admin/orders/${orderId}/render`)
+    fetch(`/admin-api/orders/${orderId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error(); })
       .then((r: { pdfUrl: string; generatedAt: string }) => {
         setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
@@ -510,7 +512,7 @@ export default function OrdenDetallePage() {
   async function reviewPayment(action: "APPROVE" | "REJECT") {
     setActing(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${id}/review-payment`, {
+      const res = await fetch(`/admin-api/orders/${id}/review-payment`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
@@ -532,7 +534,7 @@ export default function OrdenDetallePage() {
     if (!next) return;
     setActing(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${id}/advance-status`, {
+      const res = await fetch(`/admin-api/orders/${id}/advance-status`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newStatus: next }),
       });
@@ -1044,6 +1046,8 @@ export default function OrdenDetallePage() {
                           <div style={{ fontSize: "11px", color: "#dc2626" }}>{uploadPhotoError[COVER_PHOTO_KEY]}</div>
                         )}
                         <div>
+                          <label htmlFor="cover-refinement" style={{ display: "block", fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Ajuste de IA para la tapa (opcional)</label>
+                          <textarea id="cover-refinement" value={coverRefinementPrompt} onChange={(e) => setCoverRefinementPrompt(e.target.value)} disabled={coverGenerating} placeholder="Describe qué cambiar en la imagen completa…" rows={2} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d1d5db", borderRadius: "6px", padding: "7px", font: "inherit", fontSize: "12px", resize: "vertical", marginBottom: "8px" }} />
                           <button
                             disabled={coverGenerating}
                             onClick={handleGenerateCover}
@@ -1083,6 +1087,8 @@ export default function OrdenDetallePage() {
                       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
                         <div style={{ fontSize: "11px", color: "#9ca3af" }}>Fondo + texto — no lleva fotos reales, no hay nada que elegir acá.</div>
                         <div>
+                          <label htmlFor="back-cover-refinement" style={{ display: "block", fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Ajuste de IA para la contratapa (opcional)</label>
+                          <textarea id="back-cover-refinement" value={backCoverRefinementPrompt} onChange={(e) => setBackCoverRefinementPrompt(e.target.value)} disabled={backCoverGenerating} placeholder="Describe qué cambiar en la imagen completa…" rows={2} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d1d5db", borderRadius: "6px", padding: "7px", font: "inherit", fontSize: "12px", resize: "vertical", marginBottom: "8px" }} />
                           <button
                             disabled={backCoverGenerating}
                             onClick={handleGenerateBackCover}
@@ -1435,7 +1441,7 @@ export default function OrdenDetallePage() {
                             setDeletingSlot(slot.key);
                             setConfirmingSlot(null);
                             try {
-                              const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/${uploaded.id}`, { method: "DELETE" });
+                              const res = await fetch(`/admin-api/orders/${data.id}/print-assets/${uploaded.id}`, { method: "DELETE" });
                               if (!res.ok) throw new Error();
                               loadPrintAssets(data.id);
                             } catch { alert("Error al eliminar el archivo"); }
@@ -1489,7 +1495,7 @@ export default function OrdenDetallePage() {
                           fd.append("pagePart", slot.pagePart);
                           if (slot.templateId !== null) fd.append("templateId", String(slot.templateId));
                           if (slot.slotIndex !== null) fd.append("slotIndex", String(slot.slotIndex));
-                          const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets`, { method: "POST", body: fd });
+                          const res = await fetch(`/admin-api/orders/${data.id}/print-assets`, { method: "POST", body: fd });
                           if (!res.ok) throw new Error();
                           loadPrintAssets(data.id);
                         } catch { alert("Error al subir el archivo"); }
@@ -1530,11 +1536,11 @@ export default function OrdenDetallePage() {
                       setCbPdfGenerating(true);
                       try {
                         const startedAt = Date.now();
-                        await fetch(`${API}/api/admin/orders/${data.id}/render`, { method: "POST" });
+                        await fetch(`/admin-api/orders/${data.id}/render`, { method: "POST" });
                         let found = false;
                         for (let attempt = 0; attempt < 25; attempt++) {
                           await new Promise((r) => setTimeout(r, 2000));
-                          const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
+                          const res = await fetch(`/admin-api/orders/${data.id}/render`);
                           if (!res.ok) continue;
                           const r = await res.json();
                           if (new Date(r.generatedAt).getTime() > startedAt) {
@@ -1573,11 +1579,11 @@ export default function OrdenDetallePage() {
                     setCbPdfGenerating(true);
                     try {
                       const startedAt = Date.now();
-                      await fetch(`${API}/api/admin/orders/${data.id}/render`, { method: "POST" });
+                      await fetch(`/admin-api/orders/${data.id}/render`, { method: "POST" });
                       let found = false;
                       for (let attempt = 0; attempt < 25; attempt++) {
                         await new Promise((r) => setTimeout(r, 2000));
-                        const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
+                        const res = await fetch(`/admin-api/orders/${data.id}/render`);
                         if (!res.ok) continue;
                         const r = await res.json();
                         if (new Date(r.generatedAt).getTime() > startedAt) {

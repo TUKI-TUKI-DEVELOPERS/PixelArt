@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete, Param, Query, Body, Inject, forwardRef, Logger,
-  UploadedFile, UseInterceptors, BadRequestException, NotFoundException,
+  UploadedFile, UseInterceptors, BadRequestException, NotFoundException, UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DataSource } from 'typeorm';
@@ -13,8 +13,13 @@ import { GenerateOrderTemplateUseCase } from './application/use-cases/generate-o
 import { GenerateOrderCoverUseCase } from './application/use-cases/generate-order-cover.use-case';
 import { GenerateOrderAddonUseCase } from './application/use-cases/generate-order-addon.use-case';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @Controller('admin/orders')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'OPERATOR')
 export class OrdersAdminController {
   private readonly logger = new Logger(OrdersAdminController.name);
 
@@ -366,8 +371,9 @@ export class OrdersAdminController {
   generateCover(
     @Param('id') id: string,
     @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+    @Body('refinementPrompt') refinementPrompt?: string,
   ) {
-    return this.generateOrderCoverUseCase.generateCover({ orderId: Number(id), selectedAssetIds });
+    return this.generateOrderCoverUseCase.generateCover({ orderId: Number(id), selectedAssetIds, refinementPrompt });
   }
 
   /**
@@ -376,8 +382,8 @@ export class OrdersAdminController {
    * sube directo como archivo de imprenta, PENDING_REVIEW.
    */
   @Post(':id/print-assets/generate-back-cover')
-  generateBackCover(@Param('id') id: string) {
-    return this.generateOrderCoverUseCase.generateBackCover({ orderId: Number(id) });
+  generateBackCover(@Param('id') id: string, @Body('refinementPrompt') refinementPrompt?: string) {
+    return this.generateOrderCoverUseCase.generateBackCover({ orderId: Number(id), refinementPrompt });
   }
 
   /**
