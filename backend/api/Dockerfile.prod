@@ -9,7 +9,8 @@ RUN apk add --no-cache \
   chromium \
   harfbuzz \
   font-noto \
-  ca-certificates
+  ca-certificates \
+  ghostscript
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 FROM base AS build
@@ -29,5 +30,6 @@ COPY frontend/web/package.json ./frontend/web/package.json
 COPY packages/shared/package.json ./packages/shared/package.json
 RUN npm ci --omit=dev
 COPY --from=build /app/backend/api/dist ./backend/api/dist
+COPY --from=build /app/backend/api/resources ./backend/api/resources
 EXPOSE 3001
 CMD ["dumb-init", "node", "backend/api/dist/main"]

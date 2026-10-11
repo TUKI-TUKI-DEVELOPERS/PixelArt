@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { tokens } from "@/lib/design-tokens";
 
 const API = "";
+const outputActionStyle = { padding: "8px 12px", borderRadius: "6px", border: `1px solid ${tokens.colors.neutral.surface.border}`, background: tokens.colors.neutral.surface.base, color: tokens.colors.neutral.text.secondary, fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: tokens.fonts.body };
+
+type ProjectRender = { pdfUrl: string; coversUrl: string | null; interiorUrl: string | null; isLegacyCombined: boolean; legacyCombinedUrl: string | null };
 
 type ProjectDetail = {
   id: number; customerFullName: string | null; customerEmail: string; customerPhone: string | null;
@@ -27,6 +31,18 @@ export default function ProyectoDetallePage() {
   const [paymentLink, setPaymentLink] = useState<string | null>(null);
   const [assetUrls, setAssetUrls] = useState<Record<number, string>>({});
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [renderFiles, setRenderFiles] = useState<ProjectRender | null>(null);
+
+  useEffect(() => {
+    fetch(`/admin-api/photobook/projects/${id}/render`).then((r) => r.ok ? r.json() : null).then(setRenderFiles).catch(() => setRenderFiles(null));
+  }, [id]);
+
+  async function downloadFile(url: string, filename: string) {
+    const response = await fetch(url);
+    const blobUrl = URL.createObjectURL(await response.blob());
+    const anchor = document.createElement("a");
+    anchor.href = blobUrl; anchor.download = filename; anchor.click(); URL.revokeObjectURL(blobUrl);
+  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") setLightbox(null); }
@@ -226,6 +242,21 @@ export default function ProyectoDetallePage() {
       </div>
 
       {/* ── CTA: Crear orden ── */}
+      {data.status === "CONVERTED_TO_ORDER" && (
+        <section aria-label="Archivos para imprenta" style={{ border: "1px solid #e0e0e0", borderRadius: "10px", marginBottom: "24px", background: "#fff", fontFamily: "Montserrat, sans-serif" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid #eeeeee", color: "#2d8fd5", fontSize: "15px", fontWeight: 700 }}>Archivos para imprenta</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px", padding: "16px 20px" }}>
+            <div role="group" aria-label="Standard RGB" style={{ display: "grid", gap: "8px", alignContent: "start" }}>
+              <strong style={{ color: "#444", fontSize: "13px" }}>Standard RGB</strong>
+              {renderFiles?.isLegacyCombined ? <><button style={outputActionStyle} onClick={() => renderFiles.legacyCombinedUrl && downloadFile(renderFiles.legacyCombinedUrl, `photobook_${id}_legacy-combinado.pdf`)}>Archivo anterior: tapa e interior juntos</button><p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Este archivo anterior contiene la tapa y el interior juntos. Para imprenta, usa las exportaciones CMYK desde la orden.</p></> : <>
+                <button style={outputActionStyle} disabled={!renderFiles?.coversUrl} onClick={() => renderFiles?.coversUrl && downloadFile(renderFiles.coversUrl, `photobook_${id}_cubiertas-rgb.pdf`)}>Descargar tapa / cubiertas RGB</button>
+                <button style={outputActionStyle} disabled={!renderFiles?.interiorUrl} onClick={() => renderFiles?.interiorUrl && downloadFile(renderFiles.interiorUrl, `photobook_${id}_interior-rgb.pdf`)}>Descargar interior RGB</button>
+              </>}
+            </div>
+          </div>
+        </section>
+      )}
+
       {data.status === "CONFIRMED" && !paymentLink && (
         <div style={{ borderRadius: "14px", background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)", border: "1px solid #bfdbfe", padding: "24px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
           <div>

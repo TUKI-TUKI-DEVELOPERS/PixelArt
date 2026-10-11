@@ -4,6 +4,7 @@ import { createPool, Pool } from 'generic-pool';
 import sharp from 'sharp';
 import QRCode from 'qrcode';
 import { readFileSync } from 'fs';
+import { randomUUID } from 'crypto';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
@@ -156,8 +157,9 @@ export class CustomBookPdfService {
     );
 
     if (rows.length === 0) {
-      this.logger.warn(`Orden #${orderId} no tiene archivos de impresión cargados`);
-      return;
+      throw new BadRequestException(
+        'No se puede generar el PDF porque no hay archivos de impresión confirmados. Carga y confirma la portada y la contraportada para volver a intentarlo.',
+      );
     }
 
     // Si existen filas A o B para un template, ignorar las filas ONLY del mismo template (migración single → double page)
@@ -173,7 +175,7 @@ export class CustomBookPdfService {
     // Log del orden efectivo para diagnóstico
     this.logger.log(`Orden #${orderId} — ${effectiveRows.length} páginas de archivos + degradado/dedicatoria:`);
     effectiveRows.forEach((r, i) => {
-      this.logger.log(`  [${i + 1}] ${r.asset_type} template=${r.template_id ?? '-'} slot=${r.slot_index ?? '-'} part=${r.page_part} key=${r.storage_key}`);
+      this.logger.log(`  [${i + 1}] ${r.asset_type} id=${r.id} template=${r.template_id ?? '-'} slot=${r.slot_index ?? '-'} part=${r.page_part}`);
     });
 
     // Descargar y optimizar todas las imágenes en paralelo
@@ -188,33 +190,68 @@ export class CustomBookPdfService {
             .toBuffer();
           assetMap.set(row.storage_key, `data:image/jpeg;base64,${optimized.toString('base64')}`);
         } catch (err) {
-          // No insertar placeholder — la página quedará en blanco en el PDF
-          this.logger.error(`Archivo no encontrado en storage: ${row.storage_key} — ${(err as Error).message}`);
+          this.logger.error(`No se pudo preparar asset de impresión ${row.id}: ${(err as Error).message}`);
         }
       }),
     );
 
+    const failedSource = effectiveRows.find((row) => !assetMap.has(row.storage_key));
+    if (failedSource) throw new BadRequestException(this.describeUnavailableSource(failedSource));
+
     const crossSellCards = await this.resolveCrossSellCards(designRow.personalized_model_id);
 
-    const html = this.buildHtml(effectiveRows, assetMap, {
+    const documents = this.composeDocuments(effectiveRows, assetMap, {
       gradientStart: designRow.gradient_color_start,
       gradientEnd: designRow.gradient_color_end,
       dedicationText,
       crossSellCards,
     });
-    const pdfBuffer = await this.renderPdf(html);
+    const [coversPdf, interiorPdf] = await Promise.all([
+      this.renderPdf(documents.coversHtml),
+      this.renderPdf(documents.interiorHtml),
+    ]);
 
-    const storageKey = `custom-books/renders/${orderId}.pdf`;
-    await this.fileStorage.upload(storageKey, pdfBuffer, 'application/pdf');
+    const { coversKey, interiorKey } = await this.storePdfPair(orderId, coversPdf, interiorPdf);
+    this.logger.log(`PDFs listos: ${coversKey}, ${interiorKey}`);
+  }
 
+  async renderCmykSource(orderId: number, part: 'covers' | 'interior'): Promise<Buffer> {
+    const [designRow] = await this.dataSource.query(
+      `SELECT o.gradient_color_start, o.gradient_color_end, o.dedication_text, dr.dedication_text AS demo_dedication_text, o.personalized_model_id FROM orders o LEFT JOIN demo_request dr ON dr.id = o.demo_request_id WHERE o.id = $1`,
+      [orderId],
+    ) as OrderDesignRow[];
+    if (!designRow) throw new BadRequestException('Orden no encontrada');
+    const rows: PrintAssetRow[] = await this.dataSource.query(
+      `SELECT id, asset_type, template_id, slot_index, page_part, storage_key FROM order_print_assets WHERE order_id = $1 AND status = 'CONFIRMED' AND asset_type IN ('COVER', 'TEMPLATE', 'ADDON', 'BACK_COVER') ORDER BY CASE asset_type WHEN 'COVER' THEN 0 WHEN 'TEMPLATE' THEN 1 WHEN 'ADDON' THEN 2 WHEN 'BACK_COVER' THEN 3 ELSE 4 END, slot_index ASC NULLS LAST, page_part ASC`, [orderId],
+    );
+    if (!rows.length) throw new BadRequestException('No hay archivos de impresión confirmados');
+    const assetMap = new Map<string, string>();
+    await Promise.all(rows.map(async (row) => {
+      const buffer = await this.fileStorage.download(row.storage_key);
+      const optimized = await sharp(buffer).resize(MAX_IMAGE_PX, MAX_IMAGE_PX, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 92 }).toBuffer();
+      assetMap.set(row.storage_key, `data:image/jpeg;base64,${optimized.toString('base64')}`);
+    }));
+    const documents = this.composeDocuments(rows, assetMap, {
+      gradientStart: designRow.gradient_color_start, gradientEnd: designRow.gradient_color_end,
+      dedicationText: designRow.dedication_text ?? designRow.demo_dedication_text ?? '',
+      crossSellCards: await this.resolveCrossSellCards(designRow.personalized_model_id),
+    });
+    return this.renderPdf(part === 'covers' ? documents.coversHtml : documents.interiorHtml);
+  }
+
+  private async storePdfPair(orderId: number, coversPdf: Buffer, interiorPdf: Buffer): Promise<{ coversKey: string; interiorKey: string }> {
+    const generationKey = `custom-books/renders/${orderId}/generation-${randomUUID()}`;
+    const coversKey = `${generationKey}/covers.pdf`;
+    const interiorKey = `${generationKey}/interior.pdf`;
+    await this.fileStorage.upload(coversKey, coversPdf, 'application/pdf');
+    await this.fileStorage.upload(interiorKey, interiorPdf, 'application/pdf');
     await this.dataSource.query(
       `INSERT INTO custom_book_renders (order_id, pdf_storage_key)
        VALUES ($1, $2)
        ON CONFLICT (order_id) DO UPDATE SET pdf_storage_key = $2, generated_at = now()`,
-      [orderId, storageKey],
+      [orderId, coversKey],
     );
-
-    this.logger.log(`PDF listo: ${storageKey}`);
+    return { coversKey, interiorKey };
   }
 
   getPdfUrl(pdfStorageKey: string): string {
@@ -286,7 +323,7 @@ export class CustomBookPdfService {
               .toBuffer();
             imageSrc = `data:image/png;base64,${optimized.toString('base64')}`;
           } catch (err) {
-            this.logger.error(`Venta cruzada: no se pudo descargar ${r.storage_key} — ${(err as Error).message}`);
+            this.logger.error(`Venta cruzada: no se pudo cargar miniatura para modelo ${r.model_id}`);
           }
         }
         const url = `${baseUrl}/libros-personalizados/${r.category_slug}/${r.model_slug}`;
@@ -322,61 +359,40 @@ export class CustomBookPdfService {
     }));
   }
 
-  private buildHtml(
+  private composeDocuments(
     rows: PrintAssetRow[],
     assetMap: Map<string, string>,
     design: { gradientStart: string; gradientEnd: string; dedicationText: string; crossSellCards: CrossSellCard[] },
-  ): string {
+  ): { coversHtml: string; interiorHtml: string } {
     const cover = rows.find((r) => r.asset_type === 'COVER');
-    const addon = rows.find((r) => r.asset_type === 'ADDON');
     const backCover = rows.find((r) => r.asset_type === 'BACK_COVER');
+    if (!cover || !backCover || !assetMap.has(cover.storage_key) || !assetMap.has(backCover.storage_key)) {
+      throw new BadRequestException('No se puede generar el PDF: falta la portada o contraportada requerida. Revisá los archivos de impresión y volvé a intentar.');
+    }
+    const addon = rows.find((r) => r.asset_type === 'ADDON');
     const templateRows = rows.filter((r) => r.asset_type === 'TEMPLATE');
-
-    const pageDiv = (row: PrintAssetRow | undefined): string => {
-      if (!row) return '';
-      const src = assetMap.get(row.storage_key);
-      return src ? `<div class="page"><img src="${src}" alt="" /></div>` : `<div class="page blank"></div>`;
-    };
-
-    const gradientPage = `<div class="page page-gradient"></div>`;
-    const dedicationPage = `<div class="page page-gradient">
-      <div class="dedication-card">${this.escapeHtml(design.dedicationText).replace(/\n/g, '<br/>')}</div>
-    </div>`;
+    const unavailable = rows.find((row) => !assetMap.has(row.storage_key));
+    if (unavailable) throw new BadRequestException(this.describeUnavailableSource(unavailable));
+    const pageDiv = (row: PrintAssetRow): string => `<div class="page"><img src="${assetMap.get(row.storage_key)}" alt="" /></div>`;
+    const gradientPage = '<div class="page page-gradient"></div>';
+    const dedicationPage = `<div class="page page-gradient"><div class="dedication-card">${this.escapeHtml(design.dedicationText).replace(/\n/g, '<br/>')}</div></div>`;
+    const templatePages = templateRows.map((row) => `<div class="page"><img src="${assetMap.get(row.storage_key)}" alt="" /></div>`).join('\n  ');
     const crossSellPage = this.buildCrossSellPage(design.crossSellCards);
-
-    const templatePages = templateRows
-      .map((row) => {
-        const src = assetMap.get(row.storage_key);
-        if (!src) return `<div class="page blank"></div>`;
-        return `<div class="page"><img src="${src}" alt="" /></div>`;
-      })
-      .join('\n  ');
-
-    const pages = [
-      pageDiv(cover),
+    const interiorPages = [
       gradientPage,
       dedicationPage,
       templatePages,
       gradientPage,
-      // Sin ADDON manual, cae a la página de venta cruzada (si hay libros
-      // para promocionar) — antes caía directo a un degradado en blanco,
-      // mismo fallback que se mantiene si no hay candidatos.
       addon ? pageDiv(addon) : crossSellPage || gradientPage,
-      pageDiv(backCover),
-    ]
-      .filter(Boolean)
-      .join('\n  ');
+    ].filter(Boolean).join('\n  ');
+    const html = (pages: string) => `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${this.getSharedStyles(design.gradientStart, design.gradientEnd)}</style></head><body>${pages}</body></html>`;
+    return { coversHtml: html([pageDiv(cover), pageDiv(backCover)].join('\n  ')), interiorHtml: html(interiorPages) };
+  }
 
-    return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>${this.getSharedStyles(design.gradientStart, design.gradientEnd)}</style>
-</head>
-<body>
-  ${pages}
-</body>
-</html>`;
+  private describeUnavailableSource(row: PrintAssetRow): string {
+    const kind = row.asset_type === 'TEMPLATE' ? 'plantilla' : row.asset_type === 'ADDON' ? 'complemento' : row.asset_type === 'COVER' ? 'portada' : 'contraportada';
+    const descriptor = row.slot_index ? ` en la posición ${row.slot_index}${row.page_part && row.page_part !== 'ONLY' ? ` (${row.page_part})` : ''}` : '';
+    return `No se pudo preparar la ${kind}${descriptor} necesaria para el PDF. Revisá o volvé a cargar ese archivo de impresión y luego intentá generar nuevamente.`;
   }
 
   /** Extraído de buildHtml() para reusarlo también en renderAddonPreview()

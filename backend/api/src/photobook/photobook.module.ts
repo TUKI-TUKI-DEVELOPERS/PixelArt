@@ -18,6 +18,7 @@ import { PublicLinksModule } from '../public-links/public-links.module';
 import { EmailModule } from '../email/email.module';
 import { AssetsModule } from '../assets/assets.module';
 import { PersonalizedModule } from '../personalized/personalized.module';
+import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PersonalizedModule } from '../personalized/personalized.module';
   providers: [
     PhotobookService,
     PhotobookPdfService,
+    CmykPdfConverterService,
     TypeOrmPhotobookRepository,
     { provide: PhotobookRepositoryPort, useExisting: TypeOrmPhotobookRepository },
   ],

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
 import * as puppeteer from 'puppeteer-core';
 import { createPool, Pool } from 'generic-pool';
@@ -56,47 +57,71 @@ export class PhotobookPdfService {
     });
   }
 
+  async renderCmykSource(projectId: number, part: 'covers' | 'interior'): Promise<Buffer> {
+    const prepared = await this.prepareProjectDocuments(projectId, 'throw', 'Falta la portada o contraportada requerida.');
+    if (!prepared) throw new Error('Proyecto no encontrado');
+    const { documents, widthCm, heightCm } = prepared;
+    return this.renderPdf(part === 'covers' ? documents.coversHtml : documents.interiorHtml, widthCm, heightCm);
+  }
+
   async generateAndStore(projectId: number): Promise<void> {
     this.logger.log(`Generando PDF para proyecto #${projectId}`);
 
+    const prepared = await this.prepareProjectDocuments(projectId, 'log-and-return', 'No se pudo generar el PDF: falta la portada o contraportada requerida.');
+    if (!prepared) return;
+    const { documents, widthCm, heightCm } = prepared;
+    const [coversPdf, interiorPdf] = await Promise.all([
+      this.renderPdf(documents.coversHtml, widthCm, heightCm),
+      this.renderPdf(documents.interiorHtml, widthCm, heightCm),
+    ]);
+    const generation = randomUUID();
+    const base = `photobook-renders/${projectId}/generation-${generation}`;
+    const coversKey = `${base}/covers.pdf`;
+    const interiorKey = `${base}/interior.pdf`;
+    await this.fileStorage.upload(coversKey, coversPdf, 'application/pdf');
+    await this.fileStorage.upload(interiorKey, interiorPdf, 'application/pdf');
+    await this.repo.saveRender(projectId, coversKey);
+    this.logger.log(`PDFs listos para proyecto #${projectId}`);
+  }
+
+  private async prepareProjectDocuments(
+    projectId: number,
+    missingProject: 'throw' | 'log-and-return',
+    missingCoverMessage: string,
+  ): Promise<{ documents: ReturnType<PhotobookPdfService['composeDocuments']>; widthCm: number; heightCm: number } | null> {
     const project = await this.repo.findProjectById(projectId);
     if (!project) {
+      if (missingProject === 'throw') throw new Error('Proyecto no encontrado');
       this.logger.error(`Proyecto #${projectId} no encontrado`);
-      return;
+      return null;
     }
 
     const widthCm = project.customWidthCm ?? DEFAULT_WIDTH_CM;
     const heightCm = project.customHeightCm ?? DEFAULT_HEIGHT_CM;
-
     const theme = project.photobookThemeId === null ? null : await this.repo.getTheme(project.photobookThemeId);
-
-    const assetIds = Array.from(new Set(project.pages.flatMap((p) => p.slots.map((s) => s.assetId))));
+    const assetIds = Array.from(new Set(project.pages.flatMap((page) => page.slots.map((slot) => slot.assetId))));
     const assetMap = await this.prepareAssets(assetIds);
-    // Si el tema tiene panorámica (wrap), la tapa/contratapa se entregan como un
-    // archivo aparte (ver generateAndStoreCoverWrap) y NO van como páginas del
-    // interior. Sin panorámica (ej. Bodas) → fallback al flujo viejo de 2 páginas.
-    const hasWrap = !!theme?.coverWrapKey;
-    const coverBase64 = !hasWrap && theme ? await this.downloadCoverAsBase64(theme.coverTemplateKey) : null;
-    const backCoverBase64 = !hasWrap && theme?.backCoverKey ? await this.downloadCoverAsBase64(theme.backCoverKey) : null;
-
-    const html = this.buildHtml(project, assetMap, widthCm, heightCm, coverBase64, backCoverBase64);
-    const pdfBuffer = await this.renderPdf(html, widthCm, heightCm);
-
-    const storageKey = `photobook-renders/${projectId}.pdf`;
-    await this.fileStorage.upload(storageKey, pdfBuffer, 'application/pdf');
-    await this.repo.saveRender(projectId, storageKey);
-    this.logger.log(`PDF listo: ${storageKey}`);
-
-    try {
-      if (theme && theme.coverWrapKey) {
-        await this.generateAndStoreCoverWrap(project, theme, widthCm, heightCm);
-      } else if (!theme) {
-        await this.generateAndStoreCustomCoverWrap(project, widthCm, heightCm);
-      }
-    } catch (err) {
-      // El wrap es additivo: si falla, el interior ya quedó guardado. No romper el flujo.
-      this.logger.error(`Error generando wrap de tapa (proyecto #${projectId}): ${(err as Error).message}`);
+    let frontKey: string;
+    let backKey: string;
+    if (theme) {
+      frontKey = theme.coverTemplateKey;
+      backKey = theme.backCoverKey ?? '';
+    } else {
+      const [sources] = await this.dataSource.query(
+        `SELECT front_asset.storage_key AS front_storage_key, back_asset.storage_key AS back_storage_key
+         FROM custom_photobook_requests r
+         LEFT JOIN assets front_asset ON front_asset.id = r.front_cover_asset_id
+         LEFT JOIN assets back_asset ON back_asset.id = r.back_cover_asset_id
+         WHERE r.linked_photobook_project_id = $1`, [projectId],
+      ) as { front_storage_key: string | null; back_storage_key: string | null }[];
+      frontKey = sources?.front_storage_key ?? '';
+      backKey = sources?.back_storage_key ?? '';
     }
+    if (!frontKey || !backKey) throw new Error(missingCoverMessage);
+    const [front, back] = await Promise.all([this.downloadCoverAsBase64(frontKey), this.downloadCoverAsBase64(backKey)]);
+    if (front === PLACEHOLDER_BASE64 || back === PLACEHOLDER_BASE64) throw new Error('No se pudo preparar la portada o contraportada requerida.');
+    const documents = this.composeDocuments(project, assetMap, widthCm, heightCm, front, back);
+    return { documents, widthCm, heightCm };
   }
 
   getPdfUrl(pdfStorageKey: string): string {
@@ -146,6 +171,14 @@ export class PhotobookPdfService {
     );
 
     return assetMap;
+  }
+
+  private composeDocuments(project: ProjectDetailRecord, assetMap: Map<number, string>, widthCm: number, heightCm: number, front: string | null, back: string | null) {
+    if (!front || !back) throw new Error('Se requiere portada y contraportada para generar el PDF.');
+    return {
+      coversHtml: this.buildHtml({ ...project, pages: [] } as ProjectDetailRecord, new Map(), widthCm, heightCm, front, back),
+      interiorHtml: this.buildHtml(project, assetMap, widthCm, heightCm, null, null),
+    };
   }
 
   private buildHtml(

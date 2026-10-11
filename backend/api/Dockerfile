@@ -7,7 +7,8 @@ RUN apk add --no-cache \
   chromium \
   harfbuzz \
   font-noto \
-  ca-certificates
+  ca-certificates \
+  ghostscript
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # ─── Dev (hot-reload via nest start --watch) ──────────────────────────────────
@@ -32,5 +33,6 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/resources ./resources
 EXPOSE 3001
 CMD ["dumb-init", "node", "dist/main"]

@@ -4,8 +4,11 @@ import { PhotobookService } from './photobook.service';
 import { PhotobookPdfService } from './infrastructure/pdf/photobook-pdf.service';
 import { PhotobookRepositoryPort } from './domain/ports/photobook-repository.port';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { GenerateCustomPhotobookCoverProposalDto } from './dto/generate-custom-photobook-cover-proposal.dto';
 import type { Response } from 'express';
+import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 
 @Controller('admin/photobook')
 export class PhotobookAdminController {
@@ -13,6 +16,7 @@ export class PhotobookAdminController {
     private readonly service: PhotobookService,
     private readonly pdfService: PhotobookPdfService,
     private readonly repo: PhotobookRepositoryPort,
+    private readonly cmykPdfConverter: CmykPdfConverterService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -142,13 +146,30 @@ export class PhotobookAdminController {
   @Post('projects/:id/create-order')
   createOrder(@Param('id') id: string) { return this.service.createOrderFromProject(Number(id)); }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'OPERATOR')
+  @Get('projects/:id/print-cmyk/:part')
+  async downloadProjectCmyk(@Param('id') id: string, @Param('part') part: string, @Res() response: Response) {
+    if (part !== 'covers' && part !== 'interior') throw new BadRequestException('Documento inválido');
+    const pdf = await this.pdfService.renderCmykSource(Number(id), part);
+    const converted = await this.cmykPdfConverter.convert(pdf);
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader('Content-Disposition', `attachment; filename="photobook-${id}-${part}-cmyk.pdf"`);
+    response.send(converted);
+  }
+
   @Get('projects/:id/render')
   async getRender(@Param('id') id: string) {
     const render = await this.repo.findRenderByProjectId(Number(id));
     if (!render) throw new NotFoundException('PDF no generado aún para este proyecto');
+    const pdfUrl = this.pdfService.getPdfUrl(render.pdfStorageKey);
+    const isLegacyCombined = !/\/generation-[^/]+\/covers\.pdf$/.test(render.pdfStorageKey);
     return {
-      pdfUrl: this.pdfService.getPdfUrl(render.pdfStorageKey),
-      coverWrapUrl: await this.pdfService.getCoverWrapUrlIfExists(Number(id)),
+      pdfUrl,
+      coversUrl: isLegacyCombined ? null : pdfUrl,
+      interiorUrl: isLegacyCombined ? null : this.pdfService.getPdfUrl(render.pdfStorageKey.replace(/covers\.pdf$/, 'interior.pdf')),
+      isLegacyCombined,
+      legacyCombinedUrl: isLegacyCombined ? pdfUrl : null,
       generatedAt: render.generatedAt,
     };
   }

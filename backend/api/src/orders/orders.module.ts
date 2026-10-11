@@ -19,6 +19,7 @@ import { AssetsModule } from '../assets/assets.module';
 import { PersonalizedModule } from '../personalized/personalized.module';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
     TypeOrmOrderRepository,
     { provide: OrderRepositoryPort, useExisting: TypeOrmOrderRepository },
     CustomBookPdfService,
+        CmykPdfConverterService,
     GenerateOrderTemplateUseCase,
     GenerateOrderCoverUseCase,
     GenerateOrderAddonUseCase,

@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete, Param, Query, Body, Inject, forwardRef, Logger,
-  UploadedFile, UseInterceptors, BadRequestException, NotFoundException, UseGuards,
+  UploadedFile, UseInterceptors, BadRequestException, NotFoundException, UseGuards, Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DataSource } from 'typeorm';
@@ -16,6 +16,8 @@ import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import type { Response } from 'express';
+import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 
 @Controller('admin/orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -35,6 +37,7 @@ export class OrdersAdminController {
     private readonly generateOrderAddonUseCase: GenerateOrderAddonUseCase,
     private readonly fileStorage: FileStoragePort,
     private readonly dataSource: DataSource,
+    private readonly cmykPdfConverter: CmykPdfConverterService,
   ) {}
 
   @Get()
@@ -515,16 +518,31 @@ export class OrdersAdminController {
     return { deleted: true };
   }
 
+  @Get(':id/print-cmyk/:part')
+  async downloadCustomBookCmyk(@Param('id') id: string, @Param('part') part: string, @Res() response: Response) {
+    if (part !== 'covers' && part !== 'interior') throw new BadRequestException('Documento inválido');
+    const order = await this.ordersService.findById(Number(id));
+    if (!order || order.channel !== 'CUSTOM_BOOK') throw new BadRequestException('Esta orden no es un libro personalizado');
+    const pdf = await this.customBookPdfService.renderCmykSource(Number(id), part);
+    const converted = await this.cmykPdfConverter.convert(pdf);
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader('Content-Disposition', `attachment; filename="orden-${id}-${part}-cmyk.pdf"`);
+    response.send(converted);
+  }
+
   @Post(':id/render')
   async renderCustomBook(@Param('id') id: string) {
     const order = await this.ordersService.findById(Number(id));
     if (!order || order.channel !== 'CUSTOM_BOOK') {
       throw new BadRequestException('Esta orden no es un libro personalizado');
     }
-    void this.customBookPdfService.generateAndStore(Number(id)).catch((err: Error) => {
-      this.logger.error(`Error generando PDF orden #${id}: ${err.message}`);
-    });
-    return { queued: true };
+    try {
+      await this.customBookPdfService.generateAndStore(Number(id));
+      return { generated: true };
+    } catch (err) {
+      this.logger.error(`Error generando PDF orden #${id}: ${(err as Error).message}`);
+      throw err;
+    }
   }
 
   @Get(':id/render')
@@ -534,8 +552,15 @@ export class OrdersAdminController {
       [Number(id)],
     );
     if (rows.length === 0) throw new NotFoundException('PDF no generado aún');
+    const key = rows[0].pdf_storage_key;
+    const pdfUrl = this.customBookPdfService.getPdfUrl(key);
+    const isLegacyCombined = !/\/generation-[^/]+\/covers\.pdf$/.test(key);
     return {
-      pdfUrl: this.customBookPdfService.getPdfUrl(rows[0].pdf_storage_key),
+      pdfUrl,
+      coversUrl: isLegacyCombined ? null : pdfUrl,
+      interiorUrl: isLegacyCombined ? null : this.customBookPdfService.getPdfUrl(key.replace(/covers\.pdf$/, 'interior.pdf')),
+      isLegacyCombined,
+      legacyCombinedUrl: isLegacyCombined ? pdfUrl : null,
       generatedAt: rows[0].generated_at,
     };
   }

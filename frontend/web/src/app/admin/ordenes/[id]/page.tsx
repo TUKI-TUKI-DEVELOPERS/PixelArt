@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { tokens } from "@/lib/design-tokens";
 
 const API = "";
+const printActionStyle = { padding: "8px 12px", borderRadius: "6px", border: `1px solid ${tokens.colors.neutral.surface.border}`, background: tokens.colors.neutral.surface.base, color: tokens.colors.neutral.text.secondary, fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: tokens.fonts.body };
 
 /** Resuelve la URL pública de un asset desde su ID */
 async function resolveAssetUrl(assetId: number): Promise<string | null> {
@@ -88,6 +90,24 @@ function GenSpinner() {
   );
 }
 
+type StandardPdfRender = { pdfUrl: string; coversUrl: string | null; interiorUrl: string | null; isLegacyCombined: boolean; legacyCombinedUrl: string | null; generatedAt: string; coverWrapUrl?: string | null };
+
+async function generateCustomBookPdf(orderId: number): Promise<StandardPdfRender> {
+  const response = await fetch(`/admin-api/orders/${orderId}/render`, { method: "POST" });
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message = typeof body?.message === "string" ? body.message : Array.isArray(body?.message) ? body.message.join(" ") : null;
+    throw new Error(message || "No se pudo generar el PDF. Revisá los archivos de impresión e intentá nuevamente.");
+  }
+  const renderResponse = await fetch(`/admin-api/orders/${orderId}/render`);
+  if (!renderResponse.ok) throw new Error("El PDF se generó, pero no se pudo recuperar. Actualizá la página e intentá nuevamente.");
+  const render = await renderResponse.json();
+  if (typeof render?.pdfUrl !== "string" || typeof render?.generatedAt !== "string") {
+    throw new Error("El PDF se generó, pero la respuesta no contiene un archivo válido. Actualizá la página e intentá nuevamente.");
+  }
+  return render;
+}
+
 async function forceDownload(url: string, filename: string) {
   const res = await fetch(url);
   const blob = await res.blob();
@@ -106,18 +126,25 @@ export default function OrdenDetallePage() {
   const [acting, setActing] = useState(false);
   const [feedbackLink, setFeedbackLink] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [coverWrapUrl, setCoverWrapUrl] = useState<string | null>(null);
+  const [, setCoverWrapUrl] = useState<string | null>(null);
+  const [pdfInteriorUrl, setPdfInteriorUrl] = useState<string | null>(null);
+  const [legacyPhotobookUrl, setLegacyPhotobookUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfRegenerating, setPdfRegenerating] = useState(false);
   const [pdfSuccess, setPdfSuccess] = useState(false);
   const [printAssets, setPrintAssets] = useState<PrintAsset[]>([]);
   const [cbPdfUrl, setCbPdfUrl] = useState<string | null>(null);
+  const [cbPdfInteriorUrl, setCbPdfInteriorUrl] = useState<string | null>(null);
+  const [cbLegacyCombined, setCbLegacyCombined] = useState(false);
   const [cbPdfGenerating, setCbPdfGenerating] = useState(false);
   const [cbPdfSuccess, setCbPdfSuccess] = useState(false);
+  const [cbPdfError, setCbPdfError] = useState<string | null>(null);
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
   const [deletingSlot, setDeletingSlot] = useState<string | null>(null);
   const [confirmingSlot, setConfirmingSlot] = useState<string | null>(null);
   const [cbPdfGeneratedAt, setCbPdfGeneratedAt] = useState<string | null>(null);
+  const [cmykGenerating, setCmykGenerating] = useState(false);
+  const cmykGeneratingRef = useRef(false);
   const [assetUrls, setAssetUrls] = useState<Record<number, string>>({});
   const [selectedPhoto, setSelectedPhoto] = useState<Record<number, Record<string, number>>>({});
   // Instrucción de ajuste por plantilla para el re-roll guiado con IA.
@@ -477,16 +504,15 @@ export default function OrdenDetallePage() {
 
   function loadPdf(projectId: number) {
     setPdfLoading(true);
-    fetch(`${API}/api/admin/photobook/projects/${projectId}/render`)
+    fetch(`/admin-api/photobook/projects/${projectId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error("not ready"); })
-      .then((r: { pdfUrl: string; coverWrapUrl: string | null }) => {
-        // Cache-buster: la key en MinIO es fija por proyecto, así que sin esto el
-        // navegador sirve el PDF viejo tras regenerar (mismo patrón que el custom book).
+      .then((r: StandardPdfRender) => {
         const v = Date.now();
-        setPdfUrl(`${r.pdfUrl}?v=${v}`);
-        setCoverWrapUrl(r.coverWrapUrl ? `${r.coverWrapUrl}?v=${v}` : null);
+        setPdfUrl(r.coversUrl ? `${r.coversUrl}?v=${v}` : null);
+        setPdfInteriorUrl(r.interiorUrl ? `${r.interiorUrl}?v=${v}` : null);
+        setLegacyPhotobookUrl(r.legacyCombinedUrl ? `${r.legacyCombinedUrl}?v=${v}` : null);
       })
-      .catch(() => { setPdfUrl(null); setCoverWrapUrl(null); })
+      .catch(() => { setPdfUrl(null); setPdfInteriorUrl(null); setLegacyPhotobookUrl(null); })
       .finally(() => setPdfLoading(false));
   }
 
@@ -500,14 +526,25 @@ export default function OrdenDetallePage() {
   function loadCbRender(orderId: number) {
     fetch(`/admin-api/orders/${orderId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error(); })
-      .then((r: { pdfUrl: string; generatedAt: string }) => {
-        setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
+      .then((r: StandardPdfRender) => {
+        const v = Date.now();
+        setCbPdfUrl((r.coversUrl ?? r.legacyCombinedUrl ?? r.pdfUrl) + `?v=${v}`);
+        setCbPdfInteriorUrl(r.interiorUrl ? `${r.interiorUrl}?v=${v}` : null);
+        setCbLegacyCombined(r.isLegacyCombined);
         setCbPdfGeneratedAt(r.generatedAt);
       })
-      .catch(() => { setCbPdfUrl(null); setCbPdfGeneratedAt(null); });
+      .catch(() => { setCbPdfUrl(null); setCbPdfInteriorUrl(null); setCbLegacyCombined(false); setCbPdfGeneratedAt(null); });
   }
 
   useEffect(() => { load(); }, [id]);
+
+  async function generateCmyk(url: string, filename: string) {
+    if (cmykGeneratingRef.current) return;
+    cmykGeneratingRef.current = true;
+    setCmykGenerating(true);
+    try { await forceDownload(url, filename); }
+    finally { cmykGeneratingRef.current = false; setCmykGenerating(false); }
+  }
 
   async function reviewPayment(action: "APPROVE" | "REJECT") {
     setActing(true);
@@ -637,7 +674,7 @@ export default function OrdenDetallePage() {
 
   return (
     <div style={{ padding: "32px" }}>
-      <style dangerouslySetInnerHTML={{ __html: "@keyframes order-gen-spin { to { transform: rotate(360deg); } }" }} />
+      <style dangerouslySetInnerHTML={{ __html: "@keyframes order-gen-spin { to { transform: rotate(360deg); } } @media (prefers-reduced-motion: reduce) { .cmyk-spinner { animation: none !important; } }" }} />
 
       {/* ── 1. Header ── */}
       <div style={{ marginBottom: "28px" }}>
@@ -824,13 +861,15 @@ export default function OrdenDetallePage() {
             )}
             {pdfLoading ? (
               <div style={{ fontSize: "13px", color: "#9ca3af" }}>Verificando PDF...</div>
-            ) : pdfUrl ? (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}>
+            ) : (pdfUrl || legacyPhotobookUrl) ? (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#111", marginBottom: "3px" }}>PDF generado y listo</div>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "#111", marginBottom: "2px" }}>PDF generado y listo</div>
                   <div style={{ fontSize: "12px", color: "#6b7280" }}>Proyecto #{data.photobookProjectId}</div>
                 </div>
-                <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                <div style={{ display: "grid", gap: "8px" }}>
+                  <strong style={{ color: "#2d8fd5", fontSize: "12px" }}>Standard RGB</strong>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   <button
                     disabled={pdfRegenerating}
                     onClick={async () => {
@@ -839,11 +878,13 @@ export default function OrdenDetallePage() {
                         await fetch(`${API}/api/admin/photobook/projects/${data.photobookProjectId}/render`, { method: "POST" });
                         // Esperar 8s y luego recargar la URL del PDF
                         await new Promise((r) => setTimeout(r, 8000));
-                        const res = await fetch(`${API}/api/admin/photobook/projects/${data.photobookProjectId}/render`);
+                        const res = await fetch(`/admin-api/photobook/projects/${data.photobookProjectId}/render`);
                         if (res.ok) {
                           const r = await res.json();
                           const v = Date.now();
-                          setPdfUrl(`${r.pdfUrl}?v=${v}`);
+                          setPdfUrl(r.coversUrl ? `${r.coversUrl}?v=${v}` : null);
+                              setPdfInteriorUrl(r.interiorUrl ? `${r.interiorUrl}?v=${v}` : null);
+                              setLegacyPhotobookUrl(r.legacyCombinedUrl ? `${r.legacyCombinedUrl}?v=${v}` : null);
                           setCoverWrapUrl(r.coverWrapUrl ? `${r.coverWrapUrl}?v=${v}` : null);
                           setPdfSuccess(true);
                           setTimeout(() => setPdfSuccess(false), 4000);
@@ -855,17 +896,19 @@ export default function OrdenDetallePage() {
                     {pdfRegenerating ? "Generando..." : "Regenerar PDF"}
                   </button>
                   <button
-                    onClick={() => forceDownload(pdfUrl, `photobook_proyecto_${data.photobookProjectId}.pdf`)}
+                    onClick={() => forceDownload(legacyPhotobookUrl ?? pdfUrl!, `photobook_proyecto_${data.photobookProjectId}_cubiertas-rgb.pdf`)}
                     style={{ padding: "12px 24px", borderRadius: "10px", border: "none", background: "#2563eb", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(37,99,235,0.25)" }}>
-                    Descargar interior
+                    {legacyPhotobookUrl ? "Archivo anterior: tapa e interior juntos" : "Descargar tapa / cubiertas RGB"}
                   </button>
-                  {coverWrapUrl && (
-                    <button
-                      onClick={() => forceDownload(coverWrapUrl, `photobook_proyecto_${data.photobookProjectId}_tapa.pdf`)}
-                      style={{ padding: "12px 24px", borderRadius: "10px", border: "none", background: "#7c3aed", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(124,58,237,0.25)" }}>
-                      Descargar tapa
-                    </button>
-                  )}
+                  {!legacyPhotobookUrl && pdfInteriorUrl && <button style={printActionStyle} onClick={() => forceDownload(pdfInteriorUrl, `photobook_proyecto_${data.photobookProjectId}_interior-rgb.pdf`)}>Descargar interior RGB</button>}
+                  </div>
+                  {legacyPhotobookUrl && <div style={{ fontSize: "11px", color: "#6b7280" }}>Este archivo anterior contiene la tapa y el interior juntos. Para imprenta, usa las exportaciones CMYK separadas.</div>}
+                  <strong style={{ color: "#2d8fd5", fontSize: "12px" }}>Print CMYK</strong>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    <button style={{ ...printActionStyle, borderColor: tokens.colors.photobooks.primary, color: tokens.colors.photobooks.primary }} disabled={cmykGenerating} aria-busy={cmykGenerating} onClick={() => generateCmyk(`/admin-api/photobook/projects/${data.photobookProjectId}/print-cmyk/covers`, `photobook_proyecto_${data.photobookProjectId}_cubiertas-cmyk.pdf`)}>Generar y descargar tapa / cubiertas CMYK</button>
+                    <button style={{ ...printActionStyle, borderColor: tokens.colors.photobooks.primary, color: tokens.colors.photobooks.primary }} disabled={cmykGenerating} aria-busy={cmykGenerating} onClick={() => generateCmyk(`/admin-api/photobook/projects/${data.photobookProjectId}/print-cmyk/interior`, `photobook_proyecto_${data.photobookProjectId}_interior-cmyk.pdf`)}>Generar y descargar interior CMYK</button>
+                  </div>
+                  {cmykGenerating && <span role="status" style={{ fontSize: "12px", color: "#6b7280" }}>Generando…</span>}
                 </div>
               </div>
             ) : (
@@ -1513,7 +1556,8 @@ export default function OrdenDetallePage() {
 
           {/* PDF generado */}
           <div style={{ padding: "0 24px 20px" }}>
-            {cbPdfSuccess && (
+            {cbPdfError && <div role="alert" style={{ marginBottom: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: "13px" }}>{cbPdfError}</div>}
+                {cbPdfSuccess && (
               <div style={{ marginBottom: "12px", padding: "10px 14px", borderRadius: "8px", background: "#f0fdf4", border: "1px solid #bbf7d0", display: "flex", alignItems: "center", gap: "8px" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                 <span style={{ fontSize: "13px", fontWeight: 600, color: "#15803d" }}>PDF generado con éxito</span>
@@ -1529,41 +1573,45 @@ export default function OrdenDetallePage() {
                       : "20.5 × 29 cm"}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div style={{ display: "grid", gap: "8px" }}>
+                  <strong style={{ color: "#B72020", fontSize: "12px" }}>Standard RGB</strong>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   <button
                     disabled={cbPdfGenerating}
                     onClick={async () => {
                       setCbPdfGenerating(true);
                       try {
-                        const startedAt = Date.now();
-                        await fetch(`/admin-api/orders/${data.id}/render`, { method: "POST" });
-                        let found = false;
-                        for (let attempt = 0; attempt < 25; attempt++) {
-                          await new Promise((r) => setTimeout(r, 2000));
-                          const res = await fetch(`/admin-api/orders/${data.id}/render`);
-                          if (!res.ok) continue;
-                          const r = await res.json();
-                          if (new Date(r.generatedAt).getTime() > startedAt) {
-                            setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
-                            setCbPdfGeneratedAt(r.generatedAt);
+                            const render = await generateCustomBookPdf(data.id);
+                            const version = Date.now();
+                            setCbPdfUrl(`${render.coversUrl ?? render.pdfUrl}?v=${version}`);
+                            setCbPdfInteriorUrl(render.interiorUrl ? `${render.interiorUrl}?v=${version}` : null);
+                            setCbLegacyCombined(false);
+                            setCbPdfGeneratedAt(render.generatedAt);
+                            setCbPdfError(null);
                             setCbPdfSuccess(true);
                             setTimeout(() => setCbPdfSuccess(false), 4000);
-                            found = true;
-                            break;
+                          } catch (err) {
+                            setCbPdfError(err instanceof Error ? err.message : "No se pudo generar el PDF. Revisá los archivos e intentá nuevamente.");
                           }
-                        }
-                        if (!found) alert("El PDF está tardando demasiado. Recargá la página en un momento.");
-                      } catch { alert("Error al generar el PDF"); }
                       finally { setCbPdfGenerating(false); }
                     }}
                     style={{ padding: "10px 18px", borderRadius: "9px", border: "1px solid #e5e7eb", background: "#fff", color: cbPdfGenerating ? "#9ca3af" : "#374151", fontSize: "13px", fontWeight: 600, cursor: cbPdfGenerating ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
                     {cbPdfGenerating ? "Generando..." : "Regenerar PDF"}
                   </button>
                   <button
-                    onClick={() => forceDownload(cbPdfUrl, `libro_orden_${data.id}.pdf`)}
+                    onClick={() => forceDownload(cbPdfUrl, cbLegacyCombined ? `libro_orden_${data.id}_legacy-combinado.pdf` : `libro_orden_${data.id}_cubiertas-rgb.pdf`)}
                     style={{ padding: "10px 22px", borderRadius: "9px", border: "none", background: "#2563eb", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(37,99,235,0.25)" }}>
-                    Descargar PDF
+                    {cbLegacyCombined ? "Archivo anterior: tapa e interior juntos" : "Descargar tapa / cubiertas RGB"}
                   </button>
+                  {!cbLegacyCombined && cbPdfInteriorUrl && <button style={printActionStyle} onClick={() => forceDownload(cbPdfInteriorUrl, `libro_orden_${data.id}_interior-rgb.pdf`)}>Descargar interior RGB</button>}
+                  </div>
+                  {cbLegacyCombined && <div style={{ flexBasis: "100%", fontSize: "11px", color: "#6b7280" }}>Este archivo anterior contiene la tapa y el interior juntos. Para imprenta, usa las exportaciones CMYK separadas.</div>}
+                      {cmykGenerating && <span role="status" style={{ flexBasis: "100%" }}>Generando…</span>}
+                      <strong style={{ color: "#B72020", fontSize: "12px" }}>Print CMYK</strong>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    <button style={{ ...printActionStyle, borderColor: tokens.colors.customBooks.primary, color: tokens.colors.customBooks.primary }} disabled={cmykGenerating} aria-busy={cmykGenerating} onClick={() => generateCmyk(`/admin-api/orders/${data.id}/print-cmyk/covers`, `libro_orden_${data.id}_cubiertas-cmyk.pdf`)}>Generar y descargar tapa / cubiertas CMYK</button>
+                    <button style={{ ...printActionStyle, borderColor: tokens.colors.customBooks.primary, color: tokens.colors.customBooks.primary }} disabled={cmykGenerating} aria-busy={cmykGenerating} onClick={() => generateCmyk(`/admin-api/orders/${data.id}/print-cmyk/interior`, `libro_orden_${data.id}_interior-cmyk.pdf`)}>Generar y descargar interior CMYK</button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -1578,25 +1626,18 @@ export default function OrdenDetallePage() {
                   onClick={async () => {
                     setCbPdfGenerating(true);
                     try {
-                      const startedAt = Date.now();
-                      await fetch(`/admin-api/orders/${data.id}/render`, { method: "POST" });
-                      let found = false;
-                      for (let attempt = 0; attempt < 25; attempt++) {
-                        await new Promise((r) => setTimeout(r, 2000));
-                        const res = await fetch(`/admin-api/orders/${data.id}/render`);
-                        if (!res.ok) continue;
-                        const r = await res.json();
-                        if (new Date(r.generatedAt).getTime() > startedAt) {
-                          setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
-                          setCbPdfGeneratedAt(r.generatedAt);
-                          setCbPdfSuccess(true);
-                          setTimeout(() => setCbPdfSuccess(false), 4000);
-                          found = true;
-                          break;
-                        }
-                      }
-                      if (!found) alert("El PDF está tardando demasiado. Recargá la página en un momento.");
-                    } catch { alert("Error al generar el PDF"); }
+                            const render = await generateCustomBookPdf(data.id);
+                            const version = Date.now();
+                            setCbPdfUrl(`${render.coversUrl ?? render.pdfUrl}?v=${version}`);
+                            setCbPdfInteriorUrl(render.interiorUrl ? `${render.interiorUrl}?v=${version}` : null);
+                            setCbLegacyCombined(false);
+                            setCbPdfGeneratedAt(render.generatedAt);
+                            setCbPdfError(null);
+                            setCbPdfSuccess(true);
+                            setTimeout(() => setCbPdfSuccess(false), 4000);
+                          } catch (err) {
+                            setCbPdfError(err instanceof Error ? err.message : "No se pudo generar el PDF. Revisá los archivos e intentá nuevamente.");
+                          }
                     finally { setCbPdfGenerating(false); }
                   }}
                   style={{ flexShrink: 0, padding: "12px 24px", borderRadius: "10px", border: "none", background: cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2 ? "#e5e7eb" : "#2563eb", color: cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2 ? "#9ca3af" : "#fff", fontSize: "13px", fontWeight: 700, cursor: cbPdfGenerating || printAssets.filter((a) => a.status === "CONFIRMED" && a.assetType !== "ADDON").length < 2 + (data.templateSelections?.length ?? 0) * 2 ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
