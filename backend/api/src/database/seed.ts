@@ -38,11 +38,130 @@ export async function runSeed(): Promise<void> {
 
     // 0a. Enum values
     await client.query(`ALTER TYPE public_link_type ADD VALUE IF NOT EXISTS 'CHECKOUT'`);
+    await client.query(`ALTER TYPE public_link_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_COVER_APPROVAL'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'UNIFIED_CHECKOUT_SENT'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_DEMO_REQUEST_TO_ADMIN'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_PAYMENT_TO_ADMIN'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_PHOTOBOOK_REQUEST_TO_ADMIN'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_COVER_APPROVAL_SENT'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_EDITOR_CODE_SENT'`);
+    await client.query(`ALTER TYPE custom_photobook_request_status ADD VALUE IF NOT EXISTS 'EDITOR_IN_PROGRESS'`);
+    await client.query(`ALTER TYPE custom_photobook_request_status ADD VALUE IF NOT EXISTS 'READY_FOR_PRODUCTION'`);
+
+    // 0a-bis. Solicitudes de photobook a medida (brief + referencias, sin pago)
+    await client.query(`
+      DO $$ BEGIN
+        CREATE TYPE custom_photobook_request_status AS ENUM (
+          'PENDING_REVIEW', 'DESIGN_IN_PROGRESS', 'AWAITING_CUSTOMER', 'EDITOR_READY', 'EDITOR_IN_PROGRESS', 'READY_FOR_PRODUCTION', 'CLOSED'
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        CREATE TYPE custom_photobook_cover_mode AS ENUM (
+          'PIXELART_DESIGNED', 'CUSTOMER_ARTWORK', 'PHOTO_BASED'
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS custom_photobook_requests (
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        status custom_photobook_request_status NOT NULL DEFAULT 'PENDING_REVIEW',
+        occasion TEXT NOT NULL,
+        requested_theme TEXT NOT NULL,
+        cover_title TEXT,
+        cover_mode custom_photobook_cover_mode NOT NULL,
+        brief TEXT NOT NULL,
+        customer_full_name TEXT NOT NULL,
+        customer_email TEXT NOT NULL,
+        customer_phone TEXT NOT NULL,
+        front_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+        back_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+        cover_wrap_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
+        linked_photobook_project_id BIGINT UNIQUE REFERENCES photobook_projects(id) ON DELETE SET NULL,
+        cover_approved_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS custom_photobook_request_reference_assets (
+        request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+        asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        PRIMARY KEY (request_id, asset_id)
+      )
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS custom_photobook_requests_status_idx ON custom_photobook_requests(status, created_at DESC)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS custom_photobook_requests_customer_email_idx ON custom_photobook_requests(customer_email)`);
+    await client.query(`ALTER TABLE custom_photobook_requests ADD COLUMN IF NOT EXISTS cover_approved_at TIMESTAMPTZ`);
+    await client.query(`ALTER TABLE public_links ADD COLUMN IF NOT EXISTS custom_photobook_request_id BIGINT`);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE public_links ADD CONSTRAINT fk_public_links_custom_photobook_request
+          FOREIGN KEY (custom_photobook_request_id) REFERENCES custom_photobook_requests(id) ON DELETE CASCADE;
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS public_links_custom_photobook_request_id_idx ON public_links(custom_photobook_request_id)`);
+    await client.query(`ALTER TABLE public_links DROP CONSTRAINT IF EXISTS chk_public_links_has_reference`);
+    await client.query(`ALTER TABLE public_links DROP CONSTRAINT IF EXISTS chk_public_links_type_reference`);
+    await client.query(`
+      ALTER TABLE public_links ADD CONSTRAINT chk_public_links_has_reference
+        CHECK (demo_request_id IS NOT NULL OR order_id IS NOT NULL OR custom_photobook_request_id IS NOT NULL)
+    `);
+    const legacyEditorType = await client.query(
+      `SELECT 1 FROM pg_enum WHERE enumtypid = 'public_link_type'::regtype AND enumlabel = 'PHOTOBOOK_EDITOR'`,
+    );
+    const legacyEditorClause = legacyEditorType.rowCount
+      ? ` OR (link_type = 'PHOTOBOOK_EDITOR' AND custom_photobook_request_id IS NOT NULL AND demo_request_id IS NULL AND order_id IS NULL AND revoked_at IS NOT NULL)`
+      : '';
+    await client.query(`
+      ALTER TABLE public_links ADD CONSTRAINT chk_public_links_type_reference CHECK (
+        (link_type = 'DEMO_VIEW' AND demo_request_id IS NOT NULL AND order_id IS NULL AND custom_photobook_request_id IS NULL) OR
+        (link_type IN ('PAYMENT_UPLOAD', 'FEEDBACK', 'CHECKOUT') AND order_id IS NOT NULL AND demo_request_id IS NULL AND custom_photobook_request_id IS NULL) OR
+        (link_type = 'PHOTOBOOK_COVER_APPROVAL' AND custom_photobook_request_id IS NOT NULL AND demo_request_id IS NULL AND order_id IS NULL)
+        ${legacyEditorClause}
+      )
+    `);
+    await client.query(`ALTER TABLE custom_photobook_request_reference_assets ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true`);
+    await client.query(`CREATE INDEX IF NOT EXISTS custom_photobook_request_reference_assets_asset_idx ON custom_photobook_request_reference_assets(asset_id)`);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS custom_photobook_request_designs (
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        request_id BIGINT NOT NULL REFERENCES custom_photobook_requests(id) ON DELETE CASCADE,
+        surface TEXT NOT NULL CHECK (surface IN ('FRONT_COVER', 'BACK_COVER')),
+        asset_id BIGINT NOT NULL REFERENCES assets(id) ON DELETE RESTRICT,
+        source_design_id BIGINT REFERENCES custom_photobook_request_designs(id) ON DELETE SET NULL,
+        is_selected BOOLEAN NOT NULL DEFAULT false,
+        assembled_prompt TEXT NOT NULL,
+        provider TEXT NOT NULL DEFAULT 'openai',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
+    await client.query(`
+      ALTER TABLE custom_photobook_request_designs
+        ADD COLUMN IF NOT EXISTS source_design_id BIGINT REFERENCES custom_photobook_request_designs(id) ON DELETE SET NULL,
+        ADD COLUMN IF NOT EXISTS is_selected BOOLEAN NOT NULL DEFAULT false
+    `);
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS custom_photobook_request_designs_request_surface_created_idx
+        ON custom_photobook_request_designs(request_id, surface, created_at DESC)
+    `);
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS custom_photobook_request_designs_selected_front_idx
+        ON custom_photobook_request_designs(request_id)
+        WHERE surface = 'FRONT_COVER' AND is_selected
+    `);
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS custom_photobook_request_designs_selected_back_idx
+        ON custom_photobook_request_designs(request_id)
+        WHERE surface = 'BACK_COVER' AND is_selected
+    `);
 
     // 0b. Columna extra_templates_amount_cents en orders
     await client.query(`
@@ -90,6 +209,7 @@ export async function runSeed(): Promise<void> {
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_department TEXT`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS delivery_region TEXT`);
     await client.query(`ALTER TABLE photobook_projects ADD COLUMN IF NOT EXISTS desired_delivery_date DATE`);
+    await client.query(`ALTER TABLE photobook_projects ALTER COLUMN photobook_theme_id DROP NOT NULL`);
     // calculated_total_cents ya no es price_per_page_cents * page_count (ver photobook-pricing.service.ts)
     await client.query(`ALTER TABLE photobook_projects DROP CONSTRAINT IF EXISTS chk_photobook_projects_total`);
 

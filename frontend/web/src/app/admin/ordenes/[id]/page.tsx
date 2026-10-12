@@ -24,7 +24,7 @@ type CharacterMeta =
   | { mode: "hermanos"; hermanos: ({ gender: "M" | "F" } & CharacterMember)[] }
   | { mode: "mascotas-aventura"; pet: CharacterMember & { nickname?: string | null; gender?: string }; owners: ({ gender?: string } & CharacterMember)[] }
   | { mode: "memorial-hermanos"; totalSiblings: number; recipient: CharacterMember & { nickname?: string | null; gender?: string }; livingSiblings: CharacterMember[] }
-  | { mode: string; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
+  | { mode: "amor" | "mascotas" | "familia" | "memorial"; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
 type OrderDetail = {
@@ -32,6 +32,7 @@ type OrderDetail = {
   totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null;
   demoRequestId: number | null;
   photobookProjectId: number | null;
+  photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null;
   statusEvents: { id: number; oldStatus: string | null; newStatus: string; note: string | null; createdAt: string }[];
   paymentProof: { id: number; status: string; paymentMethod: string; amountCents: number; voucherUrl: string } | null;
   templateSelections: { templateId: number; templateName: string | null; slotIndex: number; hasPromptContent: boolean }[];
@@ -50,6 +51,7 @@ type PrintAsset = {
 };
 
 const STATUS_MAP: Record<string, { bg: string; text: string; label: string; accent: string }> = {
+  CONFIGURING_PHOTOBOOK:    { bg: "#f3f4f6", text: "#4b5563", label: "Configurando photobook", accent: "#6b7280" },
   AWAITING_PAYMENT_PROOF: { bg: "#fef3c7", text: "#92400e", label: "Esperando Pago",   accent: "#f59e0b" },
   UNDER_PAYMENT_REVIEW:   { bg: "#dbeafe", text: "#1e40af", label: "Revisando Pago",   accent: "#3b82f6" },
   PAYMENT_VERIFIED:       { bg: "#d1fae5", text: "#065f46", label: "Pago Verificado",  accent: "#22c55e" },
@@ -61,6 +63,7 @@ const STATUS_MAP: Record<string, { bg: string; text: string; label: string; acce
 };
 
 const STATUS_ORDER = [
+  "CONFIGURING_PHOTOBOOK",
   "AWAITING_PAYMENT_PROOF",
   "UNDER_PAYMENT_REVIEW",
   "PAYMENT_VERIFIED",
@@ -163,7 +166,7 @@ export default function OrdenDetallePage() {
   const PDF_ELIGIBLE_STATUSES = ["PAYMENT_VERIFIED", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
 
   function load() {
-    fetch(`${API}/api/admin/orders/${id}`)
+    fetch(`/admin-api/orders/${id}`)
       .then((r) => r.json())
       .then((order: OrderDetail) => {
         setData(order);
@@ -182,7 +185,7 @@ export default function OrdenDetallePage() {
           // Las plantillas que ya tenían un original limpio de la demo se cargan
           // solas (sin gastar una llamada nueva a OpenAI) antes de leer los
           // archivos de imprenta, para que ya aparezcan como pendientes de revisar.
-          fetch(`${API}/api/admin/orders/${order.id}/print-assets/backfill-from-demo`, { method: "POST" })
+          fetch(`/admin-api/orders/${order.id}/print-assets/backfill-from-demo`, { method: "POST" })
             .catch(() => {})
             .finally(() => loadPrintAssets(order.id));
           loadCbRender(order.id);
@@ -213,7 +216,7 @@ export default function OrdenDetallePage() {
     for (let attempt = 0; attempt < 30; attempt++) {
       await new Promise((r) => setTimeout(r, 4000));
       try {
-        const res = await fetch(`${API}/api/admin/orders/${orderId}/print-assets`);
+        const res = await fetch(`/admin-api/orders/${orderId}/print-assets`);
         if (!res.ok) continue;
         const list: PrintAsset[] = await res.json();
         const done = list.some(
@@ -232,7 +235,7 @@ export default function OrdenDetallePage() {
     for (let attempt = 0; attempt < 30; attempt++) {
       await new Promise((r) => setTimeout(r, 4000));
       try {
-        const res = await fetch(`${API}/api/admin/orders/${orderId}/print-assets`);
+        const res = await fetch(`/admin-api/orders/${orderId}/print-assets`);
         if (!res.ok) continue;
         const list: PrintAsset[] = await res.json();
         const done = list.some(
@@ -268,7 +271,7 @@ export default function OrdenDetallePage() {
       if (!uploadRes.ok) throw new Error("No se pudo subir la foto");
       const uploaded = await uploadRes.json();
 
-      const linkRes = await fetch(`${API}/api/admin/orders/${data.id}/character-photos`, {
+      const linkRes = await fetch(`/admin-api/orders/${data.id}/character-photos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roleKey, oldAssetId, newAssetId: uploaded.id }),
@@ -293,7 +296,7 @@ export default function OrdenDetallePage() {
     const startedAt = Date.now();
     try {
       const res = await fetch(
-        `${API}/api/admin/orders/${data.id}/print-assets/generate?templateId=${templateId}`,
+        `/admin-api/orders/${data.id}/print-assets/generate?templateId=${templateId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -336,7 +339,7 @@ export default function OrdenDetallePage() {
     setCoverGenerateError("");
     const startedAt = Date.now();
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-cover`, {
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/generate-cover`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ selectedAssetIds: selectedPhoto[COVER_PHOTO_KEY] ?? {}, refinementPrompt: coverRefinementPrompt.trim() || undefined }),
@@ -369,7 +372,7 @@ export default function OrdenDetallePage() {
     setBackCoverGenerateError("");
     const startedAt = Date.now();
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refinementPrompt: backCoverRefinementPrompt.trim() || undefined }) });
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refinementPrompt: backCoverRefinementPrompt.trim() || undefined }) });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as { message?: string }).message ?? "Error al generar la contratapa");
@@ -394,7 +397,7 @@ export default function OrdenDetallePage() {
     setAddonGenerating(true);
     setAddonGenerateError("");
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-addon`, {
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/generate-addon`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ selectedModelIds: selectedCrossSellIds }),
@@ -418,7 +421,7 @@ export default function OrdenDetallePage() {
     if (opening && addonCandidates.length === 0) {
       setAddonCandidatesLoading(true);
       try {
-        const res = await fetch(`${API}/api/admin/orders/${data.id}/cross-sell-candidates`);
+        const res = await fetch(`/admin-api/orders/${data.id}/cross-sell-candidates`);
         if (res.ok) setAddonCandidates(await res.json());
       } finally {
         setAddonCandidatesLoading(false);
@@ -438,7 +441,7 @@ export default function OrdenDetallePage() {
     if (!data) return;
     setConfirmingAll(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/confirm`, { method: "POST" });
+      const res = await fetch(`/admin-api/orders/${data.id}/print-assets/confirm`, { method: "POST" });
       if (!res.ok) throw new Error();
       loadPrintAssets(data.id);
     } catch {
@@ -452,7 +455,7 @@ export default function OrdenDetallePage() {
     if (!data) return;
     setSavingDesign(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-design`, {
+      const res = await fetch(`/admin-api/orders/${data.id}/print-design`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -488,14 +491,14 @@ export default function OrdenDetallePage() {
   }
 
   function loadPrintAssets(orderId: number) {
-    fetch(`${API}/api/admin/orders/${orderId}/print-assets`)
+    fetch(`/admin-api/orders/${orderId}/print-assets`)
       .then((r) => r.json())
       .then((list: PrintAsset[]) => setPrintAssets(Array.isArray(list) ? list : []))
       .catch(() => {});
   }
 
   function loadCbRender(orderId: number) {
-    fetch(`${API}/api/admin/orders/${orderId}/render`)
+    fetch(`/admin-api/orders/${orderId}/render`)
       .then((r) => { if (r.ok) return r.json(); throw new Error(); })
       .then((r: { pdfUrl: string; generatedAt: string }) => {
         setCbPdfUrl(r.pdfUrl + `?v=${Date.now()}`);
@@ -509,7 +512,7 @@ export default function OrdenDetallePage() {
   async function reviewPayment(action: "APPROVE" | "REJECT") {
     setActing(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${id}/review-payment`, {
+      const res = await fetch(`/admin-api/orders/${id}/review-payment`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
@@ -531,7 +534,7 @@ export default function OrdenDetallePage() {
     if (!next) return;
     setActing(true);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${id}/advance-status`, {
+      const res = await fetch(`/admin-api/orders/${id}/advance-status`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newStatus: next }),
       });
@@ -741,7 +744,16 @@ export default function OrdenDetallePage() {
         </div>
       </div>
 
-      {/* ── 3. Voucher de pago ── */}
+      {data.channel === "PHOTOBOOK" && data.photobookDelivery && (
+            <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", padding: "18px 20px" }}>
+              <div style={{ fontSize: "15px", fontWeight: 700, color: "#111", marginBottom: "10px" }}>Dirección de entrega</div>
+              <div style={{ fontSize: "14px", color: "#374151", lineHeight: 1.6 }}>
+                {[data.photobookDelivery.address, data.photobookDelivery.district, data.photobookDelivery.city, data.photobookDelivery.region, data.photobookDelivery.department].filter(Boolean).join(" · ") || "Pendiente de completar por el cliente"}
+              </div>
+            </div>
+          )}
+
+          {/* ── 3. Voucher de pago ── */}
       <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", marginBottom: "24px", overflow: "hidden" }}>
         <div style={{ padding: "16px 20px", borderBottom: "1px solid #f3f4f6" }}>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "#111" }}>Voucher de pago</span>
@@ -1429,7 +1441,7 @@ export default function OrdenDetallePage() {
                             setDeletingSlot(slot.key);
                             setConfirmingSlot(null);
                             try {
-                              const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/${uploaded.id}`, { method: "DELETE" });
+                              const res = await fetch(`/admin-api/orders/${data.id}/print-assets/${uploaded.id}`, { method: "DELETE" });
                               if (!res.ok) throw new Error();
                               loadPrintAssets(data.id);
                             } catch { alert("Error al eliminar el archivo"); }
@@ -1483,7 +1495,7 @@ export default function OrdenDetallePage() {
                           fd.append("pagePart", slot.pagePart);
                           if (slot.templateId !== null) fd.append("templateId", String(slot.templateId));
                           if (slot.slotIndex !== null) fd.append("slotIndex", String(slot.slotIndex));
-                          const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets`, { method: "POST", body: fd });
+                          const res = await fetch(`/admin-api/orders/${data.id}/print-assets`, { method: "POST", body: fd });
                           if (!res.ok) throw new Error();
                           loadPrintAssets(data.id);
                         } catch { alert("Error al subir el archivo"); }
@@ -1524,11 +1536,11 @@ export default function OrdenDetallePage() {
                       setCbPdfGenerating(true);
                       try {
                         const startedAt = Date.now();
-                        await fetch(`${API}/api/admin/orders/${data.id}/render`, { method: "POST" });
+                        await fetch(`/admin-api/orders/${data.id}/render`, { method: "POST" });
                         let found = false;
                         for (let attempt = 0; attempt < 25; attempt++) {
                           await new Promise((r) => setTimeout(r, 2000));
-                          const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
+                          const res = await fetch(`/admin-api/orders/${data.id}/render`);
                           if (!res.ok) continue;
                           const r = await res.json();
                           if (new Date(r.generatedAt).getTime() > startedAt) {
@@ -1567,11 +1579,11 @@ export default function OrdenDetallePage() {
                     setCbPdfGenerating(true);
                     try {
                       const startedAt = Date.now();
-                      await fetch(`${API}/api/admin/orders/${data.id}/render`, { method: "POST" });
+                      await fetch(`/admin-api/orders/${data.id}/render`, { method: "POST" });
                       let found = false;
                       for (let attempt = 0; attempt < 25; attempt++) {
                         await new Promise((r) => setTimeout(r, 2000));
-                        const res = await fetch(`${API}/api/admin/orders/${data.id}/render`);
+                        const res = await fetch(`/admin-api/orders/${data.id}/render`);
                         if (!res.ok) continue;
                         const r = await res.json();
                         if (new Date(r.generatedAt).getTime() > startedAt) {

@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MulterModule } from '@nestjs/platform-express';
 import { PhotobookService } from './photobook.service';
 import { PhotobookPublicController } from './photobook-public.controller';
 import { PhotobookAdminController } from './photobook-admin.controller';
@@ -16,6 +17,7 @@ import { OrdersModule } from '../orders/orders.module';
 import { PublicLinksModule } from '../public-links/public-links.module';
 import { EmailModule } from '../email/email.module';
 import { AssetsModule } from '../assets/assets.module';
+import { PersonalizedModule } from '../personalized/personalized.module';
 
 @Module({
   imports: [
@@ -23,10 +25,17 @@ import { AssetsModule } from '../assets/assets.module';
       PhotobookThemeOrmEntity, PhotobookProductOrmEntity, PhotobookProjectOrmEntity,
       PhotobookPageOrmEntity, PhotobookPageSlotOrmEntity, PhotobookRenderOrmEntity,
     ]),
+    MulterModule.register({
+      limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_req: unknown, file: Express.Multer.File, callback: (error: Error | null, acceptFile: boolean) => void) => {
+        callback(null, /^image\/(jpeg|png|webp|gif)$/.test(file.mimetype));
+      },
+    }),
     forwardRef(() => OrdersModule),
     PublicLinksModule,
     EmailModule,
     AssetsModule,
+    PersonalizedModule,
   ],
   controllers: [PhotobookPublicController, PhotobookAdminController],
   providers: [

@@ -1,9 +1,10 @@
 import { PublicLink } from '../public-link';
 
 export type CreateLinkData = {
-  linkType: 'DEMO_VIEW' | 'PAYMENT_UPLOAD' | 'FEEDBACK' | 'CHECKOUT';
+  linkType: 'DEMO_VIEW' | 'PAYMENT_UPLOAD' | 'FEEDBACK' | 'CHECKOUT' | 'PHOTOBOOK_COVER_APPROVAL';
   demoRequestId?: number | null;
   orderId?: number | null;
+  customPhotobookRequestId?: number | null;
   ttlDays?: number;
 };
 

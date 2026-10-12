@@ -5,26 +5,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toRelativeAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import PhotobookFormatSelector, { PhotobookCoverType, THICK_COVER_EXAMPLES, THIN_COVER_EXAMPLES } from "@/components/photobook/PhotobookFormatSelector";
 
 const ACCENT = "#804187";
 
-const EXAMPLES_DELGADA = [
-  { hojas: 15, price: "S/ 90",  highlight: false },
-  { hojas: 20, price: "S/ 105", highlight: false },
-  { hojas: 25, price: "S/ 120", highlight: true  },
-  { hojas: 35, price: "S/ 150", highlight: false },
-  { hojas: 50, price: "S/ 195", highlight: false },
-];
+export const EXAMPLES_DELGADA = THIN_COVER_EXAMPLES.map(({ sheets, ...example }) => ({ hojas: sheets, ...example }));
+export const EXAMPLES_GRUESA = THICK_COVER_EXAMPLES.map(({ sheets, ...example }) => ({ hojas: sheets, ...example }));
 
-const EXAMPLES_GRUESA = [
-  { hojas: 15, price: "S/ 120", highlight: false },
-  { hojas: 20, price: "S/ 140", highlight: false },
-  { hojas: 25, price: "S/ 160", highlight: true  },
-  { hojas: 35, price: "S/ 200", highlight: false },
-  { hojas: 50, price: "S/ 240", highlight: false },
-];
-
-type CoverOption = "TAPA_DELGADA" | "TAPA_GRUESA";
+type CoverOption = PhotobookCoverType;
 
 type Props = {
   temaSlug:       string;
@@ -255,157 +243,16 @@ export default function PhotobookConfigurarClient({ temaSlug, temaNombre, coverP
               El precio varía según la tapa y la cantidad de hojas. Puedes cambiarlos dentro del editor también.
             </p>
 
-            {/* Cards */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "32px" }}>
-
-              {/* ── Tapa Delgada ── */}
-              <div
-                onClick={() => setSelectedCover("TAPA_DELGADA")}
-                style={{
-                  cursor: "pointer",
-                  background: "#fff",
-                  border: `2px solid ${selectedCover === "TAPA_DELGADA" ? "#6b9fff" : "#e8e8e8"}`,
-                  borderLeft: `5px solid ${selectedCover === "TAPA_DELGADA" ? "#6b9fff" : "#e8e8e8"}`,
-                  borderRadius: "16px",
-                  padding: "20px 20px 20px 18px",
-                  position: "relative",
-                  userSelect: "none",
-                  boxShadow: selectedCover === "TAPA_DELGADA" ? "0 4px 20px rgba(107,159,255,0.15)" : "0 2px 8px rgba(0,0,0,0.04)",
-                  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                }}
-              >
-                {/* Header de la card */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                  <div>
-                    <div style={{ fontSize: "11px", fontWeight: 700, color: "#6b9fff", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "3px" }}>TAPA DELGADA</div>
-                    <div style={{ fontSize: "16px", fontWeight: 600, color: "#111" }}>Cartulina estándar · Ligero y económico</div>
-                  </div>
-                  <div style={{
-                    width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
-                    background: selectedCover === "TAPA_DELGADA" ? "#6b9fff" : "transparent",
-                    border: `2px solid ${selectedCover === "TAPA_DELGADA" ? "#6b9fff" : "#ddd"}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.2s ease",
-                  }}>
-                    {selectedCover === "TAPA_DELGADA" && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-
-                {/* Filas de hojas */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  {EXAMPLES_DELGADA.map((ex) => {
-                    const isRowSelected = selectedCover === "TAPA_DELGADA" && selectedHojasDelgada === ex.hojas;
-                    return (
-                      <div
-                        key={ex.hojas}
-                        onClick={(e) => { e.stopPropagation(); setSelectedCover("TAPA_DELGADA"); setSelectedHojasDelgada(ex.hojas); }}
-                        style={{
-                          padding: "10px 14px", borderRadius: "10px", cursor: "pointer",
-                          background: isRowSelected ? "rgba(107,159,255,0.10)" : ex.highlight ? "rgba(107,159,255,0.05)" : "#fafafa",
-                          border: isRowSelected ? "1.5px solid #6b9fff" : ex.highlight ? "1.5px solid rgba(107,159,255,0.25)" : "1.5px solid #f0f0f0",
-                          display: "flex", alignItems: "center", justifyContent: "space-between",
-                          gap: "8px", position: "relative", transition: "all 0.15s",
-                        }}
-                      >
-                        {ex.highlight && (
-                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: "#6b9fff", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px", opacity: (selectedCover === "TAPA_DELGADA" && !isRowSelected) ? 0.35 : 1, transition: "opacity 0.2s" }}>MÁS ELEGIDO</div>
-                        )}
-                        {isRowSelected && (
-                          <div style={{ position: "absolute", top: "-8px", right: "12px", background: "#22c55e", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>
-                        )}
-                        <span style={{ fontSize: "13px", fontWeight: 500, color: isRowSelected ? "#111" : "#555" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
-                        <span style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: 700, color: isRowSelected ? "#6b9fff" : "#111", whiteSpace: "nowrap" }}>{ex.price}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* ── Tapa Gruesa ── */}
-              <div
-                onClick={() => setSelectedCover("TAPA_GRUESA")}
-                style={{
-                  cursor: "pointer",
-                  background: "#fff",
-                  border: `2px solid ${selectedCover === "TAPA_GRUESA" ? ACCENT : "#e8e8e8"}`,
-                  borderLeft: `5px solid ${selectedCover === "TAPA_GRUESA" ? ACCENT : "#e8e8e8"}`,
-                  borderRadius: "16px",
-                  padding: "20px 20px 20px 18px",
-                  position: "relative",
-                  userSelect: "none",
-                  boxShadow: selectedCover === "TAPA_GRUESA" ? `0 4px 20px ${ACCENT}20` : "0 2px 8px rgba(0,0,0,0.04)",
-                  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-                }}
-              >
-                {/* Badge recomendada */}
-                {selectedCover !== "TAPA_GRUESA" && (
-                  <div style={{
-                    position: "absolute", top: "-10px", right: "20px",
-                    background: `linear-gradient(135deg, ${ACCENT} 0%, #c471ed 100%)`,
-                    color: "#fff", fontSize: "9px", fontWeight: 700,
-                    padding: "3px 12px", borderRadius: "99px",
-                    letterSpacing: "0.5px", textTransform: "uppercase",
-                  }}>
-                    Recomendada
-                  </div>
-                )}
-
-                {/* Header de la card */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                  <div>
-                    <div style={{ fontSize: "11px", fontWeight: 700, color: ACCENT, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "3px" }}>TAPA GRUESA</div>
-                    <div style={{ fontSize: "16px", fontWeight: 600, color: "#111" }}>Tapa dura resistente · Durabilidad premium</div>
-                  </div>
-                  <div style={{
-                    width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
-                    background: selectedCover === "TAPA_GRUESA" ? ACCENT : "transparent",
-                    border: `2px solid ${selectedCover === "TAPA_GRUESA" ? ACCENT : "#ddd"}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.2s ease",
-                  }}>
-                    {selectedCover === "TAPA_GRUESA" && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-
-                {/* Filas de hojas */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  {EXAMPLES_GRUESA.map((ex) => {
-                    const isRowSelected = selectedCover === "TAPA_GRUESA" && selectedHojasGruesa === ex.hojas;
-                    return (
-                      <div
-                        key={ex.hojas}
-                        onClick={(e) => { e.stopPropagation(); setSelectedCover("TAPA_GRUESA"); setSelectedHojasGruesa(ex.hojas); }}
-                        style={{
-                          padding: "10px 14px", borderRadius: "10px", cursor: "pointer",
-                          background: isRowSelected ? `${ACCENT}0f` : ex.highlight ? `${ACCENT}07` : "#fafafa",
-                          border: isRowSelected ? `1.5px solid ${ACCENT}` : ex.highlight ? `1.5px solid ${ACCENT}30` : "1.5px solid #f0f0f0",
-                          display: "flex", alignItems: "center", justifyContent: "space-between",
-                          gap: "8px", position: "relative", transition: "all 0.15s",
-                        }}
-                      >
-                        {ex.highlight && (
-                          <div style={{ position: "absolute", top: "-8px", left: "12px", background: ACCENT, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px", opacity: (selectedCover === "TAPA_GRUESA" && !isRowSelected) ? 0.35 : 1, transition: "opacity 0.2s" }}>MÁS ELEGIDO</div>
-                        )}
-                        {isRowSelected && (
-                          <div style={{ position: "absolute", top: "-8px", right: "12px", background: "#22c55e", color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>SELECCIONADO</div>
-                        )}
-                        <span style={{ fontSize: "13px", fontWeight: 500, color: isRowSelected ? "#111" : "#555" }}>{ex.hojas} hojas · {ex.hojas * 2} caras</span>
-                        <span style={{ fontSize: isMobile ? "15px" : "18px", fontWeight: 700, color: isRowSelected ? ACCENT : "#111", whiteSpace: "nowrap" }}>{ex.price}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-            </div>
+            <PhotobookFormatSelector
+              selectedCover={selectedCover}
+              thinSheets={selectedHojasDelgada}
+              thickSheets={selectedHojasGruesa}
+              onSelectCover={setSelectedCover}
+              onSelectSheets={(cover, sheets) => {
+                if (cover === "TAPA_DELGADA") setSelectedHojasDelgada(sheets);
+                else setSelectedHojasGruesa(sheets);
+              }}
+            />
 
             {/* ── CTA ── */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "12px" }}>

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OrderRepositoryPort, CreateOrderData, OrderRecord, StatusEvent } from '../../../domain/ports/order-repository.port';
+import { ActivatePhotobookOrderData, OrderRepositoryPort, CreateOrderData, OrderRecord, StatusEvent } from '../../../domain/ports/order-repository.port';
 import { OrderOrmEntity } from '../entities/order.orm-entity';
 import { OrderStatusEventOrmEntity } from '../entities/order-status-event.orm-entity';
 
@@ -57,6 +57,7 @@ export class TypeOrmOrderRepository extends OrderRepositoryPort {
       extraTemplatesAmountCents: String(extraTemplates),
       totalAmountCents: String(total),
       estimatedDeliveryDate: data.estimatedDeliveryDate ?? null,
+      status: data.status ?? 'AWAITING_PAYMENT_PROOF',
     });
     const saved = await this.repo.save(entity);
     // Reload to get PG-generated public_token
@@ -86,6 +87,54 @@ export class TypeOrmOrderRepository extends OrderRepositoryPort {
       extraTemplatesAmountCents: String(extraTemplatesAmountCents),
       totalAmountCents: String(newTotal),
     });
+  }
+
+  async ensurePhotobookConfigurationOrder(data: ActivatePhotobookOrderData): Promise<OrderRecord> {
+    const existing = await this.repo.findOne({ where: { photobookProjectId: String(data.photobookProjectId) } });
+    if (existing) return toRecord(existing);
+    try {
+      return await this.create({
+        channel: 'PHOTOBOOK',
+        photobookProjectId: data.photobookProjectId,
+        customerFullName: data.customerFullName,
+        customerEmail: data.customerEmail,
+        customerPhone: data.customerPhone,
+        baseAmountCents: 0,
+        status: 'CONFIGURING_PHOTOBOOK',
+      });
+    } catch (error) {
+      const concurrent = await this.repo.findOne({ where: { photobookProjectId: String(data.photobookProjectId) } });
+      if (concurrent) return toRecord(concurrent);
+      throw error;
+    }
+  }
+
+  async activatePhotobookOrder(data: ActivatePhotobookOrderData): Promise<OrderRecord> {
+    const existing = await this.repo.findOne({ where: { photobookProjectId: String(data.photobookProjectId) } });
+    if (!existing) {
+      return this.create({ channel: 'PHOTOBOOK', ...data, status: 'AWAITING_PAYMENT_PROOF' });
+    }
+    if (existing.status !== 'CONFIGURING_PHOTOBOOK') return toRecord(existing);
+
+    const oldStatus = existing.status;
+    await this.repo.update(existing.id, {
+      customerFullName: data.customerFullName,
+      customerEmail: data.customerEmail,
+      customerPhone: data.customerPhone,
+      baseAmountCents: String(data.baseAmountCents),
+      rushFeeCents: '0',
+      extraTemplatesAmountCents: '0',
+      totalAmountCents: String(data.baseAmountCents),
+      status: 'AWAITING_PAYMENT_PROOF',
+    });
+    await this.eventRepo.save(this.eventRepo.create({
+      orderId: existing.id,
+      oldStatus,
+      newStatus: 'AWAITING_PAYMENT_PROOF',
+      note: 'Photobook personalizado configurado y listo para pago',
+    }));
+    const activated = await this.repo.findOneByOrFail({ id: existing.id });
+    return toRecord(activated);
   }
 
   async updateStatus(id: number, newStatus: string, note?: string): Promise<void> {

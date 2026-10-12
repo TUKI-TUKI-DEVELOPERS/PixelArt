@@ -11,6 +11,7 @@ export class PublicLinkMapper {
       orm.revokedAt,
       orm.demoRequestId ? Number(orm.demoRequestId) : null,
       orm.orderId ? Number(orm.orderId) : null,
+      orm.customPhotobookRequestId ? Number(orm.customPhotobookRequestId) : null,
       orm.createdAt,
     );
   }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { tokens } from "@/lib/design-tokens";
 
 const API = "";
 
@@ -41,6 +42,7 @@ function useCountdown(validUntil: string) {
       if (d > 0) return setTimeLeft(`${d}d ${h % 24}h`);
       setTimeLeft(`${h}h ${m}m`);
     }
+
     calc();
     const id = setInterval(calc, 30_000);
     return () => clearInterval(id);
@@ -53,162 +55,249 @@ function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => v
   const timeLeft = useCountdown(promo.validUntil);
   const discount = formatDiscount(promo);
 
-  const ctaHref = promo.targetType === "all" ? "/libros-personalizados" : "/libros-personalizados";
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose]);
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, zIndex: 9999,
-        background: "rgba(0,0,0,0.6)",
-        backdropFilter: "blur(6px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "24px",
-        animation: "fadeIn 0.25s ease",
-      }}
-    >
+    <div className="promo-modal-backdrop" onClick={onClose}>
       <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(32px) scale(0.97) } to { opacity: 1; transform: translateY(0) scale(1) } }
+        @keyframes promo-modal-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes promo-modal-enter {
+          from { opacity: 0; transform: translateY(18px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .promo-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(17, 17, 17, 0.68);
+          animation: promo-modal-fade-in 180ms ease-out both;
+        }
+
+        .promo-modal-card {
+          width: min(100%, 480px);
+          overflow: hidden;
+          background: ${tokens.colors.neutral.surface.base};
+          border: 1px solid ${tokens.colors.neutral.surface.border};
+          border-radius: ${tokens.borderRadius.lg};
+          box-shadow: ${tokens.shadows.sm};
+          animation: promo-modal-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .promo-modal-close,
+        .promo-modal-dismiss,
+        .promo-modal-cta {
+          font-family: ${tokens.fonts.body};
+        }
+
+        .promo-modal-close {
+          transition: background-color 150ms ease, color 150ms ease;
+        }
+
+        .promo-modal-close:hover {
+          background: ${tokens.colors.neutral.surface.hover};
+          color: ${tokens.colors.neutral.text.primary};
+        }
+
+        .promo-modal-cta {
+          transition: transform 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+        }
+
+        .promo-modal-cta:hover {
+          transform: translateY(-2px);
+          background: ${tokens.colors.customBooks.accent};
+          box-shadow: 0 6px 8px rgba(17, 17, 17, 0.18);
+        }
+
+        .promo-modal-cta:focus-visible,
+        .promo-modal-close:focus-visible,
+        .promo-modal-dismiss:focus-visible {
+          outline: 3px solid ${tokens.colors.customBooks.hover};
+          outline-offset: 3px;
+        }
+
+        .promo-modal-dismiss:hover {
+          color: ${tokens.colors.neutral.text.primary};
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
+        @media (max-width: 480px) {
+          .promo-modal-backdrop { padding: 12px; align-items: flex-end; }
+          .promo-modal-card { border-radius: ${tokens.borderRadius.md}; }
+          .promo-modal-header { padding: 28px 24px 22px !important; }
+          .promo-modal-body { padding: 24px !important; }
+          .promo-modal-discount { font-size: 52px !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .promo-modal-backdrop,
+          .promo-modal-card { animation: none; }
+          .promo-modal-cta { transition: none; }
+        }
       `}</style>
 
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "#fff",
-          borderRadius: "24px",
-          maxWidth: "460px",
-          width: "100%",
-          overflow: "hidden",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.25)",
-          position: "relative",
-          animation: "slideUp 0.3s cubic-bezier(0.22,1,0.36,1)",
-        }}
+      <section
+        aria-modal="true"
+        aria-labelledby="promo-modal-title"
+        className="promo-modal-card"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
       >
-        {/* Franja superior degradada */}
-        <div style={{
-          background: "linear-gradient(135deg, #e74c6f 0%, #c0392b 50%, #922b21 100%)",
-          padding: "36px 32px 28px",
-          textAlign: "center",
-          position: "relative",
-        }}>
-          {/* Círculos decorativos */}
-          <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: -20, left: -20, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+        <div style={{ height: "4px", background: tokens.colors.customBooks.primary }} />
 
-          {/* Badge */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "6px",
-            background: "rgba(255,255,255,0.2)",
-            border: "1px solid rgba(255,255,255,0.35)",
-            borderRadius: "20px", padding: "5px 14px",
-            marginBottom: "16px",
-            fontSize: "11px", fontWeight: 700, color: "#fff",
-            letterSpacing: "1px", textTransform: "uppercase",
-          }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-            </svg>
-            Oferta especial
-          </div>
+        <header className="promo-modal-header" style={{ padding: "32px 32px 26px", position: "relative" }}>
+          <button
+            aria-label="Cerrar promoción"
+            className="promo-modal-close"
+            onClick={onClose}
+            style={{
+              position: "absolute",
+              top: "16px",
+              right: "16px",
+              width: "32px",
+              height: "32px",
+              display: "grid",
+              placeItems: "center",
+              border: "none",
+              borderRadius: "50%",
+              background: "transparent",
+              color: tokens.colors.neutral.text.tertiary,
+              cursor: "pointer",
+              fontSize: "20px",
+              lineHeight: 1,
+            }}
+            type="button"
+          >
+            ×
+          </button>
 
-          {/* Título de la promo */}
-          <h2 style={{ margin: "0 0 12px", fontSize: "22px", fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>
-            {promo.label}
-          </h2>
-
-          {/* Número del descuento — protagonista */}
-          <div style={{ fontSize: "64px", fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: "-2px" }}>
-            {discount}
-          </div>
-        </div>
-
-        {/* Cuerpo */}
-        <div style={{ padding: "28px 32px 32px", textAlign: "center" }}>
-
-          {/* Descripción según targetType */}
-          <p style={{ margin: "0 0 20px", fontSize: "15px", color: "#4b5563", lineHeight: 1.6 }}>
-            {promo.targetType === "all"
-              ? "Aplicado automáticamente en todos nuestros libros personalizados y photobooks."
-              : "Aplicado en los libros seleccionados de nuestra colección."}
-          </p>
-
-          {/* Countdown */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "#fef3c7", border: "1px solid #fbbf24",
-            borderRadius: "10px", padding: "8px 16px",
-            marginBottom: "24px",
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#92400e" strokeWidth="2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "#92400e" }}>
-              Termina: {formatDeadline(promo.validUntil)}
-              {timeLeft && timeLeft !== "Expirada" && ` (${timeLeft} restantes)`}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+            <span style={{ width: "28px", height: "2px", background: tokens.colors.customBooks.primary }} />
+            <span style={{ color: tokens.colors.neutral.text.tertiary, fontSize: "12px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+              Promoción
             </span>
           </div>
 
-          {/* CTA principal */}
-          <Link
-            href={ctaHref}
-            onClick={onClose}
+          <h2
+            id="promo-modal-title"
             style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-              width: "100%", padding: "14px 24px",
-              borderRadius: "14px", border: "none",
-              background: "linear-gradient(135deg, #e74c6f 0%, #c0392b 100%)",
-              color: "#fff", fontSize: "15px", fontWeight: 800,
-              textDecoration: "none", letterSpacing: "0.02em",
-              boxShadow: "0 6px 20px rgba(231,76,111,0.4)",
-              transition: "transform 0.15s ease, box-shadow 0.15s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-1px)";
-              e.currentTarget.style.boxShadow = "0 8px 28px rgba(231,76,111,0.5)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(231,76,111,0.4)";
+              maxWidth: "13ch",
+              margin: 0,
+              color: tokens.colors.neutral.text.primary,
+              fontFamily: tokens.fonts.display,
+              fontSize: "clamp(30px, 7vw, 40px)",
+              fontWeight: 400,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.08,
+              textWrap: "balance",
             }}
           >
-            Aprovechar descuento
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
+            {promo.label}
+          </h2>
+        </header>
+
+        <div className="promo-modal-body" style={{ padding: "0 32px 32px" }}>
+          <div style={{ padding: "22px 0 24px", borderTop: `1px solid ${tokens.colors.neutral.surface.divider}`, borderBottom: `1px solid ${tokens.colors.neutral.surface.divider}` }}>
+            <span style={{ display: "block", marginBottom: "6px", color: tokens.colors.neutral.text.tertiary, fontSize: "13px", fontWeight: 600 }}>
+              Descuento
+            </span>
+            <div
+              aria-label={`Descuento de ${discount}`}
+              className="promo-modal-discount"
+              style={{
+                color: tokens.colors.customBooks.primary,
+                fontFamily: tokens.fonts.body,
+                fontSize: "64px",
+                fontWeight: 800,
+                letterSpacing: "-0.045em",
+                lineHeight: 0.95,
+              }}
+            >
+              {discount}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "18px 0 24px", color: tokens.colors.neutral.text.secondary }}>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "0 0 auto", marginTop: "1px", color: tokens.colors.customBooks.primary }}>
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+            <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.5 }}>
+              Válida hasta <strong style={{ color: tokens.colors.neutral.text.primary, fontWeight: 700 }}>{formatDeadline(promo.validUntil)}</strong>
+              {timeLeft && timeLeft !== "Expirada" && <><span aria-hidden="true"> · </span>Quedan {timeLeft}</>}
+            </p>
+          </div>
+
+          <Link
+            className="promo-modal-cta"
+            href="/libros-personalizados"
+            onClick={onClose}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              width: "100%",
+              minHeight: "52px",
+              borderRadius: tokens.borderRadius.full,
+              background: tokens.colors.customBooks.primary,
+              color: "#fff",
+              fontSize: "15px",
+              fontWeight: 700,
+              letterSpacing: "0.01em",
+              textDecoration: "none",
+              boxShadow: "0 4px 8px rgba(17, 17, 17, 0.14)",
+            }}
+          >
+            Ver la promoción
+            <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14" />
+              <path d="m13 6 6 6-6 6" />
             </svg>
           </Link>
 
-          {/* Dismiss */}
           <button
+            className="promo-modal-dismiss"
             onClick={onClose}
             style={{
-              display: "block", width: "100%", marginTop: "12px",
-              padding: "10px", background: "none", border: "none",
-              color: "#9ca3af", fontSize: "13px", cursor: "pointer",
-              fontFamily: "inherit",
+              display: "block",
+              width: "100%",
+              marginTop: "14px",
+              padding: "8px",
+              border: "none",
+              background: "transparent",
+              color: tokens.colors.neutral.text.tertiary,
+              cursor: "pointer",
+              fontSize: "13px",
             }}
+            type="button"
           >
-            No, gracias
+            Ahora no
           </button>
         </div>
-
-        {/* Botón cerrar esquina */}
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute", top: "14px", right: "14px",
-            width: "30px", height: "30px", borderRadius: "50%",
-            border: "none", background: "rgba(255,255,255,0.2)",
-            color: "#fff", fontSize: "14px", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "inherit",
-          }}
-        >
-          ✕
-        </button>
-      </div>
+      </section>
     </div>
   );
 }
@@ -219,11 +308,10 @@ export default function PromoModal() {
 
   useEffect(() => {
     fetch(`${API}/api/promotions/active`)
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then((promos: ActivePromo[]) => {
         if (!promos.length) return;
         const best = promos[0];
-        // Una vez por promo (se resetea cuando cambia la promo)
         const key = `promo_modal_${best.id}`;
         if (sessionStorage.getItem(key)) return;
         setPromo(best);

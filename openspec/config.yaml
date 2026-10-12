@@ -1,0 +1,22 @@
+schema: spec-driven
+
+context: |
+  PixelArt is a Peru-focused personalized books and photobooks platform. It is a NestJS + TypeORM backend, Next.js App Router frontend, and PostgreSQL 16 monorepo. Money uses BIGINT centavos and the UI/domain language is neutral Spanish. Custom photobooks use cover approval, secure editor sessions, a project draft, PDF/wrap production artifacts, and an admin workflow.
+
+rules:
+  proposal:
+    - Keep the custom photobook workspace focused on cover approval and editorial preparation.
+    - Route fulfilled custom photobooks through the shared Orders and Payments workflows.
+    - Preserve existing customer projects, covers, requests, and uploaded assets.
+  design:
+    - Respect Clean Architecture: domain remains framework-free and use cases depend on ports.
+    - Schema changes are additive migrations in infra/database/migrations and schemaPixelart.sql remains authoritative.
+    - Reuse the existing payment QR/voucher and admin order surfaces; do not create a parallel payment system.
+  tasks:
+    - Keep migration, backend behavior, frontend payment flow, and admin workflow in reviewable work units.
+  apply:
+    - STRICT TDD MODE: add or update regression tests before implementation where practical.
+    - Never recreate Docker volumes or remove existing customer data.
+  verify:
+    - Run backend Jest/build, frontend Vitest/build, and git diff --check.
+    - Validate the custom order lifecycle, payment handoff, and production status transitions.

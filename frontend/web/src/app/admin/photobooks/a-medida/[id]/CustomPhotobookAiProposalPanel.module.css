@@ -1,0 +1,821 @@
+.workspace {
+  --photo-primary: #2d8fd5;
+  --photo-primary-strong: #176fae;
+  --photo-ink: #17242d;
+  --photo-muted: #5c6d78;
+  --photo-border: #d6e2e9;
+  --photo-surface: #ffffff;
+  --photo-subtle: #f5f9fb;
+  margin-top: 32px;
+  border: 1px solid var(--photo-border);
+  border-radius: 12px;
+  background: var(--photo-surface);
+  color: var(--photo-ink);
+  overflow: hidden;
+}
+
+.workspaceHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 28px 24px;
+  border-bottom: 1px solid var(--photo-border);
+  background: linear-gradient(135deg, #f8fcff 0%, #ffffff 62%);
+}
+
+.kicker,
+.step {
+  margin: 0 0 6px;
+  color: var(--photo-primary-strong);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.workspaceHeader h2,
+.stage h3,
+.productionNote h3 {
+  margin: 0;
+  color: var(--photo-ink);
+  font-family: var(--font-montserrat, Montserrat, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.workspaceHeader h2 {
+  max-width: 28ch;
+  font-size: 24px;
+  line-height: 1.16;
+}
+
+.workspaceHeader > div > p:last-child,
+.stageHeader p:not(.step),
+.referenceToolbar p,
+.fieldHelp,
+.productionNote p,
+.statusLine {
+  margin: 8px 0 0;
+  color: var(--photo-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.workspaceHeader > div > p:last-child {
+  max-width: 68ch;
+}
+
+.providerBadge,
+.referenceSummary {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.providerBadge {
+  padding: 7px 10px;
+  border: 1px solid rgba(45, 143, 213, 0.24);
+  background: rgba(45, 143, 213, 0.08);
+  color: var(--photo-primary-strong);
+}
+
+.stage {
+  padding: 28px;
+  border-bottom: 1px solid var(--photo-border);
+  transition: opacity 160ms ease;
+}
+
+.stageLocked {
+  background: linear-gradient(90deg, #fbfdfe, #ffffff);
+}
+
+.stageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.stageHeader > div {
+  min-width: 0;
+}
+
+.stage h3,
+.productionNote h3 {
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.stageHeader p:not(.step) {
+  max-width: 62ch;
+}
+
+.referenceSummary {
+  display: grid;
+  min-width: 72px;
+  padding: 8px 11px;
+  border: 1px solid var(--photo-border);
+  background: var(--photo-subtle);
+  color: var(--photo-primary-strong);
+  line-height: 1.1;
+  text-align: center;
+}
+
+.referenceSummary strong {
+  font-size: 18px;
+  letter-spacing: -0.04em;
+}
+
+.referenceSummary span {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.referenceToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 11px 12px;
+  border: 1px solid #dbeaf2;
+  border-radius: 8px;
+  background: var(--photo-subtle);
+}
+
+.referenceToolbar p {
+  margin: 0;
+  color: #33505f;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.textAction,
+.replaceAction,
+.selectionToggle,
+.primaryAction,
+.selectProposalAction,
+.downloadProposalAction,
+.deleteProposalAction,
+.addPhotoCard {
+  font: inherit;
+}
+
+.textAction,
+.replaceAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--photo-primary-strong);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.textAction {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #8abfdf;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: none;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.textAction:hover:not(:disabled) {
+  border-color: var(--photo-primary-strong);
+  background: #edf8fe;
+  color: #0f5b90;
+}
+
+.replaceAction {
+  border: 0;
+  background: transparent;
+}
+
+.replaceAction:hover:not(:disabled) {
+  color: #0f5b90;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.referenceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.referenceCard {
+  min-width: 0;
+  border: 1px solid var(--photo-border);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.referenceCardActive {
+  border-color: var(--photo-primary);
+  background: #f8fcff;
+}
+
+.referenceImageWrap {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #edf3f6;
+}
+
+.referenceImageWrap img,
+.proposalCard img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewTrigger {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  background: rgba(23, 36, 45, 0.82);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.referenceImageWrap:hover .previewTrigger,
+.proposalImageWrap:hover .previewTrigger,
+.previewTrigger:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.previewTrigger:hover {
+  background: #0f5b90;
+}
+
+.previewTrigger:focus-visible,
+.previewClose:focus-visible,
+.previewNavigation:focus-visible {
+  outline: 3px solid rgba(45, 143, 213, 0.42);
+  outline-offset: 2px;
+}
+
+.imageLoading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(23, 36, 45, 0.52);
+  color: #fff;
+}
+
+.referenceCardBody {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.referenceRole {
+  color: var(--photo-primary-dark);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.selectionToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 1px solid #ccdbe3;
+  border-radius: 7px;
+  background: #fff;
+  color: #39515f;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: left;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.selectionToggle:hover:not(:disabled) {
+  border-color: var(--photo-primary);
+  background: #f3faff;
+}
+
+.selectionToggleActive {
+  border-color: var(--photo-primary);
+  background: rgba(45, 143, 213, 0.1);
+  color: #115e96;
+}
+
+.selectionIndicator {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  place-items: center;
+  border: 1.5px solid #93a8b4;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.selectionToggleActive .selectionIndicator {
+  border-color: var(--photo-primary);
+  background: var(--photo-primary);
+  color: #fff;
+}
+
+.addPhotoCard {
+  display: grid;
+  min-height: 218px;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  padding: 16px;
+  border: 1px dashed #86bbdc;
+  border-radius: 10px;
+  background: #f8fcff;
+  color: var(--photo-primary-strong);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.addPhotoCard:hover:not(:disabled) {
+  border-color: var(--photo-primary);
+  background: #eef8fe;
+  transform: translateY(-1px);
+}
+
+.addPhotoCard strong {
+  font-size: 13px;
+}
+
+.addPhotoCard span {
+  color: #587383;
+  font-size: 12px;
+}
+
+.directionField {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--photo-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.directionField em {
+  color: #b42318;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.directionField textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 104px;
+  padding: 12px 13px;
+  border: 1px solid #b9ccd7;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--photo-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.directionField textarea::placeholder {
+  color: #607887;
+  opacity: 1;
+}
+
+.directionField textarea:hover:not(:disabled) {
+  border-color: #7dafcc;
+}
+
+.directionField textarea:focus-visible,
+.textAction:focus-visible,
+.replaceAction:focus-visible,
+.selectionToggle:focus-visible,
+.primaryAction:focus-visible,
+.selectProposalAction:focus-visible,
+.downloadProposalAction:focus-visible,
+.deleteProposalAction:focus-visible,
+.addPhotoCard:focus-visible {
+  outline: 3px solid rgba(45, 143, 213, 0.25);
+  outline-offset: 2px;
+}
+
+.directionField textarea:focus {
+  border-color: var(--photo-primary);
+  box-shadow: 0 0 0 3px rgba(45, 143, 213, 0.12);
+}
+
+.fieldHelp {
+  max-width: 70ch;
+  font-size: 12px;
+}
+
+.primaryAction,
+.selectProposalAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  flex: 0 0 auto;
+  padding: 0 14px;
+  border: 1px solid var(--photo-primary-strong);
+  border-radius: 8px;
+  background: var(--photo-primary-strong);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.primaryAction:hover:not(:disabled),
+.selectProposalAction:hover:not(:disabled) {
+  border-color: #0e5688;
+  background: #0e5688;
+  transform: translateY(-1px);
+}
+
+.primaryAction:disabled,
+.selectProposalAction:disabled,
+.deleteProposalAction:disabled,
+.addPhotoCard:disabled,
+.selectionToggle:disabled,
+.replaceAction:disabled,
+.textAction:disabled,
+.directionField textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.proposalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.proposalCard {
+  overflow: hidden;
+  border: 1px solid var(--photo-border);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.proposalCardSelected {
+  border-color: var(--photo-primary);
+  background: #f8fcff;
+}
+
+.proposalImageWrap {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.proposalUtilities {
+  display: flex;
+  gap: 6px;
+  margin: 8px 8px 0;
+}
+
+.downloadProposalAction,
+.deleteProposalAction {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: 1 1 0;
+  border: 1px solid #b9ccd7;
+  border-radius: 7px;
+  background: #fff;
+  color: #1d4a63;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.downloadProposalAction:hover,
+.deleteProposalAction:hover:not(:disabled) {
+  border-color: var(--photo-primary-strong);
+  background: #edf8fe;
+  color: #0f5b90;
+}
+
+.deleteProposalAction {
+  color: #a1261b;
+}
+
+.deleteProposalAction:hover:not(:disabled) {
+  border-color: #b42318;
+  background: #fff1f0;
+  color: #8d1b12;
+}
+
+.selectProposalAction {
+  width: calc(100% - 16px);
+  margin: 8px;
+  background: #fff;
+  color: var(--photo-primary-strong);
+}
+
+.selectProposalAction:hover:not(:disabled) {
+  background: var(--photo-primary-strong);
+  color: #fff;
+}
+
+.proposalCardSelected .selectProposalAction {
+  border-color: transparent;
+  background: rgba(45, 143, 213, 0.12);
+  color: #115e96;
+}
+
+.productionNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 20px 28px;
+  background: #f4f8fa;
+  color: #47606d;
+}
+
+.productionNote h3 {
+  font-size: 14px;
+}
+
+.productionNote p {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.previewDialog {
+  width: min(94vw, 1080px);
+  max-width: none;
+  max-height: 92vh;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #33505f;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--photo-ink);
+  overflow: hidden;
+}
+
+.previewDialog::backdrop {
+  background: rgba(12, 20, 26, 0.76);
+}
+
+.previewDialogContent {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  max-height: 92vh;
+}
+
+.previewDialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #d6e2e9;
+}
+
+.previewDialogHeader p,
+.previewHint {
+  margin: 0;
+  color: var(--photo-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.previewDialogHeader h3 {
+  margin: 3px 0 0;
+  color: var(--photo-ink);
+  font-size: 15px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.previewClose,
+.previewNavigation {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #b9ccd7;
+  background: #fff;
+  color: #1d4a63;
+  cursor: pointer;
+}
+
+.previewClose {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 7px;
+}
+
+.previewClose:hover,
+.previewNavigation:hover {
+  border-color: var(--photo-primary-strong);
+  background: #edf8fe;
+}
+
+.previewCanvas {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  padding: 20px 68px;
+  background: #17242d;
+}
+
+.previewCanvas img {
+  display: block;
+  max-width: 100%;
+  max-height: min(68vh, 760px);
+  object-fit: contain;
+}
+
+.previewNavigation {
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.previewPrevious {
+  left: 16px;
+}
+
+.previewNext {
+  right: 16px;
+}
+
+.previewHint {
+  padding: 12px 18px;
+  border-top: 1px solid #d6e2e9;
+  background: #f5f9fb;
+}
+
+.statusLine {
+  min-height: 22px;
+  margin: 0;
+  padding: 14px 28px;
+  border-top: 1px solid var(--photo-border);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.statusError {
+  color: #9d1c16;
+  background: #fff7f6;
+}
+
+.statusSuccess {
+  color: #146b48;
+  background: #f2fbf6;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.spinningIcon {
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .referenceCard,
+  .addPhotoCard,
+  .selectionToggle,
+  .directionField textarea,
+  .primaryAction,
+  .selectProposalAction,
+  .previewTrigger {
+    transition: none;
+  }
+
+  .spinningIcon {
+    animation: none;
+  }
+}
+
+@media (hover: none) {
+  .previewTrigger {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspaceHeader,
+  .stageHeader,
+  .referenceToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspaceHeader,
+  .stage {
+    padding: 20px;
+  }
+
+  .providerBadge,
+  .referenceSummary,
+  .primaryAction {
+    align-self: flex-start;
+  }
+
+  .referenceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .productionNote,
+  .statusLine {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .previewDialog {
+    width: 100vw;
+    max-height: 100vh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .previewDialogContent {
+    max-height: 100vh;
+  }
+
+  .previewCanvas {
+    padding: 16px 54px;
+  }
+
+  .previewCanvas img {
+    max-height: 72vh;
+  }
+
+  .previewPrevious {
+    left: 8px;
+  }
+
+  .previewNext {
+    right: 8px;
+  }
+}
+
+@media (max-width: 440px) {
+  .referenceGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

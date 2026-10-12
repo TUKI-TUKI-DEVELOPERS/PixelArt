@@ -8,6 +8,7 @@ const API = "";
 type Order = { id: number; channel: string; status: string; customerFullName: string; customerEmail: string; totalAmountCents: number; createdAt: string };
 
 const STATUS_MAP: Record<string, { bg: string; text: string; label: string }> = {
+  CONFIGURING_PHOTOBOOK:    { bg: "#f3f4f6", text: "#4b5563", label: "Configurando photobook" },
   AWAITING_PAYMENT_PROOF: { bg: "#fef3c7", text: "#92400e", label: "Esperando Pago" },
   UNDER_PAYMENT_REVIEW:   { bg: "#dbeafe", text: "#1e40af", label: "Revisando Pago" },
   PAYMENT_VERIFIED:       { bg: "#d1fae5", text: "#065f46", label: "Pago Verificado" },
@@ -25,6 +26,7 @@ const NEXT_STATUS: Record<string, string> = {
 };
 
 const KANBAN_COLUMNS = [
+  { status: "CONFIGURING_PHOTOBOOK", label: "Configurando", accent: "#6b7280", dim: "#f9fafb" },
   { status: "AWAITING_PAYMENT_PROOF", label: "Esperando Pago", accent: "#f59e0b", dim: "#fef9ee" },
   { status: "UNDER_PAYMENT_REVIEW",   label: "Revisando Pago", accent: "#3b82f6", dim: "#eff6ff" },
   { status: "PAYMENT_VERIFIED",       label: "Pago Verificado", accent: "#22c55e", dim: "#f0fdf4" },
@@ -129,7 +131,7 @@ export default function OrdenesPage() {
   const [acting,  setActing]  = useState<number | null>(null);
 
   function loadOrders() {
-    fetch(`${API}/api/admin/orders`)
+    fetch(`/admin-api/orders`)
       .then((r) => r.json())
       .then((data) => setOrders(Array.isArray(data) ? data : data.data ?? []))
       .catch(() => {});
@@ -140,7 +142,7 @@ export default function OrdenesPage() {
   async function reviewPayment(orderId: number, action: "APPROVE" | "REJECT") {
     setActing(orderId);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${orderId}/review-payment`, {
+      const res = await fetch(`/admin-api/orders/${orderId}/review-payment`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
@@ -153,7 +155,7 @@ export default function OrdenesPage() {
   async function advanceStatus(orderId: number, nextStatus: string) {
     setActing(orderId);
     try {
-      const res = await fetch(`${API}/api/admin/orders/${orderId}/advance-status`, {
+      const res = await fetch(`/admin-api/orders/${orderId}/advance-status`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newStatus: nextStatus }),
       });

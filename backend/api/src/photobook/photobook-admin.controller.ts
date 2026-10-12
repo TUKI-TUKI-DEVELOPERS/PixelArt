@@ -1,7 +1,11 @@
-import { Controller, Get, Post, Param, NotFoundException, Logger } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Patch, Param, NotFoundException, BadRequestException, Logger, Res, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { PhotobookService } from './photobook.service';
 import { PhotobookPdfService } from './infrastructure/pdf/photobook-pdf.service';
 import { PhotobookRepositoryPort } from './domain/ports/photobook-repository.port';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { GenerateCustomPhotobookCoverProposalDto } from './dto/generate-custom-photobook-cover-proposal.dto';
+import type { Response } from 'express';
 
 @Controller('admin/photobook')
 export class PhotobookAdminController {
@@ -10,6 +14,124 @@ export class PhotobookAdminController {
     private readonly pdfService: PhotobookPdfService,
     private readonly repo: PhotobookRepositoryPort,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('custom-requests')
+  listCustomRequests() { return this.service.listCustomRequests(); }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('custom-requests/:id')
+  async getCustomRequest(@Param('id') id: string) {
+    const request = await this.service.getCustomRequest(Number(id));
+    if (!request) throw new NotFoundException('Solicitud de photobook a medida no encontrada');
+    return request;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('custom-requests/:id/references')
+  listCustomReferenceAssets(@Param('id') id: string) {
+    return this.service.listCustomReferenceAssets(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/references')
+  @UseInterceptors(FileInterceptor('file'))
+  addCustomReferenceAsset(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Debes seleccionar una foto');
+    return this.service.addCustomReferenceAsset(Number(id), {
+      buffer: file.buffer,
+      originalFilename: file.originalname,
+      mimeType: file.mimetype,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/references/:assetId/replace')
+  @UseInterceptors(FileInterceptor('file'))
+  replaceCustomReferenceAsset(
+    @Param('id') id: string,
+    @Param('assetId') assetId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Debes seleccionar una foto');
+    return this.service.replaceCustomReferenceAsset(Number(id), Number(assetId), {
+      buffer: file.buffer,
+      originalFilename: file.originalname,
+      mimeType: file.mimetype,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('custom-requests/:id/references/:assetId/active')
+  setCustomReferenceAssetActive(
+    @Param('id') id: string,
+    @Param('assetId') assetId: string,
+    @Body() body: { isActive?: unknown },
+  ) {
+    if (typeof body.isActive !== 'boolean') throw new BadRequestException('isActive debe ser booleano');
+    return this.service.setCustomReferenceAssetActive(Number(id), Number(assetId), body.isActive);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('custom-requests/:id/designs')
+  listCustomCoverProposals(@Param('id') id: string) {
+    return this.service.listCustomCoverProposals(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('custom-requests/:id/designs/:designId/download')
+  async downloadCustomCoverProposal(
+    @Param('id') id: string,
+    @Param('designId') designId: string,
+    @Res() response: Response,
+  ) {
+    const file = await this.service.downloadCustomCoverProposal(Number(id), Number(designId));
+    response.setHeader('Content-Type', 'image/png');
+    response.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    response.send(file.buffer);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('custom-requests/:id/designs/:designId')
+  deleteCustomCoverProposal(
+    @Param('id') id: string,
+    @Param('designId') designId: string,
+  ) {
+    return this.service.deleteCustomCoverProposal(Number(id), Number(designId));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/designs/:designId/select')
+  selectCustomCoverProposal(
+    @Param('id') id: string,
+    @Param('designId') designId: string,
+  ) {
+    return this.service.selectCustomCoverProposal(Number(id), Number(designId));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/cover-approval/send')
+  sendCustomCoverApproval(@Param('id') id: string) {
+    return this.service.sendCustomCoverApproval(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/editor-code/send')
+  sendCustomEditorCode(@Param('id') id: string) {
+    return this.service.sendCustomEditorCode(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/designs/generate')
+  generateCustomCoverProposal(
+    @Param('id') id: string,
+    @Body() body: GenerateCustomPhotobookCoverProposalDto,
+  ) {
+    return this.service.generateCustomCoverProposal(Number(id), body);
+  }
 
   @Get('projects')
   listProjects() { return this.service.listProjects(); }

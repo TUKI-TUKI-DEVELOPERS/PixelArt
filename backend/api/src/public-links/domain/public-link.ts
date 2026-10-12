@@ -7,6 +7,7 @@ export class PublicLink {
     public readonly revokedAt: Date | null,
     public readonly demoRequestId: number | null,
     public readonly orderId: number | null,
+    public readonly customPhotobookRequestId: number | null,
     public readonly createdAt: Date,
   ) {}
 

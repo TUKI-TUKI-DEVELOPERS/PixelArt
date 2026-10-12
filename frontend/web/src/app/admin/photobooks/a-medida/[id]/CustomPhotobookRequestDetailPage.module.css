@@ -1,0 +1,137 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 32px;
+  padding-top: 32px;
+}
+
+.sidebar {
+  align-self: start;
+  padding: 20px;
+  border: 1px solid rgba(139, 115, 85, 0.18);
+  border-radius: 12px;
+  background: #faf8f3;
+}
+
+.sidebarLabel {
+  margin: 0 0 16px;
+  color: #8b7355;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.clientDetails {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.clientDetails dt {
+  color: #8b7355;
+  font-size: 12px;
+}
+
+.clientDetails dd {
+  margin: 3px 0 0;
+  color: #2f2925;
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.actionSection {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(139, 115, 85, 0.18);
+}
+
+.actionSection .sidebarLabel {
+  margin-bottom: 0;
+}
+
+.actionDescription,
+.actionMessage {
+  margin: 0;
+  color: #63594f;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.primaryAction,
+.secondaryAction {
+  min-height: 42px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.primaryAction {
+  border: 1px solid #804187;
+  background: #804187;
+  color: #fff;
+  cursor: pointer;
+}
+
+.primaryAction:hover:not(:disabled) {
+  background: #68346e;
+}
+
+.primaryAction:focus-visible,
+.secondaryAction:focus-visible {
+  outline: 3px solid rgba(128, 65, 135, 0.28);
+  outline-offset: 2px;
+}
+
+.primaryAction:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.downloadActions {
+  display: grid;
+  gap: 8px;
+}
+
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(128, 65, 135, 0.35);
+  background: rgba(128, 65, 135, 0.08);
+  color: #68346e;
+}
+
+.secondaryAction:hover {
+  border-color: #804187;
+  background: rgba(128, 65, 135, 0.14);
+}
+
+@media (max-width: 760px) {
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .header > a {
+    align-self: flex-start;
+  }
+
+  .content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}

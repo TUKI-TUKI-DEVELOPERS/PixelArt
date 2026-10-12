@@ -59,7 +59,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
   async createDraft(input: DraftInput): Promise<DraftRecord> {
     const project = this.projectRepo.create({
       photobookProductId: String(input.photobookProductId),
-      photobookThemeId: String(input.photobookThemeId),
+      photobookThemeId: input.photobookThemeId === null ? null : String(input.photobookThemeId),
       status: 'DRAFT',
       draftState: input.state,
       pricePerPageCents: '0',
@@ -100,7 +100,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
   private projectFieldsFromData(data: CreateProjectData) {
     return {
       photobookProductId: String(data.photobookProductId),
-      photobookThemeId: String(data.photobookThemeId),
+      photobookThemeId: data.photobookThemeId === null ? null : String(data.photobookThemeId),
       customerEmail: data.customerEmail,
       customerFullName: data.customerFullName,
       customerPhone: data.customerPhone,
@@ -211,7 +211,7 @@ export class TypeOrmPhotobookRepository extends PhotobookRepositoryPort {
 
   private toProjectRecord(e: PhotobookProjectOrmEntity): ProjectRecord {
     return {
-      id: Number(e.id), photobookProductId: Number(e.photobookProductId), photobookThemeId: Number(e.photobookThemeId),
+      id: Number(e.id), photobookProductId: Number(e.photobookProductId), photobookThemeId: e.photobookThemeId === null ? null : Number(e.photobookThemeId),
       draftToken: e.draftToken,
       customerEmail: e.customerEmail, customerFullName: e.customerFullName, customerPhone: e.customerPhone,
       deliveryAddress: e.deliveryAddress, deliveryDistrict: e.deliveryDistrict,
