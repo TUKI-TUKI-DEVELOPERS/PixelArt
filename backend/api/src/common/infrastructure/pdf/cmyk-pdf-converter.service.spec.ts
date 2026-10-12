@@ -34,7 +34,7 @@ describe('CmykPdfConverterService', () => {
     expect(Array.isArray(args)).toBe(true);
     expect(args).toContain(`-sOutputICCProfile=${profile}`);
     expect(args).toContain(`--permit-file-read=${profile}`);
-    expect(options).toMatchObject({ shell: false, timeout: 120000 });
+    expect(options).toMatchObject({ shell: false, timeout: 300000 });
   });
   it('uses the packaged APTEC profile when no override is configured', async () => {
     delete process.env.PRINT_PDF_ICC_PROFILE_PATH;

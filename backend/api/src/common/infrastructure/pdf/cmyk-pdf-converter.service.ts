@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const DEFAULT_PROFILE = resolve(__dirname, '../../../../resources/icc/APTEC_Offset_Coated_LinearCTV_2025.icc');
-const TIMEOUT_MS = 120_000;
+const TIMEOUT_MS = 300_000;
 
 @Injectable()
 export class CmykPdfConverterService {
