@@ -126,9 +126,11 @@ export default function OrdenDetallePage() {
   // hace falta un Set/Record keyed por id).
   const [coverGenerating, setCoverGenerating] = useState(false);
   const [coverGenerateError, setCoverGenerateError] = useState("");
+  const [coverRefinementPrompt, setCoverRefinementPrompt] = useState("");
   const [coverVerifying, setCoverVerifying] = useState(false);
   const [backCoverGenerating, setBackCoverGenerating] = useState(false);
   const [backCoverGenerateError, setBackCoverGenerateError] = useState("");
+  const [backCoverRefinementPrompt, setBackCoverRefinementPrompt] = useState("");
   const [backCoverVerifying, setBackCoverVerifying] = useState(false);
   // Add-on: sin IA (maquetación local con Puppeteer), no necesita el
   // mecanismo de "verificando" de Portada/Contraportada — no depende de una
@@ -337,7 +339,7 @@ export default function OrdenDetallePage() {
       const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-cover`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedAssetIds: selectedPhoto[COVER_PHOTO_KEY] ?? {} }),
+        body: JSON.stringify({ selectedAssetIds: selectedPhoto[COVER_PHOTO_KEY] ?? {}, refinementPrompt: coverRefinementPrompt.trim() || undefined }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -367,7 +369,7 @@ export default function OrdenDetallePage() {
     setBackCoverGenerateError("");
     const startedAt = Date.now();
     try {
-      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST" });
+      const res = await fetch(`${API}/api/admin/orders/${data.id}/print-assets/generate-back-cover`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refinementPrompt: backCoverRefinementPrompt.trim() || undefined }) });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as { message?: string }).message ?? "Error al generar la contratapa");
@@ -1032,6 +1034,8 @@ export default function OrdenDetallePage() {
                           <div style={{ fontSize: "11px", color: "#dc2626" }}>{uploadPhotoError[COVER_PHOTO_KEY]}</div>
                         )}
                         <div>
+                          <label htmlFor="cover-refinement" style={{ display: "block", fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Ajuste de IA para la tapa (opcional)</label>
+                          <textarea id="cover-refinement" value={coverRefinementPrompt} onChange={(e) => setCoverRefinementPrompt(e.target.value)} disabled={coverGenerating} placeholder="Describe qué cambiar en la imagen completa…" rows={2} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d1d5db", borderRadius: "6px", padding: "7px", font: "inherit", fontSize: "12px", resize: "vertical", marginBottom: "8px" }} />
                           <button
                             disabled={coverGenerating}
                             onClick={handleGenerateCover}
@@ -1071,6 +1075,8 @@ export default function OrdenDetallePage() {
                       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
                         <div style={{ fontSize: "11px", color: "#9ca3af" }}>Fondo + texto — no lleva fotos reales, no hay nada que elegir acá.</div>
                         <div>
+                          <label htmlFor="back-cover-refinement" style={{ display: "block", fontSize: "11px", color: "#6b7280", marginBottom: "4px" }}>Ajuste de IA para la contratapa (opcional)</label>
+                          <textarea id="back-cover-refinement" value={backCoverRefinementPrompt} onChange={(e) => setBackCoverRefinementPrompt(e.target.value)} disabled={backCoverGenerating} placeholder="Describe qué cambiar en la imagen completa…" rows={2} style={{ width: "100%", boxSizing: "border-box", border: "1px solid #d1d5db", borderRadius: "6px", padding: "7px", font: "inherit", fontSize: "12px", resize: "vertical", marginBottom: "8px" }} />
                           <button
                             disabled={backCoverGenerating}
                             onClick={handleGenerateBackCover}

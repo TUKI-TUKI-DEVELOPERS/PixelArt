@@ -24,6 +24,7 @@ export type BuildCoverPromptInput = {
    * antes de este fix llegaban literales al prompt de imagen, y la IA
    * terminaba inventando nombres para poder renderizar el subtítulo. */
   names: NamePlaceholderValues;
+  refinementPrompt?: string;
 };
 
 /** Arma el prompt final de TAPA — mismo patrón de bloques fijos (tapa_*) +
@@ -36,9 +37,11 @@ export function buildCoverPrompt(input: BuildCoverPromptInput): string {
   );
   const composicionReglas = fillNamePlaceholders(input.sharedBlocks['tapa_composicion_reglas'], input.names);
 
+  const refinement = input.refinementPrompt?.trim();
   return [
     `[IMAGEN BASE]\n${input.sharedBlocks['tapa_imagen_base']}`,
     `[ESCENA VISUAL]\n${input.coverSceneVisual}`,
+    ...(refinement ? [`[AJUSTE PRIORITARIO DEL EDITOR]\nLa imagen completa debe regenerarse. ${refinement}`] : []),
     `Proporción y conexión física entre ambos (crítico)\n${input.sharedBlocks['tapa_proporcion_conexion']}`,
     `[COMPOSICIÓN — REGLAS OBLIGATORIAS]\n${composicionReglas}`,
     `[DISEÑO EDITORIAL]\n${disenoEditorial}`,
@@ -59,6 +62,7 @@ export type BuildBackCoverPromptInput = {
   /** back_cover_hashtag de la categoría. */
   hashtag: string;
   names: NamePlaceholderValues;
+  refinementPrompt?: string;
 };
 
 /** Arma el prompt final de CONTRATAPA — sin fotos de referencia (se genera
@@ -74,9 +78,11 @@ export function buildBackCoverPrompt(input: BuildBackCoverPromptInput): string {
     .replace('{LINEA_CIERRE}', CLOSING_LINE);
   const disenoEditorial = fillNamePlaceholders(wrapper, input.names);
 
+  const refinement = input.refinementPrompt?.trim();
   return [
     `[IMAGEN BASE]\n${input.sharedBlocks['contratapa_imagen_base']}`,
     `[ESCENA VISUAL]\n${input.scene}`,
+    ...(refinement ? [`[AJUSTE PRIORITARIO DEL EDITOR]\nLa imagen completa debe regenerarse. ${refinement}`] : []),
     `[COMPOSICIÓN — REGLAS OBLIGATORIAS]\n${input.sharedBlocks['contratapa_composicion_reglas']}`,
     `[DISEÑO EDITORIAL]\n${disenoEditorial}`,
     `[DETALLES TÉCNICOS]\n${input.sharedBlocks['contratapa_detalles_tecnicos']}`,

@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { DataSource } from 'typeorm';
 import { OrdersService } from '../../orders.service';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
@@ -40,6 +41,7 @@ export type GenerateOrderCoverInput = {
   /** Solo para generateCover() — mismo mecanismo de selección de fotos que
    * GenerateOrderTemplateUseCase. generateBackCover() no lleva fotos. */
   selectedAssetIds?: Record<string, number>;
+  refinementPrompt?: string;
 };
 
 export type GenerateOrderCoverOutput = {
@@ -94,17 +96,20 @@ export class GenerateOrderCoverUseCase {
     const referenceImages = await this.downloadReferences(references.map((r) => r.assetId));
 
     const nameValues = this.resolveNameValues(demoRow);
-    const prompt = buildCoverPrompt({
-      sharedBlocks: await this.personalizedRepo.findSharedBlocks(),
-      coverSceneVisual: fillNamePlaceholders(coverSceneVisual, nameValues),
-      title: model.name.toUpperCase(),
-      names: nameValues,
-    });
-
-    const generated = await this.imageGeneration.generateWithReferences(prompt, referenceImages, COVER_SIZE);
+    const prior = await this.loadPriorSource(orderId, 'COVER');
+    const effectivePrompt = prior
+      ? this.withReferenceRoles(input.refinementPrompt, 'reference image 1 is the clean existing cover artwork; preserve its composition and make only the requested changes. Additional reference images are character identity photos and must guide character appearance only.')
+      : input.refinementPrompt;
+    const referencesForEdit = prior ? [prior, ...referenceImages] : referenceImages;
+    const generated = await this.imageGeneration.generateWithReferences(
+      buildCoverPrompt({ sharedBlocks: await this.personalizedRepo.findSharedBlocks(), coverSceneVisual: fillNamePlaceholders(coverSceneVisual, nameValues), title: model.name.replace(/\s+Adulto$/i, '').toUpperCase(), names: nameValues, refinementPrompt: effectivePrompt }),
+      referencesForEdit,
+      COVER_SIZE,
+    );
     const withLogo = await compositeLogo(generated, 'cover');
-
-    return this.saveCoverAsset(orderId, 'COVER', withLogo);
+    const saved = await this.saveCoverAsset(orderId, 'COVER', withLogo);
+    await this.savePrivateSource(orderId, 'COVER', generated, withLogo, saved.storageKey);
+    return saved;
   }
 
   async generateBackCover(input: GenerateOrderCoverInput): Promise<GenerateOrderCoverOutput> {
@@ -117,18 +122,18 @@ export class GenerateOrderCoverUseCase {
     const tagline = model.backCoverTagline;
     const hashtag = category.backCoverHashtag;
 
-    const prompt = buildBackCoverPrompt({
-      sharedBlocks: await this.personalizedRepo.findSharedBlocks(),
-      scene: model.backCoverScene,
-      tagline,
-      hashtag,
-      names: this.resolveNameValues(demoRow),
-    });
-
-    const generated = await this.imageGeneration.generate(prompt, COVER_SIZE);
+    const prior = await this.loadPriorSource(orderId, 'BACK_COVER');
+    const effectivePrompt = prior
+      ? this.withReferenceRoles(input.refinementPrompt, 'reference image 1 is the clean existing back-cover artwork; preserve its composition and make only the requested changes.')
+      : input.refinementPrompt;
+    const effectiveBackPrompt = buildBackCoverPrompt({ sharedBlocks: await this.personalizedRepo.findSharedBlocks(), scene: model.backCoverScene, tagline, hashtag, names: this.resolveNameValues(demoRow), refinementPrompt: effectivePrompt });
+    const generated = prior
+      ? await this.imageGeneration.generateWithReferences(effectiveBackPrompt, [prior], COVER_SIZE)
+      : await this.imageGeneration.generate(effectiveBackPrompt, COVER_SIZE);
     const withLogo = await compositeLogo(generated, 'back-cover');
-
-    return this.saveCoverAsset(orderId, 'BACK_COVER', withLogo);
+    const saved = await this.saveCoverAsset(orderId, 'BACK_COVER', withLogo);
+    await this.savePrivateSource(orderId, 'BACK_COVER', generated, withLogo, saved.storageKey);
+    return saved;
   }
 
   private resolveNameValues(demoRow: DemoRequestRow): NamePlaceholderValues {
@@ -174,6 +179,39 @@ export class GenerateOrderCoverUseCase {
       }),
     );
   }
+
+  private async loadPriorSource(orderId: number, assetType: 'COVER' | 'BACK_COVER'): Promise<Buffer | undefined> {
+    try {
+      const [row] = await this.dataSource.query(
+        'SELECT storage_key FROM order_print_assets WHERE order_id = $1 AND asset_type = $2 AND template_id IS NULL ORDER BY uploaded_at DESC, id DESC LIMIT 1',
+        [orderId, assetType],
+      );
+      if (!row?.storage_key) return undefined;
+      const finalImage = await this.fileStorage.download(row.storage_key);
+      const sourceKey = `${row.storage_key}.clean-source`;
+      const manifestKey = `${row.storage_key}.clean-source.manifest`;
+      const [source, manifestBytes] = await Promise.all([this.fileStorage.downloadPrivate(sourceKey), this.fileStorage.downloadPrivate(manifestKey)]);
+      const manifest = JSON.parse(manifestBytes.toString('utf8')) as { version: number; orderId: number; assetType: 'COVER' | 'BACK_COVER'; storageKey: string; sourceSha256: string; finalSha256: string };
+      if (manifest.version !== 1 || manifest.orderId !== orderId || manifest.assetType !== assetType || manifest.storageKey !== row.storage_key || manifest.sourceSha256 !== this.sha256(source) || manifest.finalSha256 !== this.sha256(finalImage)) return undefined;
+      return source;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private async savePrivateSource(orderId: number, assetType: 'COVER' | 'BACK_COVER', source: Buffer, finalImage: Buffer, storageKey: string): Promise<void> {
+    try {
+      const manifest = { version: 1, orderId, assetType, storageKey, sourceSha256: this.sha256(source), finalSha256: this.sha256(finalImage) };
+      await this.fileStorage.uploadPrivate(`${storageKey}.clean-source`, source);
+      await this.fileStorage.uploadPrivate(`${storageKey}.clean-source.manifest`, Buffer.from(JSON.stringify(manifest)));
+    } catch {
+      // Private storage is optional; generation remains available without it.
+    }
+  }
+
+  private sha256(buffer: Buffer): string { return createHash('sha256').update(buffer).digest('hex'); }
+
+  private withReferenceRoles(refinement: string | undefined, roles: string): string { return [refinement, roles].filter(Boolean).join('\n\n'); }
 
   private saveCoverAsset(orderId: number, assetType: 'COVER' | 'BACK_COVER', buffer: Buffer): Promise<GenerateOrderCoverOutput> {
     return savePrintAssetSingle(this.dataSource, this.fileStorage, orderId, assetType, buffer);

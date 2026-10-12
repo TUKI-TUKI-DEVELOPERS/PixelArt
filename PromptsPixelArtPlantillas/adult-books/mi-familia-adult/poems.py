@@ -8,8 +8,8 @@ piedra hueca por clamor,
 la cueva nos dio salón
 y la hoguera, reflexión
 
-Papá rugía el estribillo,
-mamá seguía el martillo,
+Rugíamos todos el estribillo,
+y alguno marcaba el martillo,
 yo entraba fuera de tono
 y nadie me dejó solo
 
@@ -46,7 +46,7 @@ la cena quedó suspendida
 
 Servíamos pizza de luna
 a un marciano sin fortuna,
-mi hermana cobraba en estrellas
+y cobrábamos en estrellas
 y yo barría centellas
 
 Hoy almuerzo de pie, apurado,
@@ -59,11 +59,11 @@ sin suelo, {NICK}, ni rutina""",
 POEMS[4] = {
     "yo": f"""{NICK}, la bocina sonaba
 y el semáforo no cambiaba,
-papá inventó un pregón
+inventamos un pregón
 y el atasco fue invención
 
 Contábamos autos azules,
-mamá repartía gajos dulces,
+repartíamos gajos dulces,
 el claxon llevaba el son
 y el calor, la bendición
 
@@ -95,12 +95,12 @@ de esa feria secreta""",
 POEMS[6] = {
     "yo": f"""El sillón se volvió galeón
 y la escoba, nuestro timón,
-mamá izó la bandera
+en casa izamos la bandera
 y el pasillo fue ribera
 
 Buscábamos un cofre viejo
 lleno de risa y espejo,
-papá hacía de capitán
+tú hacías de capitán
 y yo, de grumete holgazán
 
 Hoy firmo papeles en tierra,
@@ -136,7 +136,7 @@ y salió la cena servida
 
 Anotábamos el invento
 con {NICK} y mucho aliento,
-mi hermano probó primero
+y lo probamos primero
 y aprobó el experimento
 
 Hoy mido el café al gramo,
@@ -154,8 +154,8 @@ con el arcoíris de paisaje
 
 Las nubes pasaban despacio,
 el pueblo cupo en un espacio,
-mamá señalaba el río
-y papá soltaba el hastío
+señalábamos el río
+y se soltaba el hastío
 
 Hoy vuelo en clase apretada,
 con la ventana cerrada,
@@ -165,12 +165,12 @@ y pienso en aquel viaje,
 
 # 10. Si Tuviéramos Superpoderes — superpoderes domésticos
 POEMS[10] = {
-    "yo": f"""{NICK}, mamá frenaba la hora
+    "yo": f"""{NICK}, en casa frenaban la hora
 con una mano y sin demora,
-papá cargaba el ropero
+y alguien cargaba el ropero
 usando un solo dedo fiero
 
-Mi hermana veía a través
+Alguien veía a través
 de la puerta, y de mi estrés,
 yo solo sabía esconderme
 y nadie dejó de quererme
@@ -203,8 +203,8 @@ sigue siendo ese fervor""",
 POEMS[12] = {
     "yo": f"""La manguera fue trapecio
 y el perro, público necio,
-mamá domaba el rosal
-y papá era el mariscal
+en casa domaban el rosal
+y otro era el mariscal
 
 Yo caminaba en la cuerda
 de ropa, sin que se pierda
@@ -239,8 +239,8 @@ que fallaba, y era grato""",
 POEMS[14] = {
     "yo": f"""La luz bajaba despacito
 y el cuarto se hacía bonito,
-mamá leía en voz pausada
-y papá roncaba en la almohada
+se leía en voz pausada
+y alguien roncaba en la almohada
 
 Con {NICK} elegíamos el final
 cuando el libro iba mal,
@@ -257,8 +257,8 @@ que ordenaba la fila""",
 POEMS[15] = {
     "yo": f"""El tobogán fue muralla
 y el arenero, batalla,
-mamá reinaba en la banca
-y papá cuidaba la tranca
+reinábamos en la banca
+y otro cuidaba la tranca
 
 Repartíamos títulos falsos:
 duque del columpio, descalzos,
@@ -275,7 +275,7 @@ lo guardas tú, {NICK}, y yo""",
 POEMS[16] = {
     "yo": f"""{NICK}, la tina echaba vapor
 y el jabón hacía rumor,
-mi hermana era una sirena
+y había una sirena
 y yo, un pulpo sin pena
 
 Las burbujas subían al techo
@@ -293,8 +293,8 @@ regresa el mismo motivo""",
 POEMS[17] = {
     "yo": f"""El pasillo fue compuerta
 y la cocina, cubierta,
-papá piloteaba el sillón
-y mamá leía el tablón
+tú piloteabas el sillón
+y otro leía el tablón
 
 En las manchas más concretas
 contábamos, {NICK}, planetas
@@ -311,8 +311,8 @@ con sus mundos y su cero""",
 POEMS[18] = {
     "yo": f"""El horno soplaba su aliento
 y la harina, un firmamento,
-mamá glaseaba las tortas
-y papá robaba las cortas
+se glaseaban las tortas
+y alguien robaba las cortas
 
 Yo lamía la cuchara
 y nadie me miraba rara,
@@ -332,9 +332,9 @@ y el piso aguantó ya
 los pasos de cumbia vieja
 que nadie en casa deja
 
-Papá llevaba el ritmo con el pie,
-mamá giraba sin saber por qué,
-mi hermano bajaba la luz
+Alguien llevaba el ritmo con el pie,
+otro giraba sin saber por qué,
+y se bajaba la luz
 y se creía andaluz
 
 Hoy bailo poco y con miedo,

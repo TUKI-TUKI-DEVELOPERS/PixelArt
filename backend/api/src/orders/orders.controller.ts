@@ -340,8 +340,9 @@ export class OrdersAdminController {
   generateCover(
     @Param('id') id: string,
     @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
+    @Body('refinementPrompt') refinementPrompt?: string,
   ) {
-    return this.generateOrderCoverUseCase.generateCover({ orderId: Number(id), selectedAssetIds });
+    return this.generateOrderCoverUseCase.generateCover({ orderId: Number(id), selectedAssetIds, refinementPrompt });
   }
 
   /**
@@ -350,8 +351,8 @@ export class OrdersAdminController {
    * sube directo como archivo de imprenta, PENDING_REVIEW.
    */
   @Post(':id/print-assets/generate-back-cover')
-  generateBackCover(@Param('id') id: string) {
-    return this.generateOrderCoverUseCase.generateBackCover({ orderId: Number(id) });
+  generateBackCover(@Param('id') id: string, @Body('refinementPrompt') refinementPrompt?: string) {
+    return this.generateOrderCoverUseCase.generateBackCover({ orderId: Number(id), refinementPrompt });
   }
 
   /**
