@@ -332,9 +332,9 @@ export function resolveMemorialHermanosNameValues(
  * propósito: cada libro direccional nuevo (nieto/nieta, hijo/hija, etc.)
  * agregaba una variante de sufijo y había que acordarse de listarla acá —
  * justo el olvido que dejó "DE HIJO A MAMÁ" impreso en la imagen. `\p{L}`
- * (flag u) cubre los roles con tilde como "Papá"/"Mamá". Para modelos cuyo nombre termina en "Adulto", también quita
-     * el rol inicial del título y ese marcador terminal; los modelos no adultos
-     * conservan esos fragmentos. */
+ * (flag u) cubre los roles con tilde como "Papá"/"Mamá". Para modelos cuyo
+ * nombre termina en "Adulto", también quita el rol inicial del título y ese
+ * marcador terminal; los modelos no adultos conservan esos fragmentos. */
 export function derivePrintedTitle(templateName: string | null, modelName?: string | null): string {
   if (!templateName) return '';
   const isAdultModel = /\sAdulto$/i.test(modelName ?? '');

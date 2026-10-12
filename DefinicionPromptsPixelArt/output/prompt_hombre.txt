@@ -1,0 +1,43 @@
+[IMAGEN BASE]
+Fotografía hiperrealista en formato horizontal apaisado, plana y a sangre completa, que ocupa el 100% del lienzo de borde a borde. Esta imagen ES la obra final que se imprimirá en las páginas de un libro: NO es la foto de un libro ni de ningún objeto. Prohibido mostrar libros, páginas, lomo, pliegues, curvatura de papel, sombras de encuadernación, mesas, marcos, bordes o cualquier fondo exterior a la escena.
+
+[ESCENA VISUAL]
+Una única fotografía continua que fluye de lado a lado del lienzo. Mateo representado como un superhéroe épico y elegante, en pleno vuelo sobre una ciudad al atardecer. Mateo viste un traje de superhéroe elegante y moderno en tonos azul profundo y dorado, con detalles metálicos sutiles y silueta masculina atlética. Su capa ondea dramáticamente al viento mientras vuela en una pose dinámica y poderosa. De su pecho emana luz dorada, como si su propio corazón fuera la fuente de su poder. El sujeto principal ligeramente descentrado, con el rostro fuera de la franja central.
+
+Usá cada imagen de referencia adjunta ÚNICAMENTE como guía de identidad (estructura ósea, rasgos faciales, proporciones, edad y tono de piel) de la persona real. NO copies, recortes ni pegues la foto de referencia: RE-DIBUJÁ por completo el rostro y la cabeza desde cero como parte nativa de esta escena. Descartá el fondo, el encuadre, el ángulo de cabeza, la iluminación original y los accesorios incidentales de la foto (aros, collares, cadenas, mechones sueltos, ropa) — nada de eso debe aparecer salvo que la escena lo pida explícitamente. El ángulo de la cabeza, la inclinación y la dirección de la mirada deben coincidir con la pose del cuerpo en la escena. El rostro debe re-iluminarse íntegramente con la luz de la escena y compartir el mismo grano, nitidez, profundidad de campo y temperatura de color que el cuerpo — NO debe notarse un rostro fotográfico "pegado" sobre un cuerpo renderizado; la persona y la escena son una única fotografía tomada en ese mismo instante. Mantené fiel el parecido real de la persona. La edad aparente es la edad real de su foto de referencia. El vestuario y los accesorios son EXCLUSIVAMENTE los descritos en esta escena, excepto los lentes de armazón (no de sol), que se conservan si la persona los usa habitualmente.
+
+Las proporciones anatómicas de la cabeza respecto al cuerpo deben ser realistas y naturales para la edad real de la persona: la cabeza NO debe verse grande ni pequeña respecto a los hombros, el torso y las extremidades. Construí un cuerpo completo (torso, brazos, piernas) a escala anatómicamente correcta para esa cabeza, como una persona real fotografiada de cuerpo entero en esa pose, evitando el efecto de "cabeza pegada sobre un cuerpo más chico".
+
+Fondo y Detalles
+La ciudad se extiende debajo, con rascacielos iluminados por la luz cálida del atardecer, el cielo en tonos naranja, púrpura y dorado. Nubes dispersas reflejan los colores del ocaso.
+
+Efectos Mágicos
+Los rayos de luz dorada del pecho del personaje se extienden hacia el cielo antes de disiparse en partículas brillantes. El borde de su capa deja una estela luminosa sutil. Magia épica integrada en una fotografía cinematográfica.
+
+[ILUMINACIÓN Y COLOR]
+Iluminación de atardecer dramática y cinematográfica. Predominan azul profundo, dorado brillante, naranja atardecer y púrpura crepuscular.
+
+[COMPOSICIÓN — REGLAS OBLIGATORIAS]
+- La imagen se imprimirá dividida en dos mitades (izquierda y derecha) mediante corte digital posterior, NO dibujado en la imagen. La escena, la luz y el ambiente fluyen de forma continua entre ambas mitades como una sola fotografía.
+- Franja central prohibida: en el 10% central del ancho del lienzo NO debe haber rostros, ojos, manos ni texto. Solo escena y ambiente (paisaje, cielo, luz, telas, vegetación) pueden cruzar esa franja.
+- Margen de seguridad: los rostros deben estar a más de un 8% de cada borde del lienzo. Los bloques de título y poema deben estar contenidos holgadamente dentro de cada mitad, a más de un 12% de los bordes laterales del lienzo y a más de un 8% de los bordes superior e inferior.
+- Composición asimétrica: sujetos ligeramente descentrados. Prohibidas las composiciones simétricas o especulares.
+
+[DISEÑO EDITORIAL]
+Mitad izquierda: título en tipografía Montserrat de alta gama, integrado con ligero relieve sobre la fotografía, dentro del margen de seguridad y sin cruzar la franja central.
+Título: MI SUPERHÉROE PERSONAL
+
+Mitad derecha: poema en tipografía Montserrat moderna, limpia y legible, sobre una zona tranquila de la fotografía, sin tocar rostros ni la franja central. Debajo, un separador fino con un corazón pequeño centrado.
+
+Poema (verbatim):
+"Mateo, eres mi superhéroe real,
+Con poderes que no son de manual.
+No necesitas capa ni disfraz,
+Tu amor es tu superpoder más.
+Me salvas cada día sin saber,
+Con tu fuerza me haces renacer.
+Eres mi protector y mi verdad,
+Mi amor, mi héroe de verdad."
+
+[DETALLES TÉCNICOS]
+Hiperrealismo extremo, profundidad de campo cinematográfica. Sin logotipos, marcas de agua, emojis ni elementos de plataformas de IA. Sin cajas de texto, sin fondos blancos detrás del texto, sin marcos. La fotografía debe cubrir el 100% del lienzo, de borde a borde, como una única imagen plana y continua — sin lomo, sin pliegue, sin curvatura de papel.
