@@ -7,8 +7,18 @@ import { join } from 'path';
 // marca multicolor de forma confiable), siempre se reserva una zona limpia en
 // el prompt y se pega DESPUÉS por código. Posiciones/tamaños ya validados con
 // el cliente contra las dimensiones reales del libro (29cm de ancho).
-const COVER_LOGO_WIDTH_RATIO = 0.18;
-const COVER_MARGIN_RATIO = 0.03;
+//
+// COVER_MARGIN_RATIO bajado de la imprenta: con 0.03 el margen real (3% de
+// 1456px ≈ 43.7px) quedaba por debajo de 1cm físico (~50.2px a 29cm de
+// ancho) — la imprenta reportó el logo casi pegado al borde en la prueba
+// impresa de "Mamá, Mi Heroína Adulto". 0.05 da ~72.8px, por encima de 1cm,
+// igual al margen de doblez de encuadernado que ahora también pide
+// tapa_composicion_reglas (prompt_shared_blocks). Tamaño bajado a la mitad
+// (0.18 -> 0.09) a pedido del cliente y luego +15% (0.09 -> 0.1035) tras verlo
+// impreso — contratapa no cambia, ese logo ya tenía margen de sobra (va
+// centrado, no en una esquina).
+const COVER_LOGO_WIDTH_RATIO = 0.1035;
+const COVER_MARGIN_RATIO = 0.05;
 const BACK_COVER_LOGO_WIDTH_RATIO = 0.2;
 // Re-validado con el cliente 2026-10-06 durante el piloto de tapa/contratapa
 // de los libros adultos: pasó de arriba-centro (0.12) a pegado justo debajo
@@ -55,8 +65,8 @@ async function buildLogoHalo(logoBuffer: Buffer): Promise<Buffer> {
 
 /**
  * Compone el logo de PixelArt sobre una imagen ya generada.
- * - 'cover': esquina inferior derecha, ~18% del ancho, margen 3%.
- * - 'back-cover': arriba-centro, ~20% del ancho, a ~12% del alto desde arriba.
+ * - 'cover': esquina inferior derecha, ~10% del ancho, margen 5%.
+ * - 'back-cover': centrado horizontalmente, ~20% del ancho, a ~76% del alto desde arriba.
  */
 export async function compositeLogo(imageBuffer: Buffer, position: 'cover' | 'back-cover'): Promise<Buffer> {
   const image = sharp(imageBuffer);

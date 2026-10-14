@@ -6,6 +6,7 @@ jest.mock('../../../personalized/domain/services/build-cover-prompt', () => ({
 }));
 jest.mock('../../../demo/domain/services/resolve-reference-photos', () => ({ resolveReferencePhotos: () => [{ assetId: 1 }] }));
 jest.mock('../../infrastructure/pdf/composite-logo', () => ({ compositeLogo: jest.fn(async (image) => Buffer.concat([image, Buffer.from('-logo')])) }));
+jest.mock('../../infrastructure/pdf/apply-safe-margin', () => ({ applySafeMargin: jest.fn(async (image) => image) }));
 jest.mock('./save-single-print-asset', () => ({ savePrintAssetSingle: jest.fn(async (_ds, _storage, _id, _type, image) => ({ storageKey: 'final', url: 'url', image })) }));
 
 const model: any = { id: '3', name: 'Book', coverSceneVisual: 'scene', backCoverTagline: 'tagline', backCoverScene: 'back scene' };

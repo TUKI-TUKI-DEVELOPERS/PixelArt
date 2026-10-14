@@ -19,6 +19,7 @@ import {
 } from '../../../personalized/domain/services/build-generation-prompt';
 import { resolveReferencePhotos } from '../../../demo/domain/services/resolve-reference-photos';
 import { compositeLogo } from '../../infrastructure/pdf/composite-logo';
+import { applySafeMargin } from '../../infrastructure/pdf/apply-safe-margin';
 import { savePrintAssetSingle } from './save-single-print-asset';
 
 type DemoRequestRow = {
@@ -106,7 +107,10 @@ export class GenerateOrderCoverUseCase {
       referencesForEdit,
       COVER_SIZE,
     );
-    const withLogo = await compositeLogo(generated, 'cover');
+    // Margen de encuadernado duro (código) ANTES del logo: el clean-source
+    // se guarda crudo para que futuras ediciones trabajen sobre el original.
+    const withMargin = await applySafeMargin(generated);
+    const withLogo = await compositeLogo(withMargin, 'cover');
     const saved = await this.saveCoverAsset(orderId, 'COVER', withLogo);
     await this.savePrivateSource(orderId, 'COVER', generated, withLogo, saved.storageKey);
     return saved;
@@ -130,7 +134,8 @@ export class GenerateOrderCoverUseCase {
     const generated = prior
       ? await this.imageGeneration.generateWithReferences(effectiveBackPrompt, [prior], COVER_SIZE)
       : await this.imageGeneration.generate(effectiveBackPrompt, COVER_SIZE);
-    const withLogo = await compositeLogo(generated, 'back-cover');
+    const withMargin = await applySafeMargin(generated);
+    const withLogo = await compositeLogo(withMargin, 'back-cover');
     const saved = await this.saveCoverAsset(orderId, 'BACK_COVER', withLogo);
     await this.savePrivateSource(orderId, 'BACK_COVER', generated, withLogo, saved.storageKey);
     return saved;
