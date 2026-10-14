@@ -1589,6 +1589,16 @@ export async function runSeed(): Promise<void> {
     `, ['admin@pixelart.local', passwordHash]);
     console.log('[seed] users ✓');
 
+    // Fix: la imprenta reportó (prueba física impresa) título/cabello/nombres
+    // pegados al borde en tapa y contratapa — el margen de 1cm que pidieron
+    // se traduce a ~5% del lienzo. tapa/contratapa no tenían margen para todo
+    // el contenido (solo para rostros/texto), y las plantillas interiores
+    // tenían el % de sobra pero con el mismo hueco de alcance.
+    await client.query(
+      readFileSync(join(__dirname, 'content/fix-cover-fold-safety-margin.sql'), 'utf8'),
+    );
+    console.log('[seed] margen de doblez de encuadernado (tapa/contratapa/plantillas) ✓');
+
     // Guarda anti-recurrencia: si quedó alguna plantilla activa sin contenido de
     // prompt (scene_visual/poem_template/character_roles), avisar fuerte. Suele
     // significar que se agregó un libro y falta su backfill, o que un backfill
