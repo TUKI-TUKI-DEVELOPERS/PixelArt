@@ -37,6 +37,51 @@ git checkout origin/main -- "ruta/del/archivo.tsx"
 git checkout origin/main -- "ruta/del/otro/archivo.ts"
 ```
 
+### 2.1 Alinear `main` local de la VPS después de los checkouts
+
+`git checkout origin/main -- <archivo>` actualiza el índice y el archivo, pero **no
+mueve `HEAD`**. Por eso los archivos aparecen como staged y el `main` local puede
+quedarse en un commit anterior aunque la app ya use el código nuevo. Después de
+copiar todos los archivos de la feature, alinea el commit local sin sobrescribir el
+directorio de trabajo ni las configuraciones de producción:
+
+```bash
+git branch --show-current
+git status --short
+git rev-parse --short HEAD
+git rev-parse --short origin/main
+git merge-base --is-ancestor HEAD origin/main && echo "Fast-forward seguro" || echo "DETENERSE: revisar divergencia"
+```
+
+Continúa solo si la rama actual es `main`, el `HEAD` local es ancestro de
+`origin/main` y el estado muestra únicamente los archivos desplegados, las diferencias
+de configuración de producción conocidas y respaldos identificados. Si hay otros
+cambios, divergencia o dudas, detente y revísalos antes de resetear.
+
+```bash
+git reset --mixed origin/main
+```
+
+`--mixed` avanza `main` y alinea el índice con `origin/main`, pero **no modifica ni
+elimina archivos del directorio de trabajo**. Los archivos de código que acabas de
+desplegar dejan de aparecer como cambios; las configuraciones locales de producción
+continúan apareciendo como modificadas, y los respaldos como no rastreados. Eso es
+esperado con la configuración actual de la VPS: no los restaures ni los borres para
+intentar forzar un estado limpio.
+
+Verifica al final:
+
+```bash
+git rev-parse --short HEAD
+git rev-parse --short origin/main
+git status --short
+```
+
+Los dos hashes deben coincidir. `git status` no necesariamente quedará vacío: debe
+mostrar solo las diferencias de configuración de producción y respaldos conocidos,
+no los archivos de código de la feature. No uses `git pull`, `git clean` ni un checkout
+de los archivos de configuración protegidos.
+
 ### 3. Rebuild del contenedor web
 
 ```bash
@@ -139,7 +184,8 @@ Antes de cambiar la versión de MinIO:
 |---|---|---|
 | `git pull` | Trae TODOS los cambios y mergea | Pisa el docker-compose y configs de producción |
 | `git fetch` | Solo actualiza el mapa del remote | No toca ningún archivo — seguro siempre |
-| `git checkout origin/main -- <archivo>` | Extrae UN archivo puntual del remote | Solo mueve lo que vos elegís |
+| `git checkout origin/main -- <archivo>` | Actualiza el índice y el archivo puntual | Deja el archivo staged; **no** mueve `HEAD` |
+| `git reset --mixed origin/main` | Alinea `main` y el índice con el remote | Conserva los archivos locales; usar solo tras las verificaciones anteriores |
 
 ---
 
@@ -148,6 +194,7 @@ Antes de cambiar la versión de MinIO:
 Estos archivos tienen versiones diferentes en producción. No hacer checkout de ellos:
 
 - `infra/docker/docker-compose.yml` — tiene URLs de producción, expose en vez de ports
+- `infra/docker/docker-compose.prod.yml` — puede tener ajustes exclusivos de la VPS
 - `.env.docker` — credenciales reales de producción
 - `frontend/web/next.config.ts` — puede tener overrides de producción
 
@@ -183,6 +230,11 @@ docker compose -f infra/docker/docker-compose.yml up --build web -d
 ---
 
 ## Si el git index queda sucio (estado corrupto)
+
+**Importante:** que los archivos seleccionados con `git checkout origin/main -- <archivo>`
+aparezcan staged (`A`/`M` en la columna izquierda) es normal, no un índice corrupto.
+Para ese caso usa la sección «Alinear `main` local de la VPS después de los checkouts»;
+no apliques este procedimiento de recuperación.
 
 Si `git status` muestra "Unmerged paths" o conflictos raros sin que haya una merge activa:
 
