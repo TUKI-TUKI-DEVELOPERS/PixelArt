@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { CustomBookPdfService } from './custom-book-pdf.service';
 
 describe('CustomBookPdfService split composition', () => {
@@ -10,6 +11,11 @@ describe('CustomBookPdfService split composition', () => {
   ];
   const assets = new Map(rows.map((row, index) => [row.storage_key, `data:image/jpeg;base64,image-${index}`]));
   const design = { gradientStart: '#000', gradientEnd: '#fff', dedicationText: 'dedication', crossSellCards: [] };
+
+  const makePng = (width: number, height: number): Promise<Buffer> =>
+    sharp({ create: { width, height, channels: 3, background: { r: 10, g: 20, b: 30 } } })
+      .png()
+      .toBuffer();
 
   it('creates exactly front-then-back covers and ordered interior-only pages', () => {
     const result = (service as any).composeDocuments(rows, assets, design);
@@ -84,6 +90,115 @@ describe('CustomBookPdfService split composition', () => {
     await expect(target.generateAndStore(42)).rejects.toThrow(/archivos de impresión confirmados/i);
     expect(storage.upload).not.toHaveBeenCalled();
     expect(dataSource.query).toHaveBeenCalledTimes(2);
+  });
+
+  describe('print image raster caps', () => {
+    it.each(['COVER', 'BACK_COVER'])('keeps %s images up to 3424px wide without downscaling', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(3424, 2416), assetType);
+      const meta = await sharp(output).metadata();
+      expect(meta.width).toBe(3424);
+      expect(meta.height).toBe(2416);
+    });
+
+    it.each(['TEMPLATE', 'ADDON'])('still caps %s interior images at 2400px', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(2896, 1024), assetType);
+      const meta = await sharp(output).metadata();
+      expect(meta.width).toBe(2400);
+    });
+
+    it.each(['COVER', 'TEMPLATE'])('never enlarges a smaller %s image', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(1000, 700), assetType);
+      const meta = await sharp(output).metadata();
+      expect(meta.width).toBe(1000);
+      expect(meta.height).toBe(700);
+    });
+
+    it.each(['COVER', 'BACK_COVER'])('downscales a %s larger than 3424px so both dimensions fit within 3424', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(3840, 2708), assetType);
+      const meta = await sharp(output).metadata();
+      expect(meta.width).toBe(3424);
+      expect(meta.height).toBeLessThanOrEqual(3424);
+    });
+
+    it.each(['TEMPLATE', 'ADDON'])('downscales a %s larger than 2400px to the 2400px interior cap', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(3840, 2708), assetType);
+      const meta = await sharp(output).metadata();
+      expect(meta.width).toBe(2400);
+      expect(meta.height).toBeLessThanOrEqual(2400);
+    });
+  });
+
+  describe('print image wiring through generateAndStore', () => {
+    const designRow = {
+      gradient_color_start: '#000',
+      gradient_color_end: '#fff',
+      dedication_text: null,
+      demo_dedication_text: null,
+      personalized_model_id: null,
+    };
+    const wiringRows = [
+      { id: '1', asset_type: 'COVER', template_id: null, slot_index: null, page_part: 'ONLY', storage_key: 'cover-key' },
+      { id: '2', asset_type: 'TEMPLATE', template_id: 'a', slot_index: 1, page_part: 'ONLY', storage_key: 'template-key' },
+      { id: '3', asset_type: 'BACK_COVER', template_id: null, slot_index: null, page_part: 'ONLY', storage_key: 'back-key' },
+    ];
+
+    const buildTarget = async () => {
+      const buffers = new Map<string, Buffer>([
+        ['cover-key', await makePng(3424, 2416)],
+        ['template-key', await makePng(2896, 1024)],
+        ['back-key', await makePng(3424, 2416)],
+      ]);
+      const storage = {
+        download: jest.fn((key: string) => Promise.resolve(buffers.get(key) as Buffer)),
+        upload: jest.fn().mockResolvedValue(undefined),
+      };
+      const dataSource = {
+        query: jest.fn()
+          .mockResolvedValueOnce([designRow])
+          .mockResolvedValueOnce(wiringRows)
+          .mockResolvedValue(undefined),
+      };
+      const target = new CustomBookPdfService(storage as any, dataSource as any);
+      const prepareSpy = jest.spyOn(target as any, 'preparePrintImage');
+      const renderedHtml: string[] = [];
+      jest.spyOn(target as any, 'renderPdf').mockImplementation(async (html: string) => {
+        renderedHtml.push(html);
+        return Buffer.from('pdf');
+      });
+      return { target, buffers, prepareSpy, renderedHtml };
+    };
+
+    const firstEmbeddedImageMeta = async (html: string) => {
+      const base64 = html.match(/<img src="data:image\/jpeg;base64,([^"]+)/)?.[1];
+      expect(base64).toBeDefined();
+      return sharp(Buffer.from(base64 as string, 'base64')).metadata();
+    };
+
+    it('passes each row asset_type from the DB query into preparePrintImage', async () => {
+      const { target, buffers, prepareSpy } = await buildTarget();
+
+      await target.generateAndStore(42);
+
+      expect(prepareSpy).toHaveBeenCalledTimes(3);
+      const typeByBuffer = new Map(wiringRows.map((row) => [buffers.get(row.storage_key), row.asset_type]));
+      for (const [buffer, assetType] of prepareSpy.mock.calls as [Buffer, string][]) {
+        expect(typeByBuffer.get(buffer)).toBe(assetType);
+      }
+    });
+
+    it('embeds the COVER raster above the 2400px interior cap while the TEMPLATE stays capped', async () => {
+      const { target, renderedHtml } = await buildTarget();
+
+      await target.generateAndStore(42);
+
+      expect(renderedHtml).toHaveLength(2);
+      const [coversHtml, interiorHtml] = renderedHtml;
+      const coverMeta = await firstEmbeddedImageMeta(coversHtml);
+      expect(coverMeta.width).toBe(3424);
+      expect(coverMeta.height).toBe(2416);
+      const templateMeta = await firstEmbeddedImageMeta(interiorHtml);
+      expect(templateMeta.width).toBe(2400);
+    });
   });
 
   describe('generation-scoped pair storage', () => {

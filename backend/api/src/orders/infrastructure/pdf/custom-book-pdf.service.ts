@@ -18,6 +18,11 @@ const HEIGHT_CM = 20.5;
 const PAGE_WIDTH_CM = WIDTH_CM;
 
 const MAX_IMAGE_PX = 2400;
+// Tapa/contratapa se generan a 3424x2416 (COVER_SIZE, ~300 DPI sobre la página
+// de 29x20.5cm) — con el tope de interiores el PDF las bajaría a ~2400px y
+// perdería ese DPI. Interiores (TEMPLATE/ADDON, SPREAD 2896x1024) siguen en 2400.
+const MAX_COVER_IMAGE_PX = 3424;
+const COVER_ASSET_TYPES = new Set(['COVER', 'BACK_COVER']);
 
 type PrintAssetRow = {
   id: string;
@@ -184,10 +189,7 @@ export class CustomBookPdfService {
       effectiveRows.map(async (row) => {
         try {
           const buffer = await this.fileStorage.download(row.storage_key);
-          const optimized = await sharp(buffer)
-            .resize(MAX_IMAGE_PX, MAX_IMAGE_PX, { fit: 'inside', withoutEnlargement: true })
-            .jpeg({ quality: 92 })
-            .toBuffer();
+          const optimized = await this.preparePrintImage(buffer, row.asset_type);
           assetMap.set(row.storage_key, `data:image/jpeg;base64,${optimized.toString('base64')}`);
         } catch (err) {
           this.logger.error(`No se pudo preparar asset de impresión ${row.id}: ${(err as Error).message}`);
@@ -228,7 +230,7 @@ export class CustomBookPdfService {
     const assetMap = new Map<string, string>();
     await Promise.all(rows.map(async (row) => {
       const buffer = await this.fileStorage.download(row.storage_key);
-      const optimized = await sharp(buffer).resize(MAX_IMAGE_PX, MAX_IMAGE_PX, { fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 92 }).toBuffer();
+      const optimized = await this.preparePrintImage(buffer, row.asset_type);
       assetMap.set(row.storage_key, `data:image/jpeg;base64,${optimized.toString('base64')}`);
     }));
     const documents = this.composeDocuments(rows, assetMap, {
@@ -237,6 +239,18 @@ export class CustomBookPdfService {
       crossSellCards: await this.resolveCrossSellCards(designRow.personalized_model_id),
     });
     return this.renderPdf(part === 'covers' ? documents.coversHtml : documents.interiorHtml);
+  }
+
+  /** Único lugar donde se decide el tope de raster del PDF: tapa/contratapa
+   * llegan a 3424px (COVER_SIZE ≈ 300 DPI), interiores quedan en 2400px
+   * (MAX_IMAGE_PX histórico — los spreads se generan a 2896x1024). withoutEnlargement
+   * mantiene intactas las imágenes más chicas que el tope. */
+  private async preparePrintImage(buffer: Buffer, assetType: string): Promise<Buffer> {
+    const maxPx = COVER_ASSET_TYPES.has(assetType) ? MAX_COVER_IMAGE_PX : MAX_IMAGE_PX;
+    return sharp(buffer)
+      .resize(maxPx, maxPx, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 92 })
+      .toBuffer();
   }
 
   private async storePdfPair(orderId: number, coversPdf: Buffer, interiorPdf: Buffer): Promise<{ coversKey: string; interiorKey: string }> {
