@@ -718,3 +718,52 @@ describe('PhotobookService.createCustomRequest', () => {
   });
 
 });
+
+describe('PhotobookService.createProject dimensions', () => {
+  const baseData = {
+    photobookProductId: 1,
+    photobookThemeId: 3,
+    customerEmail: 'ana@example.com',
+    customerFullName: 'Ana Cliente',
+    customerPhone: '+51999111222',
+    deliveryAddress: 'Av. Siempre Viva 123',
+    coverType: 'TAPA_GRUESA',
+    pricePerPageCents: 0,
+    rushFeeCents: 0,
+    calculatedTotalCents: 0,
+    pages: [{ pageNumber: 1, layoutKey: 'FULL_1', slots: [] }],
+    assetIds: [],
+  };
+
+  function mockProductAndPersistence(h: ReturnType<typeof createHarness>, allowsCustomDimensions: boolean) {
+    h.repo.getProduct.mockResolvedValue({ id: 1, name: 'Cuadrado 22x22', minPages: 1, pricePerPageCents: 250, allowsCustomDimensions });
+    h.repo.createProject = jest.fn().mockResolvedValue({ id: 9 });
+    h.repo.findProjectById = jest.fn().mockRejectedValue(new Error('skip auto order creation'));
+  }
+
+  it('drops submitted custom dimensions for the square 22x22 product so the PDF stays square', async () => {
+    const h = createHarness();
+    mockProductAndPersistence(h, false);
+
+    await h.service.createProject({ ...baseData, customWidthCm: 21, customHeightCm: 29.7 } as any);
+
+    expect(h.repo.createProject).toHaveBeenCalledWith(expect.objectContaining({ customWidthCm: undefined, customHeightCm: undefined }));
+  });
+
+  it('keeps custom dimensions only for products that allow them', async () => {
+    const h = createHarness();
+    mockProductAndPersistence(h, true);
+
+    await h.service.createProject({ ...baseData, customWidthCm: 30, customHeightCm: 20 } as any);
+
+    expect(h.repo.createProject).toHaveBeenCalledWith(expect.objectContaining({ customWidthCm: 30, customHeightCm: 20 }));
+  });
+
+  it('still requires both dimensions when the product allows custom dimensions', async () => {
+    const h = createHarness();
+    mockProductAndPersistence(h, true);
+
+    await expect(h.service.createProject({ ...baseData, customWidthCm: 30 } as any)).rejects.toBeInstanceOf(BadRequestException);
+    expect(h.repo.createProject).not.toHaveBeenCalled();
+  });
+});

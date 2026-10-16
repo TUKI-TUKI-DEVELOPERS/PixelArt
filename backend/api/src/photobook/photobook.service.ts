@@ -1311,8 +1311,15 @@ export class PhotobookService {
     const rushFeeCents = calculatePhotobookRushFeeCents(wantsRush);
     const calculatedTotalCents = calculatePhotobookTotalCents(data.coverType, data.pages.length, wantsRush);
 
+    // Dimensiones personalizadas solo se persisten cuando el producto las
+    // permite. El formato estándar es 22x22 cm cuadrado: si un cliente
+    // (viejo o manipulado) manda customWidthCm/customHeightCm para un
+    // producto sin allowsCustomDimensions, se descartan acá en el origen
+    // para que el PDF caiga en los defaults cuadrados en vez de salir portrait.
     const finalData: CreateProjectData = {
       ...data,
+      customWidthCm: product.allowsCustomDimensions ? data.customWidthCm : undefined,
+      customHeightCm: product.allowsCustomDimensions ? data.customHeightCm : undefined,
       pricePerPageCents: product.pricePerPageCents,
       rushFeeCents,
       calculatedTotalCents,

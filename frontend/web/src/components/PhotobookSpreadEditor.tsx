@@ -47,10 +47,17 @@ type Props = {
   onSlotTap?: (pageIdx: number, slotIdx: number) => void;
 };
 
-const PAGE_W = 380;
-const PAGE_H = 500;
-const SLOT_GAP = 6;
-const PAGE_PAD = 14;
+/*
+ * Page geometry mirrors the printed PDF: photobook pages are physically
+ * 22x22 cm SQUARE, and the PDF renders slots full-bleed with no inner gaps,
+ * padding, or rounding (see backend photobook-pdf.service.ts). Keep these
+ * constants square and at zero so the editor preview matches the final PDF.
+ * Exported for preview-invariant tests.
+ */
+export const PAGE_W = 440;
+export const PAGE_H = 440;
+export const SLOT_GAP = 0;
+export const PAGE_PAD = 0;
 
 /* ── Layout engine ── */
 type GridDef = { columns: string; rows: string; areas: string[]; template: string };
@@ -62,7 +69,8 @@ function getGridDef(layoutKey: string): GridDef {
     case "GRID_2":
       return { columns: "1fr", rows: "1fr 1fr", areas: ["a", "b"], template: `"a" "b"` };
     case "GRID_3":
-      return { columns: "1fr 1fr", rows: "3fr 2fr", areas: ["a", "b", "c"], template: `"a a" "b c"` };
+      // Mirrors the PDF grid CSS: two equal rows, first slot spans both columns.
+      return { columns: "1fr 1fr", rows: "1fr 1fr", areas: ["a", "b", "c"], template: `"a a" "b c"` };
     case "GRID_4":
     default:
       return { columns: "1fr 1fr", rows: "1fr 1fr", areas: ["a", "b", "c", "d"], template: `"a b" "c d"` };
@@ -268,7 +276,7 @@ function DropSlot({
         className="pb-drop-slot"
         onClick={handleMobileClick}
         style={{
-          gridArea, borderRadius: 4, overflow: "hidden", position: "relative",
+          gridArea, overflow: "hidden", position: "relative",
           border: isPanning
             ? `2px solid ${accent}`
             : isSelected
@@ -385,7 +393,7 @@ function DropSlot({
       data-slot-idx={slotIdx}
       className="pb-drop-slot"
       style={{
-        gridArea, borderRadius: 4, overflow: "hidden", position: "relative",
+        gridArea, overflow: "hidden", position: "relative",
         border: isPanning ? `2px solid ${accent}` : photo ? "none" : "2px dashed #c4b8a8",
         background: photo ? "transparent" : "#f7f4f0",
         transition: "border-color 0.2s, background 0.2s, transform 0.15s",
@@ -507,7 +515,7 @@ function PageEditor({
     <div style={{ width: PAGE_W, height: PAGE_H, position: "relative" }}>
       <div
         className={`spread-page ${isMobile ? "left-page" : `${side}-page`}`}
-        style={{ width: "100%", height: "100%", borderRadius: isMobile ? 4 : side === "left" ? "4px 0 0 4px" : "0 4px 4px 0" }}
+        style={{ width: "100%", height: "100%" }}
       >
         <div style={{
           width: "100%", height: "100%", padding: PAGE_PAD,
@@ -792,7 +800,6 @@ export default function PhotobookSpreadEditor({
           position: "relative",
           overflow: "hidden",
           boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
-          borderRadius: 8,
         }}>
           <div style={{
             width: PAGE_W,
