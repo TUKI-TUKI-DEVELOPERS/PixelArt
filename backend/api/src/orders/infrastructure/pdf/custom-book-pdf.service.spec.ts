@@ -30,11 +30,6 @@ describe('CustomBookPdfService split composition', () => {
     });
   });
 
-  const makePng = (width: number, height: number): Promise<Buffer> =>
-    sharp({ create: { width, height, channels: 3, background: { r: 10, g: 20, b: 30 } } })
-      .png()
-      .toBuffer();
-
   it('creates exactly front-then-back covers and ordered interior-only pages', () => {
     const result = (service as any).composeDocuments(rows, assets, design);
     const pageSources = (html: string) => [...html.matchAll(/<img src="([^"]+)/g)].map((match) => match[1]);
