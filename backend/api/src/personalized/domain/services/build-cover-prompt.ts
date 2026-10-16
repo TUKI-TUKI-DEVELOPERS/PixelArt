@@ -4,9 +4,11 @@ import { fillNamePlaceholders, NamePlaceholderValues } from './build-generation-
 // Cara A/B como TEMPLATE) a la proporción REAL de impresión —
 // WIDTH_CM/HEIGHT_CM = 29/20.5 ≈ 1.4146:1 (custom-book-pdf.service.ts) — no
 // al 3:2 (1.5:1) usado libremente durante el piloto manual en ChatGPT.
-// 1456x1024 = 1.4219:1, el múltiplo de 16 más cercano a la proporción real
-// (mismo tipo de cálculo que ya usa SPREAD_SIZE en build-generation-prompt.ts).
-export const COVER_SIZE = '1456x1024';
+// 3424x2416 ≈ 1.4172:1, el múltiplo de 16 más cercano a la proporción real
+// dentro del límite de gpt-image-2 (borde máx. 3840px) — 3424px sobre 29cm
+// físicos = ~300 DPI de impresión (mismo tipo de cálculo que ya usa
+// SPREAD_SIZE en build-generation-prompt.ts).
+export const COVER_SIZE = '3424x2416';
 
 // Idéntica en todos los libros — no amerita columna en BD (mismo criterio
 // que DEFAULT_SEPARATOR).

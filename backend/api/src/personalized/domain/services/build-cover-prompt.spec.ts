@@ -2,7 +2,7 @@ import { COVER_SIZE, buildBackCoverPrompt, buildCoverPrompt } from './build-cove
 
 describe('COVER_SIZE', () => {
   it('keeps the print-ratio cover size', () => {
-    expect(COVER_SIZE).toBe('1456x1024');
+    expect(COVER_SIZE).toBe('3424x2416');
   });
 });
 
