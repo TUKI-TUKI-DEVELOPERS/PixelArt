@@ -23,8 +23,8 @@ export class PaymentProofOrmEntity {
   @Column({ name: 'payment_method', type: 'text' })
   paymentMethod!: string;
 
-  @Column({ name: 'amount_cents', type: 'bigint' })
-  amountCents!: string;
+  @Column({ name: 'amount_cents', type: 'bigint', nullable: true })
+  amountCents!: string | null;
 
   @Column({ type: 'text', default: 'PENDING' })
   status!: string;

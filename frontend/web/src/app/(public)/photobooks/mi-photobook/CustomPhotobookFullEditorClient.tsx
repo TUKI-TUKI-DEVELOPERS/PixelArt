@@ -18,6 +18,7 @@ export default function CustomPhotobookFullEditorClient() {
   const [formatResolved, setFormatResolved] = useState(false);
   const [formatDraft, setFormatDraft] = useState<DraftState | null>(null);
   const [formatUpdate, setFormatUpdate] = useState<DraftState | null>(null);
+  const [needsFormatCorrection, setNeedsFormatCorrection] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -31,8 +32,19 @@ export default function CustomPhotobookFullEditorClient() {
       }
       setSession(editorSession as Session);
       setProducts(editorProducts as Product[]);
-      const state = (draft as { state?: { formatConfigured?: boolean } }).state;
+      const state = (draft as { state?: DraftState & { formatConfigured?: boolean; pages?: unknown[]; coverType?: string } }).state;
+      const sheets = Array.isArray(state?.pages) ? state.pages.length / 2 : 0;
+      const allowedSheets = state?.coverType === "TAPA_DELGADA"
+        ? [15, 20, 25, 35]
+        : state?.coverType === "TAPA_GRUESA"
+          ? [15, 20, 25, 35, 50]
+          : [];
       if (state?.formatConfigured !== true) setFormatDialogMode("initial");
+      else if (!Number.isInteger(sheets) || !allowedSheets.includes(sheets)) {
+        setFormatDraft(state);
+        setNeedsFormatCorrection(true);
+        setFormatDialogMode("change");
+      }
       setFormatResolved(true);
     }).catch(() => router.replace("/photobooks/acceso"));
   }, [router]);
@@ -43,6 +55,7 @@ export default function CustomPhotobookFullEditorClient() {
 
   function handleFormatConfigured(nextDraft: DraftState) {
     if (formatDialogMode === "change") setFormatUpdate(nextDraft);
+    setNeedsFormatCorrection(false);
     setFormatDraft(null);
     setFormatDialogMode(null);
   }
@@ -64,11 +77,19 @@ export default function CustomPhotobookFullEditorClient() {
         isFormatChangeOpen={formatDialogMode === "change"}
         formatUpdate={formatUpdate ?? undefined}
         onChangeFormat={(currentDraft) => {
+          const pages = Array.isArray(currentDraft.pages) ? currentDraft.pages : [];
+          const sheets = pages.length / 2;
+          const allowed = currentDraft.coverType === "TAPA_DELGADA"
+                ? [15, 20, 25, 35]
+                : currentDraft.coverType === "TAPA_GRUESA"
+                  ? [15, 20, 25, 35, 50]
+                  : [];
+          setNeedsFormatCorrection(currentDraft.formatConfigured !== true || !Number.isInteger(sheets) || !allowed.includes(sheets));
           setFormatDraft(currentDraft);
           setFormatDialogMode("change");
         }}
       />
-      {formatDialogMode && <CustomPhotobookSheetSetup products={products} mode={formatDialogMode} initialDraft={formatDialogMode === "change" ? formatDraft ?? undefined : undefined} onConfigured={handleFormatConfigured} onCancel={() => { setFormatDraft(null); setFormatDialogMode(null); }} />}
+      {formatDialogMode && <CustomPhotobookSheetSetup products={products} mode={formatDialogMode} initialDraft={formatDialogMode === "change" ? formatDraft ?? undefined : undefined} correctionNotice={needsFormatCorrection} onConfigured={handleFormatConfigured} onCancel={() => { setFormatDraft(null); setFormatDialogMode(null); }} />}
     </>
   );
 }

@@ -93,6 +93,9 @@ describe('buildCustomPhotobookCoverPrompt', () => {
 
     expect(prompt).toContain('arte base');
     expect(prompt).toContain('adaptación de composición, estilo o encuadre');
+        expect(prompt).toContain('solo se envía esa imagen');
+        expect(prompt).toContain('la tapa frontal seleccionada no se envía al modelo');
+        expect(prompt).not.toContain('CONTINUIDAD CON LA TAPA SELECCIONADA');
     expect(prompt).toContain('No afirmes que modificas ni sustituyes el archivo original');
   });
 });

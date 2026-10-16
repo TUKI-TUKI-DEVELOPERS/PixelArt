@@ -31,13 +31,19 @@ export function buildCustomPhotobookCoverPrompt({
   const coverModeLabel = request.coverMode === 'PIXELART_DESIGNED'
     ? 'Diseño editorial a cargo de PixelArt a partir de la idea y las referencias del cliente.'
     : request.coverMode === 'CUSTOMER_ARTWORK'
-      ? 'Arte base aportado por el cliente.'
+      ? 'arte base aportado por el cliente.'
       : 'Cubierta construida a partir de fotografías del cliente.';
   const artworkInstruction = request.coverMode === 'CUSTOMER_ARTWORK'
-    ? 'El cliente aportó un arte base. Úsalo como referencia para proponer una adaptación de composición, estilo o encuadre que pueda funcionar en la cubierta. No afirmes que modificas ni sustituyes el archivo original: el administrador decidirá después qué versión aprobar y preparar para imprenta.'
+    ? 'Usa el archivo aportado como referencia y arte base obligatorio para crear una propuesta independiente. Aplica una adaptación de composición, estilo o encuadre solo en lo necesario para ajustarla al panel cuadrado de impresión; preserva sus sujetos, colores y contenido, no recortes ni deformes elementos y extiende el fondo si hace falta. En la tapa frontal, incorpora el título indicado de forma legible y respeta cualquier preferencia de color tipográfico; en la contratapa no añadas título. No afirmes que modificas ni sustituyes el archivo original: el administrador revisará esta propuesta antes de aprobarla.'
     : request.coverMode === 'PHOTO_BASED'
       ? 'Crea una propuesta de fotografía editorial fotorrealista a partir de las fotografías de referencia y la dirección creativa. No conviertas las fotografías en ilustración, pixel art, estética de videojuego, anime ni render 3D, salvo que la dirección del administrador lo pida expresamente.'
       : 'Crea una propuesta editorial fotorrealista a partir del briefing y las referencias fotográficas. PixelArt es el nombre de la marca, no una instrucción de estilo pixel art: no generes ilustración, pixel art, estética de videojuego, anime ni render 3D, salvo que la dirección del administrador lo pida expresamente.';
+
+  const referenceInstruction = request.coverMode !== 'CUSTOMER_ARTWORK'
+    ? `Usa únicamente las referencias asignadas a ${surfaceLabel[surface].toLowerCase()}.`
+    : surface === 'FRONT_COVER'
+      ? 'Para esta tapa, usa únicamente la imagen asignada a TAPA FRONTAL. La imagen de contratapa no se envía ni debe mezclarse en esta generación.'
+      : 'Para esta contratapa, usa la imagen asignada a CONTRATAPA. En esta modalidad, solo se envía esa imagen: la tapa frontal seleccionada no se envía al modelo ni es una referencia de contenido.';
 
   return [
     'Crea una propuesta visual para un photobook impreso de PixelArt.',
@@ -51,16 +57,18 @@ Modalidad de cubierta: ${coverModeLabel}
 Brief: ${request.brief}`,
     `[TRATAMIENTO DEL MATERIAL]
 ${artworkInstruction}`,
+    `[ASIGNACIÓN DE REFERENCIAS]
+${referenceInstruction}`,
     ...(continuationSource === 'PREVIOUS_FRONT_PROPOSAL' ? [`[ITERACIÓN DESDE LA PROPUESTA ANTERIOR]
 La imagen de referencia adicional es la última propuesta de tapa frontal. Úsala como base obligatoria de esta iteración: conserva sus sujetos principales, composición y jerarquía visual, salvo que la dirección del administrador pida un cambio explícito. La nueva dirección describe los ajustes a aplicar, no debe eliminar elementos relevantes de la propuesta anterior.`] : []),
-    ...(continuationSource === 'SELECTED_FRONT_PROPOSAL' ? [`[CONTINUIDAD CON LA TAPA SELECCIONADA]
+    ...(continuationSource === 'SELECTED_FRONT_PROPOSAL' && request.coverMode !== 'CUSTOMER_ARTWORK' ? [`[CONTINUIDAD CON LA TAPA SELECCIONADA]
 La imagen de referencia adicional corresponde a la tapa frontal que el administrador seleccionó. Crea una contratapa que continúe su paleta, atmósfera, lenguaje visual y jerarquía sin copiarla literalmente.`] : []),
     `[PRIORIDAD DE INSTRUCCIONES]
 La dirección creativa del administrador define la propuesta actual y prevalece sobre el brief del cliente cuando ambos indiquen escenarios, sujetos, composición o estilo diferentes.`,
     `[DIRECCIÓN CREATIVA DEL ADMIN]
 ${direction}`,
     `[REQUISITOS TÉCNICOS]
-Esta propuesta corresponde a un panel cuadrado de 22 × 22 cm. La impresión final tiene 3 mm de sangrado exterior. El lomo se calculará después según la cantidad de páginas y el tipo de tapa; no intentes dibujar ni adivinar el lomo en esta imagen. Deja las zonas de texto importantes alejadas de los bordes.`,
+Adapta la imagen fuente a un panel cuadrado de 22 × 22 cm, extendiendo el fondo cuando haga falta en lugar de recortar o deformar el arte. La impresión final tiene 3 mm de sangrado exterior. El lomo se calculará después según la cantidad de páginas y el tipo de tapa; no intentes dibujarlo ni adivinarlo. Deja las zonas de texto importantes alejadas de los bordes.`,
     `[ENTREGA]
 Devuelve únicamente una propuesta visual sin mockups, sin marcas de agua y sin texto ilegible generado por IA. Esta imagen es una propuesta visual que luego se compondrá en la cubierta final de imprenta.`,
   ].join('\n\n');

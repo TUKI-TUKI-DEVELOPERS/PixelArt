@@ -105,19 +105,21 @@ export default function CustomPhotobookRequestDetailPage({ params }: { params: P
       <header className={styles.header} style={{ padding: "28px 0 32px", borderBottom: "1px solid #e5e7eb" }}>
         <div>
           <p style={{ margin: "0 0 8px", color: request.status === "CHANGES_REQUESTED" ? "#9f1239" : "#2d8fd5", fontSize: "11px", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>Solicitud #{request.id} · {request.status === "CHANGES_REQUESTED" ? "Ajustes solicitados" : "Por revisar"}</p>
-          <h1 style={{ margin: 0, color: "#111", fontSize: "32px", fontWeight: 800, letterSpacing: "-0.03em" }}>{request.requestedTheme}</h1>
-          <p style={{ margin: "8px 0 0", color: "#666", fontSize: "14px" }}>{request.occasion}{request.coverTitle ? ` · “${request.coverTitle}”` : ""}</p>
+          <h1 style={{ margin: 0, color: "#111", fontSize: "32px", fontWeight: 800, letterSpacing: "-0.03em" }}>{request.coverMode === "CUSTOMER_ARTWORK" ? "Tapa personalizada" : request.requestedTheme}</h1>
+          <p style={{ margin: "8px 0 0", color: "#666", fontSize: "14px" }}>{request.coverMode === "CUSTOMER_ARTWORK" ? `Título solicitado: “${request.coverTitle?.trim() || "Sin título"}”` : `${request.occasion}${request.coverTitle ? ` · “${request.coverTitle}”` : ""}`}</p>
         </div>
         <a href={`https://wa.me/${request.customerPhone.replace(/\D/g, "")}`} rel="noreferrer" style={{ display: "inline-flex", minHeight: "42px", alignItems: "center", padding: "0 16px", borderRadius: "999px", background: "#111", color: "#fff", fontSize: "13px", fontWeight: 800, textDecoration: "none" }} target="_blank">Contactar por WhatsApp</a>
       </header>
 
       <div className={styles.content}>
         <main>
-          <section style={{ paddingBottom: "30px", borderBottom: "1px solid #e5e7eb" }}>
-            <p style={{ margin: "0 0 10px", color: "#2d8fd5", fontSize: "11px", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}>Dirección de cubierta</p>
-            <h2 style={{ margin: 0, color: "#111", fontSize: "22px", lineHeight: 1.2 }}>{COVER_MODE[request.coverMode] ?? request.coverMode}</h2>
-            <p style={{ margin: "18px 0 0", color: "#444", fontSize: "15px", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{request.brief}</p>
-          </section>
+          {request.coverMode !== "CUSTOMER_ARTWORK" && (
+            <section style={{ paddingBottom: "30px", borderBottom: "1px solid #e5e7eb" }}>
+              <p style={{ margin: "0 0 10px", color: "#2d8fd5", fontSize: "11px", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase" }}>Dirección de cubierta</p>
+              <h2 style={{ margin: 0, color: "#111", fontSize: "22px", lineHeight: 1.2 }}>{COVER_MODE[request.coverMode] ?? request.coverMode}</h2>
+              <p style={{ margin: "18px 0 0", color: "#444", fontSize: "15px", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{request.brief}</p>
+            </section>
+          )}
 
           {request.openCoverAdjustment && (
             <section aria-label="Ajuste solicitado por el cliente" style={{ marginTop: "24px", padding: "20px", border: "1px solid #b9d8e9", borderRadius: "10px", background: "#f3faff" }}>
@@ -128,7 +130,7 @@ export default function CustomPhotobookRequestDetailPage({ params }: { params: P
             </section>
           )}
 
-          <CustomPhotobookAiProposalPanel coverMode={request.coverMode} requestId={request.id} />
+          <CustomPhotobookAiProposalPanel coverMode={request.coverMode} coverTitle={request.coverTitle} requestId={request.id} />
         </main>
 
         <aside className={styles.sidebar}>

@@ -1,11 +1,39 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import CustomPhotobookSheetSetup from "./CustomPhotobookSheetSetup";
 
 describe("CustomPhotobookSheetSetup", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+  });
+
+  it("offers 50 sheets only for thick custom covers", () => {
+    render(<CustomPhotobookSheetSetup products={[{ id: 8 }]} mode="initial" onConfigured={vi.fn()} />);
+
+    expect(within(screen.getByRole("radiogroup", { name: "Hojas para tapa delgada" })).queryByRole("radio", { name: "50 hojas, 100 páginas" })).toBeNull();
+    expect(within(screen.getByRole("radiogroup", { name: "Hojas para tapa gruesa" })).getByRole("radio", { name: "50 hojas, 100 páginas" })).toBeTruthy();
+  });
+
+  it("retains a supported 50-sheet thick legacy selection", async () => {
+    const pages = Array.from({ length: 100 }, (_, index) => ({ pageNumber: index + 1, layoutKey: "FULL_1", slots: [null] }));
+    render(<CustomPhotobookSheetSetup products={[{ id: 8 }]} mode="change" initialDraft={{ coverType: "TAPA_GRUESA", pages }} onConfigured={vi.fn()} onCancel={vi.fn()} />);
+
+    const thickOptions = within(await screen.findByRole("radiogroup", { name: "Hojas para tapa gruesa" }));
+    expect(thickOptions.getByRole("radio", { name: "50 hojas, 100 páginas" }).getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("explains when an unsupported saved format needs correction", () => {
+    render(<CustomPhotobookSheetSetup products={[{ id: 8 }]} mode="change" initialDraft={{ coverType: "TAPA_DELGADA", pages: Array.from({ length: 20 }, (_, index) => ({ pageNumber: index + 1, layoutKey: "FULL_1", slots: [null] })) }} correctionNotice onConfigured={vi.fn()} onCancel={vi.fn()} />);
+
+    expect(screen.getByText(/El formato guardado no es compatible/)).toBeTruthy();
+  });
+
+  it("hides prices from the custom photobook format setup", () => {
+    render(<CustomPhotobookSheetSetup products={[{ id: 8 }]} mode="initial" onConfigured={vi.fn()} />);
+
+    expect(document.body.textContent).not.toMatch(/S\/\s*\d/);
+    expect(document.body.textContent).not.toMatch(/precio/i);
   });
 
   it("persists the selected sheet count before continuing to the editor", async () => {
@@ -15,7 +43,7 @@ describe("CustomPhotobookSheetSetup", () => {
 
     render(<CustomPhotobookSheetSetup products={[{ id: 8 }]} mode="initial" onConfigured={configured} />);
 
-    fireEvent.click(screen.getByRole("radio", { name: "35 hojas, 70 páginas, S/ 200" }));
+    fireEvent.click(within(screen.getByRole("radiogroup", { name: "Hojas para tapa gruesa" })).getByRole("radio", { name: "35 hojas, 70 páginas" }));
     fireEvent.click(screen.getByRole("button", { name: "Continuar a subir fotos" }));
 
     await waitFor(() => expect(configured).toHaveBeenCalledTimes(1));
@@ -60,7 +88,7 @@ describe("CustomPhotobookSheetSetup", () => {
 
     render(<CustomPhotobookSheetSetup products={[{ id: 8 }]} mode="change" onConfigured={configured} onCancel={vi.fn()} />);
 
-    fireEvent.click(await screen.findByRole("radio", { name: "15 hojas, 30 páginas, S/ 120" }));
+    fireEvent.click(within(await screen.findByRole("radiogroup", { name: "Hojas para tapa gruesa" })).getByRole("radio", { name: "15 hojas, 30 páginas" }));
     fireEvent.click(screen.getByRole("button", { name: "Actualizar formato" }));
     expect(await screen.findByText(/Hay fotos en las páginas/)).toBeTruthy();
     expect(configured).not.toHaveBeenCalled();

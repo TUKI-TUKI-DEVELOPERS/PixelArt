@@ -14,6 +14,21 @@ describe('PhotobookPdfService split composition', () => {
     expect(result.interiorHtml).not.toContain('back');
   });
 
+  it('upscales a small cover to the 300-DPI print target while preserving its aspect ratio', async () => {
+    const source = await sharp({ create: { width: 32, height: 24, channels: 3, background: '#336699' } }).png().toBuffer();
+    const service = new PhotobookPdfService({} as any, { download: jest.fn().mockResolvedValue(source) } as any, {} as any, {} as any);
+    const output = Buffer.from((await (service as any).downloadCoverAsBase64('small-cover.png')).split(',')[1], 'base64');
+    expect(await sharp(output).metadata()).toMatchObject({ width: 2599, height: 1949, density: 300 });
+  });
+
+  it('keeps small interior assets at their source dimensions', async () => {
+    const source = await sharp({ create: { width: 32, height: 24, channels: 3, background: '#336699' } }).png().toBuffer();
+    const service = new PhotobookPdfService({} as any, { download: jest.fn().mockResolvedValue(source) } as any, { findById: jest.fn().mockResolvedValue({ storageKey: 'small.png' }) } as any, {} as any);
+    const assets = await (service as any).prepareAssets([1]);
+    const output = Buffer.from(assets.get(1).split(',')[1], 'base64');
+    expect(await sharp(output).metadata()).toMatchObject({ width: 32, height: 24 });
+  });
+
   it('rejects a missing standalone cover instead of producing a partial pair', () => {
     const service = new PhotobookPdfService({} as any, {} as any, {} as any, {} as any);
     expect(() => (service as any).composeDocuments(project, new Map(), 22, 22, 'front', null)).toThrow(/contraportada/i);

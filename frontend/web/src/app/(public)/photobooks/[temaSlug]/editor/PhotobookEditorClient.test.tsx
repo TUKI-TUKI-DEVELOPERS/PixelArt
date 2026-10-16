@@ -56,7 +56,7 @@ vi.mock('@/components/PhotobookPreview', () => ({
 }));
 
 vi.mock('@/components/PhotobookSpreadEditor', () => ({
-  default: () => <div data-testid="photobook-spread-editor" />,
+  default: ({ customEditor }: { customEditor?: boolean }) => <div data-testid="photobook-spread-editor">{!customEditor && <><button title="Duplicar página">Duplicar página</button><button title="Eliminar página">Eliminar página</button></>}</div>,
 }));
 
 import PhotobookEditorClient from './PhotobookEditorClient';
@@ -135,6 +135,53 @@ afterEach(() => {
 });
 
 describe('PhotobookEditorClient characterization', () => {
+  it('does not render the header format button inside the custom editor', () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: {} }) }));
+    renderEditor({ customEditor: true, onChangeFormat: vi.fn() });
+
+    expect(screen.queryByRole('button', { name: 'Formato' })).toBeNull();
+  });
+  it('hides count-changing page actions only in custom editor mode', async () => {
+    mocks.photos = [photo];
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 2, pages: draftPages(), photos: [photo] } }) }));
+    renderEditor({ customEditor: true });
+    await waitFor(() => expect(screen.getByText('Editor de Páginas')).toBeTruthy());
+    expect(screen.queryByRole('button', { name: '+ Agregar página' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Duplicar página' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Eliminar página' })).toBeNull();
+
+    cleanup();
+    renderEditor();
+    fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
+    expect(await screen.findByRole('button', { name: '+ Agregar página' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Duplicar página' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Eliminar página' })).toBeTruthy();
+  });
+
+  it('routes an unsupported 10-sheet custom draft to format correction before finalization', async () => {
+    const onChangeFormat = vi.fn();
+    const pages = draftPages(20);
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 5, coverType: 'TAPA_DELGADA', pages } }) });
+    vi.stubGlobal('fetch', fetchMock);
+    renderEditor({ customEditor: true, onChangeFormat });
+
+    await waitFor(() => expect(screen.getByText('Paso 5 de 6')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: /Finalizar/ }));
+    await waitFor(() => expect(onChangeFormat).toHaveBeenCalled());
+    expect(onChangeFormat).toHaveBeenCalledWith(expect.objectContaining({ pages: expect.arrayContaining([expect.objectContaining({ pageNumber: 1 })]) }));
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/photobook/custom-editor/finalize', expect.anything());
+  });
+  it('blocks finalization requests when a legacy custom draft has an unsupported sheet count', async () => {
+    const onChangeFormat = vi.fn();
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 6, coverType: 'TAPA_DELGADA', pages: draftPages(20) } }) });
+    vi.stubGlobal('fetch', fetchMock);
+    renderEditor({ customEditor: true, onChangeFormat });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Continuar al pago' }));
+    expect(onChangeFormat).toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/photobook/custom-editor/finalize', expect.anything());
+  });
+
   it('renders step 1 and the six-step stepper', () => {
     renderEditor();
 
@@ -207,18 +254,18 @@ describe('PhotobookEditorClient characterization', () => {
       expect(mocks.restorePhotos).not.toHaveBeenCalled();
     });
 
-    it('passes the live custom editor draft to the format dialog', async () => {
+    it('passes the live custom editor draft to automatic format correction', async () => {
           mocks.photos = [photo];
           const onChangeFormat = vi.fn();
           vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
             ok: true,
-            json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 2, pages: draftPages(), photos: [photo] } }),
+            json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 5, coverType: 'TAPA_DELGADA', pages: draftPages(20), photos: [photo] } }),
           }));
 
           renderEditor({ customEditor: true, onChangeFormat });
 
-          expect(await screen.findByText('Editor de Páginas')).toBeTruthy();
-          fireEvent.click(screen.getByRole('button', { name: 'Formato' }));
+          expect(await screen.findByText('Paso 5 de 6')).toBeTruthy();
+          fireEvent.click(screen.getByRole('button', { name: /Finalizar/ }));
           expect(onChangeFormat).toHaveBeenCalledWith(expect.objectContaining({
             pages: expect.arrayContaining([expect.objectContaining({ slots: expect.any(Array) })]),
             photos: [expect.objectContaining({ id: 501 })],
@@ -249,10 +296,12 @@ describe('PhotobookEditorClient characterization', () => {
         it('saves full custom-editor drafts through the authenticated session endpoint', async () => {
       vi.useFakeTimers();
       mocks.photos = [photo];
-      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: {} }) });
+      const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 2, coverType: 'TAPA_DELGADA', pages: draftPages() } }) });
       vi.stubGlobal('fetch', fetchMock);
 
       renderEditor({ customEditor: true });
+      await act(async () => { await Promise.resolve(); });
+      expect(screen.getByText('Editor de Páginas')).toBeTruthy();
       await act(async () => {
         fireEvent.click(screen.getByRole('button', { name: 'Siguiente' }));
         await vi.advanceTimersByTimeAsync(1100);
@@ -287,7 +336,23 @@ describe('PhotobookEditorClient characterization', () => {
         }
       });
 
-      it('submits project creation with photobookThemeId and pages in the payload', async () => {
+      it('hides calculated prices from custom photobook review while preserving the order summary', async () => {
+          mocks.searchParams = 'draft=draft-custom-review';
+          mocks.photos = [photo];
+          vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, pages: draftPages(), photos: [photo], step: 3, coverType: 'TAPA_DELGADA', wantsRush: false } }),
+          }));
+
+          renderEditor({ customEditor: true });
+
+          expect(await screen.findByRole('heading', { name: 'Tu photobook está listo para revisar' })).toBeTruthy();
+          expect(screen.getByText('Total a pagar').closest('[hidden]')).toBeTruthy();
+          expect(screen.getByText(/S\/\s*\d/).closest('[hidden]')).toBeTruthy();
+          expect(screen.getByText('Tipo de tapa')).toBeTruthy();
+        });
+
+        it('submits project creation with photobookThemeId and pages in the payload', async () => {
     mocks.searchParams = 'draft=draft-abc';
     mocks.photos = [photo];
     const fetchMock = vi

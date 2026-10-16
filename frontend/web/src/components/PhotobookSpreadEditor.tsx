@@ -33,6 +33,7 @@ type Props = {
   onRemovePhoto: (pageIdx: number, slotIdx: number) => void;
   onDeletePage: (pageIdx: number) => void;
   onDuplicatePage: (pageIdx: number) => void;
+  customEditor?: boolean;
   onReorderPages: (fromIdx: number, toIdx: number) => void;
   onClickPage: (pageIdx: number) => void;
   onSwapSlots: (fromPageIdx: number, fromSlot: number, toPageIdx: number, toSlot: number) => void;
@@ -571,7 +572,7 @@ function PageEditor({
 
 /* ── Layout toolbar ── */
 function SpreadToolbar({
-  leftPage, rightPage, leftIdx, rightIdx, layouts, accent, onChangeLayout, onDeletePage, onDuplicatePage,
+  leftPage, rightPage, leftIdx, rightIdx, layouts, accent, onChangeLayout, onDeletePage, onDuplicatePage, customEditor,
 }: {
   leftPage: PageData; rightPage: PageData | null;
   leftIdx: number; rightIdx: number | null;
@@ -579,6 +580,7 @@ function SpreadToolbar({
   onChangeLayout: (pageIdx: number, layoutKey: string) => void;
   onDeletePage: (pageIdx: number) => void;
   onDuplicatePage: (pageIdx: number) => void;
+  customEditor?: boolean;
 }) {
   const pageToolbar = (page: PageData, idx: number) => (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -595,7 +597,7 @@ function SpreadToolbar({
           );
         })}
       </div>
-      <button onClick={() => onDuplicatePage(idx)} title="Duplicar página" style={{
+      {!customEditor && <><button onClick={() => onDuplicatePage(idx)} title="Duplicar página" style={{
         width: 22, height: 22, borderRadius: 4, border: "1px solid #e0dcd6",
         background: "#fff", color: "#8c7e6e", fontSize: 12, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit",
@@ -604,7 +606,7 @@ function SpreadToolbar({
         width: 22, height: 22, borderRadius: 4, border: "1px solid #e0dcd6",
         background: "#fff", color: "#dc2626", fontSize: 12, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit",
-      }}>✕</button>
+      }}>✕</button></>}
     </div>
   );
 
@@ -620,7 +622,7 @@ function SpreadToolbar({
 export default function PhotobookSpreadEditor({
   pages, accent, layouts,
   onChangeLayout, onAssignPhoto, onRemovePhoto,
-  onDeletePage, onDuplicatePage, onReorderPages, onClickPage, onSwapSlots,
+  onDeletePage, onDuplicatePage, onReorderPages, onClickPage, onSwapSlots, customEditor,
   onUpdateSlotPosition,
   coverUrl, backCoverUrl,
   isMobile, mobilePageIdx, selectedSlotId, onSlotTap,
@@ -902,7 +904,7 @@ export default function PhotobookSpreadEditor({
                 layouts={layouts} accent={accent}
                 onChangeLayout={onChangeLayout}
                 onDeletePage={onDeletePage}
-                onDuplicatePage={onDuplicatePage}
+                onDuplicatePage={onDuplicatePage} customEditor={customEditor}
               />
             </div>
           ))}

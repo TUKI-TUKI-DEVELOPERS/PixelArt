@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE payment_proofs ALTER COLUMN amount_cents DROP NOT NULL;
+
+COMMIT;

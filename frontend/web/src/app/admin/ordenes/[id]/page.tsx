@@ -31,12 +31,12 @@ type CharacterMeta =
 
 type OrderDetail = {
   id: number; channel: string; status: string; customerFullName: string; customerEmail: string; customerPhone: string;
-  totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null;
+  totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null; manualPricing: boolean;
   demoRequestId: number | null;
   photobookProjectId: number | null;
   photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null;
   statusEvents: { id: number; oldStatus: string | null; newStatus: string; note: string | null; createdAt: string }[];
-  paymentProof: { id: number; status: string; paymentMethod: string; amountCents: number; voucherUrl: string } | null;
+  paymentProof: { id: number; status: string; paymentMethod: string; amountCents: number | null; voucherUrl: string } | null;
   templateSelections: { templateId: number; templateName: string | null; slotIndex: number; hasPromptContent: boolean }[];
   characterMeta: CharacterMeta;
   demoAssetIds: number[];
@@ -770,7 +770,7 @@ export default function OrdenDetallePage() {
           {[
             { label: "Email",    value: data.customerEmail },
             { label: "Teléfono", value: data.customerPhone || "—" },
-            { label: "Total",    value: `S/ ${(data.totalAmountCents / 100).toFixed(2)}`, accent: true },
+            { label: data.manualPricing ? "Precio acordado" : "Total", value: data.manualPricing ? "Por WhatsApp" : `S/ ${(data.totalAmountCents / 100).toFixed(2)}`, accent: true },
             { label: "Entrega",  value: data.estimatedDeliveryDate ?? "—" },
           ].map((f, i, arr) => (
             <div key={f.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
@@ -815,7 +815,7 @@ export default function OrdenDetallePage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {[
                   { label: "Método",  value: data.paymentProof.paymentMethod },
-                  { label: "Monto",   value: `S/ ${(data.paymentProof.amountCents / 100).toFixed(2)}` },
+                  { label: "Monto",   value: data.manualPricing ? "Verificar en comprobante" : data.paymentProof.amountCents === null ? "—" : `S/ ${(data.paymentProof.amountCents / 100).toFixed(2)}` },
                   { label: "Estado",  value: data.paymentProof.status === "PENDING" ? "Pendiente de revisión" : data.paymentProof.status === "APPROVED" ? "Aprobado" : "Rechazado" },
                 ].map((r) => (
                   <div key={r.label}>

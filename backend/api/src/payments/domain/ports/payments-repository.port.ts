@@ -5,7 +5,7 @@ export type CreatePaymentProofData = {
   mimeType: string | null;
   sizeBytes: number | null;
   paymentMethod: string;
-  amountCents: number;
+  amountCents: number | null;
 };
 
 export type PaymentProofRecord = {
@@ -13,7 +13,7 @@ export type PaymentProofRecord = {
   orderId: number;
   storageKey: string;
   paymentMethod: string;
-  amountCents: number;
+  amountCents: number | null;
   status: string;
   createdAt: Date;
 };

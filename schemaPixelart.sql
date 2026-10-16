@@ -504,7 +504,7 @@ CREATE TABLE payment_proofs (
   size_bytes BIGINT,
 
   payment_method payment_method NOT NULL,
-  amount_cents BIGINT NOT NULL CHECK (amount_cents >= 0),
+  amount_cents BIGINT CHECK (amount_cents >= 0),
 
   status payment_proof_status NOT NULL DEFAULT 'PENDING',
   rejection_reason TEXT,

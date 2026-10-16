@@ -21,15 +21,15 @@ export class TypeOrmPaymentsRepository extends PaymentsRepositoryPort {
       mimeType: data.mimeType,
       sizeBytes: data.sizeBytes ? String(data.sizeBytes) : null,
       paymentMethod: data.paymentMethod,
-      amountCents: String(data.amountCents),
+      amountCents: data.amountCents === null ? null : String(data.amountCents),
     });
     const saved = await this.repo.save(entity);
-    return { id: Number(saved.id), orderId: Number(saved.orderId), storageKey: saved.storageKey, paymentMethod: saved.paymentMethod, amountCents: Number(saved.amountCents), status: saved.status, createdAt: saved.createdAt };
+    return { id: Number(saved.id), orderId: Number(saved.orderId), storageKey: saved.storageKey, paymentMethod: saved.paymentMethod, amountCents: saved.amountCents === null ? null : Number(saved.amountCents), status: saved.status, createdAt: saved.createdAt };
   }
 
   async findByOrderId(orderId: number): Promise<PaymentProofRecord | null> {
     const e = await this.repo.findOne({ where: { orderId: String(orderId) } });
     if (!e) return null;
-    return { id: Number(e.id), orderId: Number(e.orderId), storageKey: e.storageKey, paymentMethod: e.paymentMethod, amountCents: Number(e.amountCents), status: e.status, createdAt: e.createdAt };
+    return { id: Number(e.id), orderId: Number(e.orderId), storageKey: e.storageKey, paymentMethod: e.paymentMethod, amountCents: e.amountCents === null ? null : Number(e.amountCents), status: e.status, createdAt: e.createdAt };
   }
 }

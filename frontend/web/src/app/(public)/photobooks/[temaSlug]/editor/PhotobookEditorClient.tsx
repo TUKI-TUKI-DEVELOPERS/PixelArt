@@ -169,6 +169,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const requiredFilledPages = customEditor ? pages.length : minPages;
   const totalPages = pages.length;
   const hojas = Math.ceil(totalPages / 2);
+  const customFormatValid = formatConfigured && (coverType === "TAPA_DELGADA" ? [15, 20, 25, 35] : [15, 20, 25, 35, 50]).includes(totalPages / 2);
   const totalCents = (getPriceCents(coverType, hojas) ?? 0) + (wantsRush ? RUSH_FEE_CENTS : 0);
 
   // Derive placed photo IDs
@@ -389,16 +390,17 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       newPages.push({ pageNumber: pageNum, layoutKey: layout.key, slots });
       pageNum++;
     }
-    while (newPages.length < minPages) {
+    const targetCount = customEditor ? pages.length : minPages;
+    while (newPages.length < targetCount) {
       newPages.push({ pageNumber: newPages.length + 1, layoutKey: "FULL_1", slots: [null] });
     }
-    if (newPages.length > MAX_CARAS) newPages.splice(MAX_CARAS);
+    if (newPages.length > targetCount || newPages.length > MAX_CARAS) newPages.splice(Math.min(targetCount, MAX_CARAS));
     setPages(newPages);
     setAutoDistributeOpen(false);
   }
 
   function addPage() {
-    if (pages.length >= MAX_CARAS) return;
+    if (customEditor || pages.length >= MAX_CARAS) return;
     setPages((prev) => [...prev, { pageNumber: prev.length + 1, layoutKey: "FULL_1", slots: [null] }]);
   }
 
@@ -543,6 +545,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
   // #7 Delete page
   function handleDeletePage(pageIdx: number) {
+    if (customEditor) return;
     const page = pages[pageIdx];
     const hasPhotos = page?.slots.some(Boolean);
     if (hasPhotos) { setDeletePageIdx(pageIdx); return; }
@@ -554,6 +557,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
   // #8 Duplicate page (only the layout, not the photos already placed)
   function handleDuplicatePage(pageIdx: number) {
+    if (customEditor) return;
     setPages((prev) => {
       const page = prev[pageIdx];
       const newPage: PageData = {
@@ -693,6 +697,11 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   }
 
   async function handleFinalizeCustomPhotobook() {
+    if (customEditor && !customFormatValid) {
+      setUploadError("El formato de tu photobook no es válido. Elige una cantidad de hojas permitida antes de finalizar.");
+      onChangeFormat?.(buildDraftData());
+      return;
+    }
     setSubmitting(true);
     setUploadError(null);
     try {
@@ -766,21 +775,27 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         {/* Steps — show icons only on mobile */}
         <div style={{ display: "flex", gap: isMobile ? "6px" : "4px" }}>
           {steps.map((s) => (
-            <button key={s.number} onClick={() => s.number <= step && setStep(s.number)} style={{ display: "flex", alignItems: "center", gap: "4px", padding: isMobile ? "4px 6px" : "6px 10px", borderRadius: "8px", border: step === s.number ? `2px solid ${ACCENT}` : "1px solid #e5e7eb", background: step === s.number ? `${ACCENT}10` : step > s.number ? "#f0fdf4" : "#fff", cursor: s.number <= step ? "pointer" : "default", fontFamily: "inherit" }}>
+            <button key={s.number} onClick={() => {
+                if (customEditor && !customFormatValid && s.number > step) {
+                  setUploadError("El formato de tu photobook no es válido. Elige una cantidad de hojas permitida para continuar.");
+                  onChangeFormat?.(buildDraftData());
+                  return;
+                }
+                if (s.number <= step) setStep(s.number);
+              }} style={{ display: "flex", alignItems: "center", gap: "4px", padding: isMobile ? "4px 6px" : "6px 10px", borderRadius: "8px", border: step === s.number ? `2px solid ${ACCENT}` : "1px solid #e5e7eb", background: step === s.number ? `${ACCENT}10` : step > s.number ? "#f0fdf4" : "#fff", cursor: s.number <= step ? "pointer" : "default", fontFamily: "inherit" }}>
               <span style={{ width: "20px", height: "20px", borderRadius: "50%", background: step === s.number ? ACCENT : step > s.number ? "#22c55e" : "#d0d0d0", color: "#fff", fontSize: "11px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{step > s.number ? "✓" : s.number}</span>
               {!isMobile && <span style={{ fontSize: "11px", fontWeight: 600, color: step === s.number ? ACCENT : "#999" }}>{s.label}</span>}
             </button>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
-            {customEditor && onChangeFormat && step <= 3 && <button type="button" onClick={() => onChangeFormat(buildDraftData())} style={{ padding: isMobile ? "7px 9px" : "8px 12px", borderRadius: "9px", border: `1px solid ${ACCENT}45`, background: `${ACCENT}0d`, color: ACCENT, cursor: "pointer", fontFamily: "inherit", fontSize: "12px", fontWeight: 750 }}>Formato</button>}
             <div style={{ fontSize: "12px", color: "#999" }}>Paso {step}/{steps.length}</div>
           </div>
       </div>
 
       <div style={{ maxWidth: step === 2 ? "none" : "1000px", margin: "0 auto", padding: step === 2 ? (isMobile ? "0 0 90px" : "32px 16px 120px") : (isMobile ? "16px 16px 120px" : "32px 48px 120px") }}>
         <PhotobookEditorCore
-          {...{ ACCENT, hasDraft, restoreDraft, discardDraft, isMobile, step, setStep, pages, coverType, hojas,
+          {...{ customEditor, ACCENT, hasDraft, restoreDraft, discardDraft, isMobile, step, setStep, pages, coverType, hojas,
               MIN_HOJAS, MIN_CARAS, MAX_PHOTOS, photoLimitReached, handleUploadFiles, pendingDuplicates,
               resolveDuplicate, uploading, progress, photos, removePhoto: handleDeletePhoto, handleSidebarDragOver,
               handleSidebarDragLeave, handleSidebarDrop, sidebarDragOver, showOnlyAvailable,
@@ -912,7 +927,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                       {wantsRush && <span style={{ marginLeft: "auto", fontSize: "11px", background: ACCENT, color: "#fff", borderRadius: "6px", padding: "2px 7px", fontWeight: 700 }}>Seleccionado</span>}
                     </div>
                     <div style={{ fontSize: "12px", color: "#888" }}>{MIN_RUSH_DAYS} días hábiles</div>
-                    <div style={{ fontSize: "12px", fontWeight: 700, color: "#e74c6f", marginTop: "4px" }}>+S/ 25</div>
+                    <div style={{ fontSize: "12px", fontWeight: 700, color: "#e74c6f", marginTop: "4px" }}>{customEditor ? "A coordinar" : "+S/ 25"}</div>
                   </button>
                 </div>
 
@@ -940,7 +955,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 })}
               </div>
               {/* Precio consolidado */}
-              <div style={{ padding: "14px 16px", borderRadius: "12px", background: `${ACCENT}08`, border: `1px solid ${ACCENT}20` }}>
+              <div hidden={customEditor} style={{ padding: "14px 16px", borderRadius: "12px", background: `${ACCENT}08`, border: `1px solid ${ACCENT}20` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280", marginBottom: "6px" }}>
                   <span>{hojas} hojas · {coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</span>
                   <span>{fmtPrice(getPriceCents(coverType, hojas) ?? 0)}</span>
@@ -1028,7 +1043,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {[
                   { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>, label: "Dirección", value: [form.deliveryAddress, form.deliveryDistrict, form.deliveryCity, form.deliveryDepartment, form.deliveryRegion].filter(Boolean).join(", ") },
-                  { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={wantsRush ? "#e74c6f" : ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{wantsRush ? <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/> : <><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="1"/><circle cx="12" cy="20" r="1"/><circle cx="20" cy="20" r="1"/></>}</svg>, label: "Tipo de entrega", value: wantsRush ? `Express — ${MIN_RUSH_DAYS} días hábiles (+S/ 25)` : `Normal — ${MIN_NORMAL_DAYS} días hábiles` },
+                  { icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={wantsRush ? "#e74c6f" : ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{wantsRush ? <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/> : <><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="1"/><circle cx="12" cy="20" r="1"/><circle cx="20" cy="20" r="1"/></>}</svg>, label: "Tipo de entrega", value: wantsRush ? `Express — ${MIN_RUSH_DAYS} días hábiles${customEditor ? "" : " (+S/ 25)"}` : `Normal — ${MIN_NORMAL_DAYS} días hábiles` },
                 ].map((row, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: `${ACCENT}10`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{row.icon}</div>
@@ -1042,7 +1057,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
             </div>
 
             {/* Total */}
-            <div style={{ background: `${ACCENT}08`, borderRadius: "16px", border: `1.5px solid ${ACCENT}25`, padding: isMobile ? "18px 16px" : "24px", marginBottom: "24px" }}>
+            <div hidden={customEditor} style={{ background: `${ACCENT}08`, borderRadius: "16px", border: `1.5px solid ${ACCENT}25`, padding: isMobile ? "18px 16px" : "24px", marginBottom: "24px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280" }}>
                   <span>{hojas} hojas · {coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</span>
@@ -1212,7 +1227,12 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
           {step < 5 ? (
             <button onClick={() => {
               if (step === 1 && photos.length === 0) return;
-              const filledPages = pages.filter((p) => p.slots.some(Boolean)).length;
+              if (customEditor && !customFormatValid) {
+                    setUploadError("El formato de tu photobook no es válido. Elige una cantidad de hojas permitida para continuar.");
+                    onChangeFormat?.(buildDraftData());
+                    return;
+                  }
+                  const filledPages = pages.filter((p) => p.slots.some(Boolean)).length;
               if (step === 2 && filledPages < requiredFilledPages) { setIncompleteWarningOpen(true); return; }
               if (step === 3 && filledPages < requiredFilledPages) return;
               if (step === 4) {

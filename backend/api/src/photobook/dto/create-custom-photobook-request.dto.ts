@@ -1,4 +1,4 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export const CUSTOM_PHOTOBOOK_COVER_MODES = [
@@ -34,10 +34,11 @@ export class CreateCustomPhotobookRequestDto {
   @MaxLength(160)
   requestedTheme: string;
 
-  @IsOptional()
   @IsString()
+  @MinLength(1)
+  @Matches(/\S/, { message: 'coverTitle must not be blank' })
   @MaxLength(160)
-  coverTitle?: string;
+  coverTitle: string;
 
   @IsIn(CUSTOM_PHOTOBOOK_COVER_MODES)
   coverMode: CustomPhotobookCoverMode;
@@ -47,7 +48,7 @@ export class CreateCustomPhotobookRequestDto {
   brief: string;
 
   @IsArray()
-  @ArrayMinSize(4)
+  @ArrayMinSize(2)
   @ArrayMaxSize(4)
   @ValidateNested({ each: true })
   @Type(() => CreateCustomPhotobookReferenceSlotDto)
@@ -62,8 +63,8 @@ export class CreateCustomPhotobookRequestDto {
   customerEmail: string;
 
   @IsString()
-  @Matches(/^(?=(?:\D*\d){8,15}\D*$)\+?[0-9\s().-]+$/, {
-    message: 'customerPhone must contain 8 to 15 digits and valid phone separators only',
+  @Matches(/^(?:(?:\+?51)?9(?:[\s().-]?\d){8}|\+[1-9](?:[\s().-]?\d){7,14})$/, {
+    message: 'customerPhone must be a valid Peruvian mobile number or an international number with + prefix',
   })
   @MaxLength(40)
   customerPhone: string;

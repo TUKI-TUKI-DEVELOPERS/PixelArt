@@ -46,7 +46,7 @@ function createHarness() {
   const imageGeneration = { generateWithReferences: jest.fn(), generate: jest.fn() };
   const emailService = { queue: jest.fn() };
   const publicLinksService = { generate: jest.fn(), validate: jest.fn(), revoke: jest.fn() };
-  const repo: Record<string, jest.Mock> = { getProduct: jest.fn(), createDraft: jest.fn() };
+  const repo: Record<string, jest.Mock> = { getProduct: jest.fn(), createDraft: jest.fn(), updateProjectStatus: jest.fn() };
   const ordersService = { create: jest.fn(), ensurePhotobookConfigurationOrder: jest.fn().mockResolvedValue({ id: 99 }), activatePhotobookOrder: jest.fn(), findById: jest.fn() };
   const service = new PhotobookService(
     repo as any,
@@ -92,7 +92,27 @@ describe('PhotobookService.createCustomRequest', () => {
     }));
   });
 
-  it('rejects a reference asset that does not exist before creating the request', async () => {
+  it('accepts one customer-provided image for each cover surface', async () => {
+        const h = createHarness();
+        h.manager.query
+          .mockResolvedValueOnce([{ id: '7' }, { id: '9' }])
+          .mockResolvedValueOnce([{ id: '41' }]);
+        h.dataSource.query.mockResolvedValue([{ ...persistedRow, coverMode: 'CUSTOMER_ARTWORK', referenceAssetIds: ['7', '9'] }]);
+
+        const result = await h.service.createCustomRequest({
+          ...requestData,
+          coverMode: 'CUSTOMER_ARTWORK',
+          referenceSlots: [
+            { assetId: 7, surface: 'FRONT_COVER', slotIndex: 1 },
+            { assetId: 9, surface: 'BACK_COVER', slotIndex: 1 },
+          ],
+        });
+
+        expect(result.referenceAssetIds).toEqual([7, 9]);
+        expect(h.manager.query).toHaveBeenCalledTimes(6);
+      });
+
+      it('rejects a reference asset that does not exist before creating the request', async () => {
     const h = createHarness();
     h.manager.query.mockResolvedValueOnce([{ id: '7' }]);
 
@@ -127,17 +147,45 @@ describe('PhotobookService.createCustomRequest', () => {
       '1024x1024',
     );
     expect(h.imageGeneration.generateWithReferences).toHaveBeenCalledWith(
-      expect.stringContaining('arte base'),
+      expect.stringContaining('arte base obligatorio'),
       expect.any(Array),
       '1024x1024',
     );
     expect(h.fileStorage.upload).toHaveBeenCalledWith(expect.stringMatching(/front_cover-.*\.png$/), Buffer.from('generated-cover'), 'image/png');
     expect(result).toMatchObject({ id: 14, surface: 'FRONT_COVER', asset: { id: 91 } });
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('DESIGN_IN_PROGRESS'), [41]);
-      expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('s.surface = $2'), [41, 'FRONT_COVER']);
+      expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('s.slot_index = 1'), [41, 'FRONT_COVER', true]);
   });
 
-  it('regenerates a front cover from the immediately previous proposal', async () => {
+  it('regenerates customer artwork from the original assigned front image, not the prior proposal', async () => {
+        const h = createHarness();
+        h.dataSource.query
+          .mockResolvedValueOnce([{ ...persistedRow, coverMode: 'CUSTOMER_ARTWORK' }])
+          .mockResolvedValueOnce([{ asset_id: '7' }])
+          .mockResolvedValueOnce([{ id: '13', asset_id: '91', is_selected: false }]);
+        h.assetRepo.findById
+          .mockResolvedValueOnce({ id: 7, storageKey: 'uploads/original-artwork.jpg' })
+          .mockResolvedValueOnce({ id: 91, storageKey: 'photobooks/custom-requests/41/designs/front-cover-13.png' });
+        h.fileStorage.download
+          .mockResolvedValueOnce(Buffer.from('original-artwork'))
+          .mockResolvedValueOnce(Buffer.from('previous-proposal'));
+        h.imageGeneration.generateWithReferences.mockResolvedValue(Buffer.from('generated-cover'));
+        h.assetRepo.save.mockResolvedValue({ id: 92 });
+        h.manager.query
+          .mockResolvedValueOnce([{ id: '14', created_at: new Date('2026-09-28T12:00:00.000Z') }])
+          .mockResolvedValueOnce([]);
+
+        const result = await h.service.generateCustomCoverProposal(41, { surface: 'FRONT_COVER' });
+
+        expect(h.imageGeneration.generateWithReferences).toHaveBeenCalledWith(
+          expect.not.stringContaining('ITERACIÓN DESDE LA PROPUESTA ANTERIOR'),
+          [Buffer.from('original-artwork')],
+          '1024x1024',
+        );
+        expect(result).toMatchObject({ id: 14, surface: 'FRONT_COVER', sourceDesignId: null });
+      });
+
+      it('regenerates a front cover from the immediately previous proposal', async () => {
     const h = createHarness();
     h.dataSource.query
       .mockResolvedValueOnce([persistedRow])
@@ -166,6 +214,32 @@ describe('PhotobookService.createCustomRequest', () => {
     expect(result).toMatchObject({ id: 15, surface: 'FRONT_COVER', sourceDesignId: null });
   });
 
+  it('uses only the assigned back artwork for CUSTOMER_ARTWORK while retaining selected-front lineage', async () => {
+    const h = createHarness();
+    h.dataSource.query
+      .mockResolvedValueOnce([{ ...persistedRow, coverMode: 'CUSTOMER_ARTWORK' }])
+      .mockResolvedValueOnce([{ asset_id: '9' }])
+      .mockResolvedValueOnce([{ id: '14', asset_id: '91' }]);
+    h.assetRepo.findById
+      .mockResolvedValueOnce({ id: 9, storageKey: 'uploads/back-artwork.jpg' })
+      .mockResolvedValueOnce({ id: 91, storageKey: 'designs/front.png' });
+    h.fileStorage.download
+      .mockResolvedValueOnce(Buffer.from('assigned-back-artwork'))
+      .mockResolvedValueOnce(Buffer.from('selected-front-design'));
+    h.imageGeneration.generateWithReferences.mockResolvedValue(Buffer.from('generated-back-cover'));
+    h.assetRepo.save.mockResolvedValue({ id: 92 });
+    h.manager.query
+      .mockResolvedValueOnce([{ id: '15', created_at: new Date('2026-09-28T12:00:00.000Z') }])
+      .mockResolvedValueOnce([]);
+
+    const result = await h.service.generateCustomCoverProposal(41, { surface: 'BACK_COVER' });
+
+    expect(h.imageGeneration.generateWithReferences).toHaveBeenCalledWith(
+      expect.any(String), [Buffer.from('assigned-back-artwork')], '1024x1024',
+    );
+    expect(result).toMatchObject({ id: 15, sourceDesignId: 14, surface: 'BACK_COVER' });
+  });
+
   it('requires a selected front proposal and uses it as a trusted back-cover reference', async () => {
     const h = createHarness();
     h.dataSource.query
@@ -192,7 +266,7 @@ describe('PhotobookService.createCustomRequest', () => {
       '1024x1024',
     );
     expect(result).toMatchObject({ id: 15, sourceDesignId: 14, surface: 'BACK_COVER' });
-      expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('s.surface = $2'), [41, 'BACK_COVER']);
+      expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('s.surface = $2'), [41, 'BACK_COVER', false]);
   });
 
   it('requires at least one active reference and a direction before generating a front cover', async () => {
@@ -424,7 +498,57 @@ describe('PhotobookService.createCustomRequest', () => {
     expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('custom_photobook_editor_sessions'), expect.any(Array));
   });
 
-  it('rejects finalization when a selected custom-format page has no photo', async () => {
+  it.each([['missing', undefined], ['invalid', 'UNKNOWN_COVER']])('rejects a 50-sheet custom format with %s coverType before writes or order creation', async (_label, coverType) => {
+    const h = createHarness();
+    h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);
+    h.manager.query.mockResolvedValueOnce([{ id: '41', status: 'EDITOR_IN_PROGRESS', linked_photobook_project_id: '77' }]);
+    const createOrder = jest.spyOn(h.service, 'createOrderFromProject');
+    const pages = Array.from({ length: 100 }, (_, index) => ({ pageNumber: index + 1, layoutKey: 'FULL_1', slots: [{ id: 501 }] }));
+
+    await expect(h.service.finalizeCustomEditor('opaque-session', {
+      formatConfigured: true,
+      ...(coverType === undefined ? {} : { coverType }),
+      pages,
+      form: { name: 'Ana Cliente', email: 'ana@example.com', phone: '+51999111222', deliveryAddress: 'Av. Principal 123', deliveryDistrict: 'Yanahuara', deliveryCity: 'Arequipa', deliveryRegion: 'Arequipa', deliveryDepartment: 'Arequipa' },
+    })).rejects.toMatchObject({ message: 'El formato seleccionado no es válido. Elige nuevamente la tapa y cantidad de hojas.' });
+    expect(h.manager.query).toHaveBeenCalledTimes(1);
+    expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringMatching(/INSERT INTO|UPDATE photobook_projects|DELETE FROM photobook_/), expect.anything());
+    expect(createOrder).not.toHaveBeenCalled();
+    expect(h.ordersService.activatePhotobookOrder).not.toHaveBeenCalled();
+    expect(h.publicLinksService.generate).not.toHaveBeenCalled();
+    expect(h.emailService.queue).not.toHaveBeenCalled();
+  });
+
+      it('rejects a 10-sheet custom format before writing the project or creating an order', async () => {
+        const h = createHarness();
+        h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);
+        h.manager.query.mockResolvedValueOnce([{ id: '41', status: 'EDITOR_IN_PROGRESS', linked_photobook_project_id: '77' }]);
+        const createOrder = jest.spyOn(h.service, 'createOrderFromProject');
+        const pages = Array.from({ length: 20 }, (_, index) => ({
+          pageNumber: index + 1,
+          layoutKey: 'FULL_1',
+          slots: [{ id: 501 }],
+        }));
+
+        const error = await h.service.finalizeCustomEditor('opaque-session', {
+          formatConfigured: true,
+          coverType: 'TAPA_DELGADA',
+          pages,
+        }).catch((reason: unknown) => reason);
+
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect(error).toMatchObject({ message: 'El formato seleccionado no es válido. Elige nuevamente la tapa y cantidad de hojas.' });
+
+        expect(h.manager.query).toHaveBeenCalledTimes(1);
+        expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('SELECT id, status, linked_photobook_project_id'), [41]);
+        expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringMatching(/INSERT INTO|UPDATE photobook_projects|DELETE FROM photobook_/), expect.anything());
+        expect(createOrder).not.toHaveBeenCalled();
+        expect(h.ordersService.activatePhotobookOrder).not.toHaveBeenCalled();
+        expect(h.publicLinksService.generate).not.toHaveBeenCalled();
+        expect(h.emailService.queue).not.toHaveBeenCalled();
+      });
+
+      it('rejects finalization when a selected custom-format page has no photo', async () => {
       const h = createHarness();
       h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);
       h.manager.query.mockResolvedValueOnce([{ id: '41', status: 'EDITOR_IN_PROGRESS', linked_photobook_project_id: '77' }]);
@@ -573,7 +697,7 @@ describe('PhotobookService.createCustomRequest', () => {
     });
     h.repo.updateProjectStatus = jest.fn();
     h.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 55, totalAmountCents: 12900 });
-    h.dataSource.query.mockResolvedValueOnce([]);
+    h.dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
     h.publicLinksService.generate.mockResolvedValue({ token: 'payment-token', expiresAt: new Date('2026-10-07T00:00:00.000Z') });
 
     await expect(h.service.createOrderFromProject(79)).resolves.toMatchObject({
@@ -583,6 +707,14 @@ describe('PhotobookService.createCustomRequest', () => {
     });
     expect(h.ordersService.activatePhotobookOrder).toHaveBeenCalledWith(expect.objectContaining({ photobookProjectId: 79, baseAmountCents: 12900 }));
     expect(h.repo.updateProjectStatus).toHaveBeenCalledWith(79, 'CONVERTED_TO_ORDER');
+        expect(h.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'PAYMENT_PROOF_RECEIVED_ADMIN', payload: expect.objectContaining({ totalAmountCents: 12900 }) }));
+        const manual = createHarness();
+        manual.repo.findProjectById = jest.fn().mockResolvedValue({ id: 79, status: 'CONFIRMED', customerFullName: 'Ana Cliente', customerEmail: 'ana@example.com', customerPhone: '+51999111222', calculatedTotalCents: 12900 });
+        manual.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 56, totalAmountCents: 12900 });
+        manual.dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: '9' }]);
+        manual.publicLinksService.generate.mockResolvedValue({ token: 'manual-payment-token', expiresAt: new Date('2026-10-07T00:00:00.000Z') });
+        await manual.service.createOrderFromProject(79);
+        expect(manual.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'PAYMENT_PROOF_RECEIVED_ADMIN', payload: expect.not.objectContaining({ totalAmountCents: expect.any(Number) }) }));
   });
 
 });

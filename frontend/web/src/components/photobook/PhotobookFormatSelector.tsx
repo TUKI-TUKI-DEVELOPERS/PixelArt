@@ -23,6 +23,8 @@ type Props = {
   thinSheets: number;
   thickSheets: number;
   compact?: boolean;
+  showPrice?: boolean;
+  customOnly?: boolean;
   onSelectCover: (cover: PhotobookCoverType) => void;
   onSelectSheets: (cover: PhotobookCoverType, sheets: number) => void;
 };
@@ -33,8 +35,8 @@ function Check({ visible }: { visible: boolean }) {
   return <span aria-hidden="true" style={{ width: 24, height: 24, borderRadius: "50%", flexShrink: 0, background: visible ? ACCENT : "transparent", border: `2px solid ${visible ? ACCENT : "#ddd"}`, display: "grid", placeItems: "center" }}>{visible && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}</span>;
 }
 
-function CoverCard({ cover, title, description, color, examples, selectedCover, selectedSheets, compact, onSelectCover, onSelectSheets }: {
-  cover: PhotobookCoverType; title: string; description: string; color: string; examples: typeof THIN_COVER_EXAMPLES; selectedCover: PhotobookCoverType; selectedSheets: number; compact: boolean; onSelectCover: (cover: PhotobookCoverType) => void; onSelectSheets: (cover: PhotobookCoverType, sheets: number) => void;
+function CoverCard({ cover, title, description, color, examples, selectedCover, selectedSheets, compact, showPrice, onSelectCover, onSelectSheets }: {
+  cover: PhotobookCoverType; title: string; description: string; color: string; examples: typeof THIN_COVER_EXAMPLES; selectedCover: PhotobookCoverType; selectedSheets: number; compact: boolean; showPrice: boolean; onSelectCover: (cover: PhotobookCoverType) => void; onSelectSheets: (cover: PhotobookCoverType, sheets: number) => void;
 }) {
   const selected = selectedCover === cover;
   return (
@@ -50,10 +52,10 @@ function CoverCard({ cover, title, description, color, examples, selectedCover, 
       <div role="radiogroup" aria-label={`Hojas para ${title.toLowerCase()}`} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
         {examples.map((example) => {
           const rowSelected = selected && selectedSheets === example.sheets;
-          return <button key={example.sheets} type="button" role="radio" aria-checked={rowSelected} aria-label={`${example.sheets} hojas, ${example.sheets * 2} páginas, ${example.price}`} onClick={(event) => { event.stopPropagation(); onSelectCover(cover); onSelectSheets(cover, example.sheets); }} style={{ width: "100%", padding: compact ? "8px 11px" : "10px 14px", borderRadius: "10px", cursor: "pointer", background: rowSelected ? `${color}16` : example.highlight ? `${color}0d` : "#fafafa", border: rowSelected ? `1.5px solid ${color}` : example.highlight ? `1.5px solid ${color}40` : "1.5px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", fontFamily: "inherit", textAlign: "left" }}>
+          return <button key={example.sheets} type="button" role="radio" aria-checked={rowSelected} aria-label={`${example.sheets} hojas, ${example.sheets * 2} páginas${showPrice ? `, ${example.price}` : ""}`} onClick={(event) => { event.stopPropagation(); onSelectCover(cover); onSelectSheets(cover, example.sheets); }} style={{ width: "100%", padding: compact ? "8px 11px" : "10px 14px", borderRadius: "10px", cursor: "pointer", background: rowSelected ? `${color}16` : example.highlight ? `${color}0d` : "#fafafa", border: rowSelected ? `1.5px solid ${color}` : example.highlight ? `1.5px solid ${color}40` : "1.5px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", position: "relative", fontFamily: "inherit", textAlign: "left" }}>
             {example.highlight && <span style={{ position: "absolute", top: "-8px", left: "12px", background: color, color: "#fff", fontSize: "8px", fontWeight: 700, padding: "1px 8px", borderRadius: "99px" }}>MÁS ELEGIDO</span>}
             <span style={{ fontSize: "13px", fontWeight: 500, color: rowSelected ? "#111" : "#555" }}>{example.sheets} hojas · {example.sheets * 2} caras</span>
-            <span style={{ fontSize: compact ? "15px" : "18px", fontWeight: 700, color: rowSelected ? color : "#111", whiteSpace: "nowrap" }}>{example.price}</span>
+            {showPrice && <span style={{ fontSize: compact ? "15px" : "18px", fontWeight: 700, color: rowSelected ? color : "#111", whiteSpace: "nowrap" }}>{example.price}</span>}
           </button>;
         })}
       </div>
@@ -61,9 +63,10 @@ function CoverCard({ cover, title, description, color, examples, selectedCover, 
   );
 }
 
-export default function PhotobookFormatSelector({ selectedCover, thinSheets, thickSheets, compact = false, onSelectCover, onSelectSheets }: Props) {
+export default function PhotobookFormatSelector({ selectedCover, thinSheets, thickSheets, compact = false, showPrice = true, customOnly = false, onSelectCover, onSelectSheets }: Props) {
+  const thinExamples = customOnly ? THIN_COVER_EXAMPLES.filter((option) => option.sheets !== 50) : THIN_COVER_EXAMPLES;
   return <div style={{ display: "flex", flexDirection: "column", gap: compact ? "12px" : "16px" }}>
-    <CoverCard cover="TAPA_DELGADA" title="TAPA DELGADA" description="Cartulina estándar · Ligero y económico" color="#6b9fff" examples={THIN_COVER_EXAMPLES} selectedCover={selectedCover} selectedSheets={thinSheets} compact={compact} onSelectCover={onSelectCover} onSelectSheets={onSelectSheets} />
-    <CoverCard cover="TAPA_GRUESA" title="TAPA GRUESA" description="Tapa dura resistente · Durabilidad premium" color={ACCENT} examples={THICK_COVER_EXAMPLES} selectedCover={selectedCover} selectedSheets={thickSheets} compact={compact} onSelectCover={onSelectCover} onSelectSheets={onSelectSheets} />
+    <CoverCard cover="TAPA_DELGADA" title="TAPA DELGADA" description={showPrice ? "Cartulina estándar · Ligero y económico" : "Cartulina estándar · Ligero"} color="#6b9fff" examples={thinExamples} selectedCover={selectedCover} selectedSheets={thinSheets} compact={compact} showPrice={showPrice} onSelectCover={onSelectCover} onSelectSheets={onSelectSheets} />
+    <CoverCard cover="TAPA_GRUESA" title="TAPA GRUESA" description="Tapa dura resistente · Durabilidad premium" color={ACCENT} examples={THICK_COVER_EXAMPLES} selectedCover={selectedCover} selectedSheets={thickSheets} compact={compact} showPrice={showPrice} onSelectCover={onSelectCover} onSelectSheets={onSelectSheets} />
   </div>;
 }

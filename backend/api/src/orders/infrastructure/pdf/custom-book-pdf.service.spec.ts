@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { CustomBookPdfService } from './custom-book-pdf.service';
 
 describe('CustomBookPdfService split composition', () => {
@@ -10,6 +11,24 @@ describe('CustomBookPdfService split composition', () => {
   ];
   const assets = new Map(rows.map((row, index) => [row.storage_key, `data:image/jpeg;base64,image-${index}`]));
   const design = { gradientStart: '#000', gradientEnd: '#fff', dedicationText: 'dedication', crossSellCards: [] };
+  const makePng = (width: number, height: number): Promise<Buffer> =>
+    sharp({ create: { width, height, channels: 3, background: { r: 10, g: 20, b: 30 } } })
+      .png()
+      .toBuffer();
+
+  describe('print image resolution limits', () => {
+    it.each(['COVER', 'BACK_COVER'])('preserves %s raster up to the 3424px cover cap', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(3424, 2416), assetType);
+      const { width, height } = await sharp(output).metadata();
+      expect({ width, height }).toEqual({ width: 3424, height: 2416 });
+    });
+
+    it.each(['TEMPLATE', 'ADDON'])('caps %s raster at 2400px', async (assetType) => {
+      const output = await (service as any).preparePrintImage(await makePng(3000, 900), assetType);
+      const { width, height } = await sharp(output).metadata();
+      expect({ width, height }).toEqual({ width: 2400, height: 720 });
+    });
+  });
 
   it('creates exactly front-then-back covers and ordered interior-only pages', () => {
     const result = (service as any).composeDocuments(rows, assets, design);

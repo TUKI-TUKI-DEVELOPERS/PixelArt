@@ -19,9 +19,9 @@ const PLACEHOLDER_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAA
 const DEFAULT_WIDTH_CM = 22;
 const DEFAULT_HEIGHT_CM = 22;
 
-// Resolución máxima para optimizar memoria (px)
-// 2500px cubre una página de 22cm a 288 DPI (deviceScaleFactor 3 × 96 DPI base)
-const MAX_IMAGE_PX = 2500;
+// Preparar cubiertas a 300 píxeles por pulgada según el formato físico final.
+const PRINT_DPI = 300;
+const cmToPrintPixels = (cm: number) => Math.ceil((cm / 2.54) * PRINT_DPI);
 
 @Injectable()
 export class PhotobookPdfService {
@@ -100,7 +100,7 @@ export class PhotobookPdfService {
     const heightCm = project.customHeightCm ?? DEFAULT_HEIGHT_CM;
     const theme = project.photobookThemeId === null ? null : await this.repo.getTheme(project.photobookThemeId);
     const assetIds = Array.from(new Set(project.pages.flatMap((page) => page.slots.map((slot) => slot.assetId))));
-    const assetMap = await this.prepareAssets(assetIds);
+    const assetMap = await this.prepareAssets(assetIds, widthCm, heightCm);
     let frontKey: string;
     let backKey: string;
     if (theme) {
@@ -118,7 +118,10 @@ export class PhotobookPdfService {
       backKey = sources?.back_storage_key ?? '';
     }
     if (!frontKey || !backKey) throw new Error(missingCoverMessage);
-    const [front, back] = await Promise.all([this.downloadCoverAsBase64(frontKey), this.downloadCoverAsBase64(backKey)]);
+    const [front, back] = await Promise.all([
+      this.downloadCoverAsBase64(frontKey, widthCm, heightCm),
+      this.downloadCoverAsBase64(backKey, widthCm, heightCm),
+    ]);
     if (front === PLACEHOLDER_BASE64 || back === PLACEHOLDER_BASE64) throw new Error('No se pudo preparar la portada o contraportada requerida.');
     const documents = this.composeDocuments(project, assetMap, widthCm, heightCm, front, back);
     return { documents, widthCm, heightCm };
@@ -128,12 +131,14 @@ export class PhotobookPdfService {
     return this.fileStorage.getPublicUrl(pdfStorageKey);
   }
 
-  private async downloadCoverAsBase64(storageKey: string): Promise<string> {
+  private async downloadCoverAsBase64(storageKey: string, widthCm = DEFAULT_WIDTH_CM, heightCm = DEFAULT_HEIGHT_CM): Promise<string> {
     try {
       const rawBuffer = await this.fileStorage.download(storageKey);
+      // Covers are intentionally enlarged to the 300-DPI print target; fit-inside preserves the artwork without cropping or distortion.
       const optimized = await sharp(rawBuffer)
-        .resize(MAX_IMAGE_PX, MAX_IMAGE_PX, { fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: 92 })
+        .resize(cmToPrintPixels(widthCm), cmToPrintPixels(heightCm), { fit: 'inside', withoutEnlargement: false, kernel: 'lanczos3' })
+        .withMetadata({ density: PRINT_DPI })
+        .jpeg({ quality: 94 })
         .toBuffer();
       return `data:image/jpeg;base64,${optimized.toString('base64')}`;
     } catch (err) {
@@ -142,7 +147,7 @@ export class PhotobookPdfService {
     }
   }
 
-  private async prepareAssets(assetIds: number[]): Promise<Map<number, string>> {
+  private async prepareAssets(assetIds: number[], widthCm = DEFAULT_WIDTH_CM, heightCm = DEFAULT_HEIGHT_CM): Promise<Map<number, string>> {
 
     const assetMap = new Map<number, string>();
 
@@ -158,8 +163,9 @@ export class PhotobookPdfService {
           const rawBuffer = await this.fileStorage.download(asset.storageKey);
 
           const optimized = await sharp(rawBuffer)
-            .resize(MAX_IMAGE_PX, MAX_IMAGE_PX, { fit: 'inside', withoutEnlargement: true })
-            .jpeg({ quality: 85 })
+            .resize(cmToPrintPixels(widthCm), cmToPrintPixels(heightCm), { fit: 'inside', withoutEnlargement: true, kernel: 'lanczos3' })
+                .withMetadata({ density: PRINT_DPI })
+            .jpeg({ quality: 88 })
             .toBuffer();
 
           assetMap.set(assetId, `data:image/jpeg;base64,${optimized.toString('base64')}`);
@@ -265,11 +271,11 @@ export class PhotobookPdfService {
     const page = await browser.newPage();
     try {
       page.setDefaultTimeout(90000);
-      // deviceScaleFactor: 3 → renderiza a 288 DPI (96 × 3), calidad de impresión profesional
+      // 300 DPI para la rasterización del documento final.
       await page.setViewport({
         width: Math.round((widthCm / 2.54) * 96),
         height: Math.round((heightCm / 2.54) * 96),
-        deviceScaleFactor: 3,
+        deviceScaleFactor: PRINT_DPI / 96,
       });
       await page.setContent(html, { waitUntil: 'load' });
       const pdf = await page.pdf({
@@ -397,8 +403,8 @@ export class PhotobookPdfService {
     const spineMm = calculateSpineWidthMm(project.pageCount, coverType);
     const layout = computeWrapLayout(coverWidthCm, coverHeightCm, spineMm, SANGRADO_MM);
     const [front, back] = await Promise.all([
-      this.downloadCoverAsBase64(request.front_storage_key),
-      this.downloadCoverAsBase64(request.back_storage_key),
+      this.downloadCoverAsBase64(request.front_storage_key, coverWidthCm + 0.6, coverHeightCm + 0.6),
+      this.downloadCoverAsBase64(request.back_storage_key, coverWidthCm + 0.6, coverHeightCm + 0.6),
     ]);
     const spineColor = await this.sampleInnerEdgeColor(request.front_storage_key);
     const spineLabel = (request.cover_title || request.requested_theme).toUpperCase();
@@ -459,7 +465,7 @@ export class PhotobookPdfService {
       await page.setViewport({
         width: Math.round((layout.totalWidthCm / 2.54) * 96),
         height: Math.round((layout.totalHeightCm / 2.54) * 96),
-        deviceScaleFactor: 2, // la panorámica fuente es de baja resolución; DSF 2 equilibra calidad/memoria en una página ancha
+        deviceScaleFactor: PRINT_DPI / 96,
       });
       await page.setContent(html, { waitUntil: 'load' });
       const pdf = await page.pdf({

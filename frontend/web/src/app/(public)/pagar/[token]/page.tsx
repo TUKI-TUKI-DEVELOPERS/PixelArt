@@ -9,7 +9,8 @@ const API = "";
 type PaymentInfo = {
   orderId: number;
   customerName: string;
-  totalAmountCents: number;
+  totalAmountCents?: number;
+  manualPricing: boolean;
   currency: string;
   expiresAt: string;
 };
@@ -117,14 +118,14 @@ export default function PagarPage() {
     );
   }
 
-  const totalFormatted = `S/ ${(info.totalAmountCents / 100).toFixed(2)}`;
+  const totalFormatted = info.totalAmountCents == null ? "" : `S/ ${(info.totalAmountCents / 100).toFixed(2)}`;
 
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", padding: "48px 24px" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "32px" }}>
         <div style={{ fontSize: "14px", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>
-          Pago de tu libro
+          {info.manualPricing ? "Pago de photobook a medida" : "Pago de tu libro"}
         </div>
         <h1 style={{ margin: "0 0 8px 0", fontSize: "32px", fontWeight: 800, color: "#111" }}>
           {info.customerName}
@@ -135,7 +136,7 @@ export default function PagarPage() {
       </div>
 
       {/* Amount */}
-      <div style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "32px" }}>
+      <div hidden={info.manualPricing} style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "32px" }}>
         <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Total a pagar</div>
         <div style={{ fontSize: "40px", fontWeight: 900, color: "#111" }}>{totalFormatted}</div>
         <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "4px" }}>Orden #{info.orderId}</div>
@@ -158,7 +159,7 @@ export default function PagarPage() {
           }}
         />
         <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-          Realiza el pago por <strong>{totalFormatted}</strong> y luego sube la captura abajo.
+          {info.manualPricing ? "Realiza el pago por el importe coordinado con nuestro equipo y luego sube la captura abajo." : <>Realiza el pago por <strong>{totalFormatted}</strong> y luego sube la captura abajo.</>}
         </p>
       </div>
 

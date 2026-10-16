@@ -30,16 +30,18 @@ type ReferenceAsset = {
 type Props = {
   requestId: number;
   coverMode: string;
+  coverTitle?: string | null;
 };
 
 const MIN_ACTIVE_REFERENCES = 1;
 const MAX_REFERENCES = 5;
 const FIXED_REFERENCE_SLOTS_PER_SURFACE = 2;
 
-export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) {
+export function CustomPhotobookAiProposalPanel({ requestId, coverMode, coverTitle }: Props) {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [references, setReferences] = useState<ReferenceAsset[]>([]);
   const [creativeDirection, setCreativeDirection] = useState("");
+  const [backCreativeDirection, setBackCreativeDirection] = useState("");
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,23 +55,29 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
   const replacePhotoInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const isCustomerArtwork = coverMode === "CUSTOMER_ARTWORK";
-  const activeReferences = useMemo(() => references.filter((reference) => reference.isActive), [references]);
   const hasFixedReferenceSlots = references.some((reference) => Boolean(reference.surface));
-  const frontReferences = useMemo(() => references.filter((reference) => reference.surface === "FRONT_COVER"), [references]);
-  const backReferences = useMemo(() => references.filter((reference) => reference.surface === "BACK_COVER"), [references]);
+  const hasCustomerArtworkSlots = isCustomerArtwork && hasFixedReferenceSlots;
+  const visibleReferences = useMemo(
+    () => hasCustomerArtworkSlots ? references.filter((reference) => reference.slotIndex === 1) : references,
+    [hasCustomerArtworkSlots, references],
+  );
+  const activeReferences = useMemo(() => visibleReferences.filter((reference) => reference.isActive), [visibleReferences]);
+  const frontReferences = useMemo(() => visibleReferences.filter((reference) => reference.surface === "FRONT_COVER"), [visibleReferences]);
+  const backReferences = useMemo(() => visibleReferences.filter((reference) => reference.surface === "BACK_COVER"), [visibleReferences]);
   const activeFrontReferences = useMemo(() => frontReferences.filter((reference) => reference.isActive), [frontReferences]);
   const activeBackReferences = useMemo(() => backReferences.filter((reference) => reference.isActive), [backReferences]);
+  const surfaceReferenceLimit = hasCustomerArtworkSlots ? 1 : Math.max(1, frontReferences.length, backReferences.length);
   const frontDesigns = useMemo(() => designs.filter((design) => design.surface === "FRONT_COVER"), [designs]);
   const backDesigns = useMemo(() => designs.filter((design) => design.surface === "BACK_COVER"), [designs]);
   const selectedFront = frontDesigns.find((design) => design.isSelected) ?? null;
   const selectedBack = backDesigns.find((design) => design.isSelected) ?? null;
   const hasValidReferenceSet = hasFixedReferenceSlots
-    ? activeFrontReferences.length >= MIN_ACTIVE_REFERENCES && activeFrontReferences.length <= FIXED_REFERENCE_SLOTS_PER_SURFACE
+    ? activeFrontReferences.length >= MIN_ACTIVE_REFERENCES && activeFrontReferences.length <= surfaceReferenceLimit
     : activeReferences.length >= MIN_ACTIVE_REFERENCES && activeReferences.length <= MAX_REFERENCES;
   const hasValidBackReferenceSet = hasFixedReferenceSlots
-    ? activeBackReferences.length >= MIN_ACTIVE_REFERENCES && activeBackReferences.length <= FIXED_REFERENCE_SLOTS_PER_SURFACE
+    ? activeBackReferences.length >= MIN_ACTIVE_REFERENCES && activeBackReferences.length <= surfaceReferenceLimit
     : activeReferences.length >= MIN_ACTIVE_REFERENCES && activeReferences.length <= MAX_REFERENCES;
-  const canGenerateFront = hasValidReferenceSet && Boolean(creativeDirection.trim());
+  const canGenerateFront = hasValidReferenceSet && (isCustomerArtwork || Boolean(creativeDirection.trim()));
   const canSendApproval = Boolean(selectedFront && selectedBack);
   const referencesStillNeeded = Math.max(0, MIN_ACTIVE_REFERENCES - (hasFixedReferenceSlots ? activeFrontReferences.length : activeReferences.length));
   const canActivateAll = references.some((reference) => !reference.isActive) && working === null;
@@ -218,7 +226,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
       const response = await fetch(`/admin-api/photobook/custom-requests/${requestId}/designs/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ surface, creativeDirection: surface === "FRONT_COVER" ? creativeDirection.trim() : undefined }),
+        body: JSON.stringify({ surface, creativeDirection: (surface === "FRONT_COVER" ? creativeDirection : backCreativeDirection).trim() || undefined }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.message ?? "No pudimos generar la propuesta.");
@@ -314,37 +322,37 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
 
   const frontStatus = !hasValidReferenceSet
     ? `Faltan ${referencesStillNeeded} referencia${referencesStillNeeded === 1 ? "" : "s"} seleccionada${referencesStillNeeded === 1 ? "" : "s"}.`
-    : !creativeDirection.trim()
+    : !isCustomerArtwork && !creativeDirection.trim()
       ? "Describe la dirección creativa para continuar."
-      : "Todo listo para generar la tapa frontal.";
+      : "Todo listo para preparar la tapa frontal.";
 
   return (
     <section aria-labelledby="ai-proposal-title" className={styles.workspace}>
       <header className={styles.workspaceHeader}>
         <div>
           <p className={styles.kicker}>{isCustomerArtwork ? "Adaptación de arte propio" : "Construcción asistida"}</p>
-          <h2 id="ai-proposal-title">Construye la cubierta con referencias claras.</h2>
-          <p>Elige las fotos que la IA debe considerar, define la dirección y revisa cada propuesta antes de enviarla al cliente.</p>
+          <h2 id="ai-proposal-title">{isCustomerArtwork ? "Prepara la cubierta a partir del arte enviado." : "Construye la cubierta con referencias claras."}</h2>
+          <p>{isCustomerArtwork ? "Cada imagen queda asignada a su lado. La IA no mezclará la contratapa al generar la tapa." : "Elige las fotos que la IA debe considerar, define la dirección y revisa cada propuesta antes de enviarla al cliente."}</p>
         </div>
-        <span className={styles.providerBadge}>OpenAI</span>
+        {!isCustomerArtwork && <span className={styles.providerBadge}>OpenAI</span>}
       </header>
 
       <section aria-labelledby="references-stage-title" className={styles.stage}>
         <div className={styles.stageHeader}>
           <div>
-            <p className={styles.step}>Paso 1 · Referencias</p>
-            <h3 id="references-stage-title">Elige una o dos fotos para cada cubierta.</h3>
-            <p>{hasFixedReferenceSlots ? "El cliente entregó dos fotos para tapa y dos para contratapa. Cada grupo solo alimenta su propia generación." : "Esta solicitud usa el flujo anterior de referencias libres."}</p>
+            <p className={styles.step}>{hasCustomerArtworkSlots ? "Archivos del cliente" : "Paso 1 · Referencias"}</p>
+            <h3 id="references-stage-title">{hasCustomerArtworkSlots ? "Una imagen por cada lado." : isCustomerArtwork ? "Revisa las dos imágenes de la cubierta." : "Elige una o dos fotos para cada cubierta."}</h3>
+            <p>{hasCustomerArtworkSlots ? "Cada imagen se limita a su lado y no se puede seleccionar para la otra cubierta." : hasFixedReferenceSlots ? "El cliente entregó dos fotos por lado; cada grupo alimenta su propia generación." : "Esta solicitud usa el flujo anterior de referencias libres."}</p>
           </div>
           <div className={styles.referenceSummary}>
-            <strong>{hasFixedReferenceSlots ? `${activeFrontReferences.length}/2 · ${activeBackReferences.length}/2 activas` : `${activeReferences.length}/${MAX_REFERENCES} activas`}</strong>
-            <span>{hasFixedReferenceSlots ? "tapa · contratapa" : "referencias"}</span>
+            <strong>{hasCustomerArtworkSlots ? `${activeFrontReferences.length} tapa · ${activeBackReferences.length} contratapa` : hasFixedReferenceSlots ? `${activeFrontReferences.length}/${surfaceReferenceLimit} · ${activeBackReferences.length}/${surfaceReferenceLimit} activas` : `${activeReferences.length}/${MAX_REFERENCES} activas`}</strong>
+            <span>{hasCustomerArtworkSlots ? "fuentes fijas" : hasFixedReferenceSlots ? "tapa · contratapa" : "referencias"}</span>
           </div>
         </div>
 
         <div className={styles.referenceToolbar}>
-          <p>{hasFixedReferenceSlots ? `Tapa: ${activeFrontReferences.length}/2 seleccionada${activeFrontReferences.length === 1 ? "" : "s"} · Contratapa: ${activeBackReferences.length}/2 seleccionada${activeBackReferences.length === 1 ? "" : "s"}.` : hasValidReferenceSet ? `${activeReferences.length} foto${activeReferences.length === 1 ? "" : "s"} se enviará${activeReferences.length === 1 ? "" : "n"} a la IA.` : `Selecciona ${referencesStillNeeded} foto${referencesStillNeeded === 1 ? "" : "s"} para habilitar la generación.`}</p>
-          {canActivateAll && (
+          <p>{hasCustomerArtworkSlots ? "La imagen de tapa solo se usa para la tapa; la de contratapa queda reservada para la contratapa." : hasFixedReferenceSlots ? `Tapa: ${activeFrontReferences.length}/${surfaceReferenceLimit} seleccionada${activeFrontReferences.length === 1 ? "" : "s"} · Contratapa: ${activeBackReferences.length}/${surfaceReferenceLimit} seleccionada${activeBackReferences.length === 1 ? "" : "s"}.` : hasValidReferenceSet ? `${activeReferences.length} foto${activeReferences.length === 1 ? "" : "s"} se enviará${activeReferences.length === 1 ? "" : "n"} a la IA.` : `Selecciona ${referencesStillNeeded} foto${referencesStillNeeded === 1 ? "" : "s"} para habilitar la generación.`}</p>
+          {canActivateAll && !hasCustomerArtworkSlots && (
             <button className={styles.textAction} type="button" disabled={working !== null} onClick={() => void activateAllReferences()}>
               {working === "ACTIVATE_ALL" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={15} /> : <Check aria-hidden="true" size={15} />}
               Usar todas las disponibles
@@ -353,7 +361,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
         </div>
 
         <div className={styles.referenceGrid}>
-          {references.map((reference) => {
+          {visibleReferences.map((reference) => {
             const isBusy = working === `REPLACE-${reference.assetId}` || working === `ACTIVE-${reference.assetId}`;
             return (
               <article key={reference.assetId} className={`${styles.referenceCard} ${reference.isActive ? styles.referenceCardActive : ""}`}>
@@ -371,8 +379,8 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
                   {isBusy && <span className={styles.imageLoading}><LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={18} /></span>}
                 </div>
                 <div className={styles.referenceCardBody}>
-                  {reference.surface && <span className={styles.referenceRole}>{reference.surface === "FRONT_COVER" ? `Tapa · foto ${reference.slotIndex}` : `Contratapa · foto ${reference.slotIndex}`}</span>}
-                  <button
+                  {reference.surface && <span className={styles.referenceRole}>{hasCustomerArtworkSlots ? (reference.surface === "FRONT_COVER" ? "Imagen fija · tapa principal" : "Imagen fija · contratapa") : reference.surface === "FRONT_COVER" ? `Tapa · foto ${reference.slotIndex}` : `Contratapa · foto ${reference.slotIndex}`}</span>}
+                  {!hasCustomerArtworkSlots && <button
                     aria-pressed={reference.isActive}
                     className={`${styles.selectionToggle} ${reference.isActive ? styles.selectionToggleActive : ""}`}
                     disabled={working !== null}
@@ -381,7 +389,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
                   >
                     <span className={styles.selectionIndicator}>{reference.isActive && <Check aria-hidden="true" size={13} />}</span>
                     {reference.isActive ? "Seleccionada para IA" : "Usar para IA"}
-                  </button>
+                  </button>}
                   <button className={styles.replaceAction} disabled={working !== null} onClick={() => replacePhotoInputRefs.current[reference.assetId]?.click()} type="button">
                     <RefreshCw aria-hidden="true" size={14} />
                     {isBusy ? "Reemplazando…" : "Reemplazar"}
@@ -422,27 +430,28 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
         <div className={styles.stageHeader}>
           <div>
             <p className={styles.step}>Paso 2 · Tapa frontal</p>
-            <h3 id="front-stage-title">Define la dirección y genera propuestas.</h3>
+            <h3 id="front-stage-title">{isCustomerArtwork ? "Genera la tapa con la imagen y el título del cliente." : "Define la dirección y genera propuestas."}</h3>
             <p>{frontStatus}</p>
           </div>
           <button className={styles.primaryAction} disabled={working !== null || loading || !canGenerateFront || Boolean(selectedFront)} onClick={() => void generate("FRONT_COVER")} type="button">
             {working === "FRONT_COVER" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={16} /> : <Sparkles aria-hidden="true" size={16} />}
-            {working === "FRONT_COVER" ? "Generando…" : selectedFront ? "Tapa frontal seleccionada" : frontDesigns.length ? "Regenerar desde la última" : "Generar tapa frontal"}
+            {working === "FRONT_COVER" ? "Generando…" : selectedFront ? "Tapa frontal seleccionada" : frontDesigns.length ? (isCustomerArtwork ? "Nueva propuesta desde el arte original" : "Regenerar desde la última") : "Generar tapa frontal"}
           </button>
         </div>
         <label className={styles.directionField}>
-          <span>{frontDesigns.length ? "Cambios para la siguiente iteración" : "Dirección creativa"} <em>obligatoria</em></span>
+          <span>{isCustomerArtwork ? "Instrucciones para adaptar el arte (opcional)" : <>{frontDesigns.length ? "Cambios para la siguiente iteración" : "Dirección creativa"} <em>obligatoria</em></>}</span>
           <textarea
             aria-describedby="ai-direction-help"
             disabled={!hasValidReferenceSet || working !== null || Boolean(selectedFront)}
             onChange={(event) => setCreativeDirection(event.target.value)}
-            placeholder="Ej.: fotografía principal a la izquierda, luz azul de madrugada, composición limpia y tipografía discreta."
+            placeholder={isCustomerArtwork ? "Ej.: adapta la imagen al panel cuadrado de 22 × 22 cm; conserva el arte y extiende el fondo si hace falta, sin recortar ni deformar." : "Ej.: fotografía principal a la izquierda, luz azul de madrugada, composición limpia y tipografía discreta."}
             rows={3}
             value={creativeDirection}
           />
         </label>
-        <p className={styles.fieldHelp} id="ai-direction-help">{selectedFront ? "La tapa frontal ya está seleccionada para generar la contratapa y enviar la aprobación. No se puede regenerar sin reiniciar esa selección." : frontDesigns.length ? "La siguiente propuesta parte de la última tapa generada. Describe solo los ajustes; conservará sus sujetos y composición salvo que indiques cambiarlos." : "Indica qué fotos deben tener protagonismo, cómo combinarlas y el tono de la cubierta. Los originales no se modifican."}</p>
-        {frontDesigns.length > 0 && <div className={styles.proposalGrid}>{frontDesigns.map((design) => <ProposalCard design={design} key={design.id} label="tapa frontal" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa seleccionada" working={working} />)}</div>}
+        <p className={styles.fieldHelp} id="ai-direction-help">{isCustomerArtwork ? "La IA recibirá únicamente la imagen asignada a la tapa; la imagen de contratapa no se mezcla en esta generación. El formato de impresión es cuadrado, 22 × 22 cm, más sangrado." : selectedFront ? "La tapa frontal ya está seleccionada para generar la contratapa y enviar la aprobación. No se puede regenerar sin reiniciar esa selección." : frontDesigns.length ? "La siguiente propuesta parte de la última tapa generada. Describe solo los ajustes; conservará sus sujetos y composición salvo que indiques cambiarlos." : "Indica qué fotos deben tener protagonismo, cómo combinarlas y el tono de la cubierta. Los originales no se modifican."}</p>
+        {isCustomerArtwork && <p className={styles.fieldHelp}>Título solicitado: <strong>{coverTitle?.trim() || "Sin título"}</strong></p>}
+            {frontDesigns.length > 0 && <div className={styles.proposalGrid}>{frontDesigns.map((design) => <ProposalCard design={design} key={design.id} label="tapa frontal" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa seleccionada" working={working} />)}</div>}
       </section>
 
       <section aria-labelledby="back-stage-title" className={`${styles.stage} ${!selectedFront || !hasValidBackReferenceSet ? styles.stageLocked : ""}`}>
@@ -450,13 +459,25 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
           <div>
             <p className={styles.step}>Paso 3 · Contratapa</p>
             <h3 id="back-stage-title">Genera continuidad desde la tapa seleccionada.</h3>
-            <p>{!selectedFront ? "Selecciona una propuesta de tapa frontal para habilitar este paso." : !hasValidBackReferenceSet ? "Selecciona al menos una de las dos fotos asignadas a la contratapa." : "La IA usará las fotos seleccionadas para contratapa y conservará la paleta de la tapa frontal elegida."}</p>
+            <p>{!selectedFront ? "Selecciona una propuesta de tapa frontal para habilitar este paso." : !hasValidBackReferenceSet ? (isCustomerArtwork ? "Selecciona la imagen asignada a la contratapa." : "Selecciona al menos una de las dos fotos asignadas a la contratapa.") : isCustomerArtwork ? "La IA recibirá únicamente la imagen asignada a la contratapa; la tapa elegida se conserva como requisito y vínculo del flujo, no como referencia visual." : "La IA usará las fotos seleccionadas para contratapa y conservará la paleta de la tapa frontal elegida."}</p>
           </div>
           <button className={styles.primaryAction} disabled={working !== null || loading || !selectedFront || !hasValidBackReferenceSet} onClick={() => void generate("BACK_COVER")} type="button">
             {working === "BACK_COVER" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={16} /> : <Sparkles aria-hidden="true" size={16} />}
             {working === "BACK_COVER" ? "Generando…" : backDesigns.length ? "Nueva contratapa" : "Generar contratapa"}
           </button>
         </div>
+        <label className={styles.directionField}>
+          <span>{isCustomerArtwork ? "Instrucciones para adaptar la contratapa (opcional)" : "Dirección para la contratapa (opcional)"}</span>
+          <textarea
+            aria-describedby="ai-back-direction-help"
+            disabled={working !== null || !selectedFront || !hasValidBackReferenceSet}
+            onChange={(event) => setBackCreativeDirection(event.target.value)}
+            placeholder={isCustomerArtwork ? "Ej.: adapta la imagen al panel cuadrado de 22 × 22 cm; conserva el arte y extiende el fondo si hace falta, sin recortar ni deformar." : "Ej.: continúa la paleta de la tapa y evita repetir el motivo principal."}
+            rows={3}
+            value={backCreativeDirection}
+          />
+        </label>
+        <p className={styles.fieldHelp} id="ai-back-direction-help">{isCustomerArtwork ? "La IA usará únicamente el arte asignado a la contratapa; la tapa seleccionada no se envía como referencia visual. Estas instrucciones solo guían la contratapa." : "Las instrucciones guían la contratapa; la tapa elegida se usa como referencia de continuidad."}</p>
         {backDesigns.length > 0 && <div className={styles.proposalGrid}>{backDesigns.map((design) => <ProposalCard design={design} key={design.id} label="contratapa" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa seleccionada" working={working} />)}</div>}
       </section>
 
@@ -474,13 +495,13 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
         </div>
       </section>
 
-      <section aria-labelledby="spine-stage-title" className={styles.productionNote}>
+      {!isCustomerArtwork && (<section aria-labelledby="spine-stage-title" className={styles.productionNote}>
         <LockKeyhole aria-hidden="true" size={17} />
         <div>
           <h3 id="spine-stage-title">El lomo se compone para imprenta al finalizar.</h3>
           <p>PixelArt calcula el ancho real según las páginas y el tipo de tapa; la IA no dibuja el lomo.</p>
         </div>
-      </section>
+      </section>)}
 
       <dialog
         aria-labelledby="reference-preview-title"

@@ -92,8 +92,14 @@ export class OrdersAdminController {
       demoAssetIds = assetRows.map((r) => Number(r.asset_id));
     }
 
-    let photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null = null;
+    let manualPricing = false;
+        let photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null = null;
     if (order?.channel === 'PHOTOBOOK' && order.photobookProjectId) {
+        const customRequests = await this.dataSource.query(
+          `SELECT id FROM custom_photobook_requests WHERE linked_photobook_project_id = $1 LIMIT 1`,
+          [order.photobookProjectId],
+        );
+        manualPricing = customRequests.length > 0;
       const rows: { delivery_address: string | null; delivery_district: string | null; delivery_city: string | null; delivery_region: string | null; delivery_department: string | null }[] = await this.dataSource.query(
         `SELECT delivery_address, delivery_district, delivery_city, delivery_region, delivery_department
          FROM photobook_projects WHERE id = $1`,
@@ -125,6 +131,7 @@ export class OrdersAdminController {
       demoAssetIds,
       demoDedicationText,
       photobookDelivery,
+        manualPricing,
       dedicationText: designRow?.dedication_text ?? null,
       gradientColorStart: designRow?.gradient_color_start ?? '#DF1F74',
       gradientColorEnd: designRow?.gradient_color_end ?? '#804187',

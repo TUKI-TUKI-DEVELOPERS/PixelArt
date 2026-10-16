@@ -25,6 +25,8 @@ const TEMPLATE_BY_EVENT: Record<string, string> = {
   PAYMENT_REJECTED_TO_CUSTOMER: 'payment-rejected.html',
   DELIVERY_FEEDBACK_REQUEST: 'delivery-feedback.html',
   NEW_PAYMENT_TO_ADMIN: 'payment-received-admin.html',
+  CUSTOM_PHOTOBOOK_PAYMENT_TO_ADMIN: 'custom-photobook-payment-to-admin.html',
+  CUSTOM_PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER: 'custom-photobook-payment-received.html',
   NEW_DEMO_REQUEST_TO_ADMIN: 'demo-request-received-admin.html',
   NEW_PHOTOBOOK_REQUEST_TO_ADMIN: 'photobook-request-received-admin.html',
   PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER: 'photobook-payment-received.html',

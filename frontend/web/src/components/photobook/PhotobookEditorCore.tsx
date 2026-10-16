@@ -16,7 +16,7 @@ export default function PhotobookEditorCore(ctx: Props) {
     MIN_HOJAS, MIN_CARAS, MAX_PHOTOS, photoLimitReached, handleUploadFiles, pendingDuplicates,
     resolveDuplicate, uploading, progress, photos, removePhoto, handleSidebarDragOver,
     handleSidebarDragLeave, handleSidebarDrop, sidebarDragOver, showOnlyAvailable,
-    setShowOnlyAvailable, visiblePhotos, placedPhotoIds, totalPages, totalCents, fmtPrice,
+    setShowOnlyAvailable, visiblePhotos, placedPhotoIds, totalPages, totalCents, fmtPrice, customEditor,
     openAutoDistribute, addPage, dupAlert, LAYOUTS, changeLayout, assignPhotoById,
     handleRemoveFromPage, handleDeletePage, handleDuplicatePage, handleReorderPages,
     setZoomPageIdx, handleSwapSlots, updateSlotPosition, coverUrl, backCoverUrl, mobilePageIdx,
@@ -198,7 +198,7 @@ export default function PhotobookEditorCore(ctx: Props) {
       </div>
       <div style={{ padding: "12px 16px", borderTop: "1px solid #f0f0f0", display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 11, color: "#999", textAlign: "center" }}>{placedPhotoIds.size} de {photos.length} colocadas</div>
-        {totalPages > 0 && (
+        {totalPages > 0 && !customEditor && (
           <div style={{ textAlign: "center", marginBottom: 2 }}>
             <div style={{ fontSize: 11, color: "#999" }}>{hojas} hoja{hojas !== 1 ? "s" : ""} · {coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</div>
             <div style={{ fontSize: 13, fontWeight: 800, color: totalCents > 0 ? ACCENT : "#f59e0b" }}>
@@ -207,7 +207,7 @@ export default function PhotobookEditorCore(ctx: Props) {
           </div>
         )}
         <button onClick={openAutoDistribute} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: ACCENT, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>Auto-distribuir</button>
-        <button onClick={addPage} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>+ Agregar página</button>
+        {!customEditor && <button onClick={addPage} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>+ Agregar página</button>}
       </div>
     </div>
 
@@ -227,7 +227,7 @@ export default function PhotobookEditorCore(ctx: Props) {
         <span>Presione el <strong style={{ color: ACCENT }}>ícono de movimiento</strong> sobre una foto para ajustar el encuadre, ubicado en la parte superior izquierda de cada foto. Además puedes enfocar personas o espacios determinados al usar los botones <strong style={{ color: ACCENT }}>−/+</strong> o la rueda del mouse para hacer zoom.</span>
       </div>
       {pages.length > 0 ? (
-        <PhotobookSpreadEditor pages={pages} accent={ACCENT} layouts={LAYOUTS} onChangeLayout={changeLayout} onAssignPhoto={assignPhotoById} onRemovePhoto={handleRemoveFromPage} onDeletePage={handleDeletePage} onDuplicatePage={handleDuplicatePage} onReorderPages={handleReorderPages} onClickPage={(idx) => setZoomPageIdx(idx)} onSwapSlots={handleSwapSlots} onUpdateSlotPosition={updateSlotPosition} coverUrl={coverUrl} backCoverUrl={backCoverUrl} />
+        <PhotobookSpreadEditor pages={pages} accent={ACCENT} layouts={LAYOUTS} customEditor={customEditor} onChangeLayout={changeLayout} onAssignPhoto={assignPhotoById} onRemovePhoto={handleRemoveFromPage} onDeletePage={handleDeletePage} onDuplicatePage={handleDuplicatePage} onReorderPages={handleReorderPages} onClickPage={(idx) => setZoomPageIdx(idx)} onSwapSlots={handleSwapSlots} onUpdateSlotPosition={updateSlotPosition} coverUrl={coverUrl} backCoverUrl={backCoverUrl} />
       ) : (
         <div style={{ textAlign: "center", padding: "80px 24px", color: "#999", background: "#fff", borderRadius: 14, border: "1px solid #eee" }}>
           <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.4 }}>+</div>
@@ -257,7 +257,7 @@ export default function PhotobookEditorCore(ctx: Props) {
       {pages.length > 0 ? (
         <div style={{ width: "100%", padding: "0 48px" }}>
           <PhotobookSpreadEditor
-            pages={pages} accent={ACCENT} layouts={LAYOUTS}
+            pages={pages} accent={ACCENT} layouts={LAYOUTS} customEditor={customEditor}
             isMobile={true} mobilePageIdx={mobilePageIdx}
             selectedSlotId={selectedSlotId} onSlotTap={handleMobileSlotTap}
             onChangeLayout={changeLayout} onAssignPhoto={assignPhotoById}
@@ -307,8 +307,8 @@ export default function PhotobookEditorCore(ctx: Props) {
           );
         })}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6, flexShrink: 0 }}>
-          <button onClick={() => handleDuplicatePage(mobilePageIdx)} title="Duplicar página" style={{ width: 38, height: 38, borderRadius: 8, border: "1.5px solid #e0dcd6", background: "#fafaf9", color: "#6b5e52", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>⧉</button>
-          <button onClick={() => handleDeletePage(mobilePageIdx)} title="Eliminar página" style={{ width: 38, height: 38, borderRadius: 8, border: "1.5px solid #fecaca", background: "#fff5f5", color: "#dc2626", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+          {!customEditor && <><button onClick={() => handleDuplicatePage(mobilePageIdx)} title="Duplicar página" style={{ width: 38, height: 38, borderRadius: 8, border: "1.5px solid #e0dcd6", background: "#fafaf9", color: "#6b5e52", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>⧉</button>
+          <button onClick={() => handleDeletePage(mobilePageIdx)} title="Eliminar página" style={{ width: 38, height: 38, borderRadius: 8, border: "1.5px solid #fecaca", background: "#fff5f5", color: "#dc2626", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button></>}
         </div>
       </div>
     )}
@@ -323,7 +323,7 @@ export default function PhotobookEditorCore(ctx: Props) {
           <div style={{ fontSize: 14, color: "#999", marginTop: 2 }}>{placedPhotoIds.size} de {photos.length} colocadas</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {totalPages > 0 && (
+          {totalPages > 0 && !customEditor && (
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 15, fontWeight: 800, color: totalCents > 0 ? ACCENT : "#f59e0b" }}>
                 {totalCents > 0 ? fmtPrice(totalCents) : `Mín ${MIN_HOJAS}h`}
@@ -384,7 +384,7 @@ export default function PhotobookEditorCore(ctx: Props) {
       {/* Actions */}
       <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
         <button onClick={openAutoDistribute} style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "none", background: ACCENT, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>Auto-distribuir</button>
-        <button onClick={addPage} style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "1.5px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>+ Página</button>
+        {!customEditor && <button onClick={addPage} style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "1.5px solid #e5e7eb", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>+ Página</button>}
       </div>
     </div>
   </div>
@@ -438,7 +438,7 @@ export default function PhotobookEditorCore(ctx: Props) {
     {/* Tarjeta de resumen pre-checkout */}
     <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #eee", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.07)", maxWidth: "480px", margin: "0 auto" }}>
       {/* Precio hero */}
-      <div style={{ background: `linear-gradient(135deg, ${ACCENT}0a 0%, ${ACCENT}18 100%)`, padding: isMobile ? "20px 16px" : "24px", borderBottom: "1px solid #f0f0f0", textAlign: "center" }}>
+      <div hidden={customEditor} style={{ background: `linear-gradient(135deg, ${ACCENT}0a 0%, ${ACCENT}18 100%)`, padding: isMobile ? "20px 16px" : "24px", borderBottom: "1px solid #f0f0f0", textAlign: "center" }}>
         <div style={{ fontSize: "11px", fontWeight: 700, color: "#999", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "6px" }}>Total a pagar</div>
         <div style={{ fontSize: isMobile ? "38px" : "48px", fontWeight: 900, color: totalCents > 0 ? ACCENT : "#f59e0b", lineHeight: 1 }}>
           {totalCents > 0 ? fmtPrice(totalCents) : `Mín ${MIN_HOJAS} hojas`}

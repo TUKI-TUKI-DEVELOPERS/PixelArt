@@ -100,6 +100,85 @@ describe("CustomPhotobookAiProposalPanel", () => {
     expect(screen.getByText("Selecciona al menos una de las dos fotos asignadas a la contratapa.")).toBeTruthy();
   });
 
+  it("pins each customer image to its surface and exposes an optional AI direction for the front", async () => {
+    const assignedReferences = [
+      { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 },
+      { ...activeReferences[1], surface: "BACK_COVER", slotIndex: 1 },
+    ];
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response(assignedReferences))
+      .mockResolvedValueOnce(response({
+        id: 14,
+        surface: "FRONT_COVER",
+        sourceDesignId: null,
+        isSelected: false,
+        provider: "openai",
+        createdAt: "2026-09-28T13:00:00.000Z",
+        asset: { id: 91, url: "https://assets.test/front.png" },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="CUSTOMER_ARTWORK" coverTitle="Nuestra historia" requestId={41} />);
+
+    expect(await screen.findByText("1 tapa · 1 contratapa")).toBeTruthy();
+    expect(screen.getByText("Imagen fija · tapa principal")).toBeTruthy();
+    expect(screen.getByText("Imagen fija · contratapa")).toBeTruthy();
+    expect(screen.queryByText("Seleccionada para IA")).toBeNull();
+    expect(screen.getByText("Generar tapa frontal")).toHaveProperty("disabled", false);
+
+    fireEvent.change(screen.getByLabelText(/Instrucciones para adaptar el arte/i), {
+      target: { value: "Conserva el arte y extiende el fondo hasta el formato cuadrado." },
+    });
+    fireEvent.click(screen.getByText("Generar tapa frontal"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/generate",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ surface: "FRONT_COVER", creativeDirection: "Conserva el arte y extiende el fondo hasta el formato cuadrado." }),
+      }),
+    ));
+    expect(await screen.findByText("Nueva propuesta desde el arte original")).toBeTruthy();
+  });
+
+  it("sends the separate optional back-cover direction only with BACK_COVER generation", async () => {
+    const assignedReferences = [
+      { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 },
+      { ...activeReferences[1], surface: "BACK_COVER", slotIndex: 1 },
+    ];
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([
+        { id: 14, surface: "FRONT_COVER", sourceDesignId: null, isSelected: true, provider: "openai", createdAt: "2026-09-28T13:00:00.000Z", asset: { id: 91, url: "https://assets.test/front.png" } },
+      ]))
+      .mockResolvedValueOnce(response(assignedReferences))
+      .mockResolvedValueOnce(response({
+        id: 15,
+        surface: "BACK_COVER",
+        sourceDesignId: 14,
+        isSelected: false,
+        provider: "openai",
+        createdAt: "2026-09-28T13:05:00.000Z",
+        asset: { id: 92, url: "https://assets.test/back.png" },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="CUSTOMER_ARTWORK" requestId={41} />);
+
+    const backDirection = await screen.findByLabelText(/Instrucciones para adaptar la contratapa/i);
+    expect(backDirection).toHaveProperty("disabled", false);
+    fireEvent.change(backDirection, { target: { value: "Mantén continuidad visual con la tapa seleccionada." } });
+    fireEvent.click(screen.getByText("Generar contratapa"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/generate",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ surface: "BACK_COVER", creativeDirection: "Mantén continuidad visual con la tapa seleccionada." }),
+      }),
+    ));
+  });
+
   it("requires selected front and back proposals before sending the private approval link", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response([

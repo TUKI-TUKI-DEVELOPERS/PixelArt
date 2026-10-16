@@ -77,11 +77,17 @@ export class PhotobookService {
 
   async createCustomRequest(data: CreateCustomPhotobookRequestDto) {
     const referenceSlots = data.referenceSlots;
-    const expectedSlots = new Set(['FRONT_COVER:1', 'FRONT_COVER:2', 'BACK_COVER:1', 'BACK_COVER:2']);
-    const submittedSlots = new Set(referenceSlots.map((slot) => `${slot.surface}:${slot.slotIndex}`));
-    const referenceAssetIds = [...new Set(referenceSlots.map((slot) => slot.assetId))];
-    if (referenceSlots.length !== 4 || submittedSlots.size !== 4 || referenceAssetIds.length !== 4 || [...expectedSlots].some((slot) => !submittedSlots.has(slot))) {
-      throw new BadRequestException('Debes enviar dos fotos para tapa y dos fotos para contratapa');
+        const submittedSlots = new Set(referenceSlots.map((slot) => `${slot.surface}:${slot.slotIndex}`));
+        const hasOneImagePerSurface = referenceSlots.length === 2
+          && submittedSlots.size === 2
+          && submittedSlots.has('FRONT_COVER:1')
+          && submittedSlots.has('BACK_COVER:1');
+        const hasLegacyFourImages = referenceSlots.length === 4
+          && submittedSlots.size === 4
+          && ['FRONT_COVER:1', 'FRONT_COVER:2', 'BACK_COVER:1', 'BACK_COVER:2'].every((slot) => submittedSlots.has(slot));
+        const referenceAssetIds = [...new Set(referenceSlots.map((slot) => slot.assetId))];
+    if ((!hasOneImagePerSurface && !hasLegacyFourImages) || referenceAssetIds.length !== referenceSlots.length) {
+      throw new BadRequestException('Debes enviar una imagen para la tapa y otra para la contratapa');
     }
 
     const requestId = await this.dataSource.transaction(async (manager) => {
@@ -354,22 +360,24 @@ export class PhotobookService {
     return { assetId, isActive };
   }
 
-  private async getActiveCustomReferenceAssetIds(requestId: number, surface: 'FRONT_COVER' | 'BACK_COVER') {
+  private async getActiveCustomReferenceAssetIds(
+    requestId: number,
+    surface: 'FRONT_COVER' | 'BACK_COVER',
+    primaryArtworkOnly = false,
+  ) {
     const rows: { asset_id: string }[] = await this.dataSource.query(
       `SELECT r.asset_id
        FROM custom_photobook_request_reference_assets r
+       LEFT JOIN custom_photobook_request_reference_slots s
+         ON s.request_id = r.request_id AND s.asset_id = r.asset_id
        WHERE r.request_id = $1
          AND r.is_active = true
          AND (
-           NOT EXISTS (SELECT 1 FROM custom_photobook_request_reference_slots s WHERE s.request_id = $1)
-           OR EXISTS (
-             SELECT 1
-             FROM custom_photobook_request_reference_slots s
-             WHERE s.request_id = r.request_id AND s.asset_id = r.asset_id AND s.surface = $2
-           )
+           NOT EXISTS (SELECT 1 FROM custom_photobook_request_reference_slots WHERE request_id = $1)
+           OR (s.surface = $2 AND ($3::boolean = false OR s.slot_index = 1))
          )
-       ORDER BY r.created_at ASC`,
-      [requestId, surface],
+       ORDER BY COALESCE(s.slot_index, 2147483647), r.created_at ASC`,
+      [requestId, surface, primaryArtworkOnly],
     );
     return rows.map((row) => Number(row.asset_id));
   }
@@ -956,10 +964,10 @@ export class PhotobookService {
       if (!['EDITOR_READY', 'EDITOR_IN_PROGRESS'].includes(request.status)) throw new BadRequestException('Este editor ya no está disponible');
 
       const pages = Array.isArray(state.pages) ? state.pages : [];
-      const coverType = typeof state.coverType === 'string' ? state.coverType : 'TAPA_GRUESA';
+      const coverType = typeof state.coverType === 'string' && isValidPhotobookCoverType(state.coverType) ? state.coverType : null;
       const sheets = pages.length / 2;
       const allowedSheets = coverType === 'TAPA_DELGADA' ? [15, 20, 25, 35] : [15, 20, 25, 35, 50];
-      if (state.formatConfigured !== true || !allowedSheets.includes(sheets)) {
+      if (state.formatConfigured !== true || !coverType || !allowedSheets.includes(sheets)) {
         throw new BadRequestException('El formato seleccionado no es válido. Elige nuevamente la tapa y cantidad de hojas.');
       }
       const incompletePages = pages.filter((page) => {
@@ -1098,10 +1106,14 @@ export class PhotobookService {
   async generateCustomCoverProposal(requestId: number, input: GenerateCustomPhotobookCoverProposalDto) {
     const request = await this.getCustomRequest(requestId);
     if (!request) throw new NotFoundException('Solicitud de photobook a medida no encontrada');
-    if (input.surface === 'FRONT_COVER' && !input.creativeDirection?.trim()) {
+    if (input.surface === 'FRONT_COVER' && request.coverMode !== 'CUSTOMER_ARTWORK' && !input.creativeDirection?.trim()) {
       throw new BadRequestException('Escribe una dirección creativa antes de generar la tapa frontal');
     }
-    const activeReferenceAssetIds = await this.getActiveCustomReferenceAssetIds(requestId, input.surface);
+    const activeReferenceAssetIds = await this.getActiveCustomReferenceAssetIds(
+      requestId,
+      input.surface,
+      request.coverMode === 'CUSTOMER_ARTWORK',
+    );
     if (activeReferenceAssetIds.length < 1 || activeReferenceAssetIds.length > 5) {
       throw new BadRequestException('Selecciona entre una y cinco fotos de trabajo antes de generar una propuesta');
     }
@@ -1128,11 +1140,13 @@ export class PhotobookService {
         if (previousFront.is_selected) {
           throw new BadRequestException('No puedes regenerar una tapa frontal seleccionada. Conserva la selección para no invalidar la contratapa o la aprobación.');
         }
-        const previousFrontAsset = await this.assetRepo.findById(Number(previousFront.asset_id));
-        if (!previousFrontAsset) throw new BadRequestException('No se encontró el archivo de la propuesta anterior');
-        sourceDesignId = Number(previousFront.id);
-        continuationSource = 'PREVIOUS_FRONT_PROPOSAL';
-        referenceAssets.push(previousFrontAsset);
+        if (request.coverMode !== 'CUSTOMER_ARTWORK') {
+          const previousFrontAsset = await this.assetRepo.findById(Number(previousFront.asset_id));
+          if (!previousFrontAsset) throw new BadRequestException('No se encontró el archivo de la propuesta anterior');
+          sourceDesignId = Number(previousFront.id);
+          continuationSource = 'PREVIOUS_FRONT_PROPOSAL';
+          referenceAssets.push(previousFrontAsset);
+        }
       }
     }
     if (input.surface === 'BACK_COVER') {
@@ -1149,7 +1163,7 @@ export class PhotobookService {
       if (!selectedFrontAsset) throw new BadRequestException('No se encontró el archivo de la tapa frontal seleccionada');
       sourceDesignId = Number(selectedFront.id);
       continuationSource = 'SELECTED_FRONT_PROPOSAL';
-      referenceAssets.push(selectedFrontAsset);
+      if (request.coverMode !== 'CUSTOMER_ARTWORK') referenceAssets.push(selectedFrontAsset);
     }
 
     const prompt = buildCustomPhotobookCoverPrompt({
@@ -1383,6 +1397,11 @@ export class PhotobookService {
       ? { token: existingLinkRows[0].token, expiresAt: existingLinkRows[0].expires_at }
       : await this.publicLinksService.generate({ linkType: 'PAYMENT_UPLOAD', orderId: order.id });
     const paymentUrl = `${frontendBase}/pagar/${link.token}`;
+    const manualPricingRows: { id: string }[] = !reusedLink ? await this.dataSource.query(
+      'SELECT id FROM custom_photobook_requests WHERE linked_photobook_project_id = $1 LIMIT 1',
+      [projectId],
+    ) : [];
+    const manualPricing = (manualPricingRows ?? []).length > 0;
 
     if (!reusedLink) {
       await this.emailService.queue({
@@ -1390,7 +1409,9 @@ export class PhotobookService {
         orderId: order.id,
         toEmail: detail.customerEmail ?? '',
         subject: 'PixelArt — Link de pago para tu Photobook',
-        payload: { customerName: detail.customerFullName, paymentUrl, totalAmountCents: order.totalAmountCents },
+        payload: manualPricing
+          ? { customerName: detail.customerFullName, paymentUrl }
+          : { customerName: detail.customerFullName, paymentUrl, totalAmountCents: order.totalAmountCents },
       });
     }
 
