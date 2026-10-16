@@ -1395,7 +1395,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         }}>
           <div onClick={(e) => e.stopPropagation()} style={{
             background: "#FFFEF9", borderRadius: 8,
-            width: "min(600px, 90vw)", height: "min(780px, 85vh)", padding: 24,
+            width: "min(600px, 90vw, 85vh)", height: "min(600px, 90vw, 85vh)", padding: 0,
             boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
             position: "relative", cursor: "default",
             display: "grid",
@@ -1404,7 +1404,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               switch (lk) {
                 case "FULL_1": return { gridTemplateColumns: "1fr", gridTemplateRows: "1fr" };
                 case "GRID_2": return { gridTemplateColumns: "1fr", gridTemplateRows: "1fr 1fr" };
-                case "GRID_3": return { gridTemplateColumns: "1fr 1fr", gridTemplateRows: "3fr 2fr" };
+                case "GRID_3": return { gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr" };
                 case "GRID_4": default: return { gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr" };
               }
             })(),
@@ -1417,13 +1417,13 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 case "GRID_4": default: return `"a b" "c d"`;
               }
             })(),
-            gap: 10,
+            gap: 0,
           }}>
             {pages[zoomPageIdx].slots.map((s, i) => {
               const areas = ["a", "b", "c", "d"];
               return (
                 <div key={i} style={{
-                  borderRadius: 6, overflow: "hidden", background: "#f0ede8",
+                  overflow: "hidden", background: "#f0ede8",
                   gridArea: areas[i],
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>

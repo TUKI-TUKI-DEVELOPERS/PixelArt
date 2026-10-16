@@ -19,8 +19,14 @@ type Props = {
   backCoverUrl?: string | null;
 };
 
-const PAGE_W = 400;
-const PAGE_H = 520;
+// Printed pages are 22x22 cm square and full-bleed — mirror
+// PhotobookSpreadEditor (PAGE_W/PAGE_H/SLOT_GAP/PAGE_PAD) and the PDF service.
+export const PAGE_W = 440;
+export const PAGE_H = 440;
+export const COMPACT_PAGE_W = 220;
+export const COMPACT_PAGE_H = 220;
+export const SLOT_GAP = 0;
+export const PAGE_PAD = 0;
 
 function SlotImg({ photo, pos }: { photo: { preview: string }; pos?: { x: number; y: number; zoom?: number } }) {
   const x = pos?.x ?? 50;
@@ -43,8 +49,8 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string, slotPositions?: Reco
   if (layoutKey === "FULL_1" || count === 1) {
     const photo = filled[0];
     return (
-      <div style={{ width: "100%", height: "100%", padding: "16px" }}>
-        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+      <div style={{ width: "100%", height: "100%", padding: PAGE_PAD }}>
+        <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#f0ede8" }}>
           {photo ? <SlotImg photo={photo} pos={slotPositions?.[0]} /> : (
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#c4b8a8", fontSize: "13px" }}>Página vacía</div>
           )}
@@ -55,9 +61,9 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string, slotPositions?: Reco
 
   if (layoutKey === "GRID_2" || count === 2) {
     return (
-      <div style={{ width: "100%", height: "100%", padding: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+      <div style={{ width: "100%", height: "100%", padding: PAGE_PAD, display: "flex", flexDirection: "column", gap: SLOT_GAP }}>
         {slots.slice(0, 2).map((s, i) => (
-          <div key={i} style={{ flex: 1, position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+          <div key={i} style={{ flex: 1, position: "relative", overflow: "hidden", background: "#f0ede8" }}>
             {s ? <SlotImg photo={s} pos={slotPositions?.[i]} /> : null}
           </div>
         ))}
@@ -67,12 +73,12 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string, slotPositions?: Reco
 
   if (layoutKey === "GRID_3" || count === 3) {
     return (
-      <div style={{ width: "100%", height: "100%", padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "6px" }}>
-        <div style={{ gridColumn: "1 / -1", position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+      <div style={{ width: "100%", height: "100%", padding: PAGE_PAD, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: SLOT_GAP }}>
+        <div style={{ gridColumn: "1 / -1", position: "relative", overflow: "hidden", background: "#f0ede8" }}>
           {slots[0] ? <SlotImg photo={slots[0] as { preview: string }} pos={slotPositions?.[0]} /> : null}
         </div>
         {slots.slice(1, 3).map((s, i) => (
-          <div key={i} style={{ position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+          <div key={i} style={{ position: "relative", overflow: "hidden", background: "#f0ede8" }}>
             {s ? <SlotImg photo={s} pos={slotPositions?.[i + 1]} /> : null}
           </div>
         ))}
@@ -82,9 +88,9 @@ function renderSlots(slots: SlotPhoto[], layoutKey: string, slotPositions?: Reco
 
   // GRID_4
   return (
-    <div style={{ width: "100%", height: "100%", padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "6px" }}>
+    <div style={{ width: "100%", height: "100%", padding: PAGE_PAD, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: SLOT_GAP }}>
       {slots.slice(0, 4).map((s, i) => (
-        <div key={i} style={{ position: "relative", borderRadius: "4px", overflow: "hidden", background: "#f0ede8" }}>
+        <div key={i} style={{ position: "relative", overflow: "hidden", background: "#f0ede8" }}>
           {s ? <SlotImg photo={s} pos={slotPositions?.[i]} /> : null}
         </div>
       ))}
@@ -103,8 +109,8 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
   // En mobile/tablet el libro se muestra de a UNA página (portrait), no como
   // spread de dos — si no, la librería nunca baja de su ancho mínimo por
   // página (2x en modo spread) y se desborda del contenedor angosto.
-  const pageW = isCompact ? 220 : PAGE_W;
-  const pageH = isCompact ? 286 : PAGE_H;
+  const pageW = isCompact ? COMPACT_PAGE_W : PAGE_W;
+  const pageH = isCompact ? COMPACT_PAGE_H : PAGE_H;
 
   // Re-init when photo assignments change, not just page count
   const pagesKey = useMemo(
@@ -122,10 +128,12 @@ export default function PhotobookPreview({ pages, accent, coverUrl, backCoverUrl
       width: pageW,
       height: pageH,
       size: "stretch",
+      // Square pages: keep min/max bounds square-consistent (width == height
+      // per variant) so the stretch sizing never distorts the 1:1 page ratio.
       minWidth: isCompact ? 200 : 280,
-      minHeight: isCompact ? 260 : 360,
+      minHeight: isCompact ? 200 : 280,
       maxWidth: isCompact ? 320 : 500,
-      maxHeight: isCompact ? 416 : 650,
+      maxHeight: isCompact ? 320 : 500,
       maxShadowOpacity: 0.35,
       showCover: true,
       mobileScrollSupport: false,
