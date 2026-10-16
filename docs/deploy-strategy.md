@@ -1,5 +1,93 @@
 # Estrategia de Deploy — Local → VPS
 
+---
+
+## Deploy pendiente: tapas 300 DPI + custom photobook (main 852716d → 94e0837)
+
+**Este deploy incluye una migración de base de datos. NO seguir solo el flujo estándar de archivos — la migración hay que aplicarla a mano.**
+
+### ¿Por qué?
+
+- `schemaPixelart.sql` solo corre en el **primer init del volumen de Postgres**. Como el volumen ya existe, el cambio de schema en main NO se aplica solo.
+- La migración pendiente es: `infra/database/migrations/20261015_nullable_payment_proof_amount.sql`
+  ```sql
+  ALTER TABLE payment_proofs ALTER COLUMN amount_cents DROP NOT NULL;
+  ```
+  (El flujo custom photobook crea comprobantes de pago sin monto — el admin revisa el Yape manualmente. Sin esta migración, ese flujo falla con error de constraint.)
+
+### Procedimiento ordenado
+
+```bash
+cd ~/PixelArt
+
+# 1. Fetch (nunca pull)
+git fetch origin
+
+# 2. Ver qué archivos cambiaron (referencia para los checkouts)
+git diff --name-only 852716d origin/main
+
+# 3. Checkout de los archivos cambiados, EXCEPTO los protegidos
+#    (infra/docker/docker-compose*.yml, .env.docker, frontend/web/next.config.ts)
+
+# 4. APLICAR LA MIGRACIÓN — antes del rebuild, con la API vieja aún corriendo
+docker exec -i pixelart_postgres psql -U pixelart -d pixelart \
+  < infra/database/migrations/20261015_nullable_payment_proof_amount.sql
+
+# Verificar:
+docker exec pixelart_postgres psql -U pixelart -d pixelart -c \
+  "SELECT is_nullable FROM information_schema.columns WHERE table_name='payment_proofs' AND column_name='amount_cents';"
+# Debe devolver: YES
+
+# 5. Rebuild (este deploy toca backend Y frontend)
+docker compose -f infra/docker/docker-compose.yml up --build api web -d
+
+# 6. Recargar puente (ver sección 4 del flujo estándar)
+docker exec puente nginx -s reload
+
+# 7. Alinear main local de la VPS (ver sección 2.1)
+
+# 8. Checklist post-rebuild + prueba real del flujo custom photobook
+```
+
+### Notas específicas de este deploy
+
+- La migración es segura de aplicar **antes** del rebuild: relajar un NOT NULL no rompe el código viejo (que siempre manda monto).
+- Efecto de tapas 300 DPI: solo las tapas **nuevas** se generan a 3424×2416 (~$0.50 est. por tapa — confirmar costo real en el panel de OpenAI tras las primeras órdenes). Órdenes ya generadas no cambian.
+- `Pixelart-dpi` y los worktrees prunable ya están todos integrados/pusheados; no hay nada suelto en git.
+
+### Backfill: dimensiones legacy de photobook_projects (aplicar junto con la migración)
+
+El fix de páginas cuadradas 22×22 (editor + PDF) corrige las escrituras nuevas, pero los proyectos
+creados con el producto legacy "Personalizado" (ya desactivado) guardaron dimensiones rectangulares
+(ej. 21×29.7) y el PDF las sigue honrando. Para que TODOS los photobooks cuadrados salgan 22×22:
+
+```sql
+-- 1. Verificar primero qué se tocaría (dry-run)
+SELECT id, custom_width_cm, custom_height_cm, photobook_product_id
+FROM photobook_projects
+WHERE custom_width_cm IS NOT NULL
+  AND photobook_product_id NOT IN (
+    SELECT id FROM photobook_products WHERE allows_custom_dimensions = TRUE);
+
+-- 2. Si el listado muestra solo proyectos de productos cuadrados, aplicar:
+UPDATE photobook_projects
+SET custom_width_cm = NULL, custom_height_cm = NULL
+WHERE custom_width_cm IS NOT NULL
+  AND photobook_product_id NOT IN (
+    SELECT id FROM photobook_products WHERE allows_custom_dimensions = TRUE);
+```
+
+Aplicar con `docker exec -i pixelart_postgres psql -U pixelart -d pixelart` (mismo patrón que la
+migración). Es seguro hacerlo antes o después del rebuild: los proyectos afectados pasan a usar
+los defaults 22×22 del PDF.
+
+### Rollback
+
+- Código: checkout de los archivos anteriores desde el commit previo (`git checkout 852716d -- <archivo>`) + rebuild.
+- Migración: NO hace falta revertirla para volver al código viejo (el NOT NULL relajado es compatible hacia atrás). Si aun así se quisiera: `ALTER TABLE payment_proofs ALTER COLUMN amount_cents SET NOT NULL;` fallaría si ya hay filas con NULL — limpiarlas primero.
+
+---
+
 ## Contexto importante
 
 La VPS tiene su propio `docker-compose.yml` modificado con configuración de producción
