@@ -27,10 +27,16 @@ export class PaymentsService {
     const order = await this.ordersService.findById(link.orderId);
     if (!order) throw new NotFoundException('Orden no encontrada');
     const manualPricing = await this.isManuallyPriced(order.photobookProjectId);
+    const customCoverSurchargeCents = manualPricing && order.photobookProjectId
+      ? await this.getCustomCoverSurchargeCents(order.photobookProjectId)
+      : null;
     return {
       orderId: order.id,
       customerName: order.customerFullName,
-      ...(!manualPricing ? { totalAmountCents: order.totalAmountCents } : {}),
+      ...(!manualPricing || customCoverSurchargeCents !== null
+        ? { totalAmountCents: order.totalAmountCents }
+        : {}),
+      ...(customCoverSurchargeCents !== null ? { customCoverSurchargeCents } : {}),
       manualPricing,
       currency: order.currency,
       expiresAt: link.expiresAt,
@@ -107,6 +113,20 @@ export class PaymentsService {
       [photobookProjectId],
     );
     return rows.length > 0;
+  }
+
+  private async getCustomCoverSurchargeCents(photobookProjectId: number): Promise<number | null> {
+    const rows: { draft_state: unknown }[] = await this.dataSource.query(
+      'SELECT draft_state FROM photobook_projects WHERE id = $1',
+      [photobookProjectId],
+    );
+    let state = rows[0]?.draft_state;
+    if (typeof state === 'string') {
+      try { state = JSON.parse(state) as unknown; } catch { return null; }
+    }
+    if (typeof state !== 'object' || state === null || Array.isArray(state)) return null;
+    const surcharge = (state as Record<string, unknown>).customCoverSurchargeCents;
+    return typeof surcharge === 'number' && Number.isSafeInteger(surcharge) && surcharge >= 0 ? surcharge : null;
   }
 
   private async queuePaymentEmailOnce(data: QueueEmailData) {

@@ -146,6 +146,8 @@ describe('PhotobookEditorClient characterization', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 2, pages: draftPages(), photos: [photo] } }) }));
     renderEditor({ customEditor: true });
     await waitFor(() => expect(screen.getByText('Editor de Páginas')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'x' }));
+    expect(mocks.removePhoto).toHaveBeenCalledWith(photo.uid);
     expect(screen.queryByRole('button', { name: '+ Agregar página' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Duplicar página' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Eliminar página' })).toBeNull();
@@ -189,6 +191,43 @@ describe('PhotobookEditorClient characterization', () => {
     for (const label of ['Subir Fotos', 'Editor', 'Preview', 'Datos', 'Revisar', 'Pagar']) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
+  });
+
+  it('restores and recalculates the agreed custom-cover surcharge in the order form', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ state: {
+        editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 4, coverType: 'TAPA_DELGADA',
+        pages: draftPages(30), customCoverSurchargeCents: 2500, wantsRush: false,
+        form: { name: 'Ana', email: 'ana@example.com', phone: '999111222', deliveryAddress: 'Av. Principal 123', deliveryDistrict: 'Yanahuara', deliveryCity: 'Arequipa', deliveryRegion: 'Arequipa', deliveryDepartment: 'Arequipa' },
+      } }),
+    }));
+
+    renderEditor({ customEditor: true });
+
+    const surchargeInput = await screen.findByLabelText(/Importe acordado por ambas tapas \(S\/\)/);
+    expect((surchargeInput as HTMLInputElement).value).toBe('25.00');
+    expect(screen.getByText('S/ 115.00')).toBeTruthy();
+
+    fireEvent.change(surchargeInput, { target: { value: '30.50' } });
+    expect(screen.getByText('S/ 120.50')).toBeTruthy();
+  });
+
+  it('requires a valid custom-cover amount before leaving the order form', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ state: {
+        editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 4, coverType: 'TAPA_DELGADA',
+        pages: draftPages(30), wantsRush: false,
+        form: { name: 'Ana', email: 'ana@example.com', phone: '999111222', deliveryAddress: 'Av. Principal 123', deliveryDistrict: 'Yanahuara', deliveryCity: 'Arequipa', deliveryRegion: 'Arequipa', deliveryDepartment: 'Arequipa' },
+      } }),
+    }));
+
+    renderEditor({ customEditor: true });
+    fireEvent.click(await screen.findByRole('button', { name: 'Siguiente' }));
+
+    expect(await screen.findByText(/Ingresa un importe válido/)).toBeTruthy();
+    expect(screen.getByText('Paso 4 de 6')).toBeTruthy();
   });
 
   it('keeps the current navigation validations when moving forward and backward', async () => {

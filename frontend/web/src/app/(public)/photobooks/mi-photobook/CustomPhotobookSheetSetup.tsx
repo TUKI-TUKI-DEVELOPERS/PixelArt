@@ -134,7 +134,7 @@ export default function CustomPhotobookSheetSetup({ products, mode, initialDraft
         <h1 id="custom-photobook-format-title" style={{ margin: "0 0 10px", color: "#111", fontSize: "clamp(25px, 4vw, 34px)", lineHeight: 1.12, letterSpacing: "-.03em" }}>Elige la tapa y cantidad de hojas</h1>
         <p style={{ margin: "0 0 24px", color: "#666", fontSize: "14px", lineHeight: 1.55 }}>{correctionNotice ? "El formato guardado no es compatible con las opciones disponibles. Corrige la cantidad de hojas para continuar; tus fotos y diseños se conservarán." : mode === "initial" ? "Selecciona el tipo de tapa y la cantidad de hojas para continuar con el diseño." : "Puedes ampliar el photobook en cualquier momento. Si reduces páginas con fotos, te pediremos confirmación antes de quitarlas."}</p>
 
-        {loadingDraft ? <p style={{ color: "#63737d", fontSize: "14px" }}>Cargando el formato actual...</p> : <PhotobookFormatSelector compact showPrice={false} customOnly selectedCover={selectedCover} thinSheets={thinSheets} thickSheets={thickSheets} onSelectCover={setSelectedCover} onSelectSheets={(cover, nextSheets) => {
+        {loadingDraft ? <p style={{ color: "#63737d", fontSize: "14px" }}>Cargando el formato actual...</p> : <PhotobookFormatSelector compact showPrice customOnly selectedCover={selectedCover} thinSheets={thinSheets} thickSheets={thickSheets} onSelectCover={setSelectedCover} onSelectSheets={(cover, nextSheets) => {
           if (cover === "TAPA_DELGADA") setThinSheets(nextSheets);
           else setThickSheets(nextSheets);
         }} />}

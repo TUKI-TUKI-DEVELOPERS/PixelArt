@@ -31,7 +31,7 @@ type CharacterMeta =
 
 type OrderDetail = {
   id: number; channel: string; status: string; customerFullName: string; customerEmail: string; customerPhone: string;
-  totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null; manualPricing: boolean;
+  totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null; manualPricing: boolean; customCoverSurchargeCents?: number;
   demoRequestId: number | null;
   photobookProjectId: number | null;
   photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null;
@@ -770,7 +770,9 @@ export default function OrdenDetallePage() {
           {[
             { label: "Email",    value: data.customerEmail },
             { label: "Teléfono", value: data.customerPhone || "—" },
-            { label: data.manualPricing ? "Precio acordado" : "Total", value: data.manualPricing ? "Por WhatsApp" : `S/ ${(data.totalAmountCents / 100).toFixed(2)}`, accent: true },
+            { label: data.manualPricing ? "Precio acordado" : "Total", value: data.manualPricing
+              ? data.customCoverSurchargeCents == null ? "Por WhatsApp" : `S/ ${(data.totalAmountCents / 100).toFixed(2)} · incluye S/ ${(data.customCoverSurchargeCents / 100).toFixed(2)} por tapas`
+              : `S/ ${(data.totalAmountCents / 100).toFixed(2)}`, accent: true },
             { label: "Entrega",  value: data.estimatedDeliveryDate ?? "—" },
           ].map((f, i, arr) => (
             <div key={f.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>

@@ -662,10 +662,10 @@ describe('PhotobookService.createCustomRequest', () => {
       return Promise.resolve([]);
     });
     h.repo.findProjectById = jest.fn().mockResolvedValue({
-      id: 77, status: 'CONFIRMED', customerFullName: 'Ana Cliente', customerEmail: 'ana@example.com', customerPhone: '+51999111222', calculatedTotalCents: 8900,
+      id: 77, status: 'CONFIRMED', customerFullName: 'Ana Cliente', customerEmail: 'ana@example.com', customerPhone: '+51999111222', calculatedTotalCents: 11500,
     });
     h.repo.updateProjectStatus = jest.fn();
-    h.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 55, totalAmountCents: 8900 });
+    h.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 55, totalAmountCents: 11500 });
     h.publicLinksService.generate.mockResolvedValue({ token: 'payment-token', expiresAt: new Date('2026-10-07T00:00:00.000Z') });
 
     await expect(h.service.finalizeCustomEditor('opaque-session', {
@@ -673,16 +673,41 @@ describe('PhotobookService.createCustomRequest', () => {
       coverType: 'TAPA_DELGADA',
       pages,
       wantsRush: false,
+      customCoverSurchargeCents: 2500,
       form: {
         name: 'Ana Cliente', email: 'ana@example.com', phone: '+51999111222', deliveryAddress: 'Av. Principal 123', deliveryDistrict: 'Yanahuara', deliveryCity: 'Arequipa', deliveryRegion: 'Arequipa', deliveryDepartment: 'Arequipa',
       },
     })).resolves.toMatchObject({
       projectId: 77,
       status: 'AWAITING_PAYMENT',
-      order: { orderId: 55, paymentLink: { url: 'http://localhost:3000/pagar/payment-token' } },
+      order: { orderId: 55, totalAmountCents: 11500, paymentLink: { url: 'http://localhost:3000/pagar/payment-token' } },
     });
     expect(h.ordersService.activatePhotobookOrder).toHaveBeenCalledWith(expect.objectContaining({ photobookProjectId: 77 }));
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining("status = 'AWAITING_PAYMENT'"), [41]);
+    const projectUpdate = h.manager.query.mock.calls.find(([query]) => String(query).includes('calculated_total_cents = $13'));
+    expect(projectUpdate?.[1][12]).toBe(11500);
+    expect(JSON.parse(projectUpdate?.[1][13] as string)).toMatchObject({ customCoverSurchargeCents: 2500 });
+  });
+
+  it.each([
+    { label: 'missing', surcharge: undefined },
+    { label: 'negative', surcharge: -1 },
+    { label: 'fractional', surcharge: 2500.5 },
+    { label: 'non-numeric', surcharge: '2500' },
+  ])('rejects a $label custom-cover surcharge before writing or creating an order', async ({ surcharge }) => {
+    const h = createHarness();
+    h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);
+    h.manager.query.mockResolvedValueOnce([{ id: '41', status: 'EDITOR_IN_PROGRESS', linked_photobook_project_id: '77' }]);
+    const pages = Array.from({ length: 30 }, (_, index) => ({ pageNumber: index + 1, layoutKey: 'FULL_1', slots: [{ id: 501 }] }));
+
+    await expect(h.service.finalizeCustomEditor('opaque-session', {
+      formatConfigured: true, coverType: 'TAPA_DELGADA', pages, wantsRush: false,
+      customCoverSurchargeCents: surcharge,
+      form: { name: 'Ana', email: 'ana@example.com', phone: '999111222', deliveryAddress: 'Av. Principal 123', deliveryDistrict: 'Yanahuara', deliveryCity: 'Arequipa', deliveryRegion: 'Arequipa', deliveryDepartment: 'Arequipa' },
+    })).rejects.toBeInstanceOf(BadRequestException);
+
+    expect(h.manager.query).toHaveBeenCalledTimes(1);
+    expect(h.ordersService.activatePhotobookOrder).not.toHaveBeenCalled();
   });
 
   it('activates a linked configuration order and returns the shared QR payment link', async () => {

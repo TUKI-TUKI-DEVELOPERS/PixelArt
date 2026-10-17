@@ -10,6 +10,7 @@ type PaymentInfo = {
   orderId: number;
   customerName: string;
   totalAmountCents?: number;
+  customCoverSurchargeCents?: number;
   manualPricing: boolean;
   currency: string;
   expiresAt: string;
@@ -136,9 +137,14 @@ export default function PagarPage() {
       </div>
 
       {/* Amount */}
-      <div hidden={info.manualPricing} style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "32px" }}>
-        <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Total a pagar</div>
+      <div hidden={info.manualPricing && info.totalAmountCents == null} style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "32px" }}>
+        {info.customCoverSurchargeCents != null && info.totalAmountCents != null && <div style={{ margin: "0 auto 16px", maxWidth: "320px", display: "grid", gap: "6px", fontSize: "13px", color: "#6b7280", textAlign: "left" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}><span>Photobook y express (si aplica)</span><span>S/ {((info.totalAmountCents - info.customCoverSurchargeCents) / 100).toFixed(2)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}><span>Adicional por tapas personalizadas</span><span>S/ {(info.customCoverSurchargeCents / 100).toFixed(2)}</span></div>
+            </div>}
+            <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Total a pagar</div>
         <div style={{ fontSize: "40px", fontWeight: 900, color: "#111" }}>{totalFormatted}</div>
+            {info.manualPricing && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "8px" }}>El importe ingresado será revisado manualmente con tu comprobante.</div>}
         <div style={{ fontSize: "13px", color: "#9ca3af", marginTop: "4px" }}>Orden #{info.orderId}</div>
       </div>
 
@@ -159,7 +165,7 @@ export default function PagarPage() {
           }}
         />
         <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-          {info.manualPricing ? "Realiza el pago por el importe coordinado con nuestro equipo y luego sube la captura abajo." : <>Realiza el pago por <strong>{totalFormatted}</strong> y luego sube la captura abajo.</>}
+          {info.manualPricing && info.totalAmountCents == null ? "Realiza el pago por el importe coordinado con nuestro equipo y luego sube la captura abajo." : <>Realiza el pago por <strong>{totalFormatted}</strong> y luego sube la captura abajo.</>}
         </p>
       </div>
 

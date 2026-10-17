@@ -93,6 +93,7 @@ export class OrdersAdminController {
     }
 
     let manualPricing = false;
+    let customCoverSurchargeCents: number | null = null;
         let photobookDelivery: { address: string | null; district: string | null; city: string | null; region: string | null; department: string | null } | null = null;
     if (order?.channel === 'PHOTOBOOK' && order.photobookProjectId) {
         const customRequests = await this.dataSource.query(
@@ -100,8 +101,8 @@ export class OrdersAdminController {
           [order.photobookProjectId],
         );
         manualPricing = customRequests.length > 0;
-      const rows: { delivery_address: string | null; delivery_district: string | null; delivery_city: string | null; delivery_region: string | null; delivery_department: string | null }[] = await this.dataSource.query(
-        `SELECT delivery_address, delivery_district, delivery_city, delivery_region, delivery_department
+      const rows: { delivery_address: string | null; delivery_district: string | null; delivery_city: string | null; delivery_region: string | null; delivery_department: string | null; draft_state: unknown }[] = await this.dataSource.query(
+        `SELECT delivery_address, delivery_district, delivery_city, delivery_region, delivery_department, draft_state
          FROM photobook_projects WHERE id = $1`,
         [order.photobookProjectId],
       );
@@ -113,6 +114,14 @@ export class OrdersAdminController {
         region: delivery.delivery_region,
         department: delivery.delivery_department,
       };
+      let draftState = delivery?.draft_state;
+      if (typeof draftState === 'string') {
+        try { draftState = JSON.parse(draftState) as unknown; } catch { draftState = null; }
+      }
+      if (typeof draftState === 'object' && draftState !== null && !Array.isArray(draftState)) {
+        const surcharge = (draftState as Record<string, unknown>).customCoverSurchargeCents;
+        if (typeof surcharge === 'number' && Number.isSafeInteger(surcharge) && surcharge >= 0) customCoverSurchargeCents = surcharge;
+      }
     }
 
     // Diseño del libro (degradado + dedicatoria editable por el admin) — ver
@@ -131,7 +140,8 @@ export class OrdersAdminController {
       demoAssetIds,
       demoDedicationText,
       photobookDelivery,
-        manualPricing,
+      ...(customCoverSurchargeCents !== null ? { customCoverSurchargeCents } : {}),
+      manualPricing,
       dedicationText: designRow?.dedication_text ?? null,
       gradientColorStart: designRow?.gradient_color_start ?? '#DF1F74',
       gradientColorEnd: designRow?.gradient_color_end ?? '#804187',

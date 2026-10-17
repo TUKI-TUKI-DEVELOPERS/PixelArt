@@ -41,6 +41,18 @@ function fmtPrice(cents: number): string {
   return `S/ ${(cents / 100).toFixed(0)}`;
 }
 
+function fmtPriceWithCents(cents: number): string {
+  return `S/ ${(cents / 100).toFixed(2)}`;
+}
+
+function parseSolesToCents(value: string): number | null {
+  const normalized = value.trim().replace(",", ".");
+  if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) return null;
+  const [soles, cents = ""] = normalized.split(".");
+  const amount = Number(soles) * 100 + Number(cents.padEnd(2, "0"));
+  return Number.isSafeInteger(amount) ? amount : null;
+}
+
 const LAYOUTS: { key: string; label: string; slots: number }[] = [
   { key: "FULL_1", label: "1 foto", slots: 1 },
   { key: "GRID_2", label: "2 fotos", slots: 2 },
@@ -125,6 +137,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
   const [coverType, setCoverType] = useState<CoverType>("TAPA_DELGADA");
   const [wantsRush, setWantsRush] = useState(false);
+  const [customCoverSurchargeInput, setCustomCoverSurchargeInput] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -170,7 +183,8 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const totalPages = pages.length;
   const hojas = Math.ceil(totalPages / 2);
   const customFormatValid = formatConfigured && (coverType === "TAPA_DELGADA" ? [15, 20, 25, 35] : [15, 20, 25, 35, 50]).includes(totalPages / 2);
-  const totalCents = (getPriceCents(coverType, hojas) ?? 0) + (wantsRush ? RUSH_FEE_CENTS : 0);
+  const customCoverSurchargeCents = customEditor ? parseSolesToCents(customCoverSurchargeInput) : null;
+  const totalCents = (getPriceCents(coverType, hojas) ?? 0) + (wantsRush ? RUSH_FEE_CENTS : 0) + (customCoverSurchargeCents ?? 0);
 
   // Derive placed photo IDs
   const placedPhotoIds = useMemo(() => {
@@ -207,6 +221,8 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     if (draft.coverType) setCoverType(draft.coverType as CoverType);
     if (draft.selectedProduct) setSelectedProduct(draft.selectedProduct as number);
     if (draft.wantsRush !== undefined) setWantsRush(draft.wantsRush as boolean);
+    const surcharge = draft.customCoverSurchargeCents;
+    setCustomCoverSurchargeInput(typeof surcharge === "number" && Number.isSafeInteger(surcharge) && surcharge >= 0 ? (surcharge / 100).toFixed(2) : "");
     if (draft.formatConfigured === true) setFormatConfigured(true);
   }
 
@@ -227,6 +243,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         width: p.width, height: p.height, originalFilename: p.originalFilename, preview: p.url,
       })),
       step, form, coverType, wantsRush, selectedProduct,
+      customCoverSurchargeCents: customEditor ? customCoverSurchargeCents : undefined,
       editorMode: customEditor ? "CUSTOM_FULL_EDITOR" : "CATALOG_EDITOR",
       formatConfigured: customEditor && formatConfigured ? true : undefined,
     };
@@ -355,7 +372,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [pages, photos, step, form, selectedProduct, draftKey, draftToken, themeId, submitted, pathname, router, searchParams, customEditor, formatConfigured, isFormatChangeOpen]);
+  }, [pages, photos, step, form, selectedProduct, draftKey, draftToken, themeId, submitted, pathname, router, searchParams, customEditor, customCoverSurchargeInput, formatConfigured, isFormatChangeOpen]);
 
   // Auto-distribute
   function buildPhotoPool(): UploadedPhoto[] {
@@ -702,6 +719,11 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       onChangeFormat?.(buildDraftData());
       return;
     }
+    if (customEditor && customCoverSurchargeCents == null) {
+      setStep(4);
+      setFormErrors((current) => ({ ...current, customCoverSurchargeCents: "Ingresa un importe válido (hasta dos decimales) para ambas tapas." }));
+      return;
+    }
     setSubmitting(true);
     setUploadError(null);
     try {
@@ -799,7 +821,8 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               MIN_HOJAS, MIN_CARAS, MAX_PHOTOS, photoLimitReached, handleUploadFiles, pendingDuplicates,
               resolveDuplicate, uploading, progress, photos, removePhoto: handleDeletePhoto, handleSidebarDragOver,
               handleSidebarDragLeave, handleSidebarDrop, sidebarDragOver, showOnlyAvailable,
-              setShowOnlyAvailable, visiblePhotos, placedPhotoIds, totalPages, totalCents, fmtPrice,
+              setShowOnlyAvailable, visiblePhotos, placedPhotoIds, totalPages, totalCents,
+                  fmtPrice: customEditor ? fmtPriceWithCents : fmtPrice,
               openAutoDistribute, addPage, dupAlert, LAYOUTS, changeLayout, assignPhotoById,
               handleRemoveFromPage, handleDeletePage, handleDuplicatePage, handleReorderPages,
               setZoomPageIdx, handleSwapSlots, updateSlotPosition, coverUrl, backCoverUrl, mobilePageIdx,
@@ -954,7 +977,54 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                   );
                 })}
               </div>
-              {/* Precio consolidado */}
+              {customEditor && (
+                    <div style={{ marginBottom: "16px", padding: "16px", borderRadius: "12px", background: `${ACCENT}08`, border: `1px solid ${ACCENT}20` }}>
+                      <label htmlFor="custom-cover-surcharge" style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#374151", marginBottom: "6px" }}>
+                        Importe acordado por ambas tapas (S/) <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
+                      <input
+                        id="custom-cover-surcharge"
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="Ej. 25,00"
+                        value={customCoverSurchargeInput}
+                        aria-invalid={Boolean(formErrors.customCoverSurchargeCents)}
+                        aria-describedby="custom-cover-surcharge-help"
+                        onChange={(event) => {
+                          setCustomCoverSurchargeInput(event.target.value);
+                          setFormErrors((current) => { const next = { ...current }; delete next.customCoverSurchargeCents; return next; });
+                        }}
+                        style={{ width: "100%", boxSizing: "border-box", padding: "11px 12px", borderRadius: "9px", border: formErrors.customCoverSurchargeCents ? "1.5px solid #ef4444" : "1px solid #d8c8da", fontSize: "15px", fontFamily: "inherit" }}
+                      />
+                      <div id="custom-cover-surcharge-help" style={{ marginTop: "6px", fontSize: "12px", lineHeight: 1.5, color: "#777" }}>
+                        Ingresa el total acordado con el administrador por las dos tapas. El comprobante Yape se seguirá revisando manualmente.
+                      </div>
+                      {formErrors.customCoverSurchargeCents && <div role="alert" style={{ marginTop: "5px", color: "#ef4444", fontSize: "12px" }}>{formErrors.customCoverSurchargeCents}</div>}
+                    </div>
+                  )}
+
+                  {customEditor && (
+                    <div style={{ padding: "14px 16px", borderRadius: "12px", background: "#faf9fb", border: "1px solid #eee", marginBottom: "16px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280", marginBottom: "6px" }}>
+                        <span>{hojas} hojas · {coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</span>
+                        <span>{fmtPrice(getPriceCents(coverType, hojas) ?? 0)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280", marginBottom: "6px" }}>
+                        <span>Adicional por tapas personalizadas</span>
+                        <span>{customCoverSurchargeCents == null ? "Pendiente" : fmtPriceWithCents(customCoverSurchargeCents)}</span>
+                      </div>
+                      {wantsRush && <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280", marginBottom: "6px" }}><span>Entrega express</span><span>{fmtPriceWithCents(RUSH_FEE_CENTS)}</span></div>}
+                      {customCoverSurchargeCents != null && <>
+                        <div style={{ height: "1px", background: `${ACCENT}20`, margin: "8px 0" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: "13px", fontWeight: 700, color: "#374151" }}>Total estimado (envío aparte)</span>
+                          <span style={{ fontSize: "22px", fontWeight: 900, color: ACCENT }}>{fmtPriceWithCents(totalCents)}</span>
+                        </div>
+                      </>}
+                    </div>
+                  )}
+
+                  {/* Precio consolidado */}
               <div hidden={customEditor} style={{ padding: "14px 16px", borderRadius: "12px", background: `${ACCENT}08`, border: `1px solid ${ACCENT}20` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280", marginBottom: "6px" }}>
                   <span>{hojas} hojas · {coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</span>
@@ -1057,7 +1127,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
             </div>
 
             {/* Total */}
-            <div hidden={customEditor} style={{ background: `${ACCENT}08`, borderRadius: "16px", border: `1.5px solid ${ACCENT}25`, padding: isMobile ? "18px 16px" : "24px", marginBottom: "24px" }}>
+            <div style={{ background: `${ACCENT}08`, borderRadius: "16px", border: `1.5px solid ${ACCENT}25`, padding: isMobile ? "18px 16px" : "24px", marginBottom: "24px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280" }}>
                   <span>{hojas} hojas · {coverType === "TAPA_GRUESA" ? "Tapa Gruesa" : "Tapa Delgada"}</span>
@@ -1070,10 +1140,11 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                   </div>
                 )}
               </div>
-              <div style={{ height: "1px", background: `${ACCENT}20`, marginBottom: "12px" }} />
+              {customEditor && <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#6b7280", marginBottom: "8px" }}><span>Adicional por tapas personalizadas</span><span>{customCoverSurchargeCents == null ? "Pendiente" : fmtPriceWithCents(customCoverSurchargeCents)}</span></div>}
+                  <div style={{ height: "1px", background: `${ACCENT}20`, marginBottom: "12px" }} />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "14px", fontWeight: 700, color: "#374151" }}>Total a pagar</span>
-                <span style={{ fontSize: "28px", fontWeight: 900, color: ACCENT }}>{fmtPrice(totalCents)}</span>
+                <span style={{ fontSize: "14px", fontWeight: 700, color: "#374151" }}>{customEditor ? "Total estimado (envío aparte)" : "Total a pagar"}</span>
+                <span style={{ fontSize: "28px", fontWeight: 900, color: ACCENT }}>{customEditor && customCoverSurchargeCents == null ? "Completa el importe acordado" : customEditor ? fmtPriceWithCents(totalCents) : fmtPrice(totalCents)}</span>
               </div>
               <div style={{ marginTop: "8px", fontSize: "12px", color: "#9ca3af" }}>El costo de envío se calcula al confirmar el pedido.</div>
             </div>
@@ -1247,6 +1318,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 if (!form.deliveryCity.trim()) errors.deliveryCity = "La ciudad es requerida";
                 if (!form.deliveryRegion.trim()) errors.deliveryRegion = "La región es requerida";
                 if (!form.deliveryDepartment.trim()) errors.deliveryDepartment = "El departamento es requerido";
+                    if (customEditor && customCoverSurchargeCents == null) errors.customCoverSurchargeCents = "Ingresa un importe válido (hasta dos decimales) para ambas tapas.";
                 if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
                 setFormErrors({});
               }

@@ -8,12 +8,14 @@ export default function IdentityBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    const drawableCanvas: HTMLCanvasElement = canvas;
+    const ctx: CanvasRenderingContext2D = context;
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      drawableCanvas.width = drawableCanvas.offsetWidth;
+      drawableCanvas.height = drawableCanvas.offsetHeight;
     };
     resize();
 
@@ -32,10 +34,10 @@ export default function IdentityBackground() {
       }
 
       init(scatter = false) {
-        this.x = Math.random() * canvas.width;
+        this.x = Math.random() * drawableCanvas.width;
         this.y = scatter
-          ? Math.random() * canvas.height
-          : canvas.height + 20;
+          ? Math.random() * drawableCanvas.height
+          : drawableCanvas.height + 20;
 
         const isLarge = Math.random() < 0.3;
         this.size = isLarge
@@ -106,7 +108,7 @@ export default function IdentityBackground() {
     let rafId: number;
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, drawableCanvas.width, drawableCanvas.height);
       bubbles.forEach((b) => {
         b.update();
         b.draw();
@@ -117,7 +119,7 @@ export default function IdentityBackground() {
     animate();
 
     const observer = new ResizeObserver(resize);
-    observer.observe(canvas);
+    observer.observe(drawableCanvas);
 
     return () => {
       cancelAnimationFrame(rafId);

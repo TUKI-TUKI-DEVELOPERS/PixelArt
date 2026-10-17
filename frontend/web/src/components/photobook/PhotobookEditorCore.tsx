@@ -3,8 +3,67 @@
 import React from "react";
 import PhotobookPreview from "@/components/PhotobookPreview";
 import PhotobookSpreadEditor from "@/components/PhotobookSpreadEditor";
+import type { PendingDuplicate, UploadedPhoto } from "@/hooks/usePhotoUpload";
 
-type Props = Record<string, any>;
+type SpreadEditorProps = React.ComponentProps<typeof PhotobookSpreadEditor>;
+
+type Props = {
+  ACCENT: string;
+  hasDraft: boolean;
+  restoreDraft: () => void;
+  discardDraft: () => void;
+  isMobile: boolean;
+  step: number;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+  pages: SpreadEditorProps["pages"];
+  coverType: "TAPA_DELGADA" | "TAPA_GRUESA";
+  hojas: number;
+  MIN_HOJAS: number;
+  MIN_CARAS: number;
+  MAX_PHOTOS: number;
+  photoLimitReached: boolean;
+  handleUploadFiles: (files: File[]) => void;
+  pendingDuplicates: PendingDuplicate[];
+  resolveDuplicate: (uid: number, action: "add" | "skip") => void;
+  uploading: boolean;
+  progress: number;
+  photos: UploadedPhoto[];
+  removePhoto: (uid: number) => void;
+  handleSidebarDragOver: React.DragEventHandler<HTMLDivElement>;
+  handleSidebarDragLeave: React.DragEventHandler<HTMLDivElement>;
+  handleSidebarDrop: React.DragEventHandler<HTMLDivElement>;
+  sidebarDragOver: boolean;
+  showOnlyAvailable: boolean;
+  setShowOnlyAvailable: React.Dispatch<React.SetStateAction<boolean>>;
+  visiblePhotos: UploadedPhoto[];
+  placedPhotoIds: Set<number>;
+  totalPages: number;
+  totalCents: number;
+  fmtPrice: (cents: number) => string;
+  customEditor: boolean;
+  openAutoDistribute: () => void;
+  addPage: () => void;
+  dupAlert: string | null;
+  LAYOUTS: SpreadEditorProps["layouts"];
+  changeLayout: SpreadEditorProps["onChangeLayout"];
+  assignPhotoById: SpreadEditorProps["onAssignPhoto"];
+  handleRemoveFromPage: SpreadEditorProps["onRemovePhoto"];
+  handleDeletePage: SpreadEditorProps["onDeletePage"];
+  handleDuplicatePage: SpreadEditorProps["onDuplicatePage"];
+  handleReorderPages: SpreadEditorProps["onReorderPages"];
+  setZoomPageIdx: React.Dispatch<React.SetStateAction<number | null>>;
+  handleSwapSlots: SpreadEditorProps["onSwapSlots"];
+  updateSlotPosition: SpreadEditorProps["onUpdateSlotPosition"];
+  coverUrl: string | null;
+  backCoverUrl: string | null;
+  mobilePageIdx: number;
+  setMobilePageIdx: React.Dispatch<React.SetStateAction<number>>;
+  selectedSlotId: string | null;
+  handleMobileSlotTap: NonNullable<SpreadEditorProps["onSlotTap"]>;
+  LOW_RES_THRESHOLD: number;
+  handleMobilePhotoTap: (photo: UploadedPhoto) => void;
+  temaNombre: string;
+};
 
 /**
  * Shared, controlled rendering core for the first three photobook steps.
@@ -186,7 +245,7 @@ export default function PhotobookEditorCore(ctx: Props) {
                     <img src={p.preview} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
                     {isPlaced && <div style={{ position: "absolute", top: 3, left: 3, width: 18, height: 18, borderRadius: "50%", background: ACCENT, color: "#fff", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>✓</div>}
                     {isLowRes && <div title="Resolución baja — esta foto puede verse borrosa en impresión. Se recomienda un mínimo de 2000×2000px." style={{ position: "absolute", top: isPlaced ? "auto" : 3, bottom: isPlaced ? 3 : "auto", left: 3, zIndex: 2, width: 18, height: 18, borderRadius: "50%", background: "#f59e0b", color: "#fff", fontSize: 10, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)", cursor: "help" }}>!</div>}
-                    <button onClick={(e) => { e.stopPropagation(); handleDeletePhoto(p.uid); }} style={{ position: "absolute", top: 3, right: 3, width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>x</button>
+                    <button onClick={(e) => { e.stopPropagation(); removePhoto(p.uid); }} style={{ position: "absolute", top: 3, right: 3, width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.55)", color: "#fff", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>x</button>
                   </div>
                 );
               })}

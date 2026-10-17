@@ -41,20 +41,15 @@ describe('pricing example tables (mirror backend PhotobookPricingService)', () =
 
   it('every EXAMPLES_GRUESA row except the 50-hoja one matches the backend formula', () => {
     expect(EXAMPLES_GRUESA.length).toBeGreaterThan(0);
-    for (const ex of EXAMPLES_GRUESA.filter((e) => e.hojas !== 50)) {
+    for (const ex of EXAMPLES_GRUESA) {
       expect(ex.price).toBe(expectedPriceLabel(GRUESA_BASE_CENTS, GRUESA_EXTRA_CENTS, ex.hojas));
     }
   });
 
-  it('KNOWN DIVERGENCE: the 50-hoja Gruesa example shows S/ 240 but the formula gives S/ 260', () => {
-    // Characterization of current behavior. The backend
-    // (12000 + 35 * 400 = 26000 centavos -> S/ 260) and this page's own
-    // calcPrice both charge S/ 260 for 50 hojas Tapa Gruesa, but the static
-    // marketing row displays S/ 240. If someone fixes the table, update this
-    // test to fold the row back into the formula check above.
+  it('prices the 50-hoja Gruesa example with the backend formula', () => {
     const row = EXAMPLES_GRUESA.find((e) => e.hojas === 50);
-    expect(row?.price).toBe('S/ 240');
-    expect(expectedPriceLabel(GRUESA_BASE_CENTS, GRUESA_EXTRA_CENTS, 50)).toBe('S/ 260');
+    expect(row?.price).toBe('S/ 260');
+    expect(row?.price).toBe(expectedPriceLabel(GRUESA_BASE_CENTS, GRUESA_EXTRA_CENTS, 50));
   });
 
   it('both cover types offer the same hoja options, starting at the 15-hoja minimum', () => {
@@ -109,14 +104,12 @@ describe('PhotobookConfigurarClient (calcPrice via rendered summary)', () => {
     expect(screen.getByText('Empezar con Tapa Gruesa')).toBeTruthy();
   });
 
-  it('KNOWN DIVERGENCE: selecting the 50-hoja Gruesa row prices the summary at S/ 260 while the row label says S/ 240', () => {
+  it('selecting the 50-hoja Gruesa row shows the same S/ 260 example and total', () => {
     renderPage();
-    // The second matching row is in the Gruesa card; its static label reads
-    // "S/ 240", but calcPrice (matching the backend) computes S/ 260, so the
-    // user sees two different prices for the same selection.
     fireEvent.click(screen.getAllByText('50 hojas · 100 caras')[1]);
     expect(screen.getByText('S/ 260', { selector: 'strong' })).toBeTruthy();
-    expect(screen.getByText('S/ 240')).toBeTruthy();
+    expect(screen.getAllByText('S/ 260')).toHaveLength(2);
+    expect(screen.queryByText('S/ 240')).toBeNull();
   });
 
   it('the CTA persists the selection to localStorage and navigates to the editor', () => {

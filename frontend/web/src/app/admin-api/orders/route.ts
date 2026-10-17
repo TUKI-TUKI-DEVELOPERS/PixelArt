@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { proxyOrdersRequest } from './[...path]/route';
+import { GET as proxyOrdersRequest } from './[...path]/route';
 
 const rootContext = { params: Promise.resolve({ path: [] as string[] }) };
 

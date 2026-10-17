@@ -1013,7 +1013,7 @@ const EXAMPLES_GRUESA = [
   { hojas: 20, price: "S/ 140", highlight: false },
   { hojas: 25, price: "S/ 160", highlight: true  },
   { hojas: 35, price: "S/ 200", highlight: false },
-  { hojas: 50, price: "S/ 240", highlight: false },
+  { hojas: 50, price: "S/ 260", highlight: false },
 ];
 
 function PricingSection() {

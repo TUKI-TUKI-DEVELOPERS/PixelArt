@@ -6,13 +6,6 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_TELEMETRY_DISABLED: '1',
   },
-  // TEMPORAL — hay errores de tipos preexistentes en admin/libros-personalizados/
-  // solicitudes/[id]/page.tsx (discriminated union de characterMeta sin narrowar
-  // según mode) que bloquean el build y no son parte de este cambio. Sacar este
-  // flag apenas se arreglen esos tipos con el contexto completo de esa feature.
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   // Optimización de imágenes real (resize + WebP) habilitada.
   // getAssetUrl() devuelve rutas relativas ("/assets/...") en vez de URLs
   // absolutas a MinIO — el rewrite de abajo las proxea server-side hacia

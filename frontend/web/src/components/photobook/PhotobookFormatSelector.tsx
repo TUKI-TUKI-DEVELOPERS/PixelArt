@@ -15,7 +15,7 @@ export const THICK_COVER_EXAMPLES = [
   { sheets: 20, price: "S/ 140", highlight: false },
   { sheets: 25, price: "S/ 160", highlight: true },
   { sheets: 35, price: "S/ 200", highlight: false },
-  { sheets: 50, price: "S/ 240", highlight: false },
+  { sheets: 50, price: "S/ 260", highlight: false },
 ];
 
 type Props = {

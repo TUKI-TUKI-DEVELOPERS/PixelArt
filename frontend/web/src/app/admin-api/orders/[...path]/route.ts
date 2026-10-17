@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
-export async function proxyOrdersRequest(request: NextRequest, { params }: RouteContext): Promise<Response> {
+async function proxyOrdersRequest(request: NextRequest, { params }: RouteContext): Promise<Response> {
   const token = request.cookies.get('pa_admin_token')?.value;
   if (!token) return NextResponse.json({ message: 'No autenticado' }, { status: 401 });
 

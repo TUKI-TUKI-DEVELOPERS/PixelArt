@@ -34,6 +34,19 @@ describe('PaymentsService custom photobook payments', () => {
     expect(h.dataSource.query).toHaveBeenCalledWith('SELECT id FROM custom_photobook_requests WHERE linked_photobook_project_id = $1 LIMIT 1', [77]);
   });
 
+  it('returns the persisted cover surcharge and expected total for custom photobooks', async () => {
+    const h = createManualPricingHarness();
+    h.dataSource.query.mockImplementation((sql: string) => Promise.resolve(
+      sql.includes('custom_photobook_requests') ? [{ id: '9' }]
+        : sql.includes('SELECT draft_state FROM photobook_projects') ? [{ draft_state: { customCoverSurchargeCents: 2500 } }] as any
+          : [],
+    ));
+
+    const info = await h.service.getPaymentInfo('payment-token');
+
+    expect(info).toMatchObject({ orderId: 41, manualPricing: true, totalAmountCents: 15000, customCoverSurchargeCents: 2500 });
+  });
+
   it('stores a null amount for manually priced proofs', async () => {
     const h = createManualPricingHarness();
     await h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png');

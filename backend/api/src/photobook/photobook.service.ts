@@ -970,6 +970,10 @@ export class PhotobookService {
       if (state.formatConfigured !== true || !coverType || !allowedSheets.includes(sheets)) {
         throw new BadRequestException('El formato seleccionado no es válido. Elige nuevamente la tapa y cantidad de hojas.');
       }
+      const customCoverSurchargeCents = state.customCoverSurchargeCents;
+      if (typeof customCoverSurchargeCents !== 'number' || !Number.isSafeInteger(customCoverSurchargeCents) || customCoverSurchargeCents < 0) {
+        throw new BadRequestException('Ingresa un importe válido para ambas tapas (en céntimos, sin decimales).');
+      }
       const incompletePages = pages.filter((page) => {
         const slots = typeof page === 'object' && page !== null ? (page as { slots?: unknown[] }).slots : undefined;
         return !Array.isArray(slots) || !slots.some((slot) => typeof slot === 'object' && slot !== null && Number.isFinite(Number((slot as { id?: unknown; assetId?: unknown }).assetId ?? (slot as { id?: unknown }).id)));
@@ -986,7 +990,7 @@ export class PhotobookService {
       if (missingFields.length > 0) throw new BadRequestException(`Completa los datos obligatorios: ${missingFields.join(', ')}.`);
       const wantsRush = Boolean(state.wantsRush);
       const rushFeeCents = calculatePhotobookRushFeeCents(wantsRush);
-      const calculatedTotalCents = calculatePhotobookTotalCents(coverType as 'TAPA_DELGADA' | 'TAPA_GRUESA', pages.length, wantsRush);
+      const calculatedTotalCents = calculatePhotobookTotalCents(coverType as 'TAPA_DELGADA' | 'TAPA_GRUESA', pages.length, wantsRush) + customCoverSurchargeCents;
 
       await manager.query(`DELETE FROM photobook_project_assets WHERE project_id = $1`, [request.linked_photobook_project_id]);
       await manager.query(`DELETE FROM photobook_pages WHERE project_id = $1`, [request.linked_photobook_project_id]);
