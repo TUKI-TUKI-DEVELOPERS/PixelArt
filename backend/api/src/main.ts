@@ -3,9 +3,16 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import compression from 'compression';
 import helmet from 'helmet';
+import { json, urlencoded } from 'express';
+
+export function configureBodyParsers(app: { use: (...handlers: any[]) => any }) {
+  app.use(json({ limit: '1mb' }));
+  app.use(urlencoded({ extended: true }));
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  configureBodyParsers(app);
 
   // C3: Security headers (X-Content-Type-Options, X-Frame-Options, etc.)
   app.use(helmet({
@@ -52,4 +59,6 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+if (require.main === module) {
+  bootstrap();
+}
