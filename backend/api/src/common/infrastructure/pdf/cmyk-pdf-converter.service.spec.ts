@@ -36,6 +36,16 @@ describe('CmykPdfConverterService', () => {
     expect(args).toContain(`--permit-file-read=${profile}`);
     expect(options).toMatchObject({ shell: false, timeout: 300000 });
   });
+  it('re-encodes images losslessly instead of using the DCT defaults', async () => {
+    await service.convert(source);
+    const [, args] = mockedExec.mock.calls[0];
+    expect(args).toContain('-dAutoFilterColorImages=false');
+    expect(args).toContain('-dColorImageFilter=/FlateEncode');
+    expect(args).toContain('-dAutoFilterGrayImages=false');
+    expect(args).toContain('-dGrayImageFilter=/FlateEncode');
+    expect(args).toContain('-dBlackPtComp');
+    expect(args).not.toContain('-dColorImageFilter=/DCTEncode');
+  });
   it('uses the packaged APTEC profile when no override is configured', async () => {
     delete process.env.PRINT_PDF_ICC_PROFILE_PATH;
     await service.convert(source);

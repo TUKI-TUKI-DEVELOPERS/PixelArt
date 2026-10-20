@@ -22,10 +22,18 @@ export class CmykPdfConverterService {
       const output = join(directory, `${randomUUID()}.pdf`);
       await fs.writeFile(input, pdf);
       await new Promise<void>((resolvePromise, reject) => {
+        // Lossless image re-encoding is mandatory: JPEG passthrough is impossible
+        // during a colour-space change (pdfwrite ignores PassThroughJPEGImages),
+        // and the DCT defaults (QFactor 0.9 + chroma subsampling) visibly degrade
+        // print quality. Flate preserves the decoded source pixels without loss.
         run('gs', [
           '-dSAFER', '-dBATCH', '-dNOPAUSE', '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.7',
           '-dColorConversionStrategy=/CMYK', '-dProcessColorModel=/DeviceCMYK',
-          '-dOverrideICC', `-sOutputICCProfile=${profile}`, `--permit-file-read=${profile}`, `-sOutputFile=${output}`, input,
+          '-dOverrideICC', `-sOutputICCProfile=${profile}`,
+          '-dAutoFilterColorImages=false', '-dColorImageFilter=/FlateEncode',
+          '-dAutoFilterGrayImages=false', '-dGrayImageFilter=/FlateEncode',
+          '-dBlackPtComp',
+          `--permit-file-read=${profile}`, `-sOutputFile=${output}`, input,
         ], { shell: false, timeout: TIMEOUT_MS }, (error) => error ? reject(error) : resolvePromise());
       });
       const result = await fs.readFile(output);
