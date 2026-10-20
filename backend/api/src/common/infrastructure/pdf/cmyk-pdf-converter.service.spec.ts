@@ -43,7 +43,7 @@ describe('CmykPdfConverterService', () => {
     expect(args).toContain('-dColorImageFilter=/FlateEncode');
     expect(args).toContain('-dAutoFilterGrayImages=false');
     expect(args).toContain('-dGrayImageFilter=/FlateEncode');
-    expect(args).toContain('-dBlackPtComp');
+    expect(args).not.toContain('-dBlackPtComp');
     expect(args).not.toContain('-dColorImageFilter=/DCTEncode');
   });
   it('uses the packaged APTEC profile when no override is configured', async () => {

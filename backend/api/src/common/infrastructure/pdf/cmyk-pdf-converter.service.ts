@@ -32,7 +32,6 @@ export class CmykPdfConverterService {
           '-dOverrideICC', `-sOutputICCProfile=${profile}`,
           '-dAutoFilterColorImages=false', '-dColorImageFilter=/FlateEncode',
           '-dAutoFilterGrayImages=false', '-dGrayImageFilter=/FlateEncode',
-          '-dBlackPtComp',
           `--permit-file-read=${profile}`, `-sOutputFile=${output}`, input,
         ], { shell: false, timeout: TIMEOUT_MS }, (error) => error ? reject(error) : resolvePromise());
       });
