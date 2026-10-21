@@ -10,6 +10,12 @@ import { GenerateCustomPhotobookCoverProposalDto } from './dto/generate-custom-p
 import type { Response } from 'express';
 import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 
+function attachmentDisposition(filename: string): string {
+  const safeFilename = filename.replace(/[\\/\u0000-\u001f\u007f"]/g, '_');
+  const fallback = safeFilename.replace(/[^\x20-\x7e]/g, '_');
+  return `attachment; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`;
+}
+
 @Controller('admin/photobook')
 export class PhotobookAdminController {
   constructor(
@@ -35,6 +41,19 @@ export class PhotobookAdminController {
   @Get('custom-requests/:id/references')
   listCustomReferenceAssets(@Param('id') id: string) {
     return this.service.listCustomReferenceAssets(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('custom-requests/:id/references/:assetId/download')
+  async downloadCustomReferenceAsset(
+    @Param('id') id: string,
+    @Param('assetId') assetId: string,
+    @Res() response: Response,
+  ) {
+    const file = await this.service.downloadCustomReferenceAsset(Number(id), Number(assetId));
+    response.setHeader('Content-Type', file.mimeType);
+    response.setHeader('Content-Disposition', attachmentDisposition(file.filename));
+    response.send(file.buffer);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -93,8 +112,8 @@ export class PhotobookAdminController {
     @Res() response: Response,
   ) {
     const file = await this.service.downloadCustomCoverProposal(Number(id), Number(designId));
-    response.setHeader('Content-Type', 'image/png');
-    response.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    response.setHeader('Content-Type', file.mimeType);
+    response.setHeader('Content-Disposition', attachmentDisposition(file.filename));
     response.send(file.buffer);
   }
 
@@ -126,6 +145,22 @@ export class PhotobookAdminController {
   @Post('custom-requests/:id/editor-code/send')
   sendCustomEditorCode(@Param('id') id: string) {
     return this.service.sendCustomEditorCode(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/designs/upload')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 30 * 1024 * 1024 } }))
+  uploadCustomCoverArtwork(
+    @Param('id') id: string,
+    @Body('surface') surface: 'FRONT_COVER' | 'BACK_COVER',
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Debes seleccionar un diseño de tapa');
+    return this.service.uploadCustomCoverArtwork(Number(id), surface, {
+      buffer: file.buffer,
+      originalFilename: file.originalname,
+      mimeType: file.mimetype,
+    });
   }
 
   @UseGuards(JwtAuthGuard)

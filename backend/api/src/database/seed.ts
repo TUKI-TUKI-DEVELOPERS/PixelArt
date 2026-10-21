@@ -78,6 +78,8 @@ export async function runSeed(): Promise<void> {
         customer_full_name TEXT NOT NULL,
         customer_email TEXT NOT NULL,
         customer_phone TEXT NOT NULL,
+        selected_cover_type TEXT,
+        selected_sheet_count INTEGER,
         front_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
         back_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
         cover_wrap_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,
@@ -99,6 +101,24 @@ export async function runSeed(): Promise<void> {
     await client.query(`CREATE INDEX IF NOT EXISTS custom_photobook_requests_status_idx ON custom_photobook_requests(status, created_at DESC)`);
     await client.query(`CREATE INDEX IF NOT EXISTS custom_photobook_requests_customer_email_idx ON custom_photobook_requests(customer_email)`);
     await client.query(`ALTER TABLE custom_photobook_requests ADD COLUMN IF NOT EXISTS cover_approved_at TIMESTAMPTZ`);
+    await client.query(`ALTER TABLE custom_photobook_requests ADD COLUMN IF NOT EXISTS selected_cover_type TEXT`);
+    await client.query(`ALTER TABLE custom_photobook_requests ADD COLUMN IF NOT EXISTS selected_sheet_count INTEGER`);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE custom_photobook_requests ADD CONSTRAINT custom_photobook_requests_format_selection_check CHECK (
+          (selected_cover_type IS NULL AND selected_sheet_count IS NULL)
+          OR (
+            selected_cover_type IS NOT NULL
+            AND selected_sheet_count IS NOT NULL
+            AND (
+              (selected_cover_type = 'TAPA_DELGADA' AND selected_sheet_count IN (15, 20, 25, 35))
+              OR (selected_cover_type = 'TAPA_GRUESA' AND selected_sheet_count IN (15, 20, 25, 35, 50))
+            )
+          )
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
     await client.query(`ALTER TABLE public_links ADD COLUMN IF NOT EXISTS custom_photobook_request_id BIGINT`);
     await client.query(`
       DO $$ BEGIN

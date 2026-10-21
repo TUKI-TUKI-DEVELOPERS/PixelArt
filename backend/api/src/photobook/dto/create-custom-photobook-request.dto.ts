@@ -1,4 +1,4 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export const CUSTOM_PHOTOBOOK_COVER_MODES = [
@@ -8,6 +8,9 @@ export const CUSTOM_PHOTOBOOK_COVER_MODES = [
 ] as const;
 
 export type CustomPhotobookCoverMode = typeof CUSTOM_PHOTOBOOK_COVER_MODES[number];
+
+export const CUSTOM_PHOTOBOOK_COVER_TYPES = ['TAPA_DELGADA', 'TAPA_GRUESA'] as const;
+export type CustomPhotobookCoverType = typeof CUSTOM_PHOTOBOOK_COVER_TYPES[number];
 
 export const CUSTOM_PHOTOBOOK_REFERENCE_SURFACES = ['FRONT_COVER', 'BACK_COVER'] as const;
 export type CustomPhotobookReferenceSurface = typeof CUSTOM_PHOTOBOOK_REFERENCE_SURFACES[number];
@@ -42,6 +45,15 @@ export class CreateCustomPhotobookRequestDto {
 
   @IsIn(CUSTOM_PHOTOBOOK_COVER_MODES)
   coverMode: CustomPhotobookCoverMode;
+
+  @ValidateIf((request: CreateCustomPhotobookRequestDto) => request.coverMode === 'CUSTOMER_ARTWORK')
+  @IsIn(CUSTOM_PHOTOBOOK_COVER_TYPES)
+  coverType?: CustomPhotobookCoverType;
+
+  @ValidateIf((request: CreateCustomPhotobookRequestDto) => request.coverMode === 'CUSTOMER_ARTWORK')
+  @IsInt()
+  @IsIn([15, 20, 25, 35, 50])
+  sheetCount?: number;
 
   @IsString()
   @MaxLength(2000)

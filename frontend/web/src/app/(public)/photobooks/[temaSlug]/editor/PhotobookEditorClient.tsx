@@ -242,7 +242,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
         id: p.id, storageKey: p.storageKey, contentHash: p.contentHash, url: p.url, thumbnailUrl: p.thumbnailUrl,
         width: p.width, height: p.height, originalFilename: p.originalFilename, preview: p.url,
       })),
-      step, form, coverType, wantsRush, selectedProduct,
+      step, form, coverType, sheetCount: customEditor ? hojas : undefined, wantsRush, selectedProduct,
       customCoverSurchargeCents: customEditor ? customCoverSurchargeCents : undefined,
       editorMode: customEditor ? "CUSTOM_FULL_EDITOR" : "CATALOG_EDITOR",
       formatConfigured: customEditor && formatConfigured ? true : undefined,
@@ -965,8 +965,8 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
 
             {/* Sección 4: Tapa + Precio */}
             <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #eee", padding: isMobile ? "18px 16px" : "24px", marginBottom: "16px" }}>
-              <div style={{ fontSize: "11px", fontWeight: 700, color: ACCENT, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px" }}>Tipo de tapa</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "16px" }}>
+              <div style={{ fontSize: "11px", fontWeight: 700, color: ACCENT, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "16px" }}>{customEditor ? "Formato seleccionado" : "Tipo de tapa"}</div>
+              {!customEditor && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "16px" }}>
                 {(["TAPA_DELGADA", "TAPA_GRUESA"] as CoverType[]).map((ct) => {
                   const isActive = coverType === ct;
                   return (
@@ -976,7 +976,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                     </button>
                   );
                 })}
-              </div>
+              </div>}
               {customEditor && (
                     <div style={{ marginBottom: "16px", padding: "16px", borderRadius: "12px", background: `${ACCENT}08`, border: `1px solid ${ACCENT}20` }}>
                       <label htmlFor="custom-cover-surcharge" style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#374151", marginBottom: "6px" }}>

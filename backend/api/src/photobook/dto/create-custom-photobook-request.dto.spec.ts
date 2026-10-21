@@ -8,6 +8,8 @@ const validRequest = {
   requestedTheme: 'Mi historia',
   coverTitle: 'Nuestra historia (blanco)',
   coverMode: 'CUSTOMER_ARTWORK' as const,
+  coverType: 'TAPA_GRUESA' as const,
+  sheetCount: 20,
   brief: 'Tapa y contratapa proporcionadas por el cliente.',
   referenceSlots: [
     { assetId: 7, surface: 'FRONT_COVER', slotIndex: 1 },

@@ -647,6 +647,33 @@ CREATE TABLE custom_photobook_requests (
   customer_full_name TEXT NOT NULL,
   customer_email TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
+  selected_cover_type TEXT,
+  selected_sheet_count INTEGER,
+  CONSTRAINT custom_photobook_requests_format_selection_check CHECK (
+    (selected_cover_type IS NULL AND selected_sheet_count IS NULL)
+    OR (
+      selected_cover_type IS NOT NULL
+      AND selected_sheet_count IS NOT NULL
+      AND (
+        (selected_cover_type = 'TAPA_DELGADA' AND selected_sheet_count IN (15, 20, 25, 35))
+        OR (selected_cover_type = 'TAPA_GRUESA' AND selected_sheet_count IN (15, 20, 25, 35, 50))
+      )
+    )
+  ),
+
+  selected_cover_type TEXT,
+  selected_sheet_count INTEGER,
+  CONSTRAINT custom_photobook_requests_format_selection_check CHECK (
+    (selected_cover_type IS NULL AND selected_sheet_count IS NULL)
+    OR (
+      selected_cover_type IS NOT NULL
+      AND selected_sheet_count IS NOT NULL
+      AND (
+        (selected_cover_type = 'TAPA_DELGADA' AND selected_sheet_count IN (15, 20, 25, 35))
+        OR (selected_cover_type = 'TAPA_GRUESA' AND selected_sheet_count IN (15, 20, 25, 35, 50))
+      )
+    )
+  ),
 
   -- Se completan después de la revisión: contratapa + tapa frontal + lomo.
   front_cover_asset_id BIGINT REFERENCES assets(id) ON DELETE SET NULL,

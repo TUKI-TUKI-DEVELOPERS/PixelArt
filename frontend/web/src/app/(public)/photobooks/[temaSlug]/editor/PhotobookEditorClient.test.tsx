@@ -193,6 +193,24 @@ describe('PhotobookEditorClient characterization', () => {
     }
   });
 
+  it('locks the preselected cover format in the custom editor and keeps its price summary', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ state: {
+        editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 4, coverType: 'TAPA_GRUESA',
+        pages: draftPages(40), wantsRush: false,
+        form: { name: 'Ana', email: 'ana@example.com', phone: '999111222', deliveryAddress: '', deliveryDistrict: '', deliveryCity: '', deliveryRegion: '', deliveryDepartment: '' },
+      } }),
+    }));
+
+    renderEditor({ customEditor: true });
+
+    expect(await screen.findByText('Paso 4 de 6')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Tapa Delgada/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Tapa Gruesa/ })).toBeNull();
+    expect(screen.getAllByText('20 hojas · Tapa Gruesa').length).toBeGreaterThan(0);
+  });
+
   it('restores and recalculates the agreed custom-cover surcharge in the order form', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,

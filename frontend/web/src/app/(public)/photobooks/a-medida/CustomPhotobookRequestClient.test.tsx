@@ -31,7 +31,7 @@ describe("CustomPhotobookRequestClient", () => {
     originalScrollIntoView = undefined;
   });
 
-  it("sends the required title and only one image per cover surface", async () => {
+  it("sends the selected physical format, title, and one image per cover surface", async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 41 }) });
     const scrollIntoView = vi.fn();
     originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollIntoView");
@@ -41,7 +41,9 @@ describe("CustomPhotobookRequestClient", () => {
 
     expect(screen.getByText("Tapa principal")).toBeTruthy();
     expect(screen.getByText("Contratapa")).toBeTruthy();
-    expect(screen.queryByText(/precio por hoja/i)).toBeNull();
+    expect(screen.getByLabelText("Tipo físico de tapa")).toBeTruthy();
+        expect(screen.getByLabelText("Cantidad de hojas")).toBeTruthy();
+        expect(screen.getByText(/personalizar la tapa y contratapa.*no está incluido/i)).toBeTruthy();
     expect(screen.queryByText(/brief creativo|ocasión es/i)).toBeNull();
 
     const frontInput = container.querySelector<HTMLInputElement>("#custom-photobook-front_cover");
@@ -50,6 +52,9 @@ describe("CustomPhotobookRequestClient", () => {
     fireEvent.change(backInput!, { target: { files: [new File(["back"], "back-art.jpg", { type: "image/jpeg" })] } });
     await waitFor(() => expect(screen.getByAltText("Vista previa: tapa principal")).toBeTruthy());
     await waitFor(() => expect(screen.getByAltText("Vista previa: contratapa")).toBeTruthy());
+    fireEvent.change(screen.getByLabelText("Tipo físico de tapa"), { target: { value: "TAPA_GRUESA" } });
+    fireEvent.change(screen.getByLabelText("Cantidad de hojas"), { target: { value: "20" } });
+    expect(screen.getByText("S/ 140")).toBeTruthy();
     fireEvent.change(screen.getByLabelText(/Título que imaginas para la tapa/), { target: { value: "Nuestra historia" } });
     fireEvent.change(screen.getByLabelText(/Nombre completo/), { target: { value: "Ana Cliente" } });
     fireEvent.change(screen.getByLabelText(/Teléfono \/ WhatsApp/), { target: { value: "+51 999 111 222" } });
@@ -64,6 +69,8 @@ describe("CustomPhotobookRequestClient", () => {
     expect(JSON.parse(request.body)).toMatchObject({
       coverTitle: "Nuestra historia",
       coverMode: "CUSTOMER_ARTWORK",
+      coverType: "TAPA_GRUESA",
+      sheetCount: 20,
       referenceSlots: [
         { assetId: 101, surface: "FRONT_COVER", slotIndex: 1 },
         { assetId: 102, surface: "BACK_COVER", slotIndex: 1 },

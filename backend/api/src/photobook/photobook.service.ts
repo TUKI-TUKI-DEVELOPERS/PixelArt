@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'crypto';
+import sharp from 'sharp';
 import { DataSource } from 'typeorm';
 import { PhotobookRepositoryPort, CreateProjectData } from './domain/ports/photobook-repository.port';
 import { calculatePhotobookRushFeeCents, calculatePhotobookTotalCents, isValidPhotobookCoverType } from './domain/services/photobook-pricing.service';
@@ -18,6 +19,10 @@ import { RequestCustomPhotobookCoverAdjustmentDto } from './dto/request-custom-p
 import { RedeemCustomPhotobookEditorCodeDto } from './dto/redeem-custom-photobook-editor-code.dto';
 
 type OrderInfo = { orderId: number; totalAmountCents: number; paymentLink: { token: string; url: string; expiresAt: Date } };
+type CustomPhotobookCoverSurface = 'FRONT_COVER' | 'BACK_COVER';
+
+// A 22 cm cover face at ~288 DPI, matching the PDF render target.
+const MIN_CUSTOM_COVER_ARTWORK_PX = 2500;
 
 type CustomPhotobookRequestRow = {
   id: string;
@@ -30,6 +35,8 @@ type CustomPhotobookRequestRow = {
   customerFullName: string;
   customerEmail: string;
   customerPhone: string;
+  selectedCoverType?: string | null;
+  selectedSheetCount?: number | string | null;
   referenceAssetIds: string[] | number[];
   linkedPhotobookProjectId?: string | number | null;
   openCoverAdjustment?: {
@@ -76,6 +83,16 @@ export class PhotobookService {
   listProjects() { return this.repo.findAllProjects(); }
 
   async createCustomRequest(data: CreateCustomPhotobookRequestDto) {
+    const hasFormatSelection = data.coverType !== undefined || data.sheetCount !== undefined;
+    if (data.coverMode === 'CUSTOMER_ARTWORK' || hasFormatSelection) {
+      const coverType = typeof data.coverType === 'string' && isValidPhotobookCoverType(data.coverType) ? data.coverType : null;
+      const sheetCount = data.sheetCount;
+      const allowedSheetCounts = coverType === 'TAPA_DELGADA' ? [15, 20, 25, 35] : [15, 20, 25, 35, 50];
+      if (!coverType || !Number.isInteger(sheetCount) || !allowedSheetCounts.includes(sheetCount!)) {
+        throw new BadRequestException('Selecciona una tapa y cantidad de hojas disponibles');
+      }
+    }
+
     const referenceSlots = data.referenceSlots;
         const submittedSlots = new Set(referenceSlots.map((slot) => `${slot.surface}:${slot.slotIndex}`));
         const hasOneImagePerSurface = referenceSlots.length === 2
@@ -103,8 +120,8 @@ export class PhotobookService {
 
       const inserted: { id: string }[] = await manager.query(
         `INSERT INTO custom_photobook_requests
-          (occasion, requested_theme, cover_title, cover_mode, brief, customer_full_name, customer_email, customer_phone)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          (occasion, requested_theme, cover_title, cover_mode, brief, customer_full_name, customer_email, customer_phone, selected_cover_type, selected_sheet_count)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
          RETURNING id`,
         [
           data.occasion.trim(),
@@ -115,6 +132,8 @@ export class PhotobookService {
           data.customerFullName.trim(),
           data.customerEmail.trim().toLowerCase(),
           data.customerPhone.trim(),
+          data.coverType ?? null,
+          data.sheetCount ?? null,
         ],
       );
 
@@ -168,6 +187,8 @@ export class PhotobookService {
         r.customer_full_name AS "customerFullName",
         r.customer_email AS "customerEmail",
         r.customer_phone AS "customerPhone",
+        r.selected_cover_type AS "selectedCoverType",
+        r.selected_sheet_count AS "selectedSheetCount",
         COALESCE(array_agg(ra.asset_id) FILTER (WHERE ra.asset_id IS NOT NULL), '{}') AS "referenceAssetIds",
         r.created_at AS "createdAt",
         r.updated_at AS "updatedAt"
@@ -192,6 +213,8 @@ export class PhotobookService {
          r.customer_full_name AS "customerFullName",
          r.customer_email AS "customerEmail",
          r.customer_phone AS "customerPhone",
+         r.selected_cover_type AS "selectedCoverType",
+         r.selected_sheet_count AS "selectedSheetCount",
          r.linked_photobook_project_id::text AS "linkedPhotobookProjectId",
          (
            SELECT jsonb_build_object(
@@ -222,6 +245,7 @@ export class PhotobookService {
       ...row,
       id: Number(row.id),
       referenceAssetIds: (row.referenceAssetIds ?? []).map(Number),
+      selectedSheetCount: row.selectedSheetCount === null || row.selectedSheetCount === undefined ? null : Number(row.selectedSheetCount),
       linkedPhotobookProjectId: row.linkedPhotobookProjectId === null || row.linkedPhotobookProjectId === undefined
         ? null
         : Number(row.linkedPhotobookProjectId),
@@ -247,6 +271,23 @@ export class PhotobookService {
       url: this.fileStorage.getPublicUrl(row.storage_key),
       createdAt: row.created_at,
     }));
+  }
+
+  async downloadCustomReferenceAsset(requestId: number, assetId: number) {
+    const rows: { storage_key: string; original_filename: string | null; mime_type: string | null }[] = await this.dataSource.query(
+      `SELECT a.storage_key, a.original_filename, a.mime_type
+       FROM custom_photobook_request_reference_assets r
+       JOIN assets a ON a.id = r.asset_id
+       WHERE r.request_id = $1 AND r.asset_id = $2`,
+      [requestId, assetId],
+    );
+    const reference = rows[0];
+    if (!reference) throw new NotFoundException('La referencia no pertenece a esta solicitud');
+    return {
+      buffer: await this.fileStorage.download(reference.storage_key),
+      filename: reference.original_filename ?? `referencia-${assetId}.jpg`,
+      mimeType: reference.mime_type ?? 'application/octet-stream',
+    };
   }
 
   async addCustomReferenceAsset(
@@ -438,9 +479,88 @@ export class PhotobookService {
     );
   }
 
+  async uploadCustomCoverArtwork(
+    requestId: number,
+    surface: CustomPhotobookCoverSurface,
+    file: { buffer: Buffer; originalFilename: string; mimeType: string },
+  ) {
+    if (surface !== 'FRONT_COVER' && surface !== 'BACK_COVER') {
+      throw new BadRequestException('Selecciona tapa frontal o contratapa para el diseño propio');
+    }
+    const [request] = await this.dataSource.query(`SELECT id FROM custom_photobook_requests WHERE id = $1`, [requestId]) as { id: string }[];
+    if (!request) throw new NotFoundException('Solicitud de photobook a medida no encontrada');
+
+    let metadata: sharp.Metadata;
+    try {
+      metadata = await sharp(file.buffer).metadata();
+    } catch {
+      throw new BadRequestException('No se pudo leer el archivo. Sube una imagen PNG, JPG o WebP válida.');
+    }
+    const width = metadata.width ?? 0;
+    const height = metadata.height ?? 0;
+    if (!['jpeg', 'png', 'webp'].includes(metadata.format ?? '')) {
+      throw new BadRequestException('El diseño propio debe estar en formato PNG, JPG o WebP.');
+    }
+    if (width !== height || width < MIN_CUSTOM_COVER_ARTWORK_PX || height < MIN_CUSTOM_COVER_ARTWORK_PX) {
+      throw new BadRequestException(
+        `La imagen debe ser cuadrada y medir al menos ${MIN_CUSTOM_COVER_ARTWORK_PX} × ${MIN_CUSTOM_COVER_ARTWORK_PX} px para una tapa de 22 × 22 cm. El archivo recibido mide ${width} × ${height} px.`,
+      );
+    }
+
+    const asset = await this.assetsService.uploadAsset({ ...file, folder: 'uploads/photobooks' });
+    const prompt = 'Archivo final cargado por el administrador; no se utilizó generación con IA.';
+    try {
+      const created = await this.dataSource.transaction(async (manager) => {
+        const rows: { id: string; created_at: Date }[] = await manager.query(
+          `INSERT INTO custom_photobook_request_designs
+            (request_id, surface, asset_id, source_design_id, assembled_prompt, provider)
+           VALUES ($1, $2, $3, NULL, $4, 'manual')
+           RETURNING id, created_at`,
+          [requestId, surface, asset.id, prompt],
+        );
+        const design = rows[0];
+        const replacedRows: { asset_id: string }[] = await manager.query(
+          `DELETE FROM custom_photobook_request_designs
+           WHERE request_id = $1 AND surface = $2 AND id <> $3 AND is_selected = false
+           RETURNING asset_id`,
+          [requestId, surface, design.id],
+        );
+        await manager.query(
+          `UPDATE custom_photobook_requests
+           SET status = CASE WHEN status = 'PENDING_REVIEW' THEN 'DESIGN_IN_PROGRESS'::custom_photobook_request_status ELSE status END,
+               updated_at = now()
+           WHERE id = $1`,
+          [requestId],
+        );
+        return { design, replacedAssetIds: (replacedRows ?? []).map((row) => Number(row.asset_id)) };
+      });
+      await this.deleteUnreferencedCustomCoverAssets(created.replacedAssetIds);
+
+      return {
+        id: Number(created.design.id),
+        surface,
+        sourceDesignId: null,
+        isSelected: false,
+        provider: 'manual',
+        prompt,
+        asset: {
+          id: asset.id,
+          url: asset.url,
+          width: asset.width ?? width,
+          height: asset.height ?? height,
+        },
+        dimensions: { width: asset.width ?? width, height: asset.height ?? height },
+        createdAt: created.design.created_at,
+      };
+    } catch (error) {
+      await this.deleteUnreferencedCustomCoverAssets([asset.id]);
+      throw error;
+    }
+  }
+
   async listCustomCoverProposals(requestId: number) {
-    const rows: { id: string; surface: string; asset_id: string; source_design_id: string | null; is_selected: boolean; assembled_prompt: string; provider: string; created_at: Date; storage_key: string }[] = await this.dataSource.query(
-      `SELECT DISTINCT ON (d.surface) d.id, d.surface, d.asset_id, d.source_design_id, d.is_selected, d.assembled_prompt, d.provider, d.created_at, a.storage_key
+    const rows: { id: string; surface: string; asset_id: string; source_design_id: string | null; is_selected: boolean; assembled_prompt: string; provider: string; created_at: Date; storage_key: string; width: number | null; height: number | null }[] = await this.dataSource.query(
+      `SELECT DISTINCT ON (d.surface) d.id, d.surface, d.asset_id, d.source_design_id, d.is_selected, d.assembled_prompt, d.provider, d.created_at, a.storage_key, a.width, a.height
        FROM custom_photobook_request_designs d
        JOIN assets a ON a.id = d.asset_id
        WHERE d.request_id = $1
@@ -455,13 +575,18 @@ export class PhotobookService {
       prompt: row.assembled_prompt,
       provider: row.provider,
       createdAt: row.created_at,
-      asset: { id: Number(row.asset_id), url: this.fileStorage.getPublicUrl(row.storage_key) },
+      asset: {
+        id: Number(row.asset_id),
+        url: this.fileStorage.getPublicUrl(row.storage_key),
+        width: row.width,
+        height: row.height,
+      },
     }));
   }
 
   async downloadCustomCoverProposal(requestId: number, designId: number) {
-    const rows: { surface: 'FRONT_COVER' | 'BACK_COVER'; storage_key: string }[] = await this.dataSource.query(
-      `SELECT d.surface, a.storage_key
+    const rows: { surface: 'FRONT_COVER' | 'BACK_COVER'; storage_key: string; original_filename: string | null; mime_type: string | null }[] = await this.dataSource.query(
+      `SELECT d.surface, a.storage_key, a.original_filename, a.mime_type
        FROM custom_photobook_request_designs d
        JOIN assets a ON a.id = d.asset_id
        WHERE d.id = $1 AND d.request_id = $2`,
@@ -471,7 +596,8 @@ export class PhotobookService {
     if (!design) throw new NotFoundException('La propuesta no pertenece a esta solicitud');
     return {
       buffer: await this.fileStorage.download(design.storage_key),
-      filename: `${design.surface === 'FRONT_COVER' ? 'tapa-frontal' : 'contratapa'}-${designId}.png`,
+      filename: design.original_filename ?? `${design.surface === 'FRONT_COVER' ? 'tapa-frontal' : 'contratapa'}-${designId}.png`,
+      mimeType: design.mime_type ?? 'image/png',
     };
   }
 
@@ -512,10 +638,11 @@ export class PhotobookService {
 
   async selectCustomCoverProposal(requestId: number, designId: number) {
     return this.dataSource.transaction(async (manager) => {
-      const designs: { id: string; surface: 'FRONT_COVER' | 'BACK_COVER'; asset_id: string; source_design_id: string | null }[] = await manager.query(
-        `SELECT id, surface, asset_id, source_design_id
+      const designs: { id: string; surface: 'FRONT_COVER' | 'BACK_COVER'; asset_id: string; source_design_id: string | null; provider: string }[] = await manager.query(
+        `SELECT id, surface, asset_id, source_design_id, provider
          FROM custom_photobook_request_designs
-         WHERE id = $1 AND request_id = $2 AND surface IN ('FRONT_COVER', 'BACK_COVER')`,
+         WHERE id = $1 AND request_id = $2 AND surface IN ('FRONT_COVER', 'BACK_COVER')
+         FOR UPDATE`,
         [designId, requestId],
       );
       const design = designs[0];
@@ -523,11 +650,24 @@ export class PhotobookService {
       if (design.surface === 'BACK_COVER') {
         const fronts: { id: string }[] = await manager.query(
           `SELECT id FROM custom_photobook_request_designs
-           WHERE request_id = $1 AND surface = 'FRONT_COVER' AND is_selected = true`,
+           WHERE request_id = $1 AND surface = 'FRONT_COVER' AND is_selected = true
+           FOR UPDATE`,
           [requestId],
         );
-        if (!fronts[0] || design.source_design_id !== fronts[0].id) {
-          throw new BadRequestException('La contratapa debe provenir de la tapa frontal seleccionada actualmente');
+        if (!fronts[0]) {
+          throw new BadRequestException('Selecciona primero la tapa frontal para poder elegir la contratapa');
+        }
+        if (design.source_design_id !== fronts[0].id) {
+          if (design.provider === 'manual' && design.source_design_id === null) {
+            await manager.query(
+              `UPDATE custom_photobook_request_designs
+               SET source_design_id = $1
+               WHERE id = $2 AND request_id = $3 AND source_design_id IS NULL`,
+              [fronts[0].id, designId, requestId],
+            );
+          } else {
+            throw new BadRequestException('La contratapa debe provenir de la tapa frontal seleccionada actualmente');
+          }
         }
       }
 
@@ -679,8 +819,8 @@ export class PhotobookService {
     }
 
     const result = await this.dataSource.transaction(async (manager) => {
-      const rows: { id: string; linked_photobook_project_id: string | null; customer_full_name: string; customer_email: string; customer_phone: string }[] = await manager.query(
-        `SELECT id, linked_photobook_project_id, customer_full_name, customer_email, customer_phone
+      const rows: { id: string; linked_photobook_project_id: string | null; customer_full_name: string; customer_email: string; customer_phone: string; selected_cover_type: string | null; selected_sheet_count: number | string | null }[] = await manager.query(
+        `SELECT id, linked_photobook_project_id, customer_full_name, customer_email, customer_phone, selected_cover_type, selected_sheet_count
          FROM custom_photobook_requests
          WHERE id = $1
            AND status IN ('AWAITING_CUSTOMER', 'EDITOR_READY')
@@ -706,9 +846,33 @@ export class PhotobookService {
 
         // The request row is locked above, so only one approval can materialize a draft.
         // Reuse the standard draft workflow instead of duplicating its persistence defaults.
+        const selectedSheetCount = Number(request.selected_sheet_count);
+        const selectedCoverType = request.selected_cover_type;
+        const allowedSheetCounts = selectedCoverType === 'TAPA_DELGADA' ? [15, 20, 25, 35] : [15, 20, 25, 35, 50];
+        const hasValidFormat = typeof selectedCoverType === 'string'
+          && isValidPhotobookCoverType(selectedCoverType)
+          && Number.isInteger(selectedSheetCount)
+          && allowedSheetCounts.includes(selectedSheetCount);
+        const customFormatState = hasValidFormat ? {
+          editorMode: 'CUSTOM_FULL_EDITOR',
+          formatConfigured: true,
+          selectedProduct: Number(productId),
+          coverType: selectedCoverType,
+          sheetCount: selectedSheetCount,
+          wantsRush: false,
+          step: 1,
+          pages: Array.from({ length: selectedSheetCount * 2 }, (_, index) => ({
+            pageNumber: index + 1,
+            layoutKey: 'FULL_1',
+            slots: [null],
+          })),
+          photos: [],
+          form: { name: '', email: '', phone: '', deliveryAddress: '', deliveryDistrict: '', deliveryCity: '', deliveryRegion: '', deliveryDepartment: '' },
+        } : {};
         const draft = await this.createDraft(Number(productId), null, {
           source: 'custom_photobook_request',
           customPhotobookRequestId: link.customPhotobookRequestId,
+          ...customFormatState,
         });
         projectId = draft.id;
       }

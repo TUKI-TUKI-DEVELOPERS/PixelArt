@@ -130,7 +130,7 @@ export default function CustomPhotobookRequestDetailPage({ params }: { params: P
             </section>
           )}
 
-          <CustomPhotobookAiProposalPanel coverMode={request.coverMode} coverTitle={request.coverTitle} requestId={request.id} />
+          <CustomPhotobookAiProposalPanel coverMode={request.coverMode} requestId={request.id} />
         </main>
 
         <aside className={styles.sidebar}>

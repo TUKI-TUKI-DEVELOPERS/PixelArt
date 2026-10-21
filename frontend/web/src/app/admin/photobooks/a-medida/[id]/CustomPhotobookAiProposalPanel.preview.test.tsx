@@ -56,6 +56,7 @@ describe("CustomPhotobookAiProposalPanel reference preview", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Tapa frontal" }));
 
     expect(await screen.findByRole("button", { name: "Regenerar desde la última" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Descargar" })).toHaveProperty("href", "http://localhost:3000/admin-api/photobook/custom-requests/41/designs/14/download");
@@ -70,7 +71,7 @@ describe("CustomPhotobookAiProposalPanel reference preview", () => {
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByAltText("Vista ampliada de propuesta de tapa frontal 14")).toBeTruthy();
     expect(within(dialog).getByText("Vista completa para revisión")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Usar esta tapa frontal" })).toHaveProperty("disabled", false);
+    expect(screen.getByRole("button", { name: "Usar como tapa frontal" })).toHaveProperty("disabled", false);
 
     fireEvent.click(within(dialog).getByRole("button", { name: "Cerrar vista ampliada de la propuesta" }));
     expect(dialog.hasAttribute("open")).toBe(false);

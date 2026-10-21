@@ -4,8 +4,18 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { UploadedPhoto, usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { tokens } from "@/lib/design-tokens";
+import { THICK_COVER_EXAMPLES, THIN_COVER_EXAMPLES } from "@/components/photobook/PhotobookFormatSelector";
+import type { PhotobookCoverType } from "@/components/photobook/PhotobookFormatSelector";
 
 const API = "";
+
+type SelectedCoverType = PhotobookCoverType | "";
+
+function getCustomSheetOptions(coverType: SelectedCoverType) {
+  if (coverType === "TAPA_GRUESA") return THICK_COVER_EXAMPLES;
+  if (coverType === "TAPA_DELGADA") return THIN_COVER_EXAMPLES.filter((option) => option.sheets !== 50);
+  return [];
+}
 
 type Surface = "FRONT_COVER" | "BACK_COVER";
 type Props = { surface: Surface; title: string; description: string; photo: UploadedPhoto | null; uploading: boolean; onUpload: (files: FileList | null) => void; onRemove: () => void };
@@ -54,6 +64,8 @@ export default function CustomPhotobookRequestClient() {
   const [frontCover, setFrontCover] = useState<UploadedPhoto | null>(null);
   const [backCover, setBackCover] = useState<UploadedPhoto | null>(null);
   const [coverTitle, setCoverTitle] = useState("");
+  const [selectedCoverType, setSelectedCoverType] = useState<SelectedCoverType>("");
+  const [selectedSheetCount, setSelectedSheetCount] = useState<number | "">("");
   const [customerFullName, setCustomerFullName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -100,6 +112,7 @@ export default function CustomPhotobookRequestClient() {
     setSubmitError(null);
     if (!frontCover || !backCover) { setSubmitError("Adjunta una imagen para la tapa y otra para la contratapa."); return; }
     if (frontCover.id === backCover.id) { setSubmitError("La tapa y la contratapa necesitan imágenes distintas."); return; }
+    if (!selectedCoverType || selectedSheetCount === "") { setSubmitError("Selecciona el tipo de tapa y la cantidad de hojas."); return; }
     if (!coverTitle.trim()) { setSubmitError("Escribe el título que quieres para la tapa principal."); return; }
     if (!customerFullName.trim() || !isValidEmail(customerEmail) || !isValidPhone(customerPhone)) {
       setContactValidationAttempted(true);
@@ -116,6 +129,8 @@ export default function CustomPhotobookRequestClient() {
           requestedTheme: "Diseño proporcionado por el cliente",
           coverTitle: coverTitle.trim(),
           coverMode: "CUSTOMER_ARTWORK",
+          coverType: selectedCoverType,
+          sheetCount: selectedSheetCount,
           brief: "El cliente proporciona la tapa frontal y la contratapa. Conservar el contenido visual; adaptar únicamente lo necesario para preparar la impresión.",
           referenceSlots: [
             { assetId: frontCover.id, surface: "FRONT_COVER", slotIndex: 1 },
@@ -151,6 +166,7 @@ export default function CustomPhotobookRequestClient() {
   const titleInvalid = coverTitle.length > 0 && !coverTitle.trim();
   const emailInvalid = (customerEmail.length > 0 || contactValidationAttempted) && !isValidEmail(customerEmail);
   const phoneInvalid = (customerPhone.length > 0 || contactValidationAttempted) && !isValidPhone(customerPhone);
+  const selectedSheetOption = getCustomSheetOptions(selectedCoverType).find((option) => option.sheets === selectedSheetCount);
 
   return (
     <main className="custom-photobook-page">
@@ -160,9 +176,9 @@ export default function CustomPhotobookRequestClient() {
         <div className="custom-request-heading">
           <span className="custom-request-eyebrow">PHOTOBOOK A MEDIDA · TAPA PERSONALIZADA</span>
           <h1>Tu diseño, listo para convertirse en photobook.</h1>
-          <p>Envíanos la tapa, la contratapa y el título. Coordinaremos el precio contigo por WhatsApp antes de continuar.</p>
+          <p>Envíanos la tapa, la contratapa y el título. El recargo por personalizarlas se acuerda por separado.</p>
         </div>
-        <div className="custom-request-note"><span aria-hidden="true">i</span><p>Conservaremos tus archivos originales. El formato de impresión y el número de hojas se definen después.</p></div>
+        <div className="custom-request-note"><span aria-hidden="true">i</span><p>Conservaremos tus archivos originales. El precio base del formato se muestra abajo; el recargo por personalizar ambas tapas se acuerda por separado.</p></div>
       </header>
 
       <form className="custom-request-card" onSubmit={submit} noValidate>
@@ -179,8 +195,37 @@ export default function CustomPhotobookRequestClient() {
 
         <div className="custom-request-divider" />
         <div className="custom-request-section-head">
-          <div><span className="custom-request-eyebrow">02 / TÍTULO DE PORTADA</span><h2>¿Qué título imaginas?</h2></div>
+          <div><span className="custom-request-eyebrow">02 / FORMATO DE IMPRESIÓN</span><h2>Elige la tapa y cantidad de hojas</h2></div>
+          <p>El precio base se calcula según estas dos opciones.</p>
         </div>
+        <div className="custom-format-grid">
+          <label className="custom-request-field">
+            <span>Tipo físico de tapa <b aria-hidden="true">*</b></span>
+            <select aria-label="Tipo físico de tapa" required value={selectedCoverType} onChange={(event) => {
+              const nextCoverType = event.target.value as SelectedCoverType;
+              setSelectedCoverType(nextCoverType);
+              setSelectedSheetCount((current) => getCustomSheetOptions(nextCoverType).some((option) => option.sheets === current) ? current : "");
+            }}>
+              <option value="">Selecciona el tipo de tapa</option>
+              <option value="TAPA_DELGADA">Tapa delgada · Cartulina estándar</option>
+              <option value="TAPA_GRUESA">Tapa gruesa · Tapa dura</option>
+            </select>
+            <small>La personalización de ambas caras se cotiza aparte.</small>
+          </label>
+          <label className="custom-request-field">
+            <span>Cantidad de hojas <b aria-hidden="true">*</b></span>
+            <select aria-label="Cantidad de hojas" required disabled={!selectedCoverType} value={selectedSheetCount === "" ? "" : String(selectedSheetCount)} onChange={(event) => setSelectedSheetCount(event.target.value ? Number(event.target.value) : "")}>
+              <option value="">{selectedCoverType ? "Selecciona una cantidad" : "Selecciona primero la tapa"}</option>
+              {getCustomSheetOptions(selectedCoverType).map((option) => <option key={option.sheets} value={option.sheets}>{option.sheets} hojas · {option.sheets * 2} páginas · {option.price}</option>)}
+            </select>
+            <small>El mínimo es 15 hojas. La tapa delgada admite hasta 35; la gruesa, hasta 50.</small>
+          </label>
+        </div>
+        <div className="custom-format-price" aria-live="polite">
+          <span>Precio base del formato seleccionado</span>
+          <strong>{selectedSheetOption?.price ?? "Selecciona la tapa y las hojas"}</strong>
+        </div>
+        <p className="custom-format-note">Este precio corresponde al photobook con el tipo de tapa y la cantidad de hojas elegidas. El recargo por personalizar la tapa y contratapa se coordina por separado y no está incluido.</p>
         <label className="custom-request-field">
           <span>Título que imaginas para la tapa <b aria-hidden="true">*</b></span>
           <input value={coverTitle} onChange={(event) => setCoverTitle(event.target.value)} maxLength={160} required aria-invalid={titleInvalid || undefined} placeholder="Ej.: Nuestra historia" />
@@ -189,8 +234,8 @@ export default function CustomPhotobookRequestClient() {
 
         <div className="custom-request-divider" />
         <div className="custom-request-section-head">
-          <div><span className="custom-request-eyebrow">03 / CONTACTO</span><h2>¿Cómo te encontramos?</h2></div>
-          <p>Te escribiremos para revisar el diseño y acordar el precio.</p>
+          <div><span className="custom-request-eyebrow">04 / CONTACTO</span><h2>¿Cómo te encontramos?</h2></div>
+          <p>Te escribiremos para revisar el diseño y acordar el recargo por las tapas personalizadas.</p>
         </div>
         <div className="custom-request-contact-grid">
           <label className="custom-request-field"><span>Nombre completo <b aria-hidden="true">*</b></span><input autoComplete="name" value={customerFullName} onChange={(event) => setCustomerFullName(event.target.value)} maxLength={120} required /></label>
@@ -250,9 +295,15 @@ const pageStyles = `
   .custom-request-field { display: flex; min-width: 0; flex-direction: column; gap: 8px; }
   .custom-request-field > span { color: #334b53; font-size: 13px; font-weight: 650; }
   .custom-request-field b { color: #b64a4a; }
-  .custom-request-field input { width: 100%; min-height: 45px; box-sizing: border-box; padding: 10px 12px; border: 1px solid #d5dfe0; border-radius: 7px; background: #fff; color: #1d323a; font: inherit; font-size: 14px; }
-  .custom-request-field input:focus { outline: 2px solid rgba(45, 143, 213, .25); border-color: #2d8fd5; }
-  .custom-request-field input[aria-invalid="true"] { border-color: #bd6161; }
+  .custom-format-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .custom-request-field input, .custom-request-field select { width: 100%; min-height: 45px; box-sizing: border-box; padding: 10px 12px; border: 1px solid #d5dfe0; border-radius: 7px; background: #fff; color: #1d323a; font: inherit; font-size: 14px; }
+  .custom-request-field input:focus, .custom-request-field select:focus { outline: 2px solid rgba(45, 143, 213, .25); border-color: #2d8fd5; }
+  .custom-request-field input[aria-invalid="true"], .custom-request-field select[aria-invalid="true"] { border-color: #bd6161; }
+  .custom-request-field select:disabled { cursor: not-allowed; background: #f5f7f7; color: #75858b; }
+  .custom-format-price { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 15px 17px; border: 1px solid #dbe6e7; border-radius: 9px; background: #edf3f3; color: #334b53; }
+  .custom-format-price span { font-size: 13px; font-weight: 650; }
+  .custom-format-price strong { color: #176fae; font-size: 19px; font-weight: 750; text-align: right; }
+  .custom-format-note { margin: 10px 0 0; color: #66777d; font-size: 12px; line-height: 1.6; }
   .custom-request-field > small { color: #7e8d91; font-size: 11px; line-height: 1.5; }
   .custom-request-field > .custom-request-inline-error { color: #a03e3e; font-size: 12px; }
   .custom-request-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
@@ -267,5 +318,5 @@ const pageStyles = `
   .custom-request-success-mark { display: grid; width: 50px; height: 50px; place-items: center; margin: 24px auto 12px; border-radius: 50%; background: #2d8fd5; color: #fff; font-size: 24px; }
   .custom-request-success h1 { margin: 0 0 10px; font-family: Georgia, serif; font-size: clamp(28px, 4vw, 40px); font-weight: 500; }
   .custom-request-success > p { max-width: 540px; margin: 0 auto 24px; color: #68797e; font-size: 14px; line-height: 1.7; }
-  @media (max-width: 700px) { .custom-photobook-page { padding: 0 14px 48px; } .custom-request-heading { padding-top: 34px; } .custom-request-section-head { display: block; } .custom-request-section-head > p { margin-top: 8px; } .custom-cover-grid, .custom-request-contact-grid { grid-template-columns: 1fr; } .custom-request-email { grid-column: auto; max-width: none; } .custom-request-footer { align-items: stretch; flex-direction: column; } .custom-request-submit { width: 100%; box-sizing: border-box; } }
+  @media (max-width: 700px) { .custom-photobook-page { padding: 0 14px 48px; } .custom-request-heading { padding-top: 34px; } .custom-request-section-head { display: block; } .custom-request-section-head > p { margin-top: 8px; } .custom-cover-grid, .custom-request-contact-grid, .custom-format-grid { grid-template-columns: 1fr; } .custom-request-email { grid-column: auto; max-width: none; } .custom-request-footer { align-items: stretch; flex-direction: column; } .custom-request-submit { width: 100%; box-sizing: border-box; } }
 `;

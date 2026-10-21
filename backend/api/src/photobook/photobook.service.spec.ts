@@ -1,4 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
+import sharp from 'sharp';
 import { PhotobookService } from './photobook.service';
 
 const requestData = {
@@ -97,19 +98,46 @@ describe('PhotobookService.createCustomRequest', () => {
         h.manager.query
           .mockResolvedValueOnce([{ id: '7' }, { id: '9' }])
           .mockResolvedValueOnce([{ id: '41' }]);
-        h.dataSource.query.mockResolvedValue([{ ...persistedRow, coverMode: 'CUSTOMER_ARTWORK', referenceAssetIds: ['7', '9'] }]);
+        h.dataSource.query.mockResolvedValue([{ ...persistedRow, coverMode: 'CUSTOMER_ARTWORK', selectedCoverType: 'TAPA_GRUESA', selectedSheetCount: 20, referenceAssetIds: ['7', '9'] }]);
 
         const result = await h.service.createCustomRequest({
           ...requestData,
           coverMode: 'CUSTOMER_ARTWORK',
+          coverType: 'TAPA_GRUESA',
+          sheetCount: 20,
           referenceSlots: [
             { assetId: 7, surface: 'FRONT_COVER', slotIndex: 1 },
             { assetId: 9, surface: 'BACK_COVER', slotIndex: 1 },
           ],
         });
 
-        expect(result.referenceAssetIds).toEqual([7, 9]);
+        expect(result).toMatchObject({ referenceAssetIds: [7, 9], selectedCoverType: 'TAPA_GRUESA', selectedSheetCount: 20 });
+        const insertCall = h.manager.query.mock.calls.find(([query]) => String(query).includes('INSERT INTO custom_photobook_requests'));
+        expect(String(insertCall?.[0])).toContain('selected_cover_type');
+        expect(insertCall?.[1]).toEqual(expect.arrayContaining(['TAPA_GRUESA', 20]));
         expect(h.manager.query).toHaveBeenCalledTimes(6);
+      });
+
+      it('requires a format selection for customer-provided cover artwork', async () => {
+        const h = createHarness();
+
+        await expect(h.service.createCustomRequest({
+          ...requestData,
+          coverMode: 'CUSTOMER_ARTWORK',
+        })).rejects.toBeInstanceOf(BadRequestException);
+        expect(h.dataSource.transaction).not.toHaveBeenCalled();
+      });
+
+      it('rejects a sheet count that is unavailable for the selected cover type', async () => {
+        const h = createHarness();
+
+        await expect(h.service.createCustomRequest({
+          ...requestData,
+          coverMode: 'CUSTOMER_ARTWORK',
+          coverType: 'TAPA_DELGADA',
+          sheetCount: 50,
+        })).rejects.toBeInstanceOf(BadRequestException);
+        expect(h.dataSource.transaction).not.toHaveBeenCalled();
       });
 
       it('rejects a reference asset that does not exist before creating the request', async () => {
@@ -351,10 +379,43 @@ describe('PhotobookService.createCustomRequest', () => {
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining("link_type = 'PHOTOBOOK_COVER_APPROVAL'"), [41]);
   });
 
+  it('requires a selected front before selecting a manual back cover', async () => {
+    const h = createHarness();
+    h.manager.query
+      .mockResolvedValueOnce([{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: null, provider: 'manual' }])
+      .mockResolvedValueOnce([]);
+
+    await expect(h.service.selectCustomCoverProposal(41, 15)).rejects.toThrow(
+      'Selecciona primero la tapa frontal para poder elegir la contratapa',
+    );
+  });
+
+  it('binds a manual back cover to the currently selected front when selecting it', async () => {
+    const h = createHarness();
+    h.manager.query
+      .mockResolvedValueOnce([{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: null, provider: 'manual' }])
+      .mockResolvedValueOnce([{ id: '14' }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: '15' }]);
+
+    await expect(h.service.selectCustomCoverProposal(41, 15)).resolves.toEqual({
+      id: 15,
+      surface: 'BACK_COVER',
+      isSelected: true,
+    });
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining('SET source_design_id = $1'),
+      ['14', 15, 41],
+    );
+  });
+
   it('rejects a stale back proposal that was generated from another front cover', async () => {
     const h = createHarness();
     h.manager.query
-      .mockResolvedValueOnce([{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: '14' }])
+      .mockResolvedValueOnce([{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: '14', provider: 'openai' }])
       .mockResolvedValueOnce([{ id: '16' }]);
 
     await expect(h.service.selectCustomCoverProposal(41, 15)).rejects.toBeInstanceOf(BadRequestException);
@@ -417,7 +478,7 @@ describe('PhotobookService.createCustomRequest', () => {
         back_storage_key: 'photobooks/41/back.png',
       }]);
     h.manager.query
-      .mockResolvedValueOnce([{ id: '41', linked_photobook_project_id: null, customer_full_name: 'Ana Cliente', customer_email: 'ana@example.com', customer_phone: '+51999111222' }])
+      .mockResolvedValueOnce([{ id: '41', linked_photobook_project_id: null, customer_full_name: 'Ana Cliente', customer_email: 'ana@example.com', customer_phone: '+51999111222', selected_cover_type: 'TAPA_GRUESA', selected_sheet_count: 20 }])
       .mockResolvedValueOnce([{ id: '1' }])
       .mockResolvedValueOnce([]);
     h.repo.getProduct.mockResolvedValue({ id: 1 });
@@ -431,11 +492,21 @@ describe('PhotobookService.createCustomRequest', () => {
     });
     await expect(h.service.approveCustomCover('cover-token')).resolves.toEqual({ status: 'EDITOR_READY', approved: true, linkedPhotobookProjectId: 77, orderId: 99 });
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('FOR UPDATE'), [41]);
-    expect(h.repo.createDraft).toHaveBeenCalledWith({
+    const draftInput = h.repo.createDraft.mock.calls[0][0];
+    expect(draftInput).toMatchObject({
       photobookProductId: 1,
       photobookThemeId: null,
-      state: { source: 'custom_photobook_request', customPhotobookRequestId: 41 },
+      state: {
+        source: 'custom_photobook_request',
+        customPhotobookRequestId: 41,
+        editorMode: 'CUSTOM_FULL_EDITOR',
+        formatConfigured: true,
+        coverType: 'TAPA_GRUESA',
+        sheetCount: 20,
+      },
     });
+    expect(draftInput.state.pages).toHaveLength(40);
+    expect(draftInput.state.pages[0]).toEqual({ pageNumber: 1, layoutKey: 'FULL_1', slots: [null] });
     expect(h.publicLinksService.revoke).toHaveBeenCalledWith(8);
     expect(h.ordersService.ensurePhotobookConfigurationOrder).toHaveBeenCalledWith({
       photobookProjectId: 77,
@@ -623,6 +694,7 @@ describe('PhotobookService.createCustomRequest', () => {
     await expect(h.service.downloadCustomCoverProposal(41, 14)).resolves.toEqual({
       buffer: Buffer.from('png'),
       filename: 'tapa-frontal-14.png',
+      mimeType: 'image/png',
     });
   });
 
@@ -790,5 +862,67 @@ describe('PhotobookService.createProject dimensions', () => {
 
     await expect(h.service.createProject({ ...baseData, customWidthCm: 30 } as any)).rejects.toBeInstanceOf(BadRequestException);
     expect(h.repo.createProject).not.toHaveBeenCalled();
+  });
+});
+
+describe('PhotobookService.uploadCustomCoverArtwork', () => {
+  it('validates print dimensions and stores manual artwork without invoking image generation', async () => {
+    const h = createHarness();
+    const image = await sharp({
+      create: { width: 2500, height: 2500, channels: 3, background: '#804187' },
+    }).png().toBuffer();
+    const createdAt = new Date('2026-10-21T12:00:00.000Z');
+    h.dataSource.query.mockResolvedValueOnce([{ id: '41' }]);
+    h.assetsService.uploadAsset.mockResolvedValue({
+      id: 91,
+      storageKey: 'uploads/photobooks/final-cover.png',
+      url: 'https://assets.test/final-cover.png',
+      width: 2500,
+      height: 2500,
+    });
+    h.manager.query
+      .mockResolvedValueOnce([{ id: '14', created_at: createdAt }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+
+    const result = await h.service.uploadCustomCoverArtwork(41, 'FRONT_COVER', {
+      buffer: image,
+      originalFilename: 'tapa-final.png',
+      mimeType: 'image/png',
+    });
+
+    expect(h.assetsService.uploadAsset).toHaveBeenCalledWith(expect.objectContaining({
+      originalFilename: 'tapa-final.png',
+      mimeType: 'image/png',
+      folder: 'uploads/photobooks',
+    }));
+    expect(result).toMatchObject({
+      id: 14,
+      surface: 'FRONT_COVER',
+      isSelected: false,
+      provider: 'manual',
+      dimensions: { width: 2500, height: 2500 },
+      asset: { id: 91, url: 'https://assets.test/final-cover.png' },
+    });
+    expect(h.imageGeneration.generateWithReferences).not.toHaveBeenCalled();
+  });
+});
+
+describe('PhotobookService.downloadCustomReferenceAsset', () => {
+  it('downloads the original customer reference and preserves its file type', async () => {
+    const h = createHarness();
+    h.dataSource.query.mockResolvedValueOnce([{
+      storage_key: 'uploads/photobooks/customer-cover.jpg',
+      original_filename: 'tapa-cliente.jpg',
+      mime_type: 'image/jpeg',
+    }]);
+    h.fileStorage.download.mockResolvedValue(Buffer.from('customer-artwork'));
+
+    await expect(h.service.downloadCustomReferenceAsset(41, 7)).resolves.toEqual({
+      buffer: Buffer.from('customer-artwork'),
+      filename: 'tapa-cliente.jpg',
+      mimeType: 'image/jpeg',
+    });
+    expect(h.fileStorage.download).toHaveBeenCalledWith('uploads/photobooks/customer-cover.jpg');
   });
 });

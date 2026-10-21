@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { CustomPhotobookAiProposalPanel } from "./CustomPhotobookAiProposalPanel";
 
 const activeReferences = [
@@ -10,6 +10,10 @@ const activeReferences = [
 
 function response(data: unknown) {
   return new Response(JSON.stringify(data), { status: 200 });
+}
+
+async function selectWorkflowStep(label: string) {
+  fireEvent.click(await screen.findByRole("button", { name: label }));
 }
 
 describe("CustomPhotobookAiProposalPanel", () => {
@@ -34,9 +38,11 @@ describe("CustomPhotobookAiProposalPanel", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    expect(await screen.findByText("1/5 activas")).toBeTruthy();
+    await selectWorkflowStep("Tapa frontal");
+    expect(screen.getByAltText("Referencia foto-1.jpg")).toHaveProperty("src", "https://assets.test/1.jpg");
     const generateButton = await screen.findByText("Generar tapa frontal");
     expect(generateButton).toHaveProperty("disabled", true);
-    expect(screen.getByText("1/5 activas")).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText(/Dirección creativa/i), { target: { value: "Retrato principal a la izquierda, luz azul y título discreto." } });
     expect(screen.getByText("Generar tapa frontal")).toHaveProperty("disabled", false);
@@ -50,6 +56,48 @@ describe("CustomPhotobookAiProposalPanel", () => {
       }),
     ));
     expect(await screen.findByAltText("Propuesta de tapa frontal 14")).toBeTruthy();
+  });
+
+  it("keeps reference thumbnails visible and sends the contratapa instructions to AI", async () => {
+    const selectedFront = {
+      id: 14,
+      surface: "FRONT_COVER",
+      sourceDesignId: null,
+      isSelected: true,
+      provider: "openai",
+      createdAt: "2026-09-28T13:00:00.000Z",
+      asset: { id: 91, url: "https://assets.test/front.png" },
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([selectedFront]))
+      .mockResolvedValueOnce(response([activeReferences[0]]))
+      .mockResolvedValueOnce(response({
+        id: 15,
+        surface: "BACK_COVER",
+        sourceDesignId: 14,
+        isSelected: false,
+        provider: "openai",
+        createdAt: "2026-09-28T13:05:00.000Z",
+        asset: { id: 92, url: "https://assets.test/back.png" },
+      }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Contratapa");
+    expect(screen.getByAltText("Referencia foto-1.jpg")).toHaveProperty("src", "https://assets.test/1.jpg");
+
+    const prompt = "Continúa el paisaje de la tapa y deja espacio para una dedicatoria.";
+    fireEvent.change(screen.getByLabelText(/Indicaciones para la IA de contratapa/i), { target: { value: prompt } });
+    fireEvent.click(screen.getByRole("button", { name: "Generar contratapa con IA" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/generate",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ surface: "BACK_COVER", creativeDirection: prompt }),
+      }),
+    ));
+    expect(await screen.findByAltText("Propuesta de contratapa 15")).toBeTruthy();
   });
 
   it("shows compact photo slots and lets the admin add a photo received outside the public form", async () => {
@@ -96,90 +144,12 @@ describe("CustomPhotobookAiProposalPanel", () => {
     expect(screen.getByText("Tapa · foto 2")).toBeTruthy();
     expect(screen.getByText("Contratapa · foto 1")).toBeTruthy();
     expect(screen.getByText("Contratapa · foto 2")).toBeTruthy();
-    expect(screen.getByText("Generar contratapa")).toHaveProperty("disabled", true);
-    expect(screen.getByText("Selecciona al menos una de las dos fotos asignadas a la contratapa.")).toBeTruthy();
+    await selectWorkflowStep("Contratapa");
+    expect(screen.getByText("Generar contratapa con IA")).toHaveProperty("disabled", true);
+    expect(screen.getByText("Selecciona una foto de referencia para habilitar la IA, o carga directamente el arte final.")).toBeTruthy();
   });
 
-  it("pins each customer image to its surface and exposes an optional AI direction for the front", async () => {
-    const assignedReferences = [
-      { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 },
-      { ...activeReferences[1], surface: "BACK_COVER", slotIndex: 1 },
-    ];
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(response([]))
-      .mockResolvedValueOnce(response(assignedReferences))
-      .mockResolvedValueOnce(response({
-        id: 14,
-        surface: "FRONT_COVER",
-        sourceDesignId: null,
-        isSelected: false,
-        provider: "openai",
-        createdAt: "2026-09-28T13:00:00.000Z",
-        asset: { id: 91, url: "https://assets.test/front.png" },
-      }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<CustomPhotobookAiProposalPanel coverMode="CUSTOMER_ARTWORK" coverTitle="Nuestra historia" requestId={41} />);
-
-    expect(await screen.findByText("1 tapa · 1 contratapa")).toBeTruthy();
-    expect(screen.getByText("Imagen fija · tapa principal")).toBeTruthy();
-    expect(screen.getByText("Imagen fija · contratapa")).toBeTruthy();
-    expect(screen.queryByText("Seleccionada para IA")).toBeNull();
-    expect(screen.getByText("Generar tapa frontal")).toHaveProperty("disabled", false);
-
-    fireEvent.change(screen.getByLabelText(/Instrucciones para adaptar el arte/i), {
-      target: { value: "Conserva el arte y extiende el fondo hasta el formato cuadrado." },
-    });
-    fireEvent.click(screen.getByText("Generar tapa frontal"));
-
-    await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
-      "/admin-api/photobook/custom-requests/41/designs/generate",
-      expect.objectContaining({
-        method: "POST",
-        body: JSON.stringify({ surface: "FRONT_COVER", creativeDirection: "Conserva el arte y extiende el fondo hasta el formato cuadrado." }),
-      }),
-    ));
-    expect(await screen.findByText("Nueva propuesta desde el arte original")).toBeTruthy();
-  });
-
-  it("sends the separate optional back-cover direction only with BACK_COVER generation", async () => {
-    const assignedReferences = [
-      { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 },
-      { ...activeReferences[1], surface: "BACK_COVER", slotIndex: 1 },
-    ];
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(response([
-        { id: 14, surface: "FRONT_COVER", sourceDesignId: null, isSelected: true, provider: "openai", createdAt: "2026-09-28T13:00:00.000Z", asset: { id: 91, url: "https://assets.test/front.png" } },
-      ]))
-      .mockResolvedValueOnce(response(assignedReferences))
-      .mockResolvedValueOnce(response({
-        id: 15,
-        surface: "BACK_COVER",
-        sourceDesignId: 14,
-        isSelected: false,
-        provider: "openai",
-        createdAt: "2026-09-28T13:05:00.000Z",
-        asset: { id: 92, url: "https://assets.test/back.png" },
-      }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<CustomPhotobookAiProposalPanel coverMode="CUSTOMER_ARTWORK" requestId={41} />);
-
-    const backDirection = await screen.findByLabelText(/Instrucciones para adaptar la contratapa/i);
-    expect(backDirection).toHaveProperty("disabled", false);
-    fireEvent.change(backDirection, { target: { value: "Mantén continuidad visual con la tapa seleccionada." } });
-    fireEvent.click(screen.getByText("Generar contratapa"));
-
-    await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
-      "/admin-api/photobook/custom-requests/41/designs/generate",
-      expect.objectContaining({
-        method: "POST",
-        body: JSON.stringify({ surface: "BACK_COVER", creativeDirection: "Mantén continuidad visual con la tapa seleccionada." }),
-      }),
-    ));
-  });
-
-  it("requires selected front and back proposals before sending the private approval link", async () => {
+  it("shows both selected covers in the final review before sending the private approval link", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response([
         { id: 14, surface: "FRONT_COVER", sourceDesignId: null, isSelected: true, provider: "openai", createdAt: "2026-09-28T13:00:00.000Z", asset: { id: 91, url: "https://assets.test/front.png" } },
@@ -190,13 +160,132 @@ describe("CustomPhotobookAiProposalPanel", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Revisión y envío");
+    expect(screen.getByAltText("Vista previa de tapa frontal seleccionada")).toBeTruthy();
+    expect(screen.getByAltText("Vista previa de contratapa seleccionada")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Elegir tapa|Cambiar tapa|Usar como/ })).toBeNull();
+
     const sendButton = await screen.findByText("Enviar aprobación");
     expect(sendButton).toHaveProperty("disabled", false);
-    fireEvent.click(sendButton);
+    fireEvent.click(screen.getByRole("button", { name: "Volver a contratapa" }));
+    expect(screen.getByRole("heading", { name: "Prepara la contratapa" })).toBeTruthy();
+    await selectWorkflowStep("Revisión y envío");
+    fireEvent.click(screen.getByText("Enviar aprobación"));
 
     await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
       "/admin-api/photobook/custom-requests/41/cover-approval/send",
       { method: "POST" },
     ));
+  });
+
+  it("lets the admin download the customer's original cover reference", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([activeReferences[0]]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+
+    const downloadLink = await screen.findByRole("link", { name: "Descargar original foto-1.jpg" });
+    expect(downloadLink.getAttribute("href")).toBe("/admin-api/photobook/custom-requests/41/references/7/download");
+  });
+
+  it("accepts a print-ready manual cover without requiring references or calling AI", async () => {
+    const manualDesign = {
+      id: 14,
+      surface: "FRONT_COVER",
+      sourceDesignId: null,
+      isSelected: false,
+      provider: "manual",
+      createdAt: "2026-10-21T12:00:00.000Z",
+      asset: { id: 91, url: "https://assets.test/manual-front.png", width: 2500, height: 2500 },
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response({ ...manualDesign, dimensions: { width: 2500, height: 2500 } }))
+      .mockResolvedValueOnce(response([manualDesign]))
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response({}));
+    const close = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue({ width: 2500, height: 2500, close }));
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Tapa frontal");
+    const input = await screen.findByLabelText("Archivo de diseño propio para tapa frontal");
+    const artwork = new File(["print-ready artwork"], "tapa-final.png", { type: "image/png" });
+    fireEvent.change(input, { target: { files: [artwork] } });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/upload",
+      expect.objectContaining({ method: "POST", body: expect.any(FormData) }),
+    ));
+    const uploadCall = fetchMock.mock.calls.find(([url]) => url === "/admin-api/photobook/custom-requests/41/designs/upload");
+    const uploadBody = uploadCall?.[1]?.body as FormData;
+    expect(uploadBody.get("surface")).toBe("FRONT_COVER");
+    expect(uploadBody.get("file")).toBe(artwork);
+    expect(fetchMock).not.toHaveBeenCalledWith("/admin-api/photobook/custom-requests/41/designs/generate", expect.anything());
+    expect(close).toHaveBeenCalled();
+    expect(await screen.findByText("Diseño propio · 2500 × 2500 px")).toBeTruthy();
+    expect(await screen.findByText(/Dimensiones correctas: 2500 × 2500 px/)).toBeTruthy();
+    const selectButton = await screen.findByRole("button", { name: "Usar como tapa frontal" });
+    fireEvent.click(selectButton);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/14/select",
+      { method: "POST" },
+    ));
+    expect(await screen.findByRole("button", { name: "Tapa frontal lista para aprobación" })).toHaveProperty("disabled", true);
+  });
+
+  it("lets the admin upload a manual back cover before selecting a front cover", async () => {
+    const backDesign = {
+      id: 15,
+      surface: "BACK_COVER",
+      sourceDesignId: null,
+      isSelected: false,
+      provider: "manual",
+      createdAt: "2026-10-21T12:05:00.000Z",
+      asset: { id: 92, url: "https://assets.test/manual-back.png", width: 2500, height: 2500 },
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response({ ...backDesign, dimensions: { width: 2500, height: 2500 } }))
+      .mockResolvedValueOnce(response([backDesign]))
+      .mockResolvedValueOnce(response([]));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue({ width: 2500, height: 2500, close: vi.fn() }));
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Contratapa");
+    const input = await screen.findByLabelText("Archivo de diseño propio para contratapa");
+    fireEvent.change(input, { target: { files: [new File(["back artwork"], "contratapa.png", { type: "image/png" })] } });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/upload",
+      expect.objectContaining({ method: "POST", body: expect.any(FormData) }),
+    ));
+    const uploadCall = fetchMock.mock.calls.find(([url]) => url === "/admin-api/photobook/custom-requests/41/designs/upload");
+    expect((uploadCall?.[1]?.body as FormData).get("surface")).toBe("BACK_COVER");
+    expect(await screen.findByRole("button", { name: "Usar como contratapa" })).toBeTruthy();
+  });
+
+  it("explains the required print dimensions and does not upload an invalid manual image", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([]));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue({ width: 1200, height: 1000, close: vi.fn() }));
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Tapa frontal");
+    const input = await screen.findByLabelText("Archivo de diseño propio para tapa frontal");
+    fireEvent.change(input, { target: { files: [new File(["small"], "tapa.png", { type: "image/png" })] } });
+
+    const manualArtworkGroup = screen.getByRole("group", { name: "Diseño propio para tapa frontal" });
+    const dimensionError = await within(manualArtworkGroup).findByRole("alert");
+    expect(dimensionError.textContent).toMatch(/debe ser cuadrada y medir al menos 2500 × 2500 px.*1200 × 1000 px/i);
+    expect(fetchMock).not.toHaveBeenCalledWith("/admin-api/photobook/custom-requests/41/designs/upload", expect.anything());
   });
 });

@@ -77,6 +77,7 @@ export default function CustomPhotobookSheetSetup({ products, mode, initialDraft
         formatConfigured: true,
         selectedProduct: products[0]?.id ?? 0,
         coverType: selectedCover,
+        sheetCount: sheets,
         wantsRush: false,
         step: 1,
         pages: changedPages,
@@ -89,6 +90,7 @@ export default function CustomPhotobookSheetSetup({ products, mode, initialDraft
       editorMode: "CUSTOM_FULL_EDITOR",
       formatConfigured: true,
       coverType: selectedCover,
+      sheetCount: sheets,
       step: 2,
       pages: changedPages,
     };
