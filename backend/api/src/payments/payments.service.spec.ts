@@ -115,3 +115,76 @@ describe('PaymentsService custom photobook payments', () => {
     expect(h.fileStorage.delete).toHaveBeenCalledWith(expect.stringMatching(/^uploads\/vouchers\/41-.+\.jpg$/));
   });
 });
+
+describe('PaymentsService.reviewPayment', () => {
+  function createReviewHarness(proofStatus: string) {
+    const repo = { findByOrderId: jest.fn().mockResolvedValue({ id: 12, orderId: 41, status: proofStatus }) };
+    // TypeORM returns [rows, affectedCount] for raw UPDATE ... RETURNING on Postgres.
+    const dataSource = { query: jest.fn().mockResolvedValue([[{ id: '12' }], 1]) };
+    const service = new PaymentsService(repo as any, {} as any, {} as any, {} as any, {} as any, dataSource as any);
+    return { service, repo, dataSource };
+  }
+
+  it('approves a pending proof with an atomic PENDING guard', async () => {
+    const h = createReviewHarness('PENDING');
+
+    await expect(h.service.reviewPayment(41, 'APPROVE')).resolves.toEqual({ status: 'APPROVED' });
+
+    const [approveSql, approveParams] = h.dataSource.query.mock.calls[0];
+    expect(approveSql).toMatch(/UPDATE payment_proofs SET status = 'APPROVED'/);
+    expect(approveSql).toMatch(/AND status = 'PENDING'/);
+    expect(approveParams).toEqual([41]);
+  });
+
+  it('treats a repeated approval as already reviewed without writing again', async () => {
+    const h = createReviewHarness('APPROVED');
+
+    await expect(h.service.reviewPayment(41, 'APPROVE')).resolves.toEqual({ status: 'APPROVED', alreadyReviewed: true });
+    expect(h.dataSource.query).not.toHaveBeenCalled();
+  });
+
+  it('treats a repeated rejection as already reviewed without writing again', async () => {
+    const h = createReviewHarness('REJECTED');
+
+    await expect(h.service.reviewPayment(41, 'REJECT', 'Voucher no válido')).resolves.toEqual({ status: 'REJECTED', alreadyReviewed: true });
+    expect(h.dataSource.query).not.toHaveBeenCalled();
+  });
+
+  it('refuses to reject a proof that was already approved', async () => {
+    const h = createReviewHarness('APPROVED');
+
+    await expect(h.service.reviewPayment(41, 'REJECT', 'Voucher no válido')).rejects.toThrow('El voucher ya fue revisado');
+    expect(h.dataSource.query).not.toHaveBeenCalled();
+  });
+
+  it('reports already reviewed when a concurrent approval wins the PENDING guard', async () => {
+    const h = createReviewHarness('PENDING');
+    h.repo.findByOrderId
+      .mockResolvedValueOnce({ id: 12, orderId: 41, status: 'PENDING' })
+      .mockResolvedValueOnce({ id: 12, orderId: 41, status: 'APPROVED' });
+    h.dataSource.query.mockResolvedValueOnce([[], 0]);
+
+    await expect(h.service.reviewPayment(41, 'APPROVE')).resolves.toEqual({ status: 'APPROVED', alreadyReviewed: true });
+    expect(h.dataSource.query).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports not found when the proof disappears after losing the PENDING guard', async () => {
+    const h = createReviewHarness('PENDING');
+    h.repo.findByOrderId
+      .mockResolvedValueOnce({ id: 12, orderId: 41, status: 'PENDING' })
+      .mockResolvedValueOnce(null);
+    h.dataSource.query.mockResolvedValueOnce([[], 0]);
+
+    await expect(h.service.reviewPayment(41, 'APPROVE')).rejects.toThrow('No se encontró voucher para esta orden');
+  });
+
+  it('refuses when a concurrent rejection wins the PENDING guard of an approval', async () => {
+    const h = createReviewHarness('PENDING');
+    h.repo.findByOrderId
+      .mockResolvedValueOnce({ id: 12, orderId: 41, status: 'PENDING' })
+      .mockResolvedValueOnce({ id: 12, orderId: 41, status: 'REJECTED' });
+    h.dataSource.query.mockResolvedValueOnce([[], 0]);
+
+    await expect(h.service.reviewPayment(41, 'APPROVE')).rejects.toThrow('El voucher ya fue revisado');
+  });
+});

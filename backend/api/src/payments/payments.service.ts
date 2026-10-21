@@ -6,6 +6,13 @@ import { OrdersService } from '../orders/orders.service';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { EmailService, QueueEmailData } from '../email/email.service';
 import { DataSource } from 'typeorm';
+import { returningRows } from '../common/database/returning-rows';
+
+export type PaymentReviewResult = {
+  status: 'APPROVED' | 'REJECTED';
+  alreadyReviewed?: true;
+  rejectionReason?: string;
+};
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
 
@@ -139,16 +146,36 @@ export class PaymentsService {
     return { ...proof, voucherUrl: this.fileStorage.getPublicUrl(proof.storageKey) };
   }
 
-  async reviewPayment(orderId: number, action: 'APPROVE' | 'REJECT', rejectionReason?: string) {
+  /**
+   * Repeating the same decision (e.g. an admin double click) is idempotent and
+   * reports `alreadyReviewed` so callers skip their side effects; the opposite
+   * decision on a reviewed proof is refused.
+   */
+  async reviewPayment(orderId: number, action: 'APPROVE' | 'REJECT', rejectionReason?: string): Promise<PaymentReviewResult> {
+    const targetStatus = action === 'APPROVE' ? 'APPROVED' : 'REJECTED';
     const proof = await this.repo.findByOrderId(orderId);
     if (!proof) throw new NotFoundException('No se encontró voucher para esta orden');
-    if (proof.status !== 'PENDING') throw new BadRequestException('El voucher ya fue revisado');
+    if (proof.status !== 'PENDING') return this.resolveRepeatedReview(proof.status, targetStatus);
+
+    // The PENDING guard makes the decision atomic: only one concurrent request can win it.
+    const updated = returningRows<{ id: string }>(action === 'APPROVE'
+      ? await this.dataSource.query(
+        `UPDATE payment_proofs SET status = 'APPROVED', reviewed_at = NOW(), reviewed_by_user_id = 1
+         WHERE order_id = $1 AND status = 'PENDING' RETURNING id`,
+        [orderId],
+      )
+      : await this.dataSource.query(
+        `UPDATE payment_proofs SET status = 'REJECTED', rejection_reason = $2, reviewed_at = NOW(), reviewed_by_user_id = 1
+         WHERE order_id = $1 AND status = 'PENDING' RETURNING id`,
+        [orderId, rejectionReason ?? null],
+      ));
+    if (updated.length === 0) {
+      const current = await this.repo.findByOrderId(orderId);
+      if (!current) throw new NotFoundException('No se encontró voucher para esta orden');
+      return this.resolveRepeatedReview(current.status, targetStatus);
+    }
 
     if (action === 'APPROVE') {
-      await this.dataSource.query(
-        `UPDATE payment_proofs SET status = 'APPROVED', reviewed_at = NOW(), reviewed_by_user_id = 1 WHERE order_id = $1`,
-        [orderId],
-      );
       // The admin order controller advances the status to PAYMENT_VERIFIED after this proof is approved.
       await this.dataSource.query(
         `UPDATE orders SET status = 'UNDER_PAYMENT_REVIEW' WHERE id = $1 AND status = 'AWAITING_PAYMENT_PROOF'`,
@@ -156,11 +183,12 @@ export class PaymentsService {
       );
       return { status: 'APPROVED' };
     }
-
-    await this.dataSource.query(
-      `UPDATE payment_proofs SET status = 'REJECTED', rejection_reason = $2, reviewed_at = NOW(), reviewed_by_user_id = 1 WHERE order_id = $1`,
-      [orderId, rejectionReason ?? null],
-    );
     return { status: 'REJECTED', rejectionReason };
+  }
+
+  /** Accepts a repeat of the stored decision; throws when it would contradict it. */
+  private resolveRepeatedReview(currentStatus: string, targetStatus: 'APPROVED' | 'REJECTED'): PaymentReviewResult {
+    if (currentStatus !== targetStatus) throw new BadRequestException('El voucher ya fue revisado');
+    return { status: targetStatus, alreadyReviewed: true };
   }
 }

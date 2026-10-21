@@ -162,7 +162,7 @@ describe('PhotobookService.createCustomRequest', () => {
     h.assetRepo.save.mockResolvedValue({ id: 91 });
     h.manager.query
       .mockResolvedValueOnce([{ id: '14', created_at: new Date('2026-09-28T12:00:00.000Z') }])
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([[], 0]);
 
     const result = await h.service.generateCustomCoverProposal(41, {
       surface: 'FRONT_COVER',
@@ -201,7 +201,7 @@ describe('PhotobookService.createCustomRequest', () => {
         h.assetRepo.save.mockResolvedValue({ id: 92 });
         h.manager.query
           .mockResolvedValueOnce([{ id: '14', created_at: new Date('2026-09-28T12:00:00.000Z') }])
-          .mockResolvedValueOnce([]);
+          .mockResolvedValueOnce([[], 0]);
 
         const result = await h.service.generateCustomCoverProposal(41, { surface: 'FRONT_COVER' });
 
@@ -227,7 +227,7 @@ describe('PhotobookService.createCustomRequest', () => {
     h.assetRepo.save.mockResolvedValue({ id: 92 });
     h.manager.query
       .mockResolvedValueOnce([{ id: '15', created_at: new Date('2026-09-30T16:00:00.000Z') }])
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([[], 0]);
 
     const result = await h.service.generateCustomCoverProposal(41, {
       surface: 'FRONT_COVER',
@@ -240,6 +240,30 @@ describe('PhotobookService.createCustomRequest', () => {
       '1024x1024',
     );
     expect(result).toMatchObject({ id: 15, surface: 'FRONT_COVER', sourceDesignId: null });
+  });
+
+  it('cleans up the asset of a replaced front proposal using the real DELETE ... RETURNING result shape', async () => {
+    const h = createHarness();
+    h.dataSource.query
+      .mockResolvedValueOnce([persistedRow])
+      .mockResolvedValueOnce([{ asset_id: '7' }])
+      .mockResolvedValueOnce([{ id: '14', asset_id: '5', is_selected: false }])
+      .mockResolvedValueOnce([[{ storage_key: 'photobooks/custom-requests/41/designs/front-old.png' }], 1]);
+    h.assetRepo.findById
+      .mockResolvedValueOnce({ id: 7, storageKey: 'uploads/reference-7.jpg' })
+      .mockResolvedValueOnce({ id: 5, storageKey: 'photobooks/custom-requests/41/designs/front-old.png' });
+    h.fileStorage.download.mockResolvedValue(Buffer.from('reference'));
+    h.imageGeneration.generateWithReferences.mockResolvedValue(Buffer.from('regenerated-cover'));
+    h.assetRepo.save.mockResolvedValue({ id: 92 });
+    h.manager.query
+      .mockResolvedValueOnce([{ id: '15', created_at: new Date('2026-09-30T16:00:00.000Z') }])
+      .mockResolvedValueOnce([[{ asset_id: '5' }], 1]);
+
+    await h.service.generateCustomCoverProposal(41, { surface: 'FRONT_COVER', creativeDirection: 'Más contraste.' });
+
+    expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [5]);
+    expect(h.dataSource.query).not.toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [NaN]);
+    expect(h.fileStorage.delete).toHaveBeenCalledWith('photobooks/custom-requests/41/designs/front-old.png');
   });
 
   it('uses only the assigned back artwork for CUSTOMER_ARTWORK while retaining selected-front lineage', async () => {
@@ -371,7 +395,7 @@ describe('PhotobookService.createCustomRequest', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ id: '14' }]);
+      .mockResolvedValueOnce([[{ id: '14' }], 1]);
 
     await expect(h.service.selectCustomCoverProposal(41, 14)).resolves.toEqual({ id: 14, surface: 'FRONT_COVER', isSelected: true });
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining("surface IN ('FRONT_COVER', 'BACK_COVER')"), [14, 41]);
@@ -399,7 +423,7 @@ describe('PhotobookService.createCustomRequest', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ id: '15' }]);
+      .mockResolvedValueOnce([[{ id: '15' }], 1]);
 
     await expect(h.service.selectCustomCoverProposal(41, 15)).resolves.toEqual({
       id: 15,
@@ -703,13 +727,18 @@ describe('PhotobookService.createCustomRequest', () => {
     h.manager.query
       .mockResolvedValueOnce([{ id: '14', surface: 'FRONT_COVER', is_selected: false }])
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ asset_id: '91' }, { asset_id: '90' }]);
+      .mockResolvedValueOnce([[{ asset_id: '91' }, { asset_id: '90' }, { asset_id: '89' }], 3]);
     h.dataSource.query
-      .mockResolvedValueOnce([{ storage_key: 'photobooks/custom-requests/41/designs/front.png' }])
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([[{ storage_key: 'photobooks/custom-requests/41/designs/front.png' }], 1])
+      .mockResolvedValueOnce([[], 0])
+      .mockResolvedValueOnce([[], 0]);
 
-    await expect(h.service.deleteCustomCoverProposal(41, 14)).resolves.toEqual({ surface: 'FRONT_COVER', deletedCount: 2 });
+    await expect(h.service.deleteCustomCoverProposal(41, 14)).resolves.toEqual({ surface: 'FRONT_COVER', deletedCount: 3 });
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM custom_photobook_request_designs'), [41, 'FRONT_COVER']);
+    expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [91]);
+    expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [90]);
+    expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [89]);
+    expect(h.fileStorage.delete).toHaveBeenCalledTimes(1);
     expect(h.fileStorage.delete).toHaveBeenCalledWith('photobooks/custom-requests/41/designs/front.png');
   });
 
@@ -882,8 +911,8 @@ describe('PhotobookService.uploadCustomCoverArtwork', () => {
     });
     h.manager.query
       .mockResolvedValueOnce([{ id: '14', created_at: createdAt }])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([[], 0])
+      .mockResolvedValueOnce([[], 1]);
 
     const result = await h.service.uploadCustomCoverArtwork(41, 'FRONT_COVER', {
       buffer: image,
@@ -905,6 +934,38 @@ describe('PhotobookService.uploadCustomCoverArtwork', () => {
       asset: { id: 91, url: 'https://assets.test/final-cover.png' },
     });
     expect(h.imageGeneration.generateWithReferences).not.toHaveBeenCalled();
+    expect(h.fileStorage.delete).not.toHaveBeenCalled();
+  });
+
+  it('cleans up the asset of a replaced unselected proposal using the real DELETE ... RETURNING result shape', async () => {
+    const h = createHarness();
+    const image = await sharp({
+      create: { width: 2500, height: 2500, channels: 3, background: '#804187' },
+    }).png().toBuffer();
+    h.dataSource.query
+      .mockResolvedValueOnce([{ id: '41' }])
+      .mockResolvedValueOnce([[{ storage_key: 'uploads/photobooks/previous-cover.png' }], 1]);
+    h.assetsService.uploadAsset.mockResolvedValue({
+      id: 91,
+      storageKey: 'uploads/photobooks/final-cover.png',
+      url: 'https://assets.test/final-cover.png',
+      width: 2500,
+      height: 2500,
+    });
+    h.manager.query
+      .mockResolvedValueOnce([{ id: '14', created_at: new Date('2026-10-21T12:00:00.000Z') }])
+      .mockResolvedValueOnce([[{ asset_id: '5' }], 1])
+      .mockResolvedValueOnce([[], 1]);
+
+    await h.service.uploadCustomCoverArtwork(41, 'FRONT_COVER', {
+      buffer: image,
+      originalFilename: 'tapa-final.png',
+      mimeType: 'image/png',
+    });
+
+    expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [5]);
+    expect(h.dataSource.query).not.toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [NaN]);
+    expect(h.fileStorage.delete).toHaveBeenCalledWith('uploads/photobooks/previous-cover.png');
   });
 });
 

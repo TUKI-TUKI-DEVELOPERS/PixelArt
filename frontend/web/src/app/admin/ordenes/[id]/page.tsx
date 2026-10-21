@@ -192,8 +192,8 @@ export default function OrdenDetallePage() {
 
   const PDF_ELIGIBLE_STATUSES = ["PAYMENT_VERIFIED", "IN_PRODUCTION", "SHIPPED", "DELIVERED"];
 
-  function load() {
-    fetch(`/admin-api/orders/${id}`)
+  function load(): Promise<void> {
+    return fetch(`/admin-api/orders/${id}`)
       .then((r) => r.json())
       .then((order: OrderDetail) => {
         setData(order);
@@ -553,15 +553,20 @@ export default function OrdenDetallePage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const body = await res.json().catch(() => null) as { message?: string } | null;
+        throw new Error(body?.message ?? "Error al revisar pago");
+      }
       // El link/correo de feedback ("¿Cómo te fue con tu libro?") YA NO se
       // dispara acá — antes salía apenas se aprobaba el pago, días o semanas
       // antes de que el cliente tuviera el libro en la mano. Ahora es 100%
       // manual, desde la sección de Feedback, y solo aparece cuando la orden
       // ya está DELIVERED — el admin decide cuándo hay certeza real de que
       // el cliente lo recibió.
-      load();
-    } catch { alert("Error al revisar pago"); }
+      // Keep the buttons disabled until the reviewed order is on screen, so a
+      // slow reload cannot invite a second click.
+      await load();
+    } catch (error) { alert(error instanceof Error ? error.message : "Error al revisar pago"); }
     finally { setActing(false); }
   }
 

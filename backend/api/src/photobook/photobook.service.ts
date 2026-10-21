@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from '@nes
 import { createHash, randomBytes, randomUUID } from 'crypto';
 import sharp from 'sharp';
 import { DataSource } from 'typeorm';
+import { returningRows } from '../common/database/returning-rows';
 import { PhotobookRepositoryPort, CreateProjectData } from './domain/ports/photobook-repository.port';
 import { calculatePhotobookRushFeeCents, calculatePhotobookTotalCents, isValidPhotobookCoverType } from './domain/services/photobook-pricing.service';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
@@ -426,7 +427,7 @@ export class PhotobookService {
   private async deleteUnreferencedCustomCoverAssets(assetIds: number[]) {
     for (const assetId of new Set(assetIds)) {
       try {
-        const rows: { storage_key: string }[] = await this.dataSource.query(
+        const rows = returningRows<{ storage_key: string }>(await this.dataSource.query(
           `DELETE FROM assets
            WHERE id = $1
              AND NOT EXISTS (SELECT 1 FROM custom_photobook_request_designs WHERE asset_id = $1)
@@ -434,7 +435,7 @@ export class PhotobookService {
              AND NOT EXISTS (SELECT 1 FROM custom_photobook_requests WHERE front_cover_asset_id = $1 OR back_cover_asset_id = $1 OR cover_wrap_asset_id = $1)
            RETURNING storage_key`,
           [assetId],
-        );
+        ));
         if (rows[0]) await this.fileStorage.delete(rows[0].storage_key);
       } catch (error) {
         this.logger.warn(`No se pudo limpiar el asset de propuesta ${assetId}: ${error instanceof Error ? error.message : 'error desconocido'}`);
@@ -519,12 +520,12 @@ export class PhotobookService {
           [requestId, surface, asset.id, prompt],
         );
         const design = rows[0];
-        const replacedRows: { asset_id: string }[] = await manager.query(
+        const replacedRows = returningRows<{ asset_id: string }>(await manager.query(
           `DELETE FROM custom_photobook_request_designs
            WHERE request_id = $1 AND surface = $2 AND id <> $3 AND is_selected = false
            RETURNING asset_id`,
           [requestId, surface, design.id],
-        );
+        ));
         await manager.query(
           `UPDATE custom_photobook_requests
            SET status = CASE WHEN status = 'PENDING_REVIEW' THEN 'DESIGN_IN_PROGRESS'::custom_photobook_request_status ELSE status END,
@@ -532,7 +533,7 @@ export class PhotobookService {
            WHERE id = $1`,
           [requestId],
         );
-        return { design, replacedAssetIds: (replacedRows ?? []).map((row) => Number(row.asset_id)) };
+        return { design, replacedAssetIds: replacedRows.map((row) => Number(row.asset_id)) };
       });
       await this.deleteUnreferencedCustomCoverAssets(created.replacedAssetIds);
 
@@ -624,12 +625,12 @@ export class PhotobookService {
       if (selectedRows[0]) {
         throw new BadRequestException('No puedes borrar esta propuesta mientras exista otra tapa seleccionada en esta etapa.');
       }
-      const deletedRows: { asset_id: string }[] = await manager.query(
+      const deletedRows = returningRows<{ asset_id: string }>(await manager.query(
         `DELETE FROM custom_photobook_request_designs
          WHERE request_id = $1 AND surface = $2 AND is_selected = false
          RETURNING asset_id`,
         [requestId, design.surface],
-      );
+      ));
       return { surface: design.surface, assetIds: deletedRows.map((row) => Number(row.asset_id)) };
     });
     await this.deleteUnreferencedCustomCoverAssets(deleted.assetIds);
@@ -701,13 +702,13 @@ export class PhotobookService {
           [requestId],
         );
       }
-      const rows: { id: string }[] = await manager.query(
+      const rows = returningRows<{ id: string }>(await manager.query(
         `UPDATE custom_photobook_request_designs
          SET is_selected = true
          WHERE id = $1 AND request_id = $2
          RETURNING id`,
         [designId, requestId],
-      );
+      ));
       return { id: Number(rows[0].id), surface: design.surface, isSelected: true };
     });
   }
@@ -1368,15 +1369,15 @@ export class PhotobookService {
           [requestId, input.surface, asset.id, sourceDesignId, prompt],
         );
         const design = rows[0];
-        const replacedRows: { asset_id: string }[] = input.surface === 'FRONT_COVER'
-          ? await manager.query(
+        const replacedRows = input.surface === 'FRONT_COVER'
+          ? returningRows<{ asset_id: string }>(await manager.query(
             `DELETE FROM custom_photobook_request_designs
              WHERE request_id = $1 AND surface = 'FRONT_COVER' AND id <> $2 AND is_selected = false
              RETURNING asset_id`,
             [requestId, design.id],
-          )
+          ))
           : [];
-        const replacedAssetIds = (replacedRows ?? []).map((row) => Number(row.asset_id));
+        const replacedAssetIds = replacedRows.map((row) => Number(row.asset_id));
         await manager.query(
           `UPDATE custom_photobook_requests
            SET status = CASE WHEN status = 'PENDING_REVIEW' THEN 'DESIGN_IN_PROGRESS'::custom_photobook_request_status ELSE status END,

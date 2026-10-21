@@ -18,6 +18,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import type { Response } from 'express';
 import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
+import { returningRows } from '../common/database/returning-rows';
 
 @Controller('admin/orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -153,50 +154,51 @@ export class OrdersAdminController {
     @Param('id') id: string,
     @Body() body: { action: 'APPROVE' | 'REJECT'; rejectionReason?: string },
   ) {
-    const result = await this.paymentsService.reviewPayment(Number(id), body.action, body.rejectionReason);
+    const orderId = Number(id);
+    const result = await this.paymentsService.reviewPayment(orderId, body.action, body.rejectionReason);
+    const order = await this.ordersService.findById(orderId);
+    if (!order) return result;
 
     if (body.action === 'APPROVE') {
-      await this.ordersService.advanceStatus(Number(id), 'PAYMENT_VERIFIED', 'Pago aprobado por admin');
-      const order = await this.ordersService.findById(Number(id));
-      if (order) {
-        if (order.channel === 'PHOTOBOOK' && order.photobookProjectId) {
-          await this.dataSource.query(
-            `UPDATE custom_photobook_requests
-             SET status = 'READY_FOR_PRODUCTION', updated_at = now()
-             WHERE linked_photobook_project_id = $1 AND status = 'AWAITING_PAYMENT'`,
-            [order.photobookProjectId],
-          );
-        }
-        await this.emailService.queue({
-          eventType: 'PAYMENT_APPROVED_TO_CUSTOMER',
-          orderId: order.id,
-          toEmail: order.customerEmail,
-          subject: 'PixelArt — Tu pago fue aprobado',
-          payload: { customerName: order.customerFullName, estimatedDeliveryDate: order.estimatedDeliveryDate },
-        });
+      // A repeated approval (double click or retry) only resumes the side
+      // effects when an earlier attempt failed before verifying the order.
+      if (result.alreadyReviewed && order.status !== 'UNDER_PAYMENT_REVIEW') return result;
 
-        // Disparar generación de PDF en background si es un photobook
-        if (order.channel === 'PHOTOBOOK' && order.photobookProjectId) {
-          const projectId = order.photobookProjectId;
-          void this.photobookPdfService.generateAndStore(projectId).catch((err: Error) => {
-            this.logger.error(`Error generando PDF para proyecto #${projectId}: ${err.message}`);
-          });
-        }
+      await this.ordersService.advanceStatus(orderId, 'PAYMENT_VERIFIED', 'Pago aprobado por admin');
+      if (order.channel === 'PHOTOBOOK' && order.photobookProjectId) {
+        await this.dataSource.query(
+          `UPDATE custom_photobook_requests
+           SET status = 'READY_FOR_PRODUCTION', updated_at = now()
+           WHERE linked_photobook_project_id = $1 AND status = 'AWAITING_PAYMENT'`,
+          [order.photobookProjectId],
+        );
+      }
+      await this.emailService.queueOnce({
+        eventType: 'PAYMENT_APPROVED_TO_CUSTOMER',
+        orderId: order.id,
+        toEmail: order.customerEmail,
+        subject: 'PixelArt — Tu pago fue aprobado',
+        payload: { customerName: order.customerFullName, estimatedDeliveryDate: order.estimatedDeliveryDate },
+      });
+
+      // Disparar generación de PDF en background si es un photobook
+      if (order.channel === 'PHOTOBOOK' && order.photobookProjectId) {
+        const projectId = order.photobookProjectId;
+        void this.photobookPdfService.generateAndStore(projectId).catch((err: Error) => {
+          this.logger.error(`Error generando PDF para proyecto #${projectId}: ${err.message}`);
+        });
       }
     } else if (body.action === 'REJECT') {
-      const order = await this.ordersService.findById(Number(id));
-      if (order) {
-        await this.emailService.queue({
-          eventType: 'PAYMENT_REJECTED_TO_CUSTOMER',
-          orderId: order.id,
-          toEmail: order.customerEmail,
-          subject: 'PixelArt — Hubo un problema con tu pago',
-          payload: {
-            customerName: order.customerFullName,
-            rejectionReason: body.rejectionReason ?? 'No especificado',
-          },
-        });
-      }
+      await this.emailService.queueOnce({
+        eventType: 'PAYMENT_REJECTED_TO_CUSTOMER',
+        orderId: order.id,
+        toEmail: order.customerEmail,
+        subject: 'PixelArt — Hubo un problema con tu pago',
+        payload: {
+          customerName: order.customerFullName,
+          rejectionReason: body.rejectionReason ?? 'No especificado',
+        },
+      });
     }
 
     return result;
@@ -517,19 +519,19 @@ export class OrdersAdminController {
    */
   @Post(':id/print-assets/confirm')
   async confirmPrintAssets(@Param('id') id: string) {
-    const rows: { id: string }[] = await this.dataSource.query(
+    const rows = returningRows<{ id: string }>(await this.dataSource.query(
       `UPDATE order_print_assets SET status = 'CONFIRMED' WHERE order_id = $1 AND status = 'PENDING_REVIEW' RETURNING id`,
       [Number(id)],
-    );
+    ));
     return { confirmed: rows.length };
   }
 
   @Delete(':id/print-assets/:assetId')
   async deletePrintAsset(@Param('id') id: string, @Param('assetId') assetId: string) {
-    const rows: { storage_key: string }[] = await this.dataSource.query(
+    const rows = returningRows<{ storage_key: string }>(await this.dataSource.query(
       `DELETE FROM order_print_assets WHERE id = $1 AND order_id = $2 RETURNING storage_key`,
       [Number(assetId), Number(id)],
-    );
+    ));
     if (rows.length === 0) throw new NotFoundException('Asset no encontrado');
     try { await this.fileStorage.delete(rows[0].storage_key); } catch { /* ignorar si falla el borrado del archivo */ }
     return { deleted: true };

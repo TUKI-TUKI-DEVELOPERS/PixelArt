@@ -46,6 +46,9 @@ export async function runSeed(): Promise<void> {
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'NEW_PHOTOBOOK_REQUEST_TO_ADMIN'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_COVER_APPROVAL_SENT'`);
     await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_EDITOR_CODE_SENT'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'PHOTOBOOK_COVER_CHANGES_REQUESTED_TO_ADMIN'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'CUSTOM_PHOTOBOOK_PAYMENT_TO_ADMIN'`);
+    await client.query(`ALTER TYPE email_event_type ADD VALUE IF NOT EXISTS 'CUSTOM_PHOTOBOOK_PAYMENT_RECEIVED_TO_CUSTOMER'`);
     await client.query(`ALTER TYPE custom_photobook_request_status ADD VALUE IF NOT EXISTS 'EDITOR_IN_PROGRESS'`);
     await client.query(`ALTER TYPE custom_photobook_request_status ADD VALUE IF NOT EXISTS 'READY_FOR_PRODUCTION'`);
 

@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import type { EmailEventType } from './email-worker.service';
 
 export type QueueEmailData = {
-  eventType: string;
+  eventType: EmailEventType;
   demoRequestId?: number | null;
   orderId?: number | null;
   toEmail: string;

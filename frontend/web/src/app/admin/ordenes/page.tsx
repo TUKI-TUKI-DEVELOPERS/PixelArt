@@ -130,8 +130,8 @@ export default function OrdenesPage() {
   const [view,    setView]    = useState<ViewKey>("table");
   const [acting,  setActing]  = useState<number | null>(null);
 
-  function loadOrders() {
-    fetch(`/admin-api/orders`)
+  function loadOrders(): Promise<void> {
+    return fetch(`/admin-api/orders`)
       .then((r) => r.json())
       .then((data) => setOrders(Array.isArray(data) ? data : data.data ?? []))
       .catch(() => {});
@@ -146,9 +146,14 @@ export default function OrdenesPage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, rejectionReason: action === "REJECT" ? "Voucher no válido" : undefined }),
       });
-      if (!res.ok) throw new Error();
-      loadOrders();
-    } catch { alert("Error al procesar el pago. Revisá el detalle de la orden."); }
+      if (!res.ok) {
+        const body = await res.json().catch(() => null) as { message?: string } | null;
+        throw new Error(body?.message ?? "Error al procesar el pago. Revisa el detalle de la orden.");
+      }
+      // Keep the buttons disabled until the reviewed order is on screen, so a
+      // slow reload cannot invite a second click.
+      await loadOrders();
+    } catch (error) { alert(error instanceof Error ? error.message : "Error al procesar el pago. Revisa el detalle de la orden."); }
     finally { setActing(null); }
   }
 

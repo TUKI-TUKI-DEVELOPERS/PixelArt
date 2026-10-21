@@ -17,7 +17,7 @@ const escapeHtml = (value: unknown) => String(value ?? '')
 
 // Cada evento usa un template propio, salvo los dos que en esencia mandan
 // lo mismo ("acá está tu link de pago/checkout") — comparten uno.
-const TEMPLATE_BY_EVENT: Record<string, string> = {
+export const EMAIL_TEMPLATE_BY_EVENT = {
   PROPOSALS_SENT_TO_CUSTOMER: 'proposals-sent.html',
   UNIFIED_CHECKOUT_SENT: 'checkout-link.html',
   PAYMENT_PROOF_RECEIVED_ADMIN: 'checkout-link.html',
@@ -33,7 +33,13 @@ const TEMPLATE_BY_EVENT: Record<string, string> = {
   PHOTOBOOK_COVER_APPROVAL_SENT: 'photobook-cover-approval.html',
   PHOTOBOOK_COVER_CHANGES_REQUESTED_TO_ADMIN: 'photobook-cover-adjustment-requested-admin.html',
   PHOTOBOOK_EDITOR_CODE_SENT: 'photobook-editor-code.html',
-};
+} as const satisfies Record<string, string>;
+
+// Every event that can be queued. Each key must also exist in the Postgres
+// enum `email_event_type` (guarded by email-event-type-enum.spec.ts).
+export type EmailEventType = keyof typeof EMAIL_TEMPLATE_BY_EVENT;
+
+const TEMPLATE_BY_EVENT: Readonly<Record<string, string>> = EMAIL_TEMPLATE_BY_EVENT;
 
 type OutboxRow = {
   id: string;

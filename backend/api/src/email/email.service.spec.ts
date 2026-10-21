@@ -1,4 +1,4 @@
-import { EmailService } from './email.service';
+import { EmailService, QueueEmailData } from './email.service';
 
 describe('EmailService.queueOnce', () => {
   it('requeues a FAILED event without inserting a duplicate', async () => {
@@ -8,7 +8,7 @@ describe('EmailService.queueOnce', () => {
       .mockResolvedValueOnce([{ id: '91', status: 'FAILED' }]);
     const dataSource = { transaction: jest.fn(async (callback: (manager: any) => Promise<void>) => callback(manager)) };
     const service = new EmailService(dataSource as any);
-    const email = {
+    const email: QueueEmailData = {
       eventType: 'CUSTOM_PHOTOBOOK_PAYMENT_TO_ADMIN',
       orderId: 41,
       toEmail: 'admin@example.com',
@@ -37,7 +37,7 @@ describe('EmailService.queueOnce', () => {
       .mockResolvedValueOnce([{ id: '92', status: 'SENT' }]); // existing sent event
     const dataSource = { transaction: jest.fn(async (callback: (manager: any) => Promise<void>) => callback(manager)) };
     const service = new EmailService(dataSource as any);
-    const email = {
+    const email: QueueEmailData = {
       eventType: 'CUSTOM_PHOTOBOOK_PAYMENT_TO_ADMIN',
       orderId: 41,
       toEmail: 'admin@example.com',

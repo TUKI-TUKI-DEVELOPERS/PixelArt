@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 vi.mock('next/navigation', () => ({ useParams: () => ({ id: '42' }) }));
 vi.mock('next/link', () => ({ default: ({ children, ...props }: any) => <a {...props}>{children}</a> }));
@@ -67,5 +67,50 @@ describe('order print output controls', () => {
     expect(await screen.findByText('Generando\u2026')).toBeTruthy();
     expect(coversCmyk.hasAttribute('disabled')).toBe(true);
     expect(interiorCmyk.hasAttribute('disabled')).toBe(true);
+  });
+
+  it('keeps the payment review buttons disabled until the reloaded order arrives', async () => {
+    const pendingProof = { id: 7, status: 'PENDING', paymentMethod: 'YAPE_QR', amountCents: null, voucherUrl: 'https://files.test/voucher.jpg' };
+    const pending = { ...order, channel: 'PHOTOBOOK', status: 'UNDER_PAYMENT_REVIEW', paymentProof: pendingProof };
+    const approved = { ...pending, status: 'PAYMENT_VERIFIED', paymentProof: { ...pendingProof, status: 'APPROVED' } };
+    let resolveReload: (response: Response) => void = () => {};
+    let orderFetches = 0;
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/orders/42')) {
+        orderFetches += 1;
+        if (orderFetches === 1) return Promise.resolve(Response.json(pending));
+        return new Promise<Response>((resolve) => { resolveReload = resolve; });
+      }
+      if (url.endsWith('/orders/42/review-payment')) return Promise.resolve(Response.json({ status: 'APPROVED' }, { status: 201 }));
+      return Promise.resolve(Response.json({}));
+    }));
+
+    render(<OrderDetailPage />);
+    fireEvent.click(await screen.findByRole('button', { name: /Aprobar pago/ }));
+
+    await waitFor(() => expect(orderFetches).toBe(2));
+    expect(screen.getByRole('button', { name: 'Procesando...' }).hasAttribute('disabled')).toBe(true);
+    expect(screen.getByRole('button', { name: 'Rechazar' }).hasAttribute('disabled')).toBe(true);
+
+    resolveReload(Response.json(approved));
+    await waitFor(() => expect(screen.queryByRole('button', { name: /Aprobar pago|Procesando/ })).toBeNull());
+  });
+
+  it('shows the server message when the payment review is refused', async () => {
+    const alertMock = vi.fn();
+    vi.stubGlobal('alert', alertMock);
+    const pendingProof = { id: 7, status: 'PENDING', paymentMethod: 'YAPE_QR', amountCents: null, voucherUrl: 'https://files.test/voucher.jpg' };
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/orders/42')) return Response.json({ ...order, channel: 'PHOTOBOOK', status: 'UNDER_PAYMENT_REVIEW', paymentProof: pendingProof });
+      if (url.endsWith('/orders/42/review-payment')) return Response.json({ message: 'El voucher ya fue revisado' }, { status: 400 });
+      return Response.json({});
+    }));
+
+    render(<OrderDetailPage />);
+    fireEvent.click(await screen.findByRole('button', { name: /Aprobar pago/ }));
+
+    await waitFor(() => expect(alertMock).toHaveBeenCalledWith('El voucher ya fue revisado'));
   });
 });
