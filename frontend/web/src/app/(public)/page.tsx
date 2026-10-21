@@ -695,7 +695,7 @@ export default async function HomePage() {
       image: ourClients3Url,
       review:
         "El libro 'Nuestro Ángel de 4 Patas' fue el mejor regalo de despedida para nuestra mascota. Nos ayudó a recordar todos los momentos hermosos juntos.",
-      rating: 4,
+      rating: 5,
     },
   ];
 
