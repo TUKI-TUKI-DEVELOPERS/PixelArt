@@ -46,6 +46,7 @@ const CATEGORY_BOOK_MAP: Record<string, string[]> = {
   "Libros de Mascotas": [
     "Nuestro Angel de 4 patas",
     "Aventura entre patas",
+    "Aventura Entre Patas Adulto",
     "Mi amigo Miauravilloso",
     "Mi mejor amigo del mundo",
   ],
@@ -53,15 +54,25 @@ const CATEGORY_BOOK_MAP: Record<string, string[]> = {
     "Papá, Mi Héroe",
     "Papá, Mi Héroe Adulto",
     "Mamá, Mi Heroína",
+    "Mamá, Mi Heroína Adulto",
     "Te amo, abuelo",
+    "Te Amo, Abuelo Adulto",
     "Te amo, abuela",
+    "Te Amo, Abuela Adulto",
     "El Mejor Equipo",
+    "El Mejor Equipo Adulto",
     "Mi Familia",
+    "Mi Familia Adulto",
   ],
   "Libros de Memorias Familiares": [
     "Mi angel guardian",
+    "Mi Ángel Guardián Padre Adulto",
+    "Mi Ángel Guardián Madre Adulto",
     "Siempre en mi corazon",
+    "Siempre en mi Corazón Abuelo Adulto",
+    "Siempre en mi Corazón Abuela Adulto",
     "Siempre seras parte de mi",
+    "Siempre Serás Parte de Mí Adulto",
   ],
 };
 
@@ -218,18 +229,29 @@ const BOOK_HREF: Record<string, string> = {
   "1025 Días enamorándome de ti": "/libros-personalizados/libros-de-amor/1025-dias-enamorandome-de-ti",
   "Nuestro Angel de 4 patas": "/libros-personalizados/libros-de-mascotas/nuestro-angel-de-4-patas",
   "Aventura entre patas": "/libros-personalizados/libros-de-mascotas/aventura-entre-patas",
+  "Aventura Entre Patas Adulto": "/libros-personalizados/libros-de-mascotas/aventura-entre-patas-adulto",
   "Mi amigo Miauravilloso": "/libros-personalizados/libros-de-mascotas/mi-amigo-miauravilloso",
   "Mi mejor amigo del mundo": "/libros-personalizados/libros-de-mascotas/mi-mejor-amigo-del-mundo",
   "Papá, Mi Héroe": "/libros-personalizados/libros-de-familia/papa-mi-heroe",
   "Papá, Mi Héroe Adulto": "/libros-personalizados/libros-de-familia/papa-mi-heroe-adulto",
   "Mamá, Mi Heroína": "/libros-personalizados/libros-de-familia/mama-mi-heroina",
+  "Mamá, Mi Heroína Adulto": "/libros-personalizados/libros-de-familia/mama-mi-heroina-adulto",
   "Te amo, abuelo": "/libros-personalizados/libros-de-familia/te-amo-abuelo",
+  "Te Amo, Abuelo Adulto": "/libros-personalizados/libros-de-familia/te-amo-abuelo-adulto",
   "Te amo, abuela": "/libros-personalizados/libros-de-familia/te-amo-abuela",
+  "Te Amo, Abuela Adulto": "/libros-personalizados/libros-de-familia/te-amo-abuela-adulto",
   "El Mejor Equipo": "/libros-personalizados/libros-de-familia/el-mejor-equipo",
+  "El Mejor Equipo Adulto": "/libros-personalizados/libros-de-familia/el-mejor-equipo-adulto",
   "Mi Familia": "/libros-personalizados/libros-de-familia/la-familia",
+  "Mi Familia Adulto": "/libros-personalizados/libros-de-familia/la-familia-adulto",
     "Mi angel guardian": "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian",
+  "Mi Ángel Guardián Padre Adulto": "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian-padre-adulto",
+  "Mi Ángel Guardián Madre Adulto": "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian-madre-adulto",
   "Siempre en mi corazon": "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon",
+  "Siempre en mi Corazón Abuelo Adulto": "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon-abuelo-adulto",
+  "Siempre en mi Corazón Abuela Adulto": "/libros-personalizados/libros-de-memorias-familiares/siempre-en-mi-corazon-abuela-adulto",
   "Siempre seras parte de mi": "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi",
+  "Siempre Serás Parte de Mí Adulto": "/libros-personalizados/libros-de-memorias-familiares/siempre-seras-parte-de-mi-adulto",
 };
 
 /* ── Miniaturas de MinIO ── */
@@ -240,17 +262,28 @@ const BOOK_THUMBNAIL: Record<string, string> = {
   "Papá, Mi Héroe": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png",
   "Papá, Mi Héroe Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
   "Mamá, Mi Heroína": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png",
+  "Mamá, Mi Heroína Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Adulto_Miniatura.webp",
   "Te amo, abuelo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png",
+  "Te Amo, Abuelo Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Adulto_Miniatura.webp",
   "Te amo, abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
+  "Te Amo, Abuela Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Adulto_Miniatura.webp",
   "El Mejor Equipo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png",
+  "El Mejor Equipo Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Adulto_Miniatura.webp",
   "Mi Familia": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png",
+  "Mi Familia Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Adulto_Miniatura.webp",
   "Nuestro Angel de 4 patas": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_NuestroAngelde4Patas_Miniatura.png",
   "Aventura entre patas": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Miniatura.png",
+  "Aventura Entre Patas Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Adulto_Miniatura.webp",
   "Mi mejor amigo del mundo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png",
   "Mi amigo Miauravilloso": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png",
     "Mi angel guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
+  "Mi Ángel Guardián Padre Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianPadre_Adulto_Miniatura.webp",
+  "Mi Ángel Guardián Madre Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianMadre_Adulto_Miniatura.webp",
   "Siempre en mi corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
+  "Siempre en mi Corazón Abuelo Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuelo_Adulto_Miniatura.webp",
+  "Siempre en mi Corazón Abuela Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuela_Adulto_Miniatura.webp",
   "Siempre seras parte de mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
+  "Siempre Serás Parte de Mí Adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMi_Adulto_Miniatura.webp",
 };
 
 /* ── Orden de libros según Figma ── */
@@ -272,6 +305,91 @@ const BOOK_ORDER = [
   "Mi angel guardian",
   "Siempre en mi corazon",
   "Siempre seras parte de mi",
+];
+
+const BOOK_VERSION_GROUPS = [
+  {
+    baseName: "Papá, Mi Héroe",
+    displayName: "Papá, mi héroe",
+    variants: [
+      { name: "Papá, Mi Héroe", label: "Versión Infantil" },
+      { name: "Papá, Mi Héroe Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "Aventura entre patas",
+    displayName: "Aventura Entre Patas",
+    variants: [
+      { name: "Aventura entre patas", label: "Versión Infantil" },
+      { name: "Aventura Entre Patas Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "Mamá, Mi Heroína",
+    displayName: "Mamá, Mi Heroína",
+    variants: [
+      { name: "Mamá, Mi Heroína", label: "Versión Infantil" },
+      { name: "Mamá, Mi Heroína Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "Te amo, abuelo",
+    displayName: "Te Amo, Abuelo",
+    variants: [
+      { name: "Te amo, abuelo", label: "Versión Infantil" },
+      { name: "Te Amo, Abuelo Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "Te amo, abuela",
+    displayName: "Te Amo, Abuela",
+    variants: [
+      { name: "Te amo, abuela", label: "Versión Infantil" },
+      { name: "Te Amo, Abuela Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "El Mejor Equipo",
+    displayName: "El Mejor Equipo",
+    variants: [
+      { name: "El Mejor Equipo", label: "Versión Infantil" },
+      { name: "El Mejor Equipo Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "Mi Familia",
+    displayName: "Mi Familia",
+    variants: [
+      { name: "Mi Familia", label: "Versión Infantil" },
+      { name: "Mi Familia Adulto", label: "Versión Adultos" },
+    ],
+  },
+  {
+    baseName: "Siempre en mi corazon",
+    displayName: "Siempre en mi Corazón",
+    variants: [
+      { name: "Siempre en mi corazon", label: "Versión Original" },
+      { name: "Siempre en mi Corazón Abuelo Adulto", label: "Abuelo Adulto" },
+      { name: "Siempre en mi Corazón Abuela Adulto", label: "Abuela Adulto" },
+    ],
+  },
+  {
+    baseName: "Mi angel guardian",
+    displayName: "Mi Ángel Guardián",
+    variants: [
+      { name: "Mi angel guardian", label: "Versión Original" },
+      { name: "Mi Ángel Guardián Padre Adulto", label: "Padre Adulto" },
+      { name: "Mi Ángel Guardián Madre Adulto", label: "Madre Adulto" },
+    ],
+  },
+  {
+    baseName: "Siempre seras parte de mi",
+    displayName: "Siempre Serás Parte de Mí",
+    variants: [
+      { name: "Siempre seras parte de mi", label: "Versión Original" },
+      { name: "Siempre Serás Parte de Mí Adulto", label: "Versión Adultos" },
+    ],
+  },
 ];
 
 const CARDS_PER_PAGE = 6;
@@ -471,25 +589,42 @@ export default function NuestrosLibrosClient({ books }: Props) {
         categoryBadge: getCategoryBadge(b.name),
         tagline: BOOK_EXTRA[b.name]?.tagline,
         reviewCount: BOOK_EXTRA[b.name]?.reviewCount ?? 0,
-        description: BOOK_EXTRA[b.name]?.description ?? null,
+        description: BOOK_EXTRA[b.name]?.description ?? b.description,
         href: BOOK_HREF[b.name],
       }));
 
-    const papaHero = cards.find((b) => b.name === "Papá, Mi Héroe");
-    const papaHeroAdult = cards.find((b) => b.name === "Papá, Mi Héroe Adulto");
+    const groupedVersions = new Map<string, {
+      displayName: string;
+      versions: Array<(typeof cards)[number] & { label: string }>;
+    }>();
+    const hiddenVersionNames = new Set<string>();
+
+    for (const group of BOOK_VERSION_GROUPS) {
+      const baseBook = cards.find((book) => book.name === group.baseName);
+      if (!baseBook?.categoryBadge) continue;
+
+      const versions = group.variants.flatMap(({ name, label }) => {
+        const variant = cards.find((book) => book.name === name);
+        return variant && variant.categoryBadge === baseBook.categoryBadge
+          ? [{ ...variant, label, name: group.displayName }]
+          : [];
+      });
+      if (versions.length < 2) continue;
+
+      groupedVersions.set(group.baseName, { displayName: group.displayName, versions });
+      for (const variant of group.variants.slice(1)) {
+        const versionBook = cards.find((book) => book.name === variant.name);
+        if (versionBook && versionBook.categoryBadge === baseBook.categoryBadge) {
+          hiddenVersionNames.add(variant.name);
+        }
+      }
+    }
 
     return cards.flatMap((book) => {
-      if (book.name === "Papá, Mi Héroe Adulto") return [];
-      if (book.name !== "Papá, Mi Héroe" || !papaHero || !papaHeroAdult) return [book];
-
-      return [{
-        ...book,
-        name: "Papá, mi héroe",
-        versions: [
-          { ...papaHero, label: "Versión Infantil", name: "Papá, mi héroe" },
-          { ...papaHeroAdult, label: "Versión Adultos", name: "Papá, mi héroe" },
-        ],
-      }];
+      if (hiddenVersionNames.has(book.name)) return [];
+      const group = groupedVersions.get(book.name);
+      if (!group) return [book];
+      return [{ ...book, name: group.displayName, versions: group.versions }];
     });
   }, [books]);
 
