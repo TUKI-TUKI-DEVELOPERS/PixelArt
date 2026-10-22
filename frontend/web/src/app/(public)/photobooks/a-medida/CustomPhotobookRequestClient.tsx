@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import { UploadedPhoto, usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { tokens } from "@/lib/design-tokens";
 import PhotobookFormatSelector, {
@@ -404,7 +405,10 @@ export default function CustomPhotobookRequestClient() {
                     <strong>{selectedSheetOption.price}</strong>
                   </div>
                   <button ref={formatTriggerRef} type="button" className="custom-format-change" onClick={openFormatDialog}>Cambiar</button>
-                  <p>El recargo por personalizar ambas tapas se acuerda por separado y no está incluido en este precio.</p>
+                  <p className="custom-cover-cost-notice" role="note">
+                    <AlertTriangle aria-hidden="true" size={18} />
+                    <span><strong>Importante: las tapas personalizadas tienen un costo aparte.</strong> El recargo por personalizar ambas tapas se acuerda por separado y no está incluido en este precio.</span>
+                  </p>
                 </div>
               ) : (
                 <div className="custom-format-empty">
@@ -573,7 +577,10 @@ const pageStyles = `
   .custom-format-summary-label, .custom-format-summary-price > span { color: #40545e; font-size: 11px; }
   .custom-format-summary > div > strong { color: #223942; font-size: 15px; }
   .custom-format-summary-price > strong { color: #125e94; font-size: 19px; }
-  .custom-format-summary > p { grid-column: 1 / -1; margin: 0; padding-top: 12px; border-top: 1px solid #dbe4e7; color: #40545e; font-size: 12px; line-height: 1.5; }
+  .custom-cover-cost-notice { grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 0; padding: 12px 14px; border: 1px solid #f2c94c; border-left: 4px solid #e0a100; border-radius: 8px; background: #fff6db; color: #6b4500; font-size: 14px; line-height: 1.5; min-width: 0; }
+  .custom-cover-cost-notice svg { flex: none; margin-top: 2px; color: #c27c00; }
+  .custom-cover-cost-notice span { min-width: 0; }
+  .custom-cover-cost-notice strong { display: block; margin-bottom: 2px; color: #5a3a00; font-weight: 800; }
   .custom-request-review { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 22px; padding: 14px 0; border-top: 1px solid #dbe4e7; border-bottom: 1px solid #dbe4e7; }
   .custom-request-review div { min-width: 0; }
   .custom-request-review dt { margin-bottom: 5px; color: #52656d; font-size: 11px; }
@@ -620,7 +627,7 @@ const pageStyles = `
     .custom-request-email { grid-column: auto; max-width: none; }
     .custom-format-summary { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 14px; }
     .custom-format-summary > div:first-child { grid-column: 1 / -1; }
-    .custom-format-summary > p { grid-column: 1 / -1; }
+    .custom-cover-cost-notice { grid-column: 1 / -1; }
     .custom-request-review { grid-template-columns: 1fr; gap: 10px; }
     .custom-request-footer { grid-template-columns: auto 1fr; gap: 10px; }
     .custom-request-footer > p { grid-column: 1 / -1; grid-row: 1; text-align: left; }

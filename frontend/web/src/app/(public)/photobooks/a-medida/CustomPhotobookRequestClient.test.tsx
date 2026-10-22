@@ -79,6 +79,9 @@ describe("CustomPhotobookRequestClient", () => {
     chooseThickCoverWithTwentySheets();
 
     expect(screen.getByText("S/ 140")).toBeTruthy();
+    const coverCostNotice = screen.getByRole("note");
+    expect(coverCostNotice.textContent).toContain("Importante: las tapas personalizadas tienen un costo aparte.");
+    expect(coverCostNotice.textContent).toContain("El recargo por personalizar ambas tapas se acuerda por separado y no está incluido en este precio.");
     expect(screen.getByText(/recargo por personalizar ambas tapas.*no está incluido/i)).toBeTruthy();
     clickContinue();
 
