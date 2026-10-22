@@ -61,7 +61,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [manualArtworkFeedback, setManualArtworkFeedback] = useState<Partial<Record<Surface, ManualArtworkFeedback>>>({});
-  const [referenceArtworkFeedback, setReferenceArtworkFeedback] = useState<Partial<Record<number, ManualArtworkFeedback>>>({});
+  const [manualUploadFeedback, setManualUploadFeedback] = useState<Partial<Record<Surface, ManualArtworkFeedback>>>({});
   const [previewAssetId, setPreviewAssetId] = useState<number | null>(null);
   const [previewDesign, setPreviewDesign] = useState<Design | null>(null);
   const [pendingDeletion, setPendingDeletion] = useState<Design | null>(null);
@@ -94,6 +94,8 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
     : activeReferences.length >= MIN_ACTIVE_REFERENCES && activeReferences.length <= MAX_REFERENCES;
   const frontReferenceContext = hasFixedReferenceSlots ? activeFrontReferences : activeReferences;
   const backReferenceContext = hasFixedReferenceSlots ? activeBackReferences : activeReferences;
+  const frontCoverReferenceOptions = hasFixedReferenceSlots ? frontReferences : references;
+  const backCoverReferenceOptions = hasFixedReferenceSlots ? backReferences : references;
   const canGenerateFront = hasValidReferenceSet && Boolean(creativeDirection.trim());
   const canSendApproval = Boolean(selectedFront && selectedBack);
   const referencesStillNeeded = Math.max(0, MIN_ACTIVE_REFERENCES - (hasFixedReferenceSlots ? activeFrontReferences.length : activeReferences.length));
@@ -202,7 +204,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
     const surfaceLabel = surface === "FRONT_COVER" ? "la tapa frontal" : "la contratapa";
     const surfaceAction = surface === "FRONT_COVER" ? "Usar como tapa frontal" : "Usar como contratapa";
     begin(`UPLOAD_${surface}`);
-    setManualArtworkFeedback((current) => ({
+    setManualUploadFeedback((current) => ({
       ...current,
       [surface]: { status: "checking", message: "Comprobando formato y dimensiones del archivo…" },
     }));
@@ -233,12 +235,12 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
       const dimensionMessage = confirmedDimensions
         ? `Dimensiones correctas: ${confirmedDimensions.width} × ${confirmedDimensions.height} px.`
         : "Diseño validado.";
-      setManualArtworkFeedback((current) => ({
+      setManualUploadFeedback((current) => ({
         ...current,
         [surface]: { status: "success", message: `${dimensionMessage} Pulsa «${surfaceAction}» para elegirlo para la aprobación.` },
       }));
     } catch (uploadError) {
-      setManualArtworkFeedback((current) => ({
+      setManualUploadFeedback((current) => ({
         ...current,
         [surface]: {
           status: "error",
@@ -253,9 +255,9 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
   async function applyReferenceAsCover(reference: ReferenceAsset, surface: Surface) {
     const surfaceLabel = surface === "FRONT_COVER" ? "tapa frontal" : "contratapa";
     begin(`USE_REFERENCE_${surface}`);
-    setReferenceArtworkFeedback((current) => ({
+    setManualArtworkFeedback((current) => ({
       ...current,
-      [reference.assetId]: { status: "checking", message: "Comprobando formato y dimensiones del archivo…" },
+      [surface]: { status: "checking", message: "Comprobando formato y dimensiones del archivo…" },
     }));
     try {
       const response = await fetch(`/admin-api/photobook/custom-requests/${requestId}/references/${reference.assetId}/use-as-cover`, {
@@ -274,11 +276,10 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
           message: `Foto del cliente validada (${dimensions.width} × ${dimensions.height} px) y elegida como ${surfaceLabel}.`,
         },
       }));
-      setActiveStep(surface === "FRONT_COVER" ? "front" : "back");
     } catch (applyError) {
-      setReferenceArtworkFeedback((current) => ({
+      setManualArtworkFeedback((current) => ({
         ...current,
-        [reference.assetId]: {
+        [surface]: {
           status: "error",
           message: applyError instanceof Error ? applyError.message : "No pudimos validar la foto del cliente.",
         },
@@ -380,10 +381,36 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
       if (!response.ok) throw new Error(data.message ?? "No pudimos seleccionar esta propuesta.");
       setDesigns((current) => current.map((item) => ({
         ...item,
-        isSelected: item.surface === design.surface ? item.id === design.id : item.isSelected,
+        isSelected: item.surface === design.surface
+              ? item.id === design.id
+              : design.surface === "FRONT_COVER"
+                && item.surface === "BACK_COVER"
+                && item.provider !== "manual"
+                && item.sourceDesignId !== design.id
+                ? false
+                : item.isSelected,
       })));
     } catch (selectionError) {
       setError(selectionError instanceof Error ? selectionError.message : "No pudimos seleccionar esta propuesta.");
+    } finally {
+      setWorking(null);
+    }
+  }
+
+  async function deselectCover(design: Design) {
+    begin("DESELECT");
+    try {
+      const response = await fetch(`/admin-api/photobook/custom-requests/${requestId}/designs/${design.id}/deselect`, { method: "POST" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message ?? "No pudimos quitar esta selección.");
+      await refreshWorkspace();
+      setManualArtworkFeedback({});
+      setManualUploadFeedback({});
+      setNotice(design.surface === "FRONT_COVER"
+        ? `Se quitó la tapa frontal.${data.removedDerivedBackCover ? " También se quitó la contratapa generada con IA a partir de esa tapa." : ""}`
+        : "Se quitó la contratapa.");
+    } catch (deselectError) {
+      setError(deselectError instanceof Error ? deselectError.message : "No pudimos quitar esta selección.");
     } finally {
       setWorking(null);
     }
@@ -549,20 +576,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
                       <span className={styles.selectionIndicator}>{reference.isActive && <Check aria-hidden="true" size={13} />}</span>
                       {reference.isActive ? "Seleccionada para IA" : "Usar para IA"}
                     </button>
-                    {(reference.surface === "FRONT_COVER" || reference.surface === null) && (
-                      <button className={styles.textAction} disabled={working !== null} onClick={() => void applyReferenceAsCover(reference, "FRONT_COVER")} type="button">
-                        Usar como tapa
-                      </button>
-                    )}
-                    {(reference.surface === "BACK_COVER" || reference.surface === null) && (
-                      <>
-                        <button className={styles.textAction} disabled={working !== null || !selectedFront} onClick={() => void applyReferenceAsCover(reference, "BACK_COVER")} type="button">
-                          Usar como contratapa
-                        </button>
-                        {!selectedFront && <small className={styles.fieldHelp}>Elige primero la tapa frontal</small>}
-                      </>
-                    )}
-                    {referenceArtworkFeedback[reference.assetId] && <ManualArtworkFeedbackNotice feedback={referenceArtworkFeedback[reference.assetId]!} />}
+
                     <button className={styles.replaceAction} disabled={working !== null} onClick={() => replacePhotoInputRefs.current[reference.assetId]?.click()} type="button">
                       <RefreshCw aria-hidden="true" size={14} />
                       {isBusy ? "Reemplazando…" : "Reemplazar"}
@@ -633,6 +647,14 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
             />
           </label>
           <p className={styles.fieldHelp} id="ai-direction-help">{selectedFront ? "La tapa frontal ya está seleccionada para generar la contratapa y enviar la aprobación. No se puede regenerar sin reiniciar esa selección." : frontAiDesigns.length ? "La siguiente propuesta parte de la última tapa generada. Describe solo los ajustes; conservará sus sujetos y composición salvo que indiques cambiarlos." : "Indica qué fotos deben tener protagonismo, cómo combinarlas y el tono de la cubierta. Los originales no se modifican."}</p>
+          <ClientReferenceCoverOptions
+            feedback={manualArtworkFeedback.FRONT_COVER}
+            onApply={applyReferenceAsCover}
+            references={frontCoverReferenceOptions}
+            selectedDesign={selectedFront}
+            surface="FRONT_COVER"
+            working={working}
+          />
           <div aria-label="Diseño propio para tapa frontal" className={styles.manualArtworkGroup} role="group">
             <div className={styles.manualArtworkOption}>
               <div className={styles.manualArtworkCopy}>
@@ -656,10 +678,10 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
                 />
               </div>
             </div>
-            {manualArtworkFeedback.FRONT_COVER && <ManualArtworkFeedbackNotice feedback={manualArtworkFeedback.FRONT_COVER} />}
-            {frontManualDesign && <ManualArtworkResult design={frontManualDesign} label="tapa frontal" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa frontal lista para aprobación" working={working} />}
+            {manualUploadFeedback.FRONT_COVER && <ManualArtworkFeedbackNotice feedback={manualUploadFeedback.FRONT_COVER} />}
+            {frontManualDesign && <ManualArtworkResult design={frontManualDesign} label="tapa frontal" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa frontal lista para aprobación" working={working} />}
           </div>
-          {frontAiDesigns.length > 0 && <div className={styles.proposalGrid}>{frontAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="tapa frontal" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa seleccionada" working={working} />)}</div>}
+          {frontAiDesigns.length > 0 && <div className={styles.proposalGrid}>{frontAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="tapa frontal" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa seleccionada" working={working} />)}</div>}
           <div className={styles.stepActions}>
             <button className={styles.textAction} onClick={() => setActiveStep("references")} type="button">
               <ChevronLeft aria-hidden="true" size={16} />
@@ -699,6 +721,14 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
             />
           </label>
           <p className={styles.fieldHelp} id="back-ai-direction-help">{selectedBack ? "La contratapa seleccionada se incluirá en la aprobación." : backAiDesigns.length ? "Describe los cambios para la siguiente propuesta. La indicación se enviará a la IA junto con las fotos seleccionadas." : "Puedes orientar la composición, los colores y el espacio para texto. La IA no compone el lomo."}</p>
+          <ClientReferenceCoverOptions
+            feedback={manualArtworkFeedback.BACK_COVER}
+            onApply={applyReferenceAsCover}
+            references={backCoverReferenceOptions}
+            selectedDesign={selectedBack}
+            surface="BACK_COVER"
+            working={working}
+          />
           <div aria-label="Diseño propio para contratapa" className={styles.manualArtworkGroup} role="group">
             <div className={styles.manualArtworkOption}>
               <div className={styles.manualArtworkCopy}>
@@ -722,10 +752,10 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
                 />
               </div>
             </div>
-            {manualArtworkFeedback.BACK_COVER && <ManualArtworkFeedbackNotice feedback={manualArtworkFeedback.BACK_COVER} />}
-            {backManualDesign && <ManualArtworkResult design={backManualDesign} label="contratapa" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa lista para aprobación" working={working} />}
+            {manualUploadFeedback.BACK_COVER && <ManualArtworkFeedbackNotice feedback={manualUploadFeedback.BACK_COVER} />}
+            {backManualDesign && <ManualArtworkResult design={backManualDesign} label="contratapa" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa lista para aprobación" working={working} />}
           </div>
-          {backAiDesigns.length > 0 && <div className={styles.proposalGrid}>{backAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="contratapa" onDelete={requestDeleteCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa seleccionada" working={working} />)}</div>}
+          {backAiDesigns.length > 0 && <div className={styles.proposalGrid}>{backAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="contratapa" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa seleccionada" working={working} />)}</div>}
           <div className={styles.stepActions}>
             <button className={styles.textAction} onClick={() => setActiveStep("front")} type="button">
               <ChevronLeft aria-hidden="true" size={16} />
@@ -886,7 +916,56 @@ function ReferenceTray({ label, references, onManage, onPreview }: { label: stri
   );
 }
 
-function ProposalCard({ design, label, onDelete, onPreview, onSelect, requestId, selectedLabel, working }: { design: Design; label: string; onDelete: (design: Design) => void; onPreview: (design: Design) => void; onSelect: (design: Design) => Promise<void>; requestId: number; selectedLabel: string; working: string | null }) {
+function ClientReferenceCoverOptions({ feedback, onApply, references, selectedDesign, surface, working }: {
+  feedback?: ManualArtworkFeedback;
+  onApply: (reference: ReferenceAsset, surface: Surface) => Promise<void>;
+  references: ReferenceAsset[];
+  selectedDesign: Design | null;
+  surface: Surface;
+  working: string | null;
+}) {
+  if (references.length === 0) return null;
+
+  const surfaceLabel = surface === "FRONT_COVER" ? "tapa frontal" : "contratapa";
+  const actionLabel = surface === "FRONT_COVER" ? "Usar como tapa" : "Usar como contratapa";
+  const currentLabel = surface === "FRONT_COVER" ? "Tapa actual" : "Contratapa actual";
+
+  return (
+    <div aria-label={`Foto del cliente para ${surfaceLabel}`} className={styles.manualArtworkGroup} role="group">
+      <div className={styles.manualArtworkOption}>
+        <div className={styles.manualArtworkCopy}>
+          <strong>Foto del cliente · sin IA</strong>
+          <span>Usa tal cual la imagen que envió el cliente. Debe ser cuadrada y medir al menos 2500 × 2500 px.</span>
+        </div>
+      </div>
+      <div className={styles.referenceGrid}>
+        {references.map((reference) => {
+          const isCurrent = selectedDesign?.asset.id === reference.assetId;
+          return (
+            <article className={`${styles.referenceCard} ${isCurrent ? styles.referenceCardActive : ""}`} key={reference.assetId}>
+              <div className={styles.referenceImageWrap}>
+                <img alt={reference.originalFilename ? `Foto del cliente ${reference.originalFilename}` : `Foto del cliente ${reference.assetId}`} src={reference.url} />
+              </div>
+              <div className={styles.referenceCardBody}>
+                <button
+                  className={styles.textAction}
+                  disabled={working !== null || isCurrent}
+                  onClick={() => void onApply(reference, surface)}
+                  type="button"
+                >
+                  {isCurrent ? currentLabel : actionLabel}
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      {feedback && <ManualArtworkFeedbackNotice feedback={feedback} />}
+    </div>
+  );
+}
+
+function ProposalCard({ design, label, onDelete, onDeselect, onPreview, onSelect, requestId, selectedLabel, working }: { design: Design; label: string; onDelete: (design: Design) => void; onDeselect: (design: Design) => Promise<void>; onPreview: (design: Design) => void; onSelect: (design: Design) => Promise<void>; requestId: number; selectedLabel: string; working: string | null }) {
   const isWorking = working === "SELECT";
   const isDeleting = working === `DELETE-${design.id}`;
   const sourceLabel = design.provider === "manual"
@@ -918,6 +997,11 @@ function ProposalCard({ design, label, onDelete, onPreview, onSelect, requestId,
         {design.isSelected ? <Check aria-hidden="true" size={15} /> : isWorking ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={15} /> : null}
         {design.isSelected ? selectedLabel : isWorking ? "Seleccionando…" : `Usar como ${label}`}
       </button>
+      {design.isSelected && (
+        <button className={styles.textAction} disabled={working !== null} onClick={() => void onDeselect(design)} type="button">
+          Quitar selección
+        </button>
+      )}
     </article>
   );
 }
@@ -942,10 +1026,11 @@ function ManualArtworkFeedbackNotice({ feedback }: { feedback: ManualArtworkFeed
   );
 }
 
-function ManualArtworkResult({ design, label, onDelete, onPreview, onSelect, requestId, selectedLabel, working }: {
+function ManualArtworkResult({ design, label, onDelete, onDeselect, onPreview, onSelect, requestId, selectedLabel, working }: {
   design: Design;
   label: string;
   onDelete: (design: Design) => void;
+  onDeselect: (design: Design) => Promise<void>;
   onPreview: (design: Design) => void;
   onSelect: (design: Design) => Promise<void>;
   requestId: number;
@@ -988,6 +1073,11 @@ function ManualArtworkResult({ design, label, onDelete, onPreview, onSelect, req
           {design.isSelected ? <Check aria-hidden="true" size={15} /> : isSelecting ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={15} /> : null}
           {design.isSelected ? selectedLabel : isSelecting ? "Seleccionando…" : `Usar como ${label}`}
         </button>
+        {design.isSelected && (
+          <button className={styles.textAction} disabled={working !== null} onClick={() => void onDeselect(design)} type="button">
+            Quitar selección
+          </button>
+        )}
       </div>
     </article>
   );

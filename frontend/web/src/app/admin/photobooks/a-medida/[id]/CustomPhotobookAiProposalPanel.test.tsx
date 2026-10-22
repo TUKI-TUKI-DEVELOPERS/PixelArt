@@ -190,7 +190,7 @@ describe("CustomPhotobookAiProposalPanel", () => {
     expect(downloadLink.getAttribute("href")).toBe("/admin-api/photobook/custom-requests/41/references/7/download");
   });
 
-  it("shows reference-cover actions according to each reference surface", async () => {
+  it("does not show cover-selection actions in the references step", async () => {
     const references = [
       { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 },
       { ...activeReferences[1], surface: "BACK_COVER", slotIndex: 1 },
@@ -203,16 +203,12 @@ describe("CustomPhotobookAiProposalPanel", () => {
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
 
-    const cards = await screen.findAllByRole("article");
-    expect(within(cards[0]).getByRole("button", { name: "Usar como tapa" })).toBeTruthy();
-    expect(within(cards[0]).queryByRole("button", { name: "Usar como contratapa" })).toBeNull();
-    expect(within(cards[1]).getByRole("button", { name: "Usar como contratapa" })).toHaveProperty("disabled", true);
-    expect(within(cards[1]).getByText("Elige primero la tapa frontal")).toBeTruthy();
-    expect(within(cards[2]).getByRole("button", { name: "Usar como tapa" })).toBeTruthy();
-    expect(within(cards[2]).getByRole("button", { name: "Usar como contratapa" })).toHaveProperty("disabled", true);
+    await screen.findAllByRole("article");
+    expect(screen.queryByRole("button", { name: "Usar como tapa" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Usar como contratapa" })).toBeNull();
   });
 
-  it("applies a client reference as a cover and advances to its workflow step", async () => {
+  it("applies a client reference from the front step and stays on that step", async () => {
     const reference = { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 };
     const selectedDesign = {
       id: 14,
@@ -232,6 +228,7 @@ describe("CustomPhotobookAiProposalPanel", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Tapa frontal");
     fireEvent.click(await screen.findByRole("button", { name: "Usar como tapa" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
@@ -242,7 +239,7 @@ describe("CustomPhotobookAiProposalPanel", () => {
     expect(await screen.findByText("Foto del cliente validada (2500 × 2500 px) y elegida como tapa frontal.")).toBeTruthy();
   });
 
-  it("shows reference validation errors in the card without leaving the references step", async () => {
+  it("shows client-photo validation errors and remains on the front step", async () => {
     const reference = { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 };
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response([]))
@@ -251,12 +248,87 @@ describe("CustomPhotobookAiProposalPanel", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
-    const card = (await screen.findAllByRole("article"))[0];
-    fireEvent.click(within(card).getByRole("button", { name: "Usar como tapa" }));
+    await selectWorkflowStep("Tapa frontal");
+    const clientPhotoGroup = screen.getByRole("group", { name: "Foto del cliente para tapa frontal" });
+    fireEvent.click(within(clientPhotoGroup).getByRole("button", { name: "Usar como tapa" }));
 
-    expect(await within(card).findByText("La imagen debe ser cuadrada y medir al menos 2500 × 2500 px.")).toBeTruthy();
-    expect(screen.getByText("Paso 1 de 4")).toBeTruthy();
-    expect(screen.queryByRole("heading", { name: "Prepara la tapa frontal" })).toBeNull();
+    expect(await within(clientPhotoGroup).findByText("La imagen debe ser cuadrada y medir al menos 2500 × 2500 px.")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Prepara la tapa frontal" })).toBeTruthy();
+  });
+
+  it("allows a client back-cover reference without a selected front and stays on the back step", async () => {
+    const reference = { ...activeReferences[0], surface: "BACK_COVER", slotIndex: 1 };
+    const selectedDesign = {
+      id: 15,
+      surface: "BACK_COVER",
+      sourceDesignId: null,
+      isSelected: true,
+      provider: "manual",
+      createdAt: "2026-10-21T12:00:00.000Z",
+      asset: { id: 7, url: reference.url, width: 2500, height: 2500 },
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([reference]))
+      .mockResolvedValueOnce(response({ dimensions: { width: 2500, height: 2500 }, isSelected: true }))
+      .mockResolvedValueOnce(response([selectedDesign]))
+      .mockResolvedValueOnce(response([reference]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Contratapa");
+    const clientPhotoGroup = screen.getByRole("group", { name: "Foto del cliente para contratapa" });
+    const applyButton = within(clientPhotoGroup).getByRole("button", { name: "Usar como contratapa" });
+    expect(applyButton).toHaveProperty("disabled", false);
+    fireEvent.click(applyButton);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/admin-api/photobook/custom-requests/41/references/7/use-as-cover",
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ surface: "BACK_COVER" }) }),
+    ));
+    expect(await screen.findByRole("heading", { name: "Prepara la contratapa" })).toBeTruthy();
+    expect(await screen.findByText("Foto del cliente validada (2500 × 2500 px) y elegida como contratapa.")).toBeTruthy();
+  });
+
+  it("deselects a chosen front, refreshes workspace, and reports a removed derived back cover", async () => {
+    const selectedFront = {
+      id: 14,
+      surface: "FRONT_COVER",
+      sourceDesignId: null,
+      isSelected: true,
+      provider: "manual",
+      createdAt: "2026-10-21T12:00:00.000Z",
+      asset: { id: 91, url: "https://assets.test/front.png", width: 2500, height: 2500 },
+    };
+    const selectedBack = {
+      id: 15,
+      surface: "BACK_COVER",
+      sourceDesignId: 14,
+      isSelected: true,
+      provider: "openai",
+      createdAt: "2026-10-21T12:05:00.000Z",
+      asset: { id: 92, url: "https://assets.test/back.png" },
+    };
+    const unselectedFront = { ...selectedFront, isSelected: false };
+    const unselectedBack = { ...selectedBack, isSelected: false };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([selectedFront, selectedBack]))
+      .mockResolvedValueOnce(response(activeReferences))
+      .mockResolvedValueOnce(response({ removedDerivedBackCover: true }))
+      .mockResolvedValueOnce(response([unselectedFront, unselectedBack]))
+      .mockResolvedValueOnce(response(activeReferences));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Tapa frontal");
+    fireEvent.click(await screen.findByRole("button", { name: "Quitar selección" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/admin-api/photobook/custom-requests/41/designs/14/deselect",
+      { method: "POST" },
+    ));
+    expect(await screen.findByText("Se quitó la tapa frontal. También se quitó la contratapa generada con IA a partir de esa tapa.")).toBeTruthy();
+    expect(fetchMock).toHaveBeenNthCalledWith(4, "/admin-api/photobook/custom-requests/41/designs");
   });
 
   it("accepts a print-ready manual cover without requiring references or calling AI", async () => {

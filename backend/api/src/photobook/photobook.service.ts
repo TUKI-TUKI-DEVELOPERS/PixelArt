@@ -590,21 +590,6 @@ export class PhotobookService {
     const reference = references[0];
     if (!reference) throw new NotFoundException('La referencia no pertenece a esta solicitud');
 
-    let sourceDesignId: number | null = null;
-    if (surface === 'BACK_COVER') {
-      const fronts: { id: string }[] = await this.dataSource.query(
-        `SELECT id
-         FROM custom_photobook_request_designs
-         WHERE request_id = $1 AND surface = 'FRONT_COVER' AND is_selected = true
-         LIMIT 1`,
-        [requestId],
-      );
-      if (!fronts[0]) {
-        throw new BadRequestException('Selecciona primero la tapa frontal para poder elegir la contratapa');
-      }
-      sourceDesignId = Number(fronts[0].id);
-    }
-
     const buffer = await this.fileStorage.download(reference.storage_key);
     const dimensions = await this.assertCustomCoverArtwork(buffer);
     const prompt = 'Foto del cliente usada tal cual; no se utilizó generación con IA.';
@@ -614,7 +599,7 @@ export class PhotobookService {
     return {
       id: created.id,
       surface,
-      sourceDesignId,
+      sourceDesignId: null,
       isSelected: true,
       provider: 'manual',
       prompt,
@@ -718,7 +703,18 @@ export class PhotobookService {
       );
       const design = designs[0];
       if (!design) throw new BadRequestException('La propuesta elegida no pertenece a esta solicitud');
-      if (design.surface === 'BACK_COVER') {
+
+      let selectedBack: { id: string; source_design_id: string | null; provider: string } | null = null;
+      if (design.surface === 'FRONT_COVER') {
+        const backs: { id: string; source_design_id: string | null; provider: string }[] = await manager.query(
+          `SELECT id, source_design_id, provider
+           FROM custom_photobook_request_designs
+           WHERE request_id = $1 AND surface = 'BACK_COVER' AND is_selected = true
+           FOR UPDATE`,
+          [requestId],
+        );
+        selectedBack = backs[0] ?? null;
+      } else if (design.provider !== 'manual') {
         const fronts: { id: string }[] = await manager.query(
           `SELECT id FROM custom_photobook_request_designs
            WHERE request_id = $1 AND surface = 'FRONT_COVER' AND is_selected = true
@@ -729,16 +725,7 @@ export class PhotobookService {
           throw new BadRequestException('Selecciona primero la tapa frontal para poder elegir la contratapa');
         }
         if (design.source_design_id !== fronts[0].id) {
-          if (design.provider === 'manual' && design.source_design_id === null) {
-            await manager.query(
-              `UPDATE custom_photobook_request_designs
-               SET source_design_id = $1
-               WHERE id = $2 AND request_id = $3 AND source_design_id IS NULL`,
-              [fronts[0].id, designId, requestId],
-            );
-          } else {
-            throw new BadRequestException('La contratapa debe provenir de la tapa frontal seleccionada actualmente');
-          }
+          throw new BadRequestException('La contratapa debe provenir de la tapa frontal seleccionada actualmente');
         }
       }
 
@@ -749,12 +736,117 @@ export class PhotobookService {
         [requestId, design.surface],
       );
       const assetColumn = design.surface === 'FRONT_COVER' ? 'front_cover_asset_id' : 'back_cover_asset_id';
-      const clearBackCover = design.surface === 'FRONT_COVER' ? ', back_cover_asset_id = NULL' : '';
       await manager.query(
         `UPDATE custom_photobook_requests
-         SET ${assetColumn} = $1${clearBackCover}, cover_approved_at = NULL, updated_at = now()
+         SET ${assetColumn} = $1, cover_approved_at = NULL, updated_at = now()
          WHERE id = $2`,
         [design.asset_id, requestId],
+      );
+      if (
+        design.surface === 'FRONT_COVER'
+        && selectedBack
+        && selectedBack.provider !== 'manual'
+        && selectedBack.source_design_id !== design.id
+      ) {
+        await manager.query(
+          `UPDATE custom_photobook_request_designs
+           SET is_selected = false
+           WHERE id = $1 AND request_id = $2`,
+          [selectedBack.id, requestId],
+        );
+        await manager.query(
+          `UPDATE custom_photobook_requests
+           SET back_cover_asset_id = NULL, updated_at = now()
+           WHERE id = $1`,
+          [requestId],
+        );
+      }
+      await manager.query(
+        `UPDATE public_links
+         SET revoked_at = now()
+         WHERE link_type = 'PHOTOBOOK_COVER_APPROVAL'
+           AND custom_photobook_request_id = $1
+           AND revoked_at IS NULL`,
+        [requestId],
+      );
+      const rows = returningRows<{ id: string }>(await manager.query(
+        `UPDATE custom_photobook_request_designs
+         SET is_selected = true
+         WHERE id = $1 AND request_id = $2
+         RETURNING id`,
+        [designId, requestId],
+      ));
+      return { id: Number(rows[0].id), surface: design.surface, isSelected: true };
+    });
+  }
+
+  async deselectCustomCoverProposal(requestId: number, designId: number) {
+    return this.dataSource.transaction(async (manager) => {
+      const designs: { id: string; surface: 'FRONT_COVER' | 'BACK_COVER'; is_selected: boolean }[] = await manager.query(
+        `SELECT id, surface, is_selected
+         FROM custom_photobook_request_designs
+         WHERE id = $1 AND request_id = $2 AND surface IN ('FRONT_COVER', 'BACK_COVER')
+         FOR UPDATE`,
+        [designId, requestId],
+      );
+      const design = designs[0];
+      if (!design) throw new NotFoundException('La propuesta no pertenece a esta solicitud');
+      if (!design.is_selected) throw new BadRequestException('Esta propuesta no está seleccionada');
+
+      const requests: { status: string; cover_approved_at: Date | null }[] = await manager.query(
+        `SELECT status, cover_approved_at
+         FROM custom_photobook_requests
+         WHERE id = $1
+         FOR UPDATE`,
+        [requestId],
+      );
+      const request = requests[0];
+      if (!request) throw new NotFoundException('Solicitud de photobook a medida no encontrada');
+      const canDeselectStatuses = ['PENDING_REVIEW', 'DESIGN_IN_PROGRESS', 'AWAITING_CUSTOMER', 'CHANGES_REQUESTED'];
+      if (request.cover_approved_at || !canDeselectStatuses.includes(request.status)) {
+        throw new BadRequestException('El cliente ya aprobó la cubierta; no se puede quitar la selección.');
+      }
+
+      let removedDerivedBackCover = false;
+      if (design.surface === 'FRONT_COVER') {
+        const derivedBacks: { id: string }[] = await manager.query(
+          `SELECT id
+           FROM custom_photobook_request_designs
+           WHERE request_id = $1 AND surface = 'BACK_COVER' AND is_selected = true
+             AND provider <> 'manual' AND source_design_id = $2
+           FOR UPDATE`,
+          [requestId, designId],
+        );
+        const derivedBack = derivedBacks[0];
+        if (derivedBack) {
+          await manager.query(
+            `UPDATE custom_photobook_request_designs
+             SET is_selected = false
+             WHERE id = $1 AND request_id = $2`,
+            [derivedBack.id, requestId],
+          );
+          await manager.query(
+            `UPDATE custom_photobook_requests
+             SET back_cover_asset_id = NULL, updated_at = now()
+             WHERE id = $1`,
+            [requestId],
+          );
+          removedDerivedBackCover = true;
+        }
+      }
+
+      const assetColumn = design.surface === 'FRONT_COVER' ? 'front_cover_asset_id' : 'back_cover_asset_id';
+      await manager.query(
+        `UPDATE custom_photobook_request_designs
+         SET is_selected = false
+         WHERE id = $1 AND request_id = $2`,
+        [designId, requestId],
+      );
+      await manager.query(
+        `UPDATE custom_photobook_requests
+         SET ${assetColumn} = NULL, cover_approved_at = NULL, updated_at = now()
+         WHERE id = $1`,
+        [requestId],
       );
       await manager.query(
         `UPDATE public_links
@@ -764,22 +856,14 @@ export class PhotobookService {
            AND revoked_at IS NULL`,
         [requestId],
       );
-      if (design.surface === 'FRONT_COVER') {
-        await manager.query(
-          `UPDATE custom_photobook_request_designs
-           SET is_selected = false
-           WHERE request_id = $1 AND surface = 'BACK_COVER'`,
-          [requestId],
-        );
-      }
-      const rows = returningRows<{ id: string }>(await manager.query(
-        `UPDATE custom_photobook_request_designs
-         SET is_selected = true
-         WHERE id = $1 AND request_id = $2
-         RETURNING id`,
-        [designId, requestId],
-      ));
-      return { id: Number(rows[0].id), surface: design.surface, isSelected: true };
+      await manager.query(
+        `UPDATE custom_photobook_requests
+         SET status = 'DESIGN_IN_PROGRESS', updated_at = now()
+         WHERE id = $1 AND status = 'AWAITING_CUSTOMER'`,
+        [requestId],
+      );
+
+      return { id: Number(design.id), surface: design.surface, isSelected: false, removedDerivedBackCover };
     });
   }
 
@@ -796,7 +880,7 @@ export class PhotobookService {
          ON back_design.request_id = r.id
         AND back_design.surface = 'BACK_COVER'
         AND back_design.is_selected = true
-        AND back_design.source_design_id = front_design.id
+        AND (back_design.provider = 'manual' OR back_design.source_design_id = front_design.id)
        WHERE r.id = $1`,
       [requestId],
     );

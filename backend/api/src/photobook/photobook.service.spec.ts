@@ -403,37 +403,41 @@ describe('PhotobookService.createCustomRequest', () => {
     expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining("link_type = 'PHOTOBOOK_COVER_APPROVAL'"), [41]);
   });
 
-  it('requires a selected front before selecting a manual back cover', async () => {
+  it('selects a manual back cover without a selected front and leaves it independent', async () => {
     const h = createHarness();
-    h.manager.query
-      .mockResolvedValueOnce([{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: null, provider: 'manual' }])
-      .mockResolvedValueOnce([]);
-
-    await expect(h.service.selectCustomCoverProposal(41, 15)).rejects.toThrow(
-      'Selecciona primero la tapa frontal para poder elegir la contratapa',
-    );
-  });
-
-  it('binds a manual back cover to the currently selected front when selecting it', async () => {
-    const h = createHarness();
-    h.manager.query
-      .mockResolvedValueOnce([{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: null, provider: 'manual' }])
-      .mockResolvedValueOnce([{ id: '14' }])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([[{ id: '15' }], 1]);
+    h.manager.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('SELECT id, surface, asset_id, source_design_id, provider')) {
+        return [{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: null, provider: 'manual' }];
+      }
+      if (sql.includes('RETURNING id')) return [{ id: '15' }];
+      return [];
+    });
 
     await expect(h.service.selectCustomCoverProposal(41, 15)).resolves.toEqual({
       id: 15,
       surface: 'BACK_COVER',
       isSelected: true,
     });
-    expect(h.manager.query).toHaveBeenCalledWith(
-      expect.stringContaining('SET source_design_id = $1'),
-      ['14', 15, 41],
-    );
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes("surface = 'FRONT_COVER'"))).toBe(false);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET source_design_id ='))).toBe(false);
+  });
+
+  it('does not link a manual back cover to a selected front', async () => {
+    const h = createHarness();
+    h.manager.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('SELECT id, surface, asset_id, source_design_id, provider')) {
+        return [{ id: '15', surface: 'BACK_COVER', asset_id: '92', source_design_id: null, provider: 'manual' }];
+      }
+      if (sql.includes('RETURNING id')) return [{ id: '15' }];
+      return [];
+    });
+
+    await expect(h.service.selectCustomCoverProposal(41, 15)).resolves.toEqual({
+      id: 15,
+      surface: 'BACK_COVER',
+      isSelected: true,
+    });
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET source_design_id ='))).toBe(false);
   });
 
   it('rejects a stale back proposal that was generated from another front cover', async () => {
@@ -976,7 +980,11 @@ describe('PhotobookService.applyReferenceAsCustomCover', () => {
     }).png().toBuffer();
   }
 
-  function mockReference(h: ReturnType<typeof createHarness>, assetId = 77) {
+  function mockReference(
+    h: ReturnType<typeof createHarness>,
+    assetId = 77,
+    surface: 'FRONT_COVER' | 'BACK_COVER' = 'FRONT_COVER',
+  ) {
     h.dataSource.query.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM custom_photobook_request_reference_assets')) {
         return [{ storage_key: 'uploads/photobooks/customer-cover.png', width: 2500, height: 2500 }];
@@ -989,7 +997,7 @@ describe('PhotobookService.applyReferenceAsCustomCover', () => {
         return [{ id: '14', created_at: new Date('2026-10-21T12:00:00.000Z') }];
       }
       if (sql.startsWith('SELECT id, surface, asset_id, source_design_id, provider')) {
-        return [{ id: '14', surface: 'FRONT_COVER', asset_id: String(assetId), source_design_id: null, provider: 'manual' }];
+        return [{ id: '14', surface, asset_id: String(assetId), source_design_id: null, provider: 'manual' }];
       }
       if (sql.includes('RETURNING id')) return [{ id: '14' }];
       return [];
@@ -1045,19 +1053,198 @@ describe('PhotobookService.applyReferenceAsCustomCover', () => {
     expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO custom_photobook_request_designs'), expect.anything());
   });
 
-  it('rejects a back cover before inserting when no front cover is selected', async () => {
+  it('selects a back reference independently without requiring or linking a front cover', async () => {
     const h = createHarness();
-    h.dataSource.query.mockImplementation(async (sql: string) => {
-      if (sql.includes('FROM custom_photobook_request_reference_assets')) {
-        return [{ storage_key: 'uploads/photobooks/customer-cover.png', width: 2500, height: 2500 }];
-      }
-      if (sql.includes("surface = 'FRONT_COVER'")) return [];
-      return [[], 0];
+    const image = await makeImage(2500, 2500);
+    mockReference(h, 77, 'BACK_COVER');
+    h.fileStorage.download.mockResolvedValue(image);
+
+    const result = await h.service.applyReferenceAsCustomCover(41, 77, 'BACK_COVER');
+
+    expect(result).toMatchObject({ surface: 'BACK_COVER', sourceDesignId: null, isSelected: true });
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining("VALUES ($1, $2, $3, NULL, $4, 'manual')"),
+      [41, 'BACK_COVER', 77, 'Foto del cliente usada tal cual; no se utilizó generación con IA.'],
+    );
+    expect(h.dataSource.query).not.toHaveBeenCalledWith(expect.stringContaining("surface = 'FRONT_COVER'"), expect.anything());
+    expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringContaining('SET source_design_id ='), expect.anything());
+  });
+});
+
+describe('PhotobookService cover selection independence', () => {
+  function mockSelection(
+    h: ReturnType<typeof createHarness>,
+    design: { id: string; surface: 'FRONT_COVER' | 'BACK_COVER'; asset_id: string; source_design_id: string | null; provider: string },
+    selectedBack: { id: string; source_design_id: string | null; provider: string } | null = null,
+    selectedFront: { id: string } | null = null,
+  ) {
+    h.manager.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('SELECT id, surface, asset_id, source_design_id, provider')) return [design];
+      if (sql.includes("surface = 'BACK_COVER'") && sql.includes('is_selected = true')) return selectedBack ? [selectedBack] : [];
+      if (sql.includes("surface = 'FRONT_COVER'") && sql.includes('is_selected = true')) return selectedFront ? [selectedFront] : [];
+      if (sql.includes('RETURNING id')) return [{ id: design.id }];
+      return [];
+    });
+  }
+
+  it('preserves an independently selected manual back cover when selecting a new front', async () => {
+    const h = createHarness();
+    mockSelection(h, { id: '20', surface: 'FRONT_COVER', asset_id: '101', source_design_id: null, provider: 'openai' }, {
+      id: '30', source_design_id: null, provider: 'manual',
     });
 
-    await expect(h.service.applyReferenceAsCustomCover(41, 77, 'BACK_COVER'))
-      .rejects.toThrow('Selecciona primero la tapa frontal para poder elegir la contratapa');
-    expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO custom_photobook_request_designs'), expect.anything());
+    await expect(h.service.selectCustomCoverProposal(41, 20)).resolves.toMatchObject({ surface: 'FRONT_COVER', isSelected: true });
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET back_cover_asset_id = NULL'))).toBe(false);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).startsWith('UPDATE ') && String(sql).includes("surface = 'BACK_COVER'"))).toBe(false);
+  });
+
+  it('removes an AI-derived back cover when it belongs to a different front', async () => {
+    const h = createHarness();
+    mockSelection(h, { id: '20', surface: 'FRONT_COVER', asset_id: '101', source_design_id: null, provider: 'openai' }, {
+      id: '30', source_design_id: '10', provider: 'openai',
+    });
+
+    await h.service.selectCustomCoverProposal(41, 20);
+
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining('SET is_selected = false'),
+      ['30', 41],
+    );
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining('SET back_cover_asset_id = NULL'),
+      [41],
+    );
+  });
+
+  it('preserves an AI-derived back cover already based on the newly selected front', async () => {
+    const h = createHarness();
+    mockSelection(h, { id: '20', surface: 'FRONT_COVER', asset_id: '101', source_design_id: null, provider: 'openai' }, {
+      id: '30', source_design_id: '20', provider: 'openai',
+    });
+
+    await h.service.selectCustomCoverProposal(41, 20);
+
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET back_cover_asset_id = NULL'))).toBe(false);
+  });
+
+  it('selects a manual back cover without a front and never writes source_design_id', async () => {
+    const h = createHarness();
+    mockSelection(h, { id: '30', surface: 'BACK_COVER', asset_id: '102', source_design_id: null, provider: 'manual' });
+
+    await expect(h.service.selectCustomCoverProposal(41, 30)).resolves.toMatchObject({ surface: 'BACK_COVER', isSelected: true });
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes("surface = 'FRONT_COVER'"))).toBe(false);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET source_design_id ='))).toBe(false);
+  });
+
+  it('still requires a selected front for an AI-derived back cover', async () => {
+    const h = createHarness();
+    mockSelection(h, { id: '30', surface: 'BACK_COVER', asset_id: '102', source_design_id: '20', provider: 'openai' });
+
+    await expect(h.service.selectCustomCoverProposal(41, 30)).rejects.toThrow(
+      'Selecciona primero la tapa frontal para poder elegir la contratapa',
+    );
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET is_selected = true'))).toBe(false);
+  });
+
+  it('allows approval when the selected back cover is independent', async () => {
+    const h = createHarness();
+    const expiresAt = new Date('2026-10-05T12:00:00.000Z');
+    h.dataSource.query.mockResolvedValueOnce([{
+      id: '41', customer_full_name: 'Ana Cliente', customer_email: 'ana@example.com', status: 'DESIGN_IN_PROGRESS',
+      cover_approved_at: null, front_cover_asset_id: '101', back_cover_asset_id: '102', selected_front_id: '20', selected_back_id: '30',
+    }]).mockResolvedValue([]);
+    h.publicLinksService.generate.mockResolvedValue({ token: 'independent-cover-token', expiresAt });
+
+    await expect(h.service.sendCustomCoverApproval(41)).resolves.toMatchObject({ status: 'AWAITING_CUSTOMER' });
+    expect(h.dataSource.query.mock.calls[0][0]).toContain("back_design.provider = 'manual' OR back_design.source_design_id = front_design.id");
+    expect(h.publicLinksService.generate).toHaveBeenCalled();
+  });
+
+  function mockDeselect(
+    h: ReturnType<typeof createHarness>,
+    design: { id: string; surface: 'FRONT_COVER' | 'BACK_COVER'; is_selected: boolean } | null,
+    request: { status: string; cover_approved_at: Date | null } | null = { status: 'DESIGN_IN_PROGRESS', cover_approved_at: null },
+    derivedBack: { id: string } | null = null,
+  ) {
+    h.manager.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('SELECT id, surface, is_selected')) return design ? [design] : [];
+      if (sql.includes('SELECT status, cover_approved_at')) return request ? [request] : [];
+      if (sql.includes("provider <> 'manual'") && sql.includes('source_design_id = $2')) return derivedBack ? [derivedBack] : [];
+      return [];
+    });
+  }
+
+  it('deselects only the front when the selected back cover is independent', async () => {
+    const h = createHarness();
+    mockDeselect(h, { id: '20', surface: 'FRONT_COVER', is_selected: true });
+
+    await expect(h.service.deselectCustomCoverProposal(41, 20)).resolves.toEqual({
+      id: 20, surface: 'FRONT_COVER', isSelected: false, removedDerivedBackCover: false,
+    });
+    expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('SET front_cover_asset_id = NULL'), [41]);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET back_cover_asset_id = NULL'))).toBe(false);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).startsWith('UPDATE ') && String(sql).includes("surface = 'BACK_COVER'"))).toBe(false);
+  });
+
+  it('also deselects an AI-derived back cover linked to the removed front', async () => {
+    const h = createHarness();
+    mockDeselect(h, { id: '20', surface: 'FRONT_COVER', is_selected: true }, undefined, { id: '30' });
+
+    await expect(h.service.deselectCustomCoverProposal(41, 20)).resolves.toMatchObject({ removedDerivedBackCover: true });
+    expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('SET back_cover_asset_id = NULL'), [41]);
+    expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('SET is_selected = false'), ['30', 41]);
+  });
+
+  it('deselects only the back cover when requested', async () => {
+    const h = createHarness();
+    mockDeselect(h, { id: '30', surface: 'BACK_COVER', is_selected: true });
+
+    await expect(h.service.deselectCustomCoverProposal(41, 30)).resolves.toEqual({
+      id: 30, surface: 'BACK_COVER', isSelected: false, removedDerivedBackCover: false,
+    });
+    expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('SET back_cover_asset_id = NULL'), [41]);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).includes('SET front_cover_asset_id = NULL'))).toBe(false);
+  });
+
+  it('returns an awaiting approval request to design in progress when a cover is deselected', async () => {
+    const h = createHarness();
+    mockDeselect(h, { id: '30', surface: 'BACK_COVER', is_selected: true }, { status: 'AWAITING_CUSTOMER', cover_approved_at: null });
+
+    await h.service.deselectCustomCoverProposal(41, 30);
+
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining("SET status = 'DESIGN_IN_PROGRESS'"),
+      [41],
+    );
+    expect(h.manager.query).toHaveBeenCalledWith(expect.stringContaining('UPDATE public_links'), [41]);
+  });
+
+  it.each([
+    ['EDITOR_READY', null],
+    ['DESIGN_IN_PROGRESS', new Date('2026-10-01T00:00:00.000Z')],
+  ])('blocks deselection after approval (status %s)', async (status, coverApprovedAt) => {
+    const h = createHarness();
+    mockDeselect(h, { id: '20', surface: 'FRONT_COVER', is_selected: true }, { status, cover_approved_at: coverApprovedAt });
+
+    await expect(h.service.deselectCustomCoverProposal(41, 20)).rejects.toBeInstanceOf(BadRequestException);
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).startsWith('UPDATE '))).toBe(false);
+  });
+
+  it('rejects a design that is not selected', async () => {
+    const h = createHarness();
+    mockDeselect(h, { id: '20', surface: 'FRONT_COVER', is_selected: false });
+
+    await expect(h.service.deselectCustomCoverProposal(41, 20)).rejects.toThrow('Esta propuesta no está seleccionada');
+    expect(h.manager.query.mock.calls.some(([sql]) => String(sql).startsWith('UPDATE '))).toBe(false);
+  });
+
+  it('returns not found for a design owned by another request', async () => {
+    const h = createHarness();
+    mockDeselect(h, null);
+
+    await expect(h.service.deselectCustomCoverProposal(41, 20))
+      .rejects.toThrow(new NotFoundException('La propuesta no pertenece a esta solicitud'));
+    expect(h.manager.query).toHaveBeenCalledTimes(1);
   });
 });
 

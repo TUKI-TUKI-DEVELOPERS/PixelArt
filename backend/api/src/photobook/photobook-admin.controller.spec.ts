@@ -11,6 +11,14 @@ describe('PhotobookAdminController', () => {
     expect(service.applyReferenceAsCustomCover).toHaveBeenCalledWith(41, 77, 'FRONT_COVER');
   });
 
+  it('delegates cover deselection with numeric ids', async () => {
+    const service = { deselectCustomCoverProposal: jest.fn().mockResolvedValue({ id: 14, isSelected: false }) };
+    const controller = new PhotobookAdminController(service as any, {} as any, {} as any, {} as any);
+
+    await expect(controller.deselectCustomCoverProposal('41', '14')).resolves.toEqual({ id: 14, isSelected: false });
+    expect(service.deselectCustomCoverProposal).toHaveBeenCalledWith(41, 14);
+  });
+
   it('protects every custom-request admin endpoint with JWT authentication', () => {
     const protectedMethods = [
       'listCustomRequests',
@@ -27,6 +35,7 @@ describe('PhotobookAdminController', () => {
       'replaceCustomReferenceAsset',
       'setCustomReferenceAssetActive',
       'applyReferenceAsCustomCover',
+      'deselectCustomCoverProposal',
     ] as const;
 
     for (const method of protectedMethods) {

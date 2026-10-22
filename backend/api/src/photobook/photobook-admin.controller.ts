@@ -146,6 +146,15 @@ export class PhotobookAdminController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/designs/:designId/deselect')
+  deselectCustomCoverProposal(
+    @Param('id') id: string,
+    @Param('designId') designId: string,
+  ) {
+    return this.service.deselectCustomCoverProposal(Number(id), Number(designId));
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/cover-approval/send')
   sendCustomCoverApproval(@Param('id') id: string) {
     return this.service.sendCustomCoverApproval(Number(id));
