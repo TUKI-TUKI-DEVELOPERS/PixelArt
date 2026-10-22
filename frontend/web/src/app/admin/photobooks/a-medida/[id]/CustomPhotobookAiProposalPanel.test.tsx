@@ -8,8 +8,8 @@ const activeReferences = [
   { assetId: 9, isActive: true, originalFilename: "foto-3.jpg", url: "https://assets.test/3.jpg", createdAt: "2026-09-28T12:02:00.000Z" },
 ];
 
-function response(data: unknown) {
-  return new Response(JSON.stringify(data), { status: 200 });
+function response(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), { status });
 }
 
 async function selectWorkflowStep(label: string) {
@@ -188,6 +188,75 @@ describe("CustomPhotobookAiProposalPanel", () => {
 
     const downloadLink = await screen.findByRole("link", { name: "Descargar original foto-1.jpg" });
     expect(downloadLink.getAttribute("href")).toBe("/admin-api/photobook/custom-requests/41/references/7/download");
+  });
+
+  it("shows reference-cover actions according to each reference surface", async () => {
+    const references = [
+      { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 },
+      { ...activeReferences[1], surface: "BACK_COVER", slotIndex: 1 },
+      { ...activeReferences[2], surface: null, slotIndex: null },
+    ];
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response(references));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+
+    const cards = await screen.findAllByRole("article");
+    expect(within(cards[0]).getByRole("button", { name: "Usar como tapa" })).toBeTruthy();
+    expect(within(cards[0]).queryByRole("button", { name: "Usar como contratapa" })).toBeNull();
+    expect(within(cards[1]).getByRole("button", { name: "Usar como contratapa" })).toHaveProperty("disabled", true);
+    expect(within(cards[1]).getByText("Elige primero la tapa frontal")).toBeTruthy();
+    expect(within(cards[2]).getByRole("button", { name: "Usar como tapa" })).toBeTruthy();
+    expect(within(cards[2]).getByRole("button", { name: "Usar como contratapa" })).toHaveProperty("disabled", true);
+  });
+
+  it("applies a client reference as a cover and advances to its workflow step", async () => {
+    const reference = { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 };
+    const selectedDesign = {
+      id: 14,
+      surface: "FRONT_COVER",
+      sourceDesignId: null,
+      isSelected: true,
+      provider: "manual",
+      createdAt: "2026-10-21T12:00:00.000Z",
+      asset: { id: 7, url: reference.url, width: 2500, height: 2500 },
+    };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([reference]))
+      .mockResolvedValueOnce(response({ dimensions: { width: 2500, height: 2500 }, isSelected: true }))
+      .mockResolvedValueOnce(response([selectedDesign]))
+      .mockResolvedValueOnce(response([reference]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Usar como tapa" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/admin-api/photobook/custom-requests/41/references/7/use-as-cover",
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ surface: "FRONT_COVER" }) }),
+    ));
+    expect(await screen.findByRole("heading", { name: "Prepara la tapa frontal" })).toBeTruthy();
+    expect(await screen.findByText("Foto del cliente validada (2500 × 2500 px) y elegida como tapa frontal.")).toBeTruthy();
+  });
+
+  it("shows reference validation errors in the card without leaving the references step", async () => {
+    const reference = { ...activeReferences[0], surface: "FRONT_COVER", slotIndex: 1 };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([reference]))
+      .mockResolvedValueOnce(response({ message: "La imagen debe ser cuadrada y medir al menos 2500 × 2500 px." }, 400));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    const card = (await screen.findAllByRole("article"))[0];
+    fireEvent.click(within(card).getByRole("button", { name: "Usar como tapa" }));
+
+    expect(await within(card).findByText("La imagen debe ser cuadrada y medir al menos 2500 × 2500 px.")).toBeTruthy();
+    expect(screen.getByText("Paso 1 de 4")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Prepara la tapa frontal" })).toBeNull();
   });
 
   it("accepts a print-ready manual cover without requiring references or calling AI", async () => {

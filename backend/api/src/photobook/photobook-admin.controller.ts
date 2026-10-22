@@ -88,6 +88,16 @@ export class PhotobookAdminController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('custom-requests/:id/references/:assetId/use-as-cover')
+  applyReferenceAsCustomCover(
+    @Param('id') id: string,
+    @Param('assetId') assetId: string,
+    @Body('surface') surface: 'FRONT_COVER' | 'BACK_COVER',
+  ) {
+    return this.service.applyReferenceAsCustomCover(Number(id), Number(assetId), surface);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('custom-requests/:id/references/:assetId/active')
   setCustomReferenceAssetActive(
     @Param('id') id: string,

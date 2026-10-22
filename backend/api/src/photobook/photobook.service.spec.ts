@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import sharp from 'sharp';
 import { PhotobookService } from './photobook.service';
 
@@ -966,6 +966,98 @@ describe('PhotobookService.uploadCustomCoverArtwork', () => {
     expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [5]);
     expect(h.dataSource.query).not.toHaveBeenCalledWith(expect.stringContaining('DELETE FROM assets'), [NaN]);
     expect(h.fileStorage.delete).toHaveBeenCalledWith('uploads/photobooks/previous-cover.png');
+  });
+});
+
+describe('PhotobookService.applyReferenceAsCustomCover', () => {
+  async function makeImage(width: number, height: number) {
+    return sharp({
+      create: { width, height, channels: 3, background: '#804187' },
+    }).png().toBuffer();
+  }
+
+  function mockReference(h: ReturnType<typeof createHarness>, assetId = 77) {
+    h.dataSource.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM custom_photobook_request_reference_assets')) {
+        return [{ storage_key: 'uploads/photobooks/customer-cover.png', width: 2500, height: 2500 }];
+      }
+      return [[], 0];
+    });
+    h.fileStorage.download.mockResolvedValue(undefined);
+    h.manager.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('INSERT INTO custom_photobook_request_designs')) {
+        return [{ id: '14', created_at: new Date('2026-10-21T12:00:00.000Z') }];
+      }
+      if (sql.startsWith('SELECT id, surface, asset_id, source_design_id, provider')) {
+        return [{ id: '14', surface: 'FRONT_COVER', asset_id: String(assetId), source_design_id: null, provider: 'manual' }];
+      }
+      if (sql.includes('RETURNING id')) return [{ id: '14' }];
+      return [];
+    });
+  }
+
+  it('reuses and selects a valid reference asset without uploading or deleting it', async () => {
+    const h = createHarness();
+    const image = await makeImage(2500, 2500);
+    mockReference(h);
+    h.fileStorage.download.mockResolvedValue(image);
+
+    const result = await h.service.applyReferenceAsCustomCover(41, 77, 'FRONT_COVER');
+
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining("VALUES ($1, $2, $3, NULL, $4, 'manual')"),
+      [41, 'FRONT_COVER', 77, 'Foto del cliente usada tal cual; no se utilizó generación con IA.'],
+    );
+    expect(result).toMatchObject({
+      id: 14,
+      surface: 'FRONT_COVER',
+      isSelected: true,
+      provider: 'manual',
+      asset: { id: 77, url: 'https://assets.test/uploads/photobooks/customer-cover.png' },
+      dimensions: { width: 2500, height: 2500 },
+    });
+    expect(h.manager.query).toHaveBeenCalledWith(
+      expect.stringContaining('SET is_selected = true'),
+      [14, 41],
+    );
+    expect(h.assetsService.uploadAsset).not.toHaveBeenCalled();
+    expect(h.fileStorage.delete).not.toHaveBeenCalled();
+  });
+
+  it('rejects a non-square reference with the custom-artwork validation message and inserts nothing', async () => {
+    const h = createHarness();
+    const image = await makeImage(3000, 2000);
+    mockReference(h);
+    h.fileStorage.download.mockResolvedValue(image);
+
+    await expect(h.service.applyReferenceAsCustomCover(41, 77, 'FRONT_COVER')).rejects.toThrow(
+      'La imagen debe ser cuadrada y medir al menos 2500 × 2500 px para una tapa de 22 × 22 cm. El archivo recibido mide 3000 × 2000 px.',
+    );
+    expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO custom_photobook_request_designs'), expect.anything());
+  });
+
+  it('rejects an asset that is not a reference of this request', async () => {
+    const h = createHarness();
+    h.dataSource.query.mockResolvedValueOnce([]);
+
+    await expect(h.service.applyReferenceAsCustomCover(41, 77, 'FRONT_COVER'))
+      .rejects.toThrow(new NotFoundException('La referencia no pertenece a esta solicitud'));
+    expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO custom_photobook_request_designs'), expect.anything());
+  });
+
+  it('rejects a back cover before inserting when no front cover is selected', async () => {
+    const h = createHarness();
+    h.dataSource.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM custom_photobook_request_reference_assets')) {
+        return [{ storage_key: 'uploads/photobooks/customer-cover.png', width: 2500, height: 2500 }];
+      }
+      if (sql.includes("surface = 'FRONT_COVER'")) return [];
+      return [[], 0];
+    });
+
+    await expect(h.service.applyReferenceAsCustomCover(41, 77, 'BACK_COVER'))
+      .rejects.toThrow('Selecciona primero la tapa frontal para poder elegir la contratapa');
+    expect(h.manager.query).not.toHaveBeenCalledWith(expect.stringContaining('INSERT INTO custom_photobook_request_designs'), expect.anything());
   });
 });
 

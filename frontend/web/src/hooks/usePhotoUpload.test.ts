@@ -7,6 +7,7 @@ vi.mock('@/lib/compressImage', () => ({
   compressImage: vi.fn(async (file: File) => file),
 }));
 
+import { compressImage } from '@/lib/compressImage';
 import { usePhotoUpload, type UploadedPhoto } from './usePhotoUpload';
 
 type UploadApiResponse = {
@@ -96,6 +97,32 @@ describe('usePhotoUpload', () => {
     const sent = body.get('file');
     expect(sent).toBeInstanceOf(File);
     expect((sent as File).name).toBe('a.jpg');
+  });
+
+  it('passes a configured max dimension to image compression', async () => {
+    fetchMock.mockResolvedValue(okResponse(assetData(1)));
+    vi.mocked(compressImage).mockClear();
+    const { result } = renderHook(() => usePhotoUpload('uploads/photobooks', { maxDimension: 5000 }));
+    const file = imageFile('large.jpg');
+
+    await act(async () => {
+      await result.current.uploadFiles([file]);
+    });
+
+    expect(compressImage).toHaveBeenCalledWith(file, 5000);
+  });
+
+  it('keeps the default compression dimension when no options are provided', async () => {
+    fetchMock.mockResolvedValue(okResponse(assetData(1)));
+    vi.mocked(compressImage).mockClear();
+    const { result } = renderHook(() => usePhotoUpload());
+    const file = imageFile('default.jpg');
+
+    await act(async () => {
+      await result.current.uploadFiles([file]);
+    });
+
+    expect(compressImage).toHaveBeenCalledWith(file);
   });
 
   it('maps a successful upload into an UploadedPhoto with a local preview URL', async () => {

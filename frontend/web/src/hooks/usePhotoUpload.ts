@@ -31,7 +31,11 @@ type UploadState = {
 
 const MAX_CONCURRENT = 3;
 
-export function usePhotoUpload(folder: string = "uploads/customers") {
+export function usePhotoUpload(
+  folder: string = "uploads/customers",
+  options?: { maxDimension?: number },
+) {
+  const maxDimension = options?.maxDimension;
   const uidCounter = useRef(0);
   const [state, setState] = useState<UploadState>({
     photos: [],
@@ -54,7 +58,7 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
 
       // C5b: Client-side compression before upload
       const compressedFiles = await Promise.all(
-        imageFiles.map((f) => compressImage(f)),
+        imageFiles.map((f) => maxDimension === undefined ? compressImage(f) : compressImage(f, maxDimension)),
       );
 
       // C5a: Parallel uploads with concurrency pool
@@ -140,7 +144,7 @@ export function usePhotoUpload(folder: string = "uploads/customers") {
       });
       return uploaded;
     },
-    [folder],
+    [folder, maxDimension],
   );
 
   const removePhoto = useCallback((uid: number) => {

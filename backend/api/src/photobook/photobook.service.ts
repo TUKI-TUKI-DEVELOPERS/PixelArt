@@ -480,20 +480,10 @@ export class PhotobookService {
     );
   }
 
-  async uploadCustomCoverArtwork(
-    requestId: number,
-    surface: CustomPhotobookCoverSurface,
-    file: { buffer: Buffer; originalFilename: string; mimeType: string },
-  ) {
-    if (surface !== 'FRONT_COVER' && surface !== 'BACK_COVER') {
-      throw new BadRequestException('Selecciona tapa frontal o contratapa para el diseño propio');
-    }
-    const [request] = await this.dataSource.query(`SELECT id FROM custom_photobook_requests WHERE id = $1`, [requestId]) as { id: string }[];
-    if (!request) throw new NotFoundException('Solicitud de photobook a medida no encontrada');
-
+  private async assertCustomCoverArtwork(buffer: Buffer) {
     let metadata: sharp.Metadata;
     try {
-      metadata = await sharp(file.buffer).metadata();
+      metadata = await sharp(buffer).metadata();
     } catch {
       throw new BadRequestException('No se pudo leer el archivo. Sube una imagen PNG, JPG o WebP válida.');
     }
@@ -507,38 +497,61 @@ export class PhotobookService {
         `La imagen debe ser cuadrada y medir al menos ${MIN_CUSTOM_COVER_ARTWORK_PX} × ${MIN_CUSTOM_COVER_ARTWORK_PX} px para una tapa de 22 × 22 cm. El archivo recibido mide ${width} × ${height} px.`,
       );
     }
+    return { width, height };
+  }
 
+  private async createManualCoverDesign(
+    requestId: number,
+    surface: CustomPhotobookCoverSurface,
+    assetId: number,
+    prompt: string,
+  ) {
+    const created = await this.dataSource.transaction(async (manager) => {
+      const rows: { id: string; created_at: Date }[] = await manager.query(
+        `INSERT INTO custom_photobook_request_designs
+          (request_id, surface, asset_id, source_design_id, assembled_prompt, provider)
+         VALUES ($1, $2, $3, NULL, $4, 'manual')
+         RETURNING id, created_at`,
+        [requestId, surface, assetId, prompt],
+      );
+      const design = rows[0];
+      const replacedRows = returningRows<{ asset_id: string }>(await manager.query(
+        `DELETE FROM custom_photobook_request_designs
+         WHERE request_id = $1 AND surface = $2 AND id <> $3 AND is_selected = false
+         RETURNING asset_id`,
+        [requestId, surface, design.id],
+      ));
+      await manager.query(
+        `UPDATE custom_photobook_requests
+         SET status = CASE WHEN status = 'PENDING_REVIEW' THEN 'DESIGN_IN_PROGRESS'::custom_photobook_request_status ELSE status END,
+             updated_at = now()
+         WHERE id = $1`,
+        [requestId],
+      );
+      return { design, replacedAssetIds: replacedRows.map((row) => Number(row.asset_id)) };
+    });
+    await this.deleteUnreferencedCustomCoverAssets(created.replacedAssetIds);
+    return { id: Number(created.design.id), createdAt: created.design.created_at };
+  }
+
+  async uploadCustomCoverArtwork(
+    requestId: number,
+    surface: CustomPhotobookCoverSurface,
+    file: { buffer: Buffer; originalFilename: string; mimeType: string },
+  ) {
+    if (surface !== 'FRONT_COVER' && surface !== 'BACK_COVER') {
+      throw new BadRequestException('Selecciona tapa frontal o contratapa para el diseño propio');
+    }
+    const [request] = await this.dataSource.query(`SELECT id FROM custom_photobook_requests WHERE id = $1`, [requestId]) as { id: string }[];
+    if (!request) throw new NotFoundException('Solicitud de photobook a medida no encontrada');
+
+    const { width, height } = await this.assertCustomCoverArtwork(file.buffer);
     const asset = await this.assetsService.uploadAsset({ ...file, folder: 'uploads/photobooks' });
     const prompt = 'Archivo final cargado por el administrador; no se utilizó generación con IA.';
     try {
-      const created = await this.dataSource.transaction(async (manager) => {
-        const rows: { id: string; created_at: Date }[] = await manager.query(
-          `INSERT INTO custom_photobook_request_designs
-            (request_id, surface, asset_id, source_design_id, assembled_prompt, provider)
-           VALUES ($1, $2, $3, NULL, $4, 'manual')
-           RETURNING id, created_at`,
-          [requestId, surface, asset.id, prompt],
-        );
-        const design = rows[0];
-        const replacedRows = returningRows<{ asset_id: string }>(await manager.query(
-          `DELETE FROM custom_photobook_request_designs
-           WHERE request_id = $1 AND surface = $2 AND id <> $3 AND is_selected = false
-           RETURNING asset_id`,
-          [requestId, surface, design.id],
-        ));
-        await manager.query(
-          `UPDATE custom_photobook_requests
-           SET status = CASE WHEN status = 'PENDING_REVIEW' THEN 'DESIGN_IN_PROGRESS'::custom_photobook_request_status ELSE status END,
-               updated_at = now()
-           WHERE id = $1`,
-          [requestId],
-        );
-        return { design, replacedAssetIds: replacedRows.map((row) => Number(row.asset_id)) };
-      });
-      await this.deleteUnreferencedCustomCoverAssets(created.replacedAssetIds);
-
+      const created = await this.createManualCoverDesign(requestId, surface, asset.id, prompt);
       return {
-        id: Number(created.design.id),
+        id: created.id,
         surface,
         sourceDesignId: null,
         isSelected: false,
@@ -551,12 +564,69 @@ export class PhotobookService {
           height: asset.height ?? height,
         },
         dimensions: { width: asset.width ?? width, height: asset.height ?? height },
-        createdAt: created.design.created_at,
+        createdAt: created.createdAt,
       };
     } catch (error) {
       await this.deleteUnreferencedCustomCoverAssets([asset.id]);
       throw error;
     }
+  }
+
+  async applyReferenceAsCustomCover(
+    requestId: number,
+    assetId: number,
+    surface: CustomPhotobookCoverSurface,
+  ) {
+    if (surface !== 'FRONT_COVER' && surface !== 'BACK_COVER') {
+      throw new BadRequestException('Selecciona tapa frontal o contratapa para el diseño propio');
+    }
+    const references: { storage_key: string }[] = await this.dataSource.query(
+      `SELECT a.storage_key
+       FROM custom_photobook_request_reference_assets r
+       JOIN assets a ON a.id = r.asset_id
+       WHERE r.request_id = $1 AND r.asset_id = $2`,
+      [requestId, assetId],
+    );
+    const reference = references[0];
+    if (!reference) throw new NotFoundException('La referencia no pertenece a esta solicitud');
+
+    let sourceDesignId: number | null = null;
+    if (surface === 'BACK_COVER') {
+      const fronts: { id: string }[] = await this.dataSource.query(
+        `SELECT id
+         FROM custom_photobook_request_designs
+         WHERE request_id = $1 AND surface = 'FRONT_COVER' AND is_selected = true
+         LIMIT 1`,
+        [requestId],
+      );
+      if (!fronts[0]) {
+        throw new BadRequestException('Selecciona primero la tapa frontal para poder elegir la contratapa');
+      }
+      sourceDesignId = Number(fronts[0].id);
+    }
+
+    const buffer = await this.fileStorage.download(reference.storage_key);
+    const dimensions = await this.assertCustomCoverArtwork(buffer);
+    const prompt = 'Foto del cliente usada tal cual; no se utilizó generación con IA.';
+    const created = await this.createManualCoverDesign(requestId, surface, assetId, prompt);
+    await this.selectCustomCoverProposal(requestId, created.id);
+
+    return {
+      id: created.id,
+      surface,
+      sourceDesignId,
+      isSelected: true,
+      provider: 'manual',
+      prompt,
+      asset: {
+        id: assetId,
+        url: this.fileStorage.getPublicUrl(reference.storage_key),
+        width: dimensions.width,
+        height: dimensions.height,
+      },
+      dimensions,
+      createdAt: created.createdAt,
+    };
   }
 
   async listCustomCoverProposals(requestId: number) {

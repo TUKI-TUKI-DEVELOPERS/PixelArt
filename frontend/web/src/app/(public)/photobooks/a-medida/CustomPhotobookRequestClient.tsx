@@ -25,6 +25,8 @@ type CoverImageFieldProps = {
   onRemove: () => void;
 };
 
+const CUSTOM_PHOTOBOOK_UPLOAD_MAX_DIMENSION = 5000;
+
 const STEPS: Array<{ number: Step; title: string; detail: string }> = [
   { number: 1, title: "Cubierta", detail: "Imágenes y título" },
   { number: 2, title: "Formato", detail: "Tapa y hojas" },
@@ -108,7 +110,9 @@ export default function CustomPhotobookRequestClient() {
   const [stepError, setStepError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const { uploading, progress, error: uploadError, uploadFiles } = usePhotoUpload("uploads/photobooks");
+  const { uploading, progress, error: uploadError, uploadFiles } = usePhotoUpload("uploads/photobooks", {
+    maxDimension: CUSTOM_PHOTOBOOK_UPLOAD_MAX_DIMENSION,
+  });
 
   const selectedSheetOption = getCustomSheetOptions(selectedCoverType).find((option) => option.sheets === selectedSheetCount);
   const draftSheetOption = getCustomSheetOptions(draftCoverType).find((option) => option.sheets === draftSheetCount);

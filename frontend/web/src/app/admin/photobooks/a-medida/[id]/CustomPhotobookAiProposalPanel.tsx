@@ -61,6 +61,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [manualArtworkFeedback, setManualArtworkFeedback] = useState<Partial<Record<Surface, ManualArtworkFeedback>>>({});
+  const [referenceArtworkFeedback, setReferenceArtworkFeedback] = useState<Partial<Record<number, ManualArtworkFeedback>>>({});
   const [previewAssetId, setPreviewAssetId] = useState<number | null>(null);
   const [previewDesign, setPreviewDesign] = useState<Design | null>(null);
   const [pendingDeletion, setPendingDeletion] = useState<Design | null>(null);
@@ -242,6 +243,44 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
         [surface]: {
           status: "error",
           message: uploadError instanceof Error ? uploadError.message : "No pudimos validar el diseño propio.",
+        },
+      }));
+    } finally {
+      setWorking(null);
+    }
+  }
+
+  async function applyReferenceAsCover(reference: ReferenceAsset, surface: Surface) {
+    const surfaceLabel = surface === "FRONT_COVER" ? "tapa frontal" : "contratapa";
+    begin(`USE_REFERENCE_${surface}`);
+    setReferenceArtworkFeedback((current) => ({
+      ...current,
+      [reference.assetId]: { status: "checking", message: "Comprobando formato y dimensiones del archivo…" },
+    }));
+    try {
+      const response = await fetch(`/admin-api/photobook/custom-requests/${requestId}/references/${reference.assetId}/use-as-cover`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ surface }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message ?? "No pudimos validar la foto del cliente.");
+      await refreshWorkspace();
+      const dimensions = data.dimensions ?? { width: 0, height: 0 };
+      setManualArtworkFeedback((current) => ({
+        ...current,
+        [surface]: {
+          status: "success",
+          message: `Foto del cliente validada (${dimensions.width} × ${dimensions.height} px) y elegida como ${surfaceLabel}.`,
+        },
+      }));
+      setActiveStep(surface === "FRONT_COVER" ? "front" : "back");
+    } catch (applyError) {
+      setReferenceArtworkFeedback((current) => ({
+        ...current,
+        [reference.assetId]: {
+          status: "error",
+          message: applyError instanceof Error ? applyError.message : "No pudimos validar la foto del cliente.",
         },
       }));
     } finally {
@@ -510,6 +549,20 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
                       <span className={styles.selectionIndicator}>{reference.isActive && <Check aria-hidden="true" size={13} />}</span>
                       {reference.isActive ? "Seleccionada para IA" : "Usar para IA"}
                     </button>
+                    {(reference.surface === "FRONT_COVER" || reference.surface === null) && (
+                      <button className={styles.textAction} disabled={working !== null} onClick={() => void applyReferenceAsCover(reference, "FRONT_COVER")} type="button">
+                        Usar como tapa
+                      </button>
+                    )}
+                    {(reference.surface === "BACK_COVER" || reference.surface === null) && (
+                      <>
+                        <button className={styles.textAction} disabled={working !== null || !selectedFront} onClick={() => void applyReferenceAsCover(reference, "BACK_COVER")} type="button">
+                          Usar como contratapa
+                        </button>
+                        {!selectedFront && <small className={styles.fieldHelp}>Elige primero la tapa frontal</small>}
+                      </>
+                    )}
+                    {referenceArtworkFeedback[reference.assetId] && <ManualArtworkFeedbackNotice feedback={referenceArtworkFeedback[reference.assetId]!} />}
                     <button className={styles.replaceAction} disabled={working !== null} onClick={() => replacePhotoInputRefs.current[reference.assetId]?.click()} type="button">
                       <RefreshCw aria-hidden="true" size={14} />
                       {isBusy ? "Reemplazando…" : "Reemplazar"}
