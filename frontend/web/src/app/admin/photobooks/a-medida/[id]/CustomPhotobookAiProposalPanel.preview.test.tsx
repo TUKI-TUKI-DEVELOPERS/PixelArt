@@ -39,6 +39,27 @@ describe("CustomPhotobookAiProposalPanel reference preview", () => {
     expect(dialog.hasAttribute("open")).toBe(false);
   });
 
+  it("opens the client photo preview from both cover-selection steps", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([references[0]]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Tapa frontal" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ver completa" }));
+
+    let dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByAltText("Vista ampliada de paisaje-completo.jpg")).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cerrar vista ampliada" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Contratapa" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ver completa" }));
+
+    dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByAltText("Vista ampliada de paisaje-completo.jpg")).toBeTruthy();
+  });
+
   it("opens a generated proposal at full size before the admin selects it", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response([

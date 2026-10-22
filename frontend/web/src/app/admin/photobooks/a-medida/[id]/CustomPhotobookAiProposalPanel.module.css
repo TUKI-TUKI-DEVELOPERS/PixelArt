@@ -319,7 +319,18 @@
   margin-top: 16px;
 }
 
-.referenceTray {
+.clientPhotoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 240px));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.clientPhotoGrid .referenceImageWrap {
+  aspect-ratio: 1 / 1;
+}
+
+.aiGenerationGroup {
   display: grid;
   gap: 10px;
   margin: 16px 0 18px;
@@ -329,78 +340,47 @@
   background: #f7fafb;
 }
 
-.referenceTrayHeader {
+.aiGenerationHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.referenceTrayHeader > div {
+.aiGenerationHeader > div {
   display: grid;
   min-width: 0;
   gap: 2px;
 }
 
-.referenceTrayHeader strong {
+.aiGenerationHeader strong {
   color: #2c424c;
   font-size: 12px;
   font-weight: 700;
 }
 
-.referenceTrayHeader span,
-.referenceTrayEmpty {
+.aiGenerationHeader span {
   color: #52656d;
   font-size: 11px;
 }
 
-.referenceManageAction {
+.aiManageAction {
   flex: 0 0 auto;
-  padding: 4px 0;
+  padding: 0;
   border: 0;
   background: transparent;
   color: #125e94;
   cursor: pointer;
   font: inherit;
-  font-size: 11px;
+  font-size: inherit;
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.referenceManageAction:focus-visible,
-.referenceThumbnail:focus-visible {
+.aiManageAction:focus-visible {
   outline: 3px solid #176fae;
   outline-offset: 3px;
-}
-
-.referenceThumbnails {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.referenceThumbnail {
-  width: 56px;
-  height: 56px;
-  overflow: hidden;
-  padding: 0;
-  border: 1px solid #d5e0e3;
-  border-radius: 6px;
-  background: #e9efef;
-  cursor: zoom-in;
-}
-
-.referenceThumbnail img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.referenceTrayEmpty {
-  margin: 0;
-  line-height: 1.45;
 }
 
 .stepActions,

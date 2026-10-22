@@ -69,6 +69,9 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
   const previewDialogRef = useRef<HTMLDialogElement>(null);
   const proposalPreviewDialogRef = useRef<HTMLDialogElement>(null);
   const replacePhotoInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const frontResultsRef = useRef<HTMLDivElement>(null);
+  const backResultsRef = useRef<HTMLDivElement>(null);
+  const resultsScrollSurfaceRef = useRef<Surface | null>(null);
   const manualArtworkInputRefs = useRef<Record<Surface, HTMLInputElement | null>>({ FRONT_COVER: null, BACK_COVER: null });
 
   const isCustomerArtwork = coverMode === "CUSTOMER_ARTWORK";
@@ -169,6 +172,15 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
       }
     }
   }, [previewDesign]);
+
+  useEffect(() => {
+    const surface = resultsScrollSurfaceRef.current;
+    if (!surface) return;
+
+    const resultsRef = surface === "FRONT_COVER" ? frontResultsRef : backResultsRef;
+    resultsRef.current?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+    resultsScrollSurfaceRef.current = null;
+  }, [designs]);
 
   function begin(work: string) {
     setWorking(work);
@@ -344,6 +356,7 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.message ?? "No pudimos generar la propuesta.");
+      resultsScrollSurfaceRef.current = surface;
       setDesigns((current) => [data as Design, ...current]);
       setNotice(surface === "FRONT_COVER" ? "La propuesta de tapa frontal está lista para revisar." : "La propuesta de contratapa está lista para revisar.");
     } catch (generationError) {
@@ -629,32 +642,43 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
               <h3 id="front-stage-title">Prepara la tapa frontal</h3>
               <p>{frontStatus}</p>
             </div>
-            <button className={styles.primaryAction} disabled={working !== null || loading || !canGenerateFront || Boolean(selectedFront)} onClick={() => void generate("FRONT_COVER")} type="button">
-              {working === "FRONT_COVER" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={16} /> : <Sparkles aria-hidden="true" size={16} />}
-              {working === "FRONT_COVER" ? "Generando…" : selectedFront ? "Tapa frontal seleccionada" : frontAiDesigns.length ? "Regenerar desde la última" : "Generar tapa frontal"}
-            </button>
           </div>
-          <ReferenceTray label="Fotos que usará la IA para la tapa" references={frontReferenceContext} onManage={() => setActiveStep("references")} onPreview={setPreviewAssetId} />
-          <label className={styles.directionField}>
-            <span>{frontAiDesigns.length ? "Cambios para la siguiente iteración" : "Dirección creativa para IA"} <em>opcional</em></span>
-            <textarea
-              aria-describedby="ai-direction-help"
-              disabled={!hasValidReferenceSet || working !== null || Boolean(selectedFront)}
-              onChange={(event) => setCreativeDirection(event.target.value)}
-              placeholder="Ej.: fotografía principal a la izquierda, luz azul de madrugada, composición limpia y tipografía discreta."
-              rows={3}
-              value={creativeDirection}
-            />
-          </label>
-          <p className={styles.fieldHelp} id="ai-direction-help">{selectedFront ? "La tapa frontal ya está seleccionada para generar la contratapa y enviar la aprobación. No se puede regenerar sin reiniciar esa selección." : frontAiDesigns.length ? "La siguiente propuesta parte de la última tapa generada. Describe solo los ajustes; conservará sus sujetos y composición salvo que indiques cambiarlos." : "Indica qué fotos deben tener protagonismo, cómo combinarlas y el tono de la cubierta. Los originales no se modifican."}</p>
           <ClientReferenceCoverOptions
             feedback={manualArtworkFeedback.FRONT_COVER}
             onApply={applyReferenceAsCover}
+            onPreview={setPreviewAssetId}
             references={frontCoverReferenceOptions}
             selectedDesign={selectedFront}
             surface="FRONT_COVER"
             working={working}
           />
+          <section aria-label="Generar con IA para tapa frontal" className={styles.aiGenerationGroup} role="group">
+            <div className={styles.aiGenerationHeader}>
+              <div>
+                <strong>Generar con IA</strong>
+                <span>La IA usará {frontReferenceContext.length} foto{frontReferenceContext.length === 1 ? "" : "s"} activa{frontReferenceContext.length === 1 ? "" : "s"} · <button className={styles.aiManageAction} onClick={() => setActiveStep("references")} type="button">Gestionar fotos</button></span>
+              </div>
+            </div>
+            <label className={styles.directionField}>
+              <span>{frontAiDesigns.length ? "Cambios para la siguiente iteración" : "Dirección creativa para IA"} <em>opcional</em></span>
+              <textarea
+                aria-describedby="ai-direction-help"
+                disabled={!hasValidReferenceSet || working !== null || Boolean(selectedFront)}
+                onChange={(event) => setCreativeDirection(event.target.value)}
+                placeholder="Ej.: fotografía principal a la izquierda, luz azul de madrugada, composición limpia y tipografía discreta."
+                rows={3}
+                value={creativeDirection}
+              />
+            </label>
+            <p className={styles.fieldHelp} id="ai-direction-help">{selectedFront ? "La tapa frontal ya está seleccionada para generar la contratapa y enviar la aprobación. No se puede regenerar sin reiniciar esa selección." : frontAiDesigns.length ? "La siguiente propuesta parte de la última tapa generada. Describe solo los ajustes; conservará sus sujetos y composición salvo que indiques cambiarlos." : "Indica qué fotos deben tener protagonismo, cómo combinarlas y el tono de la cubierta. Los originales no se modifican."}</p>
+            <button className={styles.primaryAction} disabled={working !== null || loading || !canGenerateFront || Boolean(selectedFront)} onClick={() => void generate("FRONT_COVER")} type="button">
+              {working === "FRONT_COVER" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={16} /> : <Sparkles aria-hidden="true" size={16} />}
+              {working === "FRONT_COVER" ? "Generando…" : selectedFront ? "Tapa frontal seleccionada" : frontAiDesigns.length ? "Regenerar desde la última" : "Generar tapa frontal"}
+            </button>
+            <div className={styles.proposalGrid} ref={frontResultsRef}>
+              {frontAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="tapa frontal" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa seleccionada" working={working} />)}
+            </div>
+          </section>
           <div aria-label="Diseño propio para tapa frontal" className={styles.manualArtworkGroup} role="group">
             <div className={styles.manualArtworkOption}>
               <div className={styles.manualArtworkCopy}>
@@ -681,7 +705,6 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
             {manualUploadFeedback.FRONT_COVER && <ManualArtworkFeedbackNotice feedback={manualUploadFeedback.FRONT_COVER} />}
             {frontManualDesign && <ManualArtworkResult design={frontManualDesign} label="tapa frontal" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa frontal lista para aprobación" working={working} />}
           </div>
-          {frontAiDesigns.length > 0 && <div className={styles.proposalGrid}>{frontAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="tapa frontal" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Tapa seleccionada" working={working} />)}</div>}
           <div className={styles.stepActions}>
             <button className={styles.textAction} onClick={() => setActiveStep("references")} type="button">
               <ChevronLeft aria-hidden="true" size={16} />
@@ -703,32 +726,43 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
               <h3 id="back-stage-title">Prepara la contratapa</h3>
               <p>{!selectedFront ? "Selecciona una tapa frontal y al menos una referencia para generar con IA. Para subir arte propio, no necesitas ninguna de las dos." : !hasValidBackReferenceSet ? "Selecciona una foto de referencia para habilitar la IA, o carga directamente el arte final." : "Usa las fotos de referencia y la tapa frontal para mantener la continuidad visual."}</p>
             </div>
-            <button className={styles.primaryAction} disabled={working !== null || loading || !selectedFront || !hasValidBackReferenceSet || Boolean(selectedBack)} onClick={() => void generate("BACK_COVER")} type="button">
-              {working === "BACK_COVER" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={16} /> : <Sparkles aria-hidden="true" size={16} />}
-              {working === "BACK_COVER" ? "Generando…" : selectedBack ? "Contratapa seleccionada" : backAiDesigns.length ? "Generar otra contratapa con IA" : "Generar contratapa con IA"}
-            </button>
           </div>
-          <ReferenceTray label="Fotos que usará la IA para la contratapa" references={backReferenceContext} onManage={() => setActiveStep("references")} onPreview={setPreviewAssetId} />
-          <label className={styles.directionField}>
-            <span>Indicaciones para la IA de contratapa <em>opcional</em></span>
-            <textarea
-              aria-describedby="back-ai-direction-help"
-              disabled={working !== null || Boolean(selectedBack)}
-              onChange={(event) => setBackCreativeDirection(event.target.value)}
-              placeholder="Ej.: prolonga el paisaje de la tapa frontal y deja espacio limpio para una breve dedicatoria."
-              rows={3}
-              value={backCreativeDirection}
-            />
-          </label>
-          <p className={styles.fieldHelp} id="back-ai-direction-help">{selectedBack ? "La contratapa seleccionada se incluirá en la aprobación." : backAiDesigns.length ? "Describe los cambios para la siguiente propuesta. La indicación se enviará a la IA junto con las fotos seleccionadas." : "Puedes orientar la composición, los colores y el espacio para texto. La IA no compone el lomo."}</p>
           <ClientReferenceCoverOptions
             feedback={manualArtworkFeedback.BACK_COVER}
             onApply={applyReferenceAsCover}
+            onPreview={setPreviewAssetId}
             references={backCoverReferenceOptions}
             selectedDesign={selectedBack}
             surface="BACK_COVER"
             working={working}
           />
+          <section aria-label="Generar con IA para contratapa" className={styles.aiGenerationGroup} role="group">
+            <div className={styles.aiGenerationHeader}>
+              <div>
+                <strong>Generar con IA</strong>
+                <span>La IA usará {backReferenceContext.length} foto{backReferenceContext.length === 1 ? "" : "s"} activa{backReferenceContext.length === 1 ? "" : "s"} · <button className={styles.aiManageAction} onClick={() => setActiveStep("references")} type="button">Gestionar fotos</button></span>
+              </div>
+            </div>
+            <label className={styles.directionField}>
+              <span>Indicaciones para la IA de contratapa <em>opcional</em></span>
+              <textarea
+                aria-describedby="back-ai-direction-help"
+                disabled={working !== null || Boolean(selectedBack)}
+                onChange={(event) => setBackCreativeDirection(event.target.value)}
+                placeholder="Ej.: prolonga el paisaje de la tapa frontal y deja espacio limpio para una breve dedicatoria."
+                rows={3}
+                value={backCreativeDirection}
+              />
+            </label>
+            <p className={styles.fieldHelp} id="back-ai-direction-help">{selectedBack ? "La contratapa seleccionada se incluirá en la aprobación." : backAiDesigns.length ? "Describe los cambios para la siguiente propuesta. La indicación se enviará a la IA junto con las fotos seleccionadas." : "Puedes orientar la composición, los colores y el espacio para texto. La IA no compone el lomo."}</p>
+            <button className={styles.primaryAction} disabled={working !== null || loading || !selectedFront || !hasValidBackReferenceSet || Boolean(selectedBack)} onClick={() => void generate("BACK_COVER")} type="button">
+              {working === "BACK_COVER" ? <LoaderCircle aria-hidden="true" className={styles.spinningIcon} size={16} /> : <Sparkles aria-hidden="true" size={16} />}
+              {working === "BACK_COVER" ? "Generando…" : selectedBack ? "Contratapa seleccionada" : backAiDesigns.length ? "Generar otra contratapa con IA" : "Generar contratapa con IA"}
+            </button>
+            <div className={styles.proposalGrid} ref={backResultsRef}>
+              {backAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="contratapa" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa seleccionada" working={working} />)}
+            </div>
+          </section>
           <div aria-label="Diseño propio para contratapa" className={styles.manualArtworkGroup} role="group">
             <div className={styles.manualArtworkOption}>
               <div className={styles.manualArtworkCopy}>
@@ -755,7 +789,6 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
             {manualUploadFeedback.BACK_COVER && <ManualArtworkFeedbackNotice feedback={manualUploadFeedback.BACK_COVER} />}
             {backManualDesign && <ManualArtworkResult design={backManualDesign} label="contratapa" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa lista para aprobación" working={working} />}
           </div>
-          {backAiDesigns.length > 0 && <div className={styles.proposalGrid}>{backAiDesigns.map((design) => <ProposalCard design={design} key={design.id} label="contratapa" onDelete={requestDeleteCover} onDeselect={deselectCover} onPreview={setPreviewDesign} onSelect={selectCover} requestId={requestId} selectedLabel="Contratapa seleccionada" working={working} />)}</div>}
           <div className={styles.stepActions}>
             <button className={styles.textAction} onClick={() => setActiveStep("front")} type="button">
               <ChevronLeft aria-hidden="true" size={16} />
@@ -885,40 +918,10 @@ export function CustomPhotobookAiProposalPanel({ requestId, coverMode }: Props) 
   );
 }
 
-function ReferenceTray({ label, references, onManage, onPreview }: { label: string; references: ReferenceAsset[]; onManage: () => void; onPreview: (assetId: number) => void }) {
-  return (
-    <section aria-label={label} className={styles.referenceTray}>
-      <div className={styles.referenceTrayHeader}>
-        <div>
-          <strong>{label}</strong>
-          <span>{references.length ? `${references.length} foto${references.length === 1 ? "" : "s"} activa${references.length === 1 ? "" : "s"}` : "Sin fotos seleccionadas"}</span>
-        </div>
-        <button className={styles.referenceManageAction} onClick={onManage} type="button">Gestionar fotos</button>
-      </div>
-      {references.length ? (
-        <div className={styles.referenceThumbnails}>
-          {references.map((reference) => (
-            <button
-              aria-label={`Ampliar referencia ${reference.originalFilename ?? reference.assetId}`}
-              className={styles.referenceThumbnail}
-              key={reference.assetId}
-              onClick={() => onPreview(reference.assetId)}
-              type="button"
-            >
-              <img alt={reference.originalFilename ? `Referencia ${reference.originalFilename}` : `Referencia ${reference.assetId}`} src={reference.url} />
-            </button>
-          ))}
-        </div>
-      ) : (
-        <p className={styles.referenceTrayEmpty}>Ve a Referencias para activar fotos para la IA. Puedes continuar cargando arte propio.</p>
-      )}
-    </section>
-  );
-}
-
-function ClientReferenceCoverOptions({ feedback, onApply, references, selectedDesign, surface, working }: {
+function ClientReferenceCoverOptions({ feedback, onApply, onPreview, references, selectedDesign, surface, working }: {
   feedback?: ManualArtworkFeedback;
   onApply: (reference: ReferenceAsset, surface: Surface) => Promise<void>;
+  onPreview: (assetId: number) => void;
   references: ReferenceAsset[];
   selectedDesign: Design | null;
   surface: Surface;
@@ -938,13 +941,17 @@ function ClientReferenceCoverOptions({ feedback, onApply, references, selectedDe
           <span>Usa tal cual la imagen que envió el cliente. Debe ser cuadrada y medir al menos 2500 × 2500 px.</span>
         </div>
       </div>
-      <div className={styles.referenceGrid}>
+      <div className={styles.clientPhotoGrid}>
         {references.map((reference) => {
           const isCurrent = selectedDesign?.asset.id === reference.assetId;
           return (
             <article className={`${styles.referenceCard} ${isCurrent ? styles.referenceCardActive : ""}`} key={reference.assetId}>
               <div className={styles.referenceImageWrap}>
                 <img alt={reference.originalFilename ? `Foto del cliente ${reference.originalFilename}` : `Foto del cliente ${reference.assetId}`} src={reference.url} />
+                <button className={styles.previewTrigger} onClick={() => onPreview(reference.assetId)} type="button">
+                  <ZoomIn aria-hidden="true" size={17} />
+                  Ver completa
+                </button>
               </div>
               <div className={styles.referenceCardBody}>
                 <button

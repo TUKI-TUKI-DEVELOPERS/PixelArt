@@ -40,13 +40,20 @@ describe("CustomPhotobookAiProposalPanel", () => {
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
     expect(await screen.findByText("1/5 activas")).toBeTruthy();
     await selectWorkflowStep("Tapa frontal");
-    expect(screen.getByAltText("Referencia foto-1.jpg")).toHaveProperty("src", "https://assets.test/1.jpg");
-    const generateButton = await screen.findByText("Generar tapa frontal");
+    const frontStage = screen.getByRole("region", { name: "Prepara la tapa frontal" });
+    const aiGroup = within(frontStage).getByRole("group", { name: "Generar con IA para tapa frontal" });
+    expect(within(frontStage).queryByText("Fotos que usará la IA para la tapa")).toBeNull();
+    expect(within(frontStage).getAllByRole("img").filter((image) => image.getAttribute("src") === "https://assets.test/1.jpg")).toHaveLength(1);
+    const generateButton = within(aiGroup).getByRole("button", { name: "Generar tapa frontal" });
     expect(generateButton).toHaveProperty("disabled", true);
+    expect(within(aiGroup).getByText("La IA usará 1 foto activa ·")).toBeTruthy();
+    const frontHeader = frontStage.querySelector("h3")?.parentElement?.parentElement;
+    expect(frontHeader).toBeTruthy();
+    expect(within(frontHeader as HTMLElement).queryByRole("button", { name: "Generar tapa frontal" })).toBeNull();
 
     fireEvent.change(screen.getByLabelText(/Dirección creativa/i), { target: { value: "Retrato principal a la izquierda, luz azul y título discreto." } });
-    expect(screen.getByText("Generar tapa frontal")).toHaveProperty("disabled", false);
-    fireEvent.click(screen.getByText("Generar tapa frontal"));
+    expect(within(aiGroup).getByRole("button", { name: "Generar tapa frontal" })).toHaveProperty("disabled", false);
+    fireEvent.click(within(aiGroup).getByRole("button", { name: "Generar tapa frontal" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
       "/admin-api/photobook/custom-requests/41/designs/generate",
@@ -55,10 +62,13 @@ describe("CustomPhotobookAiProposalPanel", () => {
         body: JSON.stringify({ surface: "FRONT_COVER", creativeDirection: "Retrato principal a la izquierda, luz azul y título discreto." }),
       }),
     ));
-    expect(await screen.findByAltText("Propuesta de tapa frontal 14")).toBeTruthy();
+    expect(await within(aiGroup).findByAltText("Propuesta de tapa frontal 14")).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.click(within(aiGroup).getByRole("button", { name: "Gestionar fotos" }));
+    expect(await screen.findByRole("heading", { name: "Fotos de referencia" })).toBeTruthy();
   });
 
-  it("keeps reference thumbnails visible and sends the contratapa instructions to AI", async () => {
+  it("keeps the client photo visible and sends the contratapa instructions to AI", async () => {
     const selectedFront = {
       id: 14,
       surface: "FRONT_COVER",
@@ -84,11 +94,14 @@ describe("CustomPhotobookAiProposalPanel", () => {
 
     render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
     await selectWorkflowStep("Contratapa");
-    expect(screen.getByAltText("Referencia foto-1.jpg")).toHaveProperty("src", "https://assets.test/1.jpg");
+    const backStage = screen.getByRole("region", { name: "Prepara la contratapa" });
+    const aiGroup = within(backStage).getByRole("group", { name: "Generar con IA para contratapa" });
+    expect(within(backStage).queryByText("Fotos que usará la IA para la contratapa")).toBeNull();
+    expect(within(backStage).getAllByRole("img").filter((image) => image.getAttribute("src") === "https://assets.test/1.jpg")).toHaveLength(1);
 
     const prompt = "Continúa el paisaje de la tapa y deja espacio para una dedicatoria.";
     fireEvent.change(screen.getByLabelText(/Indicaciones para la IA de contratapa/i), { target: { value: prompt } });
-    fireEvent.click(screen.getByRole("button", { name: "Generar contratapa con IA" }));
+    fireEvent.click(within(aiGroup).getByRole("button", { name: "Generar contratapa con IA" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenLastCalledWith(
       "/admin-api/photobook/custom-requests/41/designs/generate",
@@ -97,7 +110,27 @@ describe("CustomPhotobookAiProposalPanel", () => {
         body: JSON.stringify({ surface: "BACK_COVER", creativeDirection: prompt }),
       }),
     ));
-    expect(await screen.findByAltText("Propuesta de contratapa 15")).toBeTruthy();
+    expect(await within(aiGroup).findByAltText("Propuesta de contratapa 15")).toBeTruthy();
+  });
+
+  it("places contratapa AI controls in their group and keeps generation disabled without a selected front cover", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response([]))
+      .mockResolvedValueOnce(response([activeReferences[0]]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CustomPhotobookAiProposalPanel coverMode="PHOTO_BASED" requestId={41} />);
+    await selectWorkflowStep("Contratapa");
+
+    const backStage = screen.getByRole("region", { name: "Prepara la contratapa" });
+    const aiGroup = within(backStage).getByRole("group", { name: "Generar con IA para contratapa" });
+    expect(within(aiGroup).getByRole("button", { name: "Generar contratapa con IA" })).toHaveProperty("disabled", true);
+    const backHeader = backStage.querySelector("h3")?.parentElement?.parentElement;
+    expect(backHeader).toBeTruthy();
+    expect(within(backHeader as HTMLElement).queryByRole("button", { name: "Generar contratapa con IA" })).toBeNull();
+
+    fireEvent.click(within(aiGroup).getByRole("button", { name: "Gestionar fotos" }));
+    expect(await screen.findByRole("heading", { name: "Fotos de referencia" })).toBeTruthy();
   });
 
   it("shows compact photo slots and lets the admin add a photo received outside the public form", async () => {
