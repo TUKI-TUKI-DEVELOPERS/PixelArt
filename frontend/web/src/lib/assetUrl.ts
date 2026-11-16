@@ -1,7 +1,8 @@
 /**
  * Construye la URL pública de un asset en MinIO, sin hacer fetch al backend.
  * Devuelve una ruta relativa del mismo origen ("/assets/{storageKey}"),
- * proxeada server-side hacia MinIO por el rewrite en next.config.ts.
+ * servida server-side desde MinIO por app/assets/[...path]/route.ts — solo
+ * para prefijos públicos (ver lib/assets/public-asset-policy.ts).
  *
  * Por qué relativa y no absoluta a MinIO: next/image optimiza server-side
  * (el browser nunca pide la URL cruda), y el proceso Next dentro de Docker

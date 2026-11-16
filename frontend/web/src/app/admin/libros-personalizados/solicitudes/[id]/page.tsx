@@ -4,12 +4,11 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
-const API = "";
 
 /** Resuelve la URL pública de un asset desde su ID */
 async function resolveAssetUrl(assetId: number): Promise<string | null> {
   try {
-    const res = await fetch(`${API}/api/assets/${assetId}/url`);
+    const res = await fetch(`/admin-api/assets/${assetId}/url`);
     if (!res.ok) return null;
     const data = await res.json();
     return data.url ?? null;
@@ -106,7 +105,7 @@ export default function SolicitudDetallePage() {
   const photoReplaceRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   function loadDetail() {
-    fetch(`${API}/api/admin/demo/requests/${id}`)
+    fetch(`/admin-api/demo/requests/${id}`)
       .then((r) => r.json())
       .then((detail: DemoDetail) => {
         setData(detail);
@@ -140,7 +139,7 @@ export default function SolicitudDetallePage() {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch(
-        `${API}/api/admin/demo/requests/${id}/proposals?templateId=${templateId}&protectionMode=WATERMARK`,
+        `/admin-api/demo/requests/${id}/proposals?templateId=${templateId}&protectionMode=WATERMARK`,
         { method: "POST", body: formData },
       );
       if (!res.ok) throw new Error("Error al subir propuesta");
@@ -158,7 +157,7 @@ export default function SolicitudDetallePage() {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch(
-        `${API}/api/admin/demo/requests/${id}/replace-photo?oldAssetId=${oldAssetId}`,
+        `/admin-api/demo/requests/${id}/replace-photo?oldAssetId=${oldAssetId}`,
         { method: "POST", body: formData },
       );
       if (!res.ok) {
@@ -181,7 +180,7 @@ export default function SolicitudDetallePage() {
     for (let attempt = 0; attempt < 30; attempt++) {
       await new Promise((r) => setTimeout(r, 4000));
       try {
-        const res = await fetch(`${API}/api/admin/demo/requests/${id}`);
+        const res = await fetch(`/admin-api/demo/requests/${id}`);
         if (!res.ok) continue;
         const detail: DemoDetail = await res.json();
         const done = detail.proposals.some(
@@ -205,7 +204,7 @@ export default function SolicitudDetallePage() {
     const startedAt = Date.now();
     try {
       const res = await fetch(
-        `${API}/api/admin/demo/requests/${id}/proposals/generate?templateId=${templateId}&protectionMode=WATERMARK`,
+        `/admin-api/demo/requests/${id}/proposals/generate?templateId=${templateId}&protectionMode=WATERMARK`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -243,7 +242,7 @@ export default function SolicitudDetallePage() {
     if (!confirm("¿Eliminar esta propuesta? Se borrará del servidor.")) return;
     setDeletingProposal(proposalId);
     try {
-      const res = await fetch(`${API}/api/admin/demo/requests/${id}/proposals/${proposalId}`, { method: "DELETE" });
+      const res = await fetch(`/admin-api/demo/requests/${id}/proposals/${proposalId}`, { method: "DELETE" });
       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error"); }
       loadDetail();
     } catch (err) {
@@ -869,7 +868,7 @@ export default function SolicitudDetallePage() {
                 onClick={async () => {
                   setSendingCheckout(true);
                   try {
-                    const res = await fetch(`${API}/api/admin/demo/requests/${id}/send-checkout`, { method: "POST" });
+                    const res = await fetch(`/admin-api/demo/requests/${id}/send-checkout`, { method: "POST" });
                     if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error"); }
                     const result = await res.json();
                     setCheckoutLink({ url: result.checkoutLink.url, orderId: result.orderId });
@@ -935,7 +934,7 @@ export default function SolicitudDetallePage() {
                   onClick={async () => {
                     setReissuingCheckout(true);
                     try {
-                      const res = await fetch(`${API}/api/admin/demo/requests/${id}/reissue-checkout`, { method: "POST" });
+                      const res = await fetch(`/admin-api/demo/requests/${id}/reissue-checkout`, { method: "POST" });
                       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error"); }
                       const result = await res.json();
                       setCheckoutLink({ url: result.checkoutLink.url, orderId: result.orderId, expiresAt: new Date(result.checkoutLink.expiresAt) });
@@ -980,7 +979,7 @@ export default function SolicitudDetallePage() {
                     onClick={async () => {
                       setReissuingCheckout(true);
                       try {
-                        const res = await fetch(`${API}/api/admin/demo/requests/${id}/reissue-checkout`, { method: "POST" });
+                        const res = await fetch(`/admin-api/demo/requests/${id}/reissue-checkout`, { method: "POST" });
                         if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error"); }
                         const result = await res.json();
                         setCheckoutLink({ url: result.checkoutLink.url, orderId: result.orderId, expiresAt: new Date(result.checkoutLink.expiresAt) });

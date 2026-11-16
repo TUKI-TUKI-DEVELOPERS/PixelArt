@@ -89,7 +89,7 @@ export default function PromocionesPage() {
   const load = useCallback(async () => {
     setLoading(true);
     const [promosRes, booksRes] = await Promise.all([
-      fetch(`${API}/api/admin/promotions`).then((r) => r.json()).catch(() => []),
+      fetch(`/admin-api/promotions`).then((r) => r.json()).catch(() => []),
       fetch(`${API}/api/catalog/books`).then((r) => r.json()).catch(() => []),
     ]);
     setPromos(promosRes);
@@ -119,7 +119,7 @@ export default function PromocionesPage() {
 
   async function saveBanner(overrides?: { enabled?: boolean }) {
     setBannerSaving(true);
-    await fetch(`${API}/api/admin/site-config/promo_banner`, {
+    await fetch(`/admin-api/site-config/promo_banner`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ value: { text: bannerText, color: bannerColor, enabled: bannerEnabled, ...overrides } }),
@@ -206,7 +206,7 @@ export default function PromocionesPage() {
       const idsToDeactivate = [...new Set(conflicts.map((c) => c.promo.id))];
       await Promise.all(
         idsToDeactivate.map((id) =>
-          fetch(`${API}/api/admin/promotions/${id}`, {
+          fetch(`/admin-api/promotions/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ isActive: false }),
@@ -228,8 +228,8 @@ export default function PromocionesPage() {
     };
 
     const url = editing
-      ? `${API}/api/admin/promotions/${editing.id}`
-      : `${API}/api/admin/promotions`;
+      ? `/admin-api/promotions/${editing.id}`
+      : `/admin-api/promotions`;
 
     const res = await fetch(url, {
       method:  editing ? "PUT" : "POST",
@@ -252,7 +252,7 @@ export default function PromocionesPage() {
     if (!deleteTarget) return;
     setDeleting(deleteTarget.id);
     setDeleteTarget(null);
-    await fetch(`${API}/api/admin/promotions/${deleteTarget.id}`, { method: "DELETE" });
+    await fetch(`/admin-api/promotions/${deleteTarget.id}`, { method: "DELETE" });
     setDeleting(null);
     load();
   }

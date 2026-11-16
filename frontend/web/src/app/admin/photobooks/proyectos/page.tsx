@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-const API = "";
 
 type Project = { id: number; customerEmail: string; customerFullName: string | null; photobookThemeId: number; pageCount: number; calculatedTotalCents: number; status: string; createdAt: string };
 
@@ -18,7 +17,7 @@ export default function ProyectosPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/api/admin/photobook/projects`).then((r) => r.json()).then(setProjects).catch(() => {}).finally(() => setLoading(false));
+    fetch(`/admin-api/photobook/projects`).then((r) => r.json()).then(setProjects).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   return (

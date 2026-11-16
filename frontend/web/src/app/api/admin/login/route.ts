@@ -1,23 +1,26 @@
 import { NextResponse } from 'next/server';
-
-const TOKEN_KEY = 'pa_admin_token';
+import { ADMIN_TOKEN_COOKIE, getApiBaseUrl } from '@/lib/server/admin-proxy';
+import { adminSessionMaxAgeSeconds } from '@/lib/auth/admin-session-cookie';
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
 
-  const apiUrl =
-  process.env.API_INTERNAL_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'http://api:3001';
+  const headers = new Headers({ 'Content-Type': 'application/json' });
+  // Lets the API rate limit login attempts per client instead of per Next server.
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) headers.set('x-forwarded-for', forwardedFor);
 
-  const r = await fetch(`${apiUrl}/api/auth/login`, {
+  const r = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ email, password }),
   });
 
+  if (r.status === 429) {
+    return NextResponse.json({ message: 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.' }, { status: 429 });
+  }
   if (!r.ok) {
-    return NextResponse.json({ message: 'Login failed' }, { status: 401 });
+    return NextResponse.json({ message: 'Correo o contraseña incorrectos' }, { status: 401 });
   }
 
   const { accessToken } = await r.json();
@@ -25,13 +28,13 @@ export async function POST(req: Request) {
   const res = NextResponse.json({ ok: true });
 
   res.cookies.set({
-    name: TOKEN_KEY,
+    name: ADMIN_TOKEN_COOKIE,
     value: accessToken,
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: adminSessionMaxAgeSeconds(accessToken),
   });
 
   return res;

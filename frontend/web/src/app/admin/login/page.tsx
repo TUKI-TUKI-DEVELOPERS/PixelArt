@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { adminLogin } from '../../../lib/api/admin';
+import { getSafeAdminRedirect } from '../../../lib/auth/safe-admin-redirect';
 import PixelArtLogo from '../../../components/layout/PixelArtLogo';
 import { PIXELART_COLORS } from '../../../lib/colors';
 
@@ -465,10 +466,10 @@ const PARTICLES = [
 /* ------------------------------------------------------------------ */
 export default function AdminLoginPage() {
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/admin';
+  const next = getSafeAdminRedirect(searchParams.get('next'));
 
-  const [email, setEmail] = useState('admin@pixelart.local');
-  const [password, setPassword] = useState('Admin123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -534,7 +535,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@pixelart.local"
+                  placeholder="tu-correo@pixelart.pe"
                   required
                   autoComplete="email"
                   aria-label="Correo electrónico"

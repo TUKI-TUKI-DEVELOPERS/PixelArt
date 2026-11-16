@@ -52,7 +52,7 @@ export default function SolicitudesPage() {
   async function handleDeleteRequest(id: number) {
     setDeletingId(id);
     try {
-      const res = await fetch(`${API}/api/admin/demo/requests/${id}`, { method: "DELETE" });
+      const res = await fetch(`/admin-api/demo/requests/${id}`, { method: "DELETE" });
       if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error((err as { message?: string }).message ?? "Error al borrar"); }
       setRequests((prev) => prev.filter((r) => r.id !== id));
       setConfirmingRequest(null);
@@ -65,7 +65,7 @@ export default function SolicitudesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
+      fetch(`/admin-api/demo/requests`).then((r) => r.json()).catch(() => []),
       // Cargar nombres de modelos: primero categorías, luego modelos de cada una
       fetch(`${API}/api/personalized/categories`)
         .then((r) => r.json())
