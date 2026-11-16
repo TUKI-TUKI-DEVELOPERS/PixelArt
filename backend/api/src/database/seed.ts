@@ -195,11 +195,19 @@ export async function runSeed(): Promise<void> {
           CHECK (extra_templates_amount_cents >= 0)
     `);
 
-    // 0c. CHECK constraint del total (incluye extra_templates)
+    // 0b-bis. Descuento por código de promoción (snapshot en la orden). Debe existir
+    //         antes de 0c, porque el CHECK del total ya lo resta.
+    await client.query(`
+      ALTER TABLE orders
+        ADD COLUMN IF NOT EXISTS discount_amount_cents BIGINT NOT NULL DEFAULT 0
+          CHECK (discount_amount_cents >= 0)
+    `);
+
+    // 0c. CHECK constraint del total (incluye extra_templates, resta el descuento)
     await client.query(`ALTER TABLE orders DROP CONSTRAINT IF EXISTS chk_total_amount`);
     await client.query(`
       ALTER TABLE orders ADD CONSTRAINT chk_total_amount
-        CHECK (total_amount_cents = base_amount_cents + rush_fee_cents + extra_templates_amount_cents)
+        CHECK (total_amount_cents = base_amount_cents + rush_fee_cents + extra_templates_amount_cents - discount_amount_cents)
     `);
 
     // 0d. Tabla order_template_selections
@@ -258,7 +266,7 @@ export async function runSeed(): Promise<void> {
       CREATE TABLE IF NOT EXISTS promotions (
         id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         label          TEXT NOT NULL,
-        target_type    TEXT NOT NULL CHECK (target_type IN ('model', 'category', 'all')),
+        target_type    TEXT NOT NULL CHECK (target_type IN ('model', 'models', 'category', 'all')),
         target_id      BIGINT,
         discount_type  TEXT NOT NULL CHECK (discount_type IN ('percent', 'fixed_cents')),
         discount_value BIGINT NOT NULL CHECK (discount_value > 0),
@@ -277,6 +285,101 @@ export async function runSeed(): Promise<void> {
       CREATE INDEX IF NOT EXISTS promotions_active_idx
         ON promotions (is_active, valid_from, valid_until)
     `);
+
+    // 0g-bis. Drift fix: volúmenes creados por este seed tenían el CHECK de
+    //         target_type sin 'models' y nunca crearon promotion_targets.
+    await client.query(`ALTER TABLE promotions DROP CONSTRAINT IF EXISTS promotions_target_type_check`);
+    await client.query(`
+      ALTER TABLE promotions ADD CONSTRAINT promotions_target_type_check
+        CHECK (target_type IN ('model', 'models', 'category', 'all'))
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS promotion_targets (
+        promotion_id    BIGINT NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
+        catalog_book_id BIGINT NOT NULL REFERENCES catalog_books(id) ON DELETE CASCADE,
+        PRIMARY KEY (promotion_id, catalog_book_id)
+      )
+    `);
+
+    // 0g-ter. Códigos de promoción: código exacto (case-sensitive), solo porcentaje,
+    //         elegibilidad generalizada (ver schemaPixelart.sql) y snapshot en orders.
+    await client.query(`ALTER TABLE promotions ADD COLUMN IF NOT EXISTS code TEXT`);
+    await client.query(`ALTER TABLE promotions ALTER COLUMN target_type DROP NOT NULL`);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE promotions ADD CONSTRAINT chk_promotions_code_format CHECK (
+          code IS NULL OR (code = btrim(code) AND length(code) BETWEEN 1 AND 40 AND code !~ '\\s')
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE promotions ADD CONSTRAINT chk_promotions_code_is_percent
+          CHECK (code IS NULL OR discount_type = 'percent');
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE promotions ADD CONSTRAINT chk_promotions_code_or_target
+          CHECK (code IS NOT NULL OR target_type IS NOT NULL);
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS promotions_code_uidx
+        ON promotions (code) WHERE code IS NOT NULL
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS promotion_eligibility_targets (
+        id                       BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        promotion_id             BIGINT NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
+        target_kind              TEXT NOT NULL CHECK (target_kind IN (
+                                   'PERSONALIZED_CATEGORY', 'PERSONALIZED_BOOK',
+                                   'TEMPLATE_PHOTOBOOKS_ALL', 'PHOTOBOOK_THEME', 'CUSTOM_PHOTOBOOK')),
+        personalized_category_id BIGINT REFERENCES personalized_categories(id) ON DELETE CASCADE,
+        personalized_model_id    BIGINT REFERENCES personalized_models(id) ON DELETE CASCADE,
+        photobook_theme_id       BIGINT REFERENCES photobook_themes(id) ON DELETE CASCADE,
+        created_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
+        CONSTRAINT chk_promotion_eligibility_ref CHECK (
+          (target_kind = 'PERSONALIZED_CATEGORY' AND personalized_category_id IS NOT NULL AND personalized_model_id IS NULL AND photobook_theme_id IS NULL)
+          OR (target_kind = 'PERSONALIZED_BOOK' AND personalized_model_id IS NOT NULL AND personalized_category_id IS NULL AND photobook_theme_id IS NULL)
+          OR (target_kind = 'PHOTOBOOK_THEME' AND photobook_theme_id IS NOT NULL AND personalized_category_id IS NULL AND personalized_model_id IS NULL)
+          OR (target_kind IN ('TEMPLATE_PHOTOBOOKS_ALL', 'CUSTOM_PHOTOBOOK') AND personalized_category_id IS NULL AND personalized_model_id IS NULL AND photobook_theme_id IS NULL)
+        )
+      )
+    `);
+    await client.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS promotion_eligibility_targets_uidx
+        ON promotion_eligibility_targets (
+          promotion_id, target_kind,
+          COALESCE(personalized_category_id, personalized_model_id, photobook_theme_id, 0)
+        )
+    `);
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS promotion_id BIGINT`);
+    await client.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS promotion_code TEXT`);
+    await client.query(`
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS promotion_percent INT
+        CHECK (promotion_percent BETWEEN 1 AND 100)
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE orders ADD CONSTRAINT fk_orders_promotion
+          FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE SET NULL;
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`
+      DO $$ BEGIN
+        ALTER TABLE orders ADD CONSTRAINT chk_order_promotion_snapshot CHECK (
+          (promotion_code IS NULL AND promotion_percent IS NULL AND promotion_id IS NULL AND discount_amount_cents = 0)
+          OR (promotion_code IS NOT NULL AND promotion_percent IS NOT NULL)
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
+    await client.query(`CREATE INDEX IF NOT EXISTS orders_promotion_id_idx ON orders(promotion_id)`);
 
     // 0h. cover_asset_id en personalized_models
     await client.query(`
