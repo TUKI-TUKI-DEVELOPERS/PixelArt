@@ -19,6 +19,8 @@ import { EmailModule } from '../email/email.module';
 import { AssetsModule } from '../assets/assets.module';
 import { PersonalizedModule } from '../personalized/personalized.module';
 import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
+import { PromotionsModule } from '../promotions/promotion.module';
+import { QuotePhotobookPromoUseCase } from './application/use-cases/quote-photobook-promo.use-case';
 
 @Module({
   imports: [
@@ -37,10 +39,12 @@ import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-c
     EmailModule,
     AssetsModule,
     PersonalizedModule,
+    PromotionsModule,
   ],
   controllers: [PhotobookPublicController, PhotobookAdminController],
   providers: [
     PhotobookService,
+    QuotePhotobookPromoUseCase,
     PhotobookPdfService,
     CmykPdfConverterService,
     TypeOrmPhotobookRepository,

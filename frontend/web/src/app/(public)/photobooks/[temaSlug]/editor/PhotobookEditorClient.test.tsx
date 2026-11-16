@@ -470,4 +470,75 @@ describe('PhotobookEditorClient characterization', () => {
       slots: [{ assetId: 501, slotIndex: 0, cropData: null }],
     });
   });
+
+  describe('promotion code', () => {
+    const form = {
+      name: 'Cliente PixelArt', email: 'cliente@example.com', phone: '987654321', deliveryAddress: 'Av. Principal 123',
+      deliveryDistrict: 'Yanahuara', deliveryCity: 'Arequipa', deliveryRegion: 'Arequipa', deliveryDepartment: 'Arequipa',
+    };
+
+    function routeFetch(routes: Record<string, unknown>, draftState: Record<string, unknown>) {
+      return vi.fn(async (url: string) => {
+        if (url in routes) return { ok: true, json: async () => routes[url] };
+        return { ok: true, json: async () => ({ state: draftState }) };
+      });
+    }
+
+    it('shows the code field above the amount on the pay step and sends the code with the order', async () => {
+      mocks.searchParams = 'draft=draft-promo';
+      mocks.photos = [photo];
+      const fetchMock = routeFetch({
+        '/api/photobook/promo-preview': { code: 'Foto10', percent: 10, discountCents: 900, totalCents: 8100 },
+        '/api/photobook/projects': { order: { paymentLink: { token: 'pay-123' } } },
+        '/api/payment/pay-123/voucher': {},
+      }, { pages: draftPages(), photos: [photo], step: 5, form, coverType: 'TAPA_DELGADA', wantsRush: false, selectedProduct: 1 });
+      vi.stubGlobal('fetch', fetchMock);
+
+      renderEditor();
+      fireEvent.click(await screen.findByText('Continuar al pago'));
+
+      const field = await screen.findByLabelText('Código de promoción');
+      const amountLabel = screen.getByText('Total a pagar');
+      expect(field.compareDocumentPosition(amountLabel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+      fireEvent.change(field, { target: { value: 'Foto10' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+      expect(await screen.findByText('Descuento (Foto10)')).toBeTruthy();
+      const [, previewOptions] = fetchMock.mock.calls.find(([url]) => url === '/api/photobook/promo-preview')! as unknown as [string, RequestInit];
+      expect(JSON.parse(previewOptions.body as string)).toEqual({ code: 'Foto10', photobookThemeId: 7, coverType: 'TAPA_DELGADA', pageCount: 30, wantsRush: false });
+      expect(screen.getAllByText('S/ 81.00').length).toBeGreaterThan(0);
+
+      const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+      fireEvent.change(input, { target: { files: [new File(['voucher'], 'voucher.png', { type: 'image/png' })] } });
+      fireEvent.click(await screen.findByText('Sí, enviar comprobante'));
+
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/photobook/projects', expect.anything()));
+      const [, options] = fetchMock.mock.calls.find(([url]) => url === '/api/photobook/projects')! as unknown as [string, RequestInit];
+      expect(JSON.parse(options.body as string).promoCode).toBe('Foto10');
+    });
+
+    it('lets the custom photobook apply a code before finalizing and sends it to finalize', async () => {
+      const fetchMock = routeFetch({
+        '/api/photobook/custom-editor/promo-preview': { code: 'Medida10', percent: 10, discountCents: 900, totalCents: 10600 },
+        '/api/photobook/custom-editor/finalize': { order: { paymentLink: { url: 'http://localhost:3000/pagar/tok' } } },
+      }, { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 6, coverType: 'TAPA_DELGADA', pages: draftPages(30), photos: [photo], form, customCoverSurchargeCents: 2500, wantsRush: false });
+      vi.stubGlobal('fetch', fetchMock);
+      const assign = vi.fn();
+      vi.stubGlobal('location', { ...window.location, assign });
+
+      renderEditor({ customEditor: true });
+
+      fireEvent.change(await screen.findByLabelText('Código de promoción'), { target: { value: 'Medida10' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+      expect(await screen.findByText('Descuento (Medida10)')).toBeTruthy();
+      const [, previewOptions] = fetchMock.mock.calls.find(([url]) => url === '/api/photobook/custom-editor/promo-preview')! as unknown as [string, RequestInit];
+      expect(JSON.parse(previewOptions.body as string)).toEqual({ code: 'Medida10', coverType: 'TAPA_DELGADA', pageCount: 30, wantsRush: false, customCoverSurchargeCents: 2500 });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Continuar al pago' }));
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/photobook/custom-editor/finalize', expect.anything()));
+      const [, options] = fetchMock.mock.calls.find(([url]) => url === '/api/photobook/custom-editor/finalize')! as unknown as [string, RequestInit];
+      expect(JSON.parse(options.body as string).promoCode).toBe('Medida10');
+    });
+  });
 });

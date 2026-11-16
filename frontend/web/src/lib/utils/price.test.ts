@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatPrice } from './price';
+import { formatPrice, percentDiscountCents } from './price';
 
 describe('formatPrice', () => {
   it('formats zero cents', () => {
@@ -32,5 +32,13 @@ describe('formatPrice', () => {
 
   it('propagates NaN into the output (current behavior, no validation)', () => {
     expect(formatPrice(Number.NaN)).toBe('S/ NaN');
+  });
+});
+
+describe('percentDiscountCents', () => {
+  it('rounds to the nearest centavo like the backend (Math.round)', () => {
+    expect(percentDiscountCents(13000, 15)).toBe(1950);
+    expect(percentDiscountCents(999, 15)).toBe(150);
+    expect(percentDiscountCents(850, 15)).toBe(128);
   });
 });

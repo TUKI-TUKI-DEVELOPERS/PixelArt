@@ -2,20 +2,18 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
-import { getCheckoutInfo, submitCheckout, type CheckoutInfo } from "@/lib/api/checkout";
+import { getCheckoutInfo, previewCheckoutPromo, submitCheckout, type CheckoutInfo } from "@/lib/api/checkout";
 import { getAssetUrl } from "@/lib/assetUrl";
 import ProposalBook from "@/components/ProposalBook";
 import TemplateBook from "@/components/TemplateBook";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import { resetMobileZoom } from "@/lib/utils/resetMobileZoom";
+import { formatPrice, percentDiscountCents } from "@/lib/utils/price";
+import PromoCodeField, { type AppliedPromo } from "@/components/promotions/PromoCodeField";
 
 const STANDARD_ADDITIONAL = 7;   // 10 plantillas total − 3 del demo
 const PREMIUM_ADDITIONAL = 12;   // 15 plantillas total − 3 del demo
 const EXTRA_PRICE_CENTS = 4000;  // S/ 40.00 — siempre, independiente de la tapa
-
-function formatPrice(cents: number) {
-  return `S/ ${(cents / 100).toFixed(2)}`;
-}
 
 function Spinner() {
   return (
@@ -98,6 +96,9 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submittedTotal, setSubmittedTotal] = useState(0);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [promo, setPromo] = useState<AppliedPromo | null>(null);
+  const [promoLocked, setPromoLocked] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function closeZoom() {
@@ -110,6 +111,11 @@ export default function CheckoutPage() {
       .then((info) => {
         setData(info);
         if (info.packagePreference) setPkg(info.packagePreference);
+        // A code already stored on the order (retried submit) stays applied.
+        if (info.appliedPromotion) {
+          setPromo({ code: info.appliedPromotion.code, percent: info.appliedPromotion.percent });
+          setPromoLocked(true);
+        }
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -133,21 +139,26 @@ export default function CheckoutPage() {
   const baseAmount = data?.baseAmountCents ?? 0;
   const rushAmount = data?.rushFeeCents ?? 0;
   const extraAmount = pkg === "PREMIUM" ? EXTRA_PRICE_CENTS : 0;
-  const totalDisplay = baseAmount + rushAmount + extraAmount;
+  // Same rule as the backend: the code discounts the product price only
+  // (book + premium package), never the express fee.
+  const discountAmount = promo ? percentDiscountCents(baseAmount + extraAmount, promo.percent) : 0;
+  const totalDisplay = baseAmount + rushAmount + extraAmount - discountAmount;
 
   async function handleSubmit() {
     if (!canSubmit || !paymentFile || !data) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const result = await submitCheckout(token, {
         additionalTemplateIds: Array.from(selectedTemplates),
         packageType: pkg,
         paymentProof: paymentFile,
+        promoCode: promo?.code ?? null,
       });
       setSubmittedTotal(result.totalAmountCents);
       setSubmitted(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al enviar el pedido");
+      setSubmitError(err instanceof Error ? err.message : "Error al enviar el pedido");
     } finally {
       setSubmitting(false);
     }
@@ -336,6 +347,18 @@ export default function CheckoutPage() {
         )}
       </section>
 
+      {/* ── Código de promoción ── applied before paying, so the QR amount already includes the discount. */}
+      <div style={{ marginBottom: "28px" }}>
+        <PromoCodeField
+          onPreview={(code) => previewCheckoutPromo(token, { code, packageType: pkg })}
+          applied={promo}
+          locked={promoLocked}
+          discountCents={discountAmount}
+          totalCents={totalDisplay}
+          onChange={(next) => { setPromo(next); setSubmitError(null); }}
+        />
+      </div>
+
       {/* ── Sección 3: Comprobante de pago ── */}
       <section style={{ marginBottom: "40px" }}>
         <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#111", marginBottom: "4px" }}>
@@ -361,6 +384,12 @@ export default function CheckoutPage() {
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "15px", color: "#374151" }}>
               <span>5 escenarios adicionales</span>
               <span style={{ fontWeight: 600 }}>+{formatPrice(EXTRA_PRICE_CENTS)}</span>
+            </div>
+          )}
+          {promo && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontSize: "15px", color: "#5b21b6" }}>
+              <span>Descuento ({promo.code})</span>
+              <span style={{ fontWeight: 600 }}>−{formatPrice(discountAmount)}</span>
             </div>
           )}
           <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "12px", display: "flex", justifyContent: "space-between" }}>
@@ -453,6 +482,11 @@ export default function CheckoutPage() {
 
       {/* ── Submit ── */}
       <div style={{ position: "sticky", bottom: "24px" }}>
+        {submitError && (
+          <div role="alert" style={{ textAlign: "center", fontSize: "14px", fontWeight: 600, color: "#b91c1c", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "12px", padding: "10px 14px", marginBottom: "8px" }}>
+            {submitError}
+          </div>
+        )}
         {!canSubmit && (
           <div style={{ textAlign: "center", fontSize: "13px", color: "#9ca3af", marginBottom: "8px" }}>
             {selectedTemplates.size < requiredAdditional

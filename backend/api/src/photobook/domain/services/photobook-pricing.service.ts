@@ -25,9 +25,16 @@ export function calculatePhotobookRushFeeCents(wantsRush: boolean): number {
 // Es la única fuente de verdad del precio — el backend nunca confía en un total
 // calculado en el cliente.
 export function calculatePhotobookTotalCents(coverType: PhotobookCoverType, caraCount: number, wantsRush: boolean): number {
+  return calculatePhotobookProductCents(coverType, caraCount) + calculatePhotobookRushFeeCents(wantsRush);
+}
+
+/**
+ * Product price only (cover type + sheets), without the rush fee. This is the
+ * amount a promotion-code percentage applies to.
+ */
+export function calculatePhotobookProductCents(coverType: PhotobookCoverType, caraCount: number): number {
   const hojas = Math.ceil(caraCount / 2);
-  const coverPriceCents = hojas < MIN_HOJAS
+  return hojas < MIN_HOJAS
     ? 0
     : BASE_CENTS[coverType] + (hojas - MIN_HOJAS) * EXTRA_PER_HOJA_CENTS[coverType];
-  return coverPriceCents + calculatePhotobookRushFeeCents(wantsRush);
 }
