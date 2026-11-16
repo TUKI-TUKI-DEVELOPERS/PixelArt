@@ -847,6 +847,44 @@ describe('PhotobookService.createCustomRequest', () => {
         expect(manual.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'PAYMENT_PROOF_RECEIVED_ADMIN', payload: expect.not.objectContaining({ totalAmountCents: expect.any(Number) }) }));
   });
 
+  describe('payment link reuse', () => {
+    function confirmedProjectHarness() {
+      const h = createHarness();
+      h.repo.findProjectById = jest.fn().mockResolvedValue({ id: 79, status: 'CONVERTED_TO_ORDER', customerFullName: 'Ana Cliente', customerEmail: 'ana@example.com', customerPhone: '+51999111222', calculatedTotalCents: 12900 });
+      h.repo.updateProjectStatus = jest.fn();
+      h.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 55, totalAmountCents: 12900 });
+      return h;
+    }
+
+    it('only reuses a payment link that has not expired yet', async () => {
+      const h = confirmedProjectHarness();
+      h.dataSource.query.mockResolvedValueOnce([{ token: 'live-token', expires_at: new Date('2099-01-01T00:00:00.000Z') }]);
+
+      await expect(h.service.createOrderFromProject(79)).resolves.toMatchObject({ paymentLink: { token: 'live-token' } });
+
+      const [lookupSql, lookupParams] = h.dataSource.query.mock.calls[0];
+      expect(lookupSql).toMatch(/link_type = 'PAYMENT_UPLOAD'/);
+      expect(lookupSql).toMatch(/revoked_at IS NULL/);
+      expect(lookupSql).toMatch(/expires_at > now\(\)/i);
+      expect(lookupParams).toEqual([55]);
+      expect(h.publicLinksService.generate).not.toHaveBeenCalled();
+      expect(h.emailService.queue).not.toHaveBeenCalled();
+    });
+
+    it('issues and emails a fresh link when the only previous link has expired', async () => {
+      const h = confirmedProjectHarness();
+      // The lookup filters out expired links, so the database returns nothing.
+      h.dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+      h.publicLinksService.generate.mockResolvedValue({ token: 'fresh-token', expiresAt: new Date('2099-01-08T00:00:00.000Z') });
+
+      await expect(h.service.createOrderFromProject(79)).resolves.toMatchObject({
+        paymentLink: { token: 'fresh-token', url: 'http://localhost:3000/pagar/fresh-token' },
+      });
+      expect(h.publicLinksService.generate).toHaveBeenCalledWith({ linkType: 'PAYMENT_UPLOAD', orderId: 55 });
+      expect(h.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ payload: expect.objectContaining({ paymentUrl: 'http://localhost:3000/pagar/fresh-token' }) }));
+    });
+  });
+
 });
 
 describe('PhotobookService.createProject dimensions', () => {

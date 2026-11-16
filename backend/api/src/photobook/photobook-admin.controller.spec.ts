@@ -1,5 +1,7 @@
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { ROLES_KEY } from '../common/decorators/roles.decorator';
 import { PhotobookAdminController } from './photobook-admin.controller';
 
 describe('PhotobookAdminController', () => {
@@ -19,7 +21,7 @@ describe('PhotobookAdminController', () => {
     expect(service.deselectCustomCoverProposal).toHaveBeenCalledWith(41, 14);
   });
 
-  it('protects every custom-request admin endpoint with JWT authentication', () => {
+  it('protects every custom-request admin endpoint with JWT authentication and ADMIN/OPERATOR roles', () => {
     const protectedMethods = [
       'listCustomRequests',
       'getCustomRequest',
@@ -38,9 +40,11 @@ describe('PhotobookAdminController', () => {
       'deselectCustomCoverProposal',
     ] as const;
 
+    // Guards live at class level, so they apply to every route including these.
+    expect(Reflect.getMetadata(GUARDS_METADATA, PhotobookAdminController)).toEqual([JwtAuthGuard, RolesGuard]);
+    expect(Reflect.getMetadata(ROLES_KEY, PhotobookAdminController)).toEqual(['ADMIN', 'OPERATOR']);
     for (const method of protectedMethods) {
-      const guards = Reflect.getMetadata(GUARDS_METADATA, PhotobookAdminController.prototype[method]) as unknown[];
-      expect(guards).toContain(JwtAuthGuard);
+      expect(typeof PhotobookAdminController.prototype[method]).toBe('function');
     }
   });
 });

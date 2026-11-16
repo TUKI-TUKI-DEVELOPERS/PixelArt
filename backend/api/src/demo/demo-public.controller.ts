@@ -1,10 +1,11 @@
 import { Controller, Post, Get, Body, Param } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { DemoService } from './demo.service';
-import { CreateDemoRequestData } from './domain/ports/demo-repository.port';
+import { CreateDemoRequestDto } from './dto/create-demo-request.dto';
 import { PublicLinksService } from '../public-links/public-links.service';
 import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { DemoRepositoryPort } from './domain/ports/demo-repository.port';
+import { PublicCreateThrottle } from '../common/decorators/throttle.decorators';
 
 @Controller('demo')
 export class DemoPublicController {
@@ -17,7 +18,8 @@ export class DemoPublicController {
   ) {}
 
   @Post('requests')
-  create(@Body() body: CreateDemoRequestData) {
+  @PublicCreateThrottle()
+  create(@Body() body: CreateDemoRequestDto) {
     return this.demoService.create(body);
   }
 

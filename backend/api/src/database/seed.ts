@@ -14,6 +14,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Client } from 'pg';
 import * as bcryptjs from 'bcryptjs';
+import { resolveSeedAdminCredentials } from './seed-admin';
+import { secretFromEnv } from '../common/config/secret-env';
 
 function createClient(): Client {
   return new Client({
@@ -21,7 +23,7 @@ function createClient(): Client {
     port:     Number(process.env.POSTGRES_PORT ?? 5432),
     database: process.env.POSTGRES_DB       ?? 'pixelart',
     user:     process.env.POSTGRES_USER     ?? 'pixelart',
-    password: process.env.POSTGRES_PASSWORD ?? 'pixelart_secret',
+    password: secretFromEnv('POSTGRES_PASSWORD', 'pixelart_secret'),
   });
 }
 
@@ -1602,15 +1604,26 @@ export async function runSeed(): Promise<void> {
     console.log('[seed] rush_fee_rules ✓');
 
     // ── 9. users (admin) ─────────────────────────────────────────────────────
-    const passwordHash = await bcryptjs.hash('Admin123!', 10);
-    await client.query(`
-      INSERT INTO users (email, password_hash, full_name, role, is_active)
-      SELECT $1, $2, 'Admin PixelArt', 'ADMIN', true
-      WHERE NOT EXISTS (
-        SELECT 1 FROM users WHERE LOWER(email) = LOWER($1)
-      )
-    `, ['admin@pixelart.local', passwordHash]);
-    console.log('[seed] users ✓');
+    // Only created from SEED_ADMIN_EMAIL/SEED_ADMIN_PASSWORD, or the local
+    // default outside production. Existing users are never touched.
+    const seedAdmin = resolveSeedAdminCredentials({
+      NODE_ENV: process.env.NODE_ENV,
+      SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL,
+      SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD,
+    });
+    if (seedAdmin) {
+      const passwordHash = await bcryptjs.hash(seedAdmin.password, 10);
+      await client.query(`
+        INSERT INTO users (email, password_hash, full_name, role, is_active)
+        SELECT $1, $2, 'Admin PixelArt', 'ADMIN', true
+        WHERE NOT EXISTS (
+          SELECT 1 FROM users WHERE LOWER(email) = LOWER($1)
+        )
+      `, [seedAdmin.email, passwordHash]);
+      console.log(`[seed] users ✓ (admin from ${seedAdmin.source === 'env' ? 'SEED_ADMIN_EMAIL' : 'local development default'})`);
+    } else {
+      console.log('[seed] users — skipped: set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD to create the first admin');
+    }
 
     // Fix: la imprenta reportó (prueba física impresa) título/cabello/nombres
     // pegados al borde en tapa y contratapa — el margen de 1cm que pidieron

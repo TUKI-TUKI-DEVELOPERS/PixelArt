@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Headers, NotFoundException, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, NotFoundException, Param, Post, Put, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
+import { PublicCreateThrottle } from '../common/decorators/throttle.decorators';
 import { PhotobookService } from './photobook.service';
 import { CreatePhotobookProjectDto } from './dto/create-photobook-project.dto';
 import { CreatePhotobookDraftDto } from './dto/create-photobook-draft.dto';
@@ -20,6 +21,7 @@ export class PhotobookPublicController {
   listProducts() { return this.service.listProducts(); }
 
   @Post('custom-requests')
+  @PublicCreateThrottle(10)
   createCustomRequest(@Body() body: CreateCustomPhotobookRequestDto) {
     return this.service.createCustomRequest(body);
   }
@@ -40,7 +42,6 @@ export class PhotobookPublicController {
   }
 
   @Post('custom-editor/access')
-  @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async redeemCustomEditorCode(
     @Body() body: RedeemCustomPhotobookEditorCodeDto,
@@ -88,12 +89,14 @@ export class PhotobookPublicController {
   }
 
   @Post('projects')
+  @PublicCreateThrottle(10)
   createProject(@Body() body: CreatePhotobookProjectDto) {
     const { draftToken, ...data } = body;
     return this.service.createProject(data, draftToken);
   }
 
   @Post('drafts')
+  @PublicCreateThrottle(10)
   createDraft(@Body() body: CreatePhotobookDraftDto) {
     return this.service.createDraft(body.photobookProductId, body.photobookThemeId, body.state ?? {});
   }

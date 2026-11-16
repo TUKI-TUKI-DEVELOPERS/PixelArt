@@ -9,11 +9,19 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DemoService } from './demo.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { AdminThrottleExempt, AiGenerationThrottle } from '../common/decorators/throttle.decorators';
 
 @Controller('admin/demo')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'OPERATOR')
+@AdminThrottleExempt()
 export class DemoAdminController {
   constructor(private readonly demoService: DemoService) {}
 
@@ -61,6 +69,7 @@ export class DemoAdminController {
    * pequeña"). Genera la imagen con IA (fotos reales del cliente).
    */
   @Post('requests/:id/proposals/generate')
+  @AiGenerationThrottle()
   generateProposal(
     @Param('id') id: string,
     @Query('templateId') templateId: string,

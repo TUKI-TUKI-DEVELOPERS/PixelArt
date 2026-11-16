@@ -99,7 +99,7 @@ SEED_ON_BOOT=false   # desactivar después del primer arranque
 
 | Tabla                      | Datos                                                                       |
 |----------------------------|-----------------------------------------------------------------------------|
-| `users`                    | `admin@pixelart.local` / `Admin123!` (rol ADMIN)                           |
+| `users`                    | Un admin inicial (rol ADMIN) — ver “Admin inicial” abajo                    |
 | `personalized_categories`  | Infantil, Romántico, Familiar                                               |
 | `personalized_models`      | Aventura Espacial, Princesa del Bosque, Amor Eterno, Momentos en Familia   |
 | `personalized_templates`   | 3 templates con preview keys fake                                           |
@@ -108,6 +108,18 @@ SEED_ON_BOOT=false   # desactivar después del primer arranque
 | `photobook_themes`         | Viaje por Europa, Boda Clásica                                              |
 | `photobook_products`       | Fotolibro 21×21 cm, Fotolibro 30×20 cm                                     |
 | `rush_fee_rules`           | Express (7 días / S/10), Urgente (3 días / S/20)                           |
+
+### Admin inicial
+
+El seed crea el primer admin solo si el email todavía no existe (nunca modifica usuarios existentes):
+
+- Con `SEED_ADMIN_EMAIL` y `SEED_ADMIN_PASSWORD` definidas, usa esas credenciales (en cualquier entorno).
+- Sin ellas y con `NODE_ENV` distinto de `production`, crea el admin local de desarrollo definido en `backend/api/src/database/seed-admin.ts`.
+- En `production` sin ambas variables, no crea ningún admin.
+
+### Secreto JWT
+
+`JWT_SECRET` es obligatorio: mínimo 32 caracteres y nunca el valor de ejemplo. En `production` la API no arranca si no cumple; en desarrollo solo muestra una advertencia. Genera uno con `openssl rand -base64 48`.
 
 ---
 

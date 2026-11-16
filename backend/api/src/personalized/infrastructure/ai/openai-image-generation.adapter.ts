@@ -18,6 +18,11 @@ const OUTPUT_IMAGE_USD_PER_M_TOKENS = 30;
 const MODERATION_MAX_RETRIES = 2;
 const MODERATION_RETRY_DELAY_MS = 1500;
 
+/** Masks anything shaped like an OpenAI key (sk-..., including partially masked ones). */
+function redactKeyMaterial(text: string): string {
+  return text.replace(/sk-[A-Za-z0-9_*.-]+/g, 'sk-[redacted]');
+}
+
 @Injectable()
 export class OpenAiImageGenerationAdapter extends ImageGenerationPort {
   private readonly logger = new Logger(OpenAiImageGenerationAdapter.name);
@@ -116,11 +121,17 @@ export class OpenAiImageGenerationAdapter extends ImageGenerationPort {
   private toClientError(err: unknown): Error {
     if (this.isModerationError(err)) {
       return new BadRequestException(
-        `OpenAI rechazó la generación por moderación de contenido (escena sensible) tras ${MODERATION_MAX_RETRIES + 1} intentos. Probá de nuevo en un momento o ajustá la escena.`,
+        `OpenAI rechazó la generación por moderación de contenido (escena sensible) tras ${MODERATION_MAX_RETRIES + 1} intentos. Intenta de nuevo en un momento o ajusta la escena.`,
       );
     }
     if (err instanceof OpenAI.APIError) {
-      return new BadRequestException(`Error de OpenAI al generar la imagen: ${err.message}`);
+      // Never echo OpenAI's message to the HTTP client: it can contain account
+      // details or partial API keys. The detail stays in the server log only.
+      this.logger.error(
+        `OpenAI image request failed: status=${err.status ?? 'n/a'} code=${err.code ?? 'n/a'} ` +
+          `type=${err.type ?? 'n/a'} requestId=${err.requestID ?? 'n/a'} message=${redactKeyMaterial(err.message ?? '')}`,
+      );
+      return new BadRequestException('No se pudo generar la imagen con el proveedor de IA. Intenta de nuevo en unos minutos.');
     }
     return err instanceof Error ? err : new Error('Error desconocido al generar la imagen');
   }

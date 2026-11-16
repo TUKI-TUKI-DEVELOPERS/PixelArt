@@ -6,6 +6,7 @@ import { PhotobookRepositoryPort } from './domain/ports/photobook-repository.por
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { AdminThrottleExempt, AiGenerationThrottle } from '../common/decorators/throttle.decorators';
 import { GenerateCustomPhotobookCoverProposalDto } from './dto/generate-custom-photobook-cover-proposal.dto';
 import type { Response } from 'express';
 import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
@@ -17,6 +18,9 @@ function attachmentDisposition(filename: string): string {
 }
 
 @Controller('admin/photobook')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'OPERATOR')
+@AdminThrottleExempt()
 export class PhotobookAdminController {
   constructor(
     private readonly service: PhotobookService,
@@ -25,11 +29,9 @@ export class PhotobookAdminController {
     private readonly cmykPdfConverter: CmykPdfConverterService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('custom-requests')
   listCustomRequests() { return this.service.listCustomRequests(); }
 
-  @UseGuards(JwtAuthGuard)
   @Get('custom-requests/:id')
   async getCustomRequest(@Param('id') id: string) {
     const request = await this.service.getCustomRequest(Number(id));
@@ -37,13 +39,11 @@ export class PhotobookAdminController {
     return request;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('custom-requests/:id/references')
   listCustomReferenceAssets(@Param('id') id: string) {
     return this.service.listCustomReferenceAssets(Number(id));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('custom-requests/:id/references/:assetId/download')
   async downloadCustomReferenceAsset(
     @Param('id') id: string,
@@ -56,7 +56,6 @@ export class PhotobookAdminController {
     response.send(file.buffer);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/references')
   @UseInterceptors(FileInterceptor('file'))
   addCustomReferenceAsset(
@@ -71,7 +70,6 @@ export class PhotobookAdminController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/references/:assetId/replace')
   @UseInterceptors(FileInterceptor('file'))
   replaceCustomReferenceAsset(
@@ -87,7 +85,6 @@ export class PhotobookAdminController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/references/:assetId/use-as-cover')
   applyReferenceAsCustomCover(
     @Param('id') id: string,
@@ -97,7 +94,6 @@ export class PhotobookAdminController {
     return this.service.applyReferenceAsCustomCover(Number(id), Number(assetId), surface);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('custom-requests/:id/references/:assetId/active')
   setCustomReferenceAssetActive(
     @Param('id') id: string,
@@ -108,13 +104,11 @@ export class PhotobookAdminController {
     return this.service.setCustomReferenceAssetActive(Number(id), Number(assetId), body.isActive);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('custom-requests/:id/designs')
   listCustomCoverProposals(@Param('id') id: string) {
     return this.service.listCustomCoverProposals(Number(id));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('custom-requests/:id/designs/:designId/download')
   async downloadCustomCoverProposal(
     @Param('id') id: string,
@@ -127,7 +121,6 @@ export class PhotobookAdminController {
     response.send(file.buffer);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete('custom-requests/:id/designs/:designId')
   deleteCustomCoverProposal(
     @Param('id') id: string,
@@ -136,7 +129,6 @@ export class PhotobookAdminController {
     return this.service.deleteCustomCoverProposal(Number(id), Number(designId));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/designs/:designId/select')
   selectCustomCoverProposal(
     @Param('id') id: string,
@@ -145,7 +137,6 @@ export class PhotobookAdminController {
     return this.service.selectCustomCoverProposal(Number(id), Number(designId));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/designs/:designId/deselect')
   deselectCustomCoverProposal(
     @Param('id') id: string,
@@ -154,19 +145,16 @@ export class PhotobookAdminController {
     return this.service.deselectCustomCoverProposal(Number(id), Number(designId));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/cover-approval/send')
   sendCustomCoverApproval(@Param('id') id: string) {
     return this.service.sendCustomCoverApproval(Number(id));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/editor-code/send')
   sendCustomEditorCode(@Param('id') id: string) {
     return this.service.sendCustomEditorCode(Number(id));
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/designs/upload')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 30 * 1024 * 1024 } }))
   uploadCustomCoverArtwork(
@@ -182,8 +170,8 @@ export class PhotobookAdminController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('custom-requests/:id/designs/generate')
+  @AiGenerationThrottle()
   generateCustomCoverProposal(
     @Param('id') id: string,
     @Body() body: GenerateCustomPhotobookCoverProposalDto,
@@ -200,8 +188,6 @@ export class PhotobookAdminController {
   @Post('projects/:id/create-order')
   createOrder(@Param('id') id: string) { return this.service.createOrderFromProject(Number(id)); }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'OPERATOR')
   @Get('projects/:id/print-cmyk/:part')
   async downloadProjectCmyk(@Param('id') id: string, @Param('part') part: string, @Res() response: Response) {
     if (part !== 'covers' && part !== 'interior') throw new BadRequestException('Documento inválido');

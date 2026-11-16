@@ -1716,9 +1716,12 @@ export class PhotobookService {
 
     if (detail.status === 'CONFIRMED') await this.repo.updateProjectStatus(projectId, 'CONVERTED_TO_ORDER');
 
+    // Only a still-valid link may be reused; an expired one would send the
+    // customer to a dead page, so in that case a fresh link is issued and emailed.
     const existingLinkRows: { token: string; expires_at: Date }[] = await this.dataSource.query(
       `SELECT token, expires_at FROM public_links
        WHERE order_id = $1 AND link_type = 'PAYMENT_UPLOAD' AND revoked_at IS NULL
+         AND expires_at > now()
        ORDER BY created_at DESC LIMIT 1`,
       [order.id],
     );

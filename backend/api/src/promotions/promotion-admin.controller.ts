@@ -1,8 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { AdminThrottleExempt } from '../common/decorators/throttle.decorators';
 import { PromotionService } from './promotion.service';
 import { CreatePromotionData, UpdatePromotionData } from './domain/ports/promotion-repository.port';
 
 @Controller('admin/promotions')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'OPERATOR')
+@AdminThrottleExempt()
 export class PromotionAdminController {
   constructor(private readonly service: PromotionService) {}
 
