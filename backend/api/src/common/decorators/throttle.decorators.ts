@@ -15,6 +15,9 @@ export const PublicCreateThrottle = (limit = 5) => Throttle({ default: { limit, 
 /** Customer payment proof submissions (checkout submit, voucher upload). */
 export const PaymentSubmitThrottle = () => Throttle({ default: { limit: 10, ttl: ONE_MINUTE_MS } });
 
+/** Promo-code preview on a checkout link: bounds code guessing per client IP. */
+export const PromoPreviewThrottle = () => Throttle({ default: { limit: 10, ttl: ONE_MINUTE_MS } });
+
 /**
  * Admin controllers skip the per-IP default: every call reaches Nest through
  * the Next BFF and pages fan out one request per photo. Paid AI generation is

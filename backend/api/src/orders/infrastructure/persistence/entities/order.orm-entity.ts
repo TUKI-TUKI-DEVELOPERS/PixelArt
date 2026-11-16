@@ -44,6 +44,18 @@ export class OrderOrmEntity {
   @Column({ name: 'extra_templates_amount_cents', type: 'bigint', default: 0 })
   extraTemplatesAmountCents!: string;
 
+  @Column({ name: 'discount_amount_cents', type: 'bigint', default: 0 })
+  discountAmountCents!: string;
+
+  @Column({ name: 'promotion_id', type: 'bigint', nullable: true })
+  promotionId!: string | null;
+
+  @Column({ name: 'promotion_code', type: 'text', nullable: true })
+  promotionCode!: string | null;
+
+  @Column({ name: 'promotion_percent', type: 'int', nullable: true })
+  promotionPercent!: number | null;
+
   @Column({ name: 'total_amount_cents', type: 'bigint' })
   totalAmountCents!: string;
 

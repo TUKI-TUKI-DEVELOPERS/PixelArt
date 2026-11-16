@@ -48,6 +48,9 @@ describe('Rate limiting', () => {
     ['photobook project creation', PhotobookPublicController.prototype.createProject, 10],
     ['photobook draft creation', PhotobookPublicController.prototype.createDraft, 10],
     ['checkout submit', CheckoutPublicController.prototype.submit, 10],
+    ['checkout promo-code preview', CheckoutPublicController.prototype.previewPromo, 10],
+    ['template photobook promo-code preview', PhotobookPublicController.prototype.previewTemplatePromo, 10],
+    ['custom photobook promo-code preview', PhotobookPublicController.prototype.previewCustomEditorPromo, 10],
     ['payment voucher upload', PaymentsPublicController.prototype.uploadVoucher, 10],
   ] as const)('limits %s to %i per minute', (_label, handler, limit) => {
     expect(limitOf(handler)).toEqual({ limit, ttl: 60_000 });
@@ -83,6 +86,7 @@ describe('Rate limiting', () => {
     ['AssetsController.upload', AssetsController.prototype.upload],
     ['AssetsController.uploadPublic', AssetsController.prototype.uploadPublic],
     ['PhotobookPublicController.redeemCustomEditorCode', PhotobookPublicController.prototype.redeemCustomEditorCode],
+    ['CheckoutPublicController.previewPromo', CheckoutPublicController.prototype.previewPromo],
   ] as const)('%s does not add a second ThrottlerGuard that would double count requests', (_label, handler) => {
     const guards = (Reflect.getMetadata(GUARDS_METADATA, handler) ?? []) as unknown[];
     expect(guards).not.toContain(ThrottlerGuard);

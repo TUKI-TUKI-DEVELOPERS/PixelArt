@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { ActivatePhotobookOrderData, OrderRepositoryPort, CreateOrderData } from './domain/ports/order-repository.port';
+import { ActivatePhotobookOrderData, CheckoutPricing, OrderRepositoryPort, CreateOrderData } from './domain/ports/order-repository.port';
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   CONFIGURING_PHOTOBOOK: ['AWAITING_PAYMENT_PROOF', 'CANCELLED'],
@@ -23,6 +23,7 @@ export class OrdersService {
   findByPublicToken(token: string) { return this.repo.findByPublicToken(token); }
   getStatusEvents(orderId: number) { return this.repo.getStatusEvents(orderId); }
   updateExtraTemplates(id: number, extraTemplatesAmountCents: number) { return this.repo.updateExtraTemplates(id, extraTemplatesAmountCents); }
+  applyCheckoutPricing(id: number, pricing: CheckoutPricing) { return this.repo.applyCheckoutPricing(id, pricing); }
   ensurePhotobookConfigurationOrder(data: ActivatePhotobookOrderData) { return this.repo.ensurePhotobookConfigurationOrder(data); }
   activatePhotobookOrder(data: ActivatePhotobookOrderData) { return this.repo.activatePhotobookOrder(data); }
 

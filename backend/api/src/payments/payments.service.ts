@@ -45,6 +45,9 @@ export class PaymentsService {
         ? { totalAmountCents: order.totalAmountCents }
         : {}),
       ...(customCoverSurchargeCents !== null ? { customCoverSurchargeCents } : {}),
+      ...(order.promotionCode && order.discountAmountCents > 0
+        ? { discount: { code: order.promotionCode, percent: order.promotionPercent, amountCents: order.discountAmountCents } }
+        : {}),
       manualPricing,
       currency: order.currency,
       expiresAt: link.expiresAt,

@@ -50,6 +50,27 @@ describe('PaymentsService custom photobook payments', () => {
     expect(info).toMatchObject({ orderId: 41, manualPricing: true, totalAmountCents: 15000, customCoverSurchargeCents: 2500 });
   });
 
+  it('exposes the promotion-code discount snapshot of the order', async () => {
+    const h = createManualPricingHarness();
+    Object.assign(h.order, { totalAmountCents: 14100, discountAmountCents: 900, promotionCode: 'Medida10', promotionPercent: 10 });
+    h.dataSource.query.mockImplementation((sql: string) => Promise.resolve(
+      sql.includes('custom_photobook_requests') ? [{ id: '9' }]
+        : sql.includes('SELECT draft_state FROM photobook_projects') ? [{ draft_state: { customCoverSurchargeCents: 2500 } }] as any
+          : [],
+    ));
+
+    const info = await h.service.getPaymentInfo('payment-token');
+
+    expect(info).toMatchObject({ totalAmountCents: 14100, discount: { code: 'Medida10', percent: 10, amountCents: 900 } });
+  });
+
+  it('omits the discount when the order has no promotion code', async () => {
+    const h = createManualPricingHarness();
+    h.order.photobookProjectId = null;
+    const info = await h.service.getPaymentInfo('payment-token');
+    expect(info).not.toHaveProperty('discount');
+  });
+
   it('stores a null amount for manually priced proofs', async () => {
     const h = createManualPricingHarness();
     await h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png');

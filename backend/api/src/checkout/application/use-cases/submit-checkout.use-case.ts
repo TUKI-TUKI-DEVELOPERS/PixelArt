@@ -6,10 +6,15 @@ import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port'
 import { EmailService } from '../../../email/email.service';
 import { PublicLink } from '../../../public-links/domain/public-link';
 import { detectPaymentProofImage, INVALID_PAYMENT_PROOF_MESSAGE } from '../../../payments/domain/payment-proof-file';
+import { AppliedOrderPromotion, OrderRecord } from '../../../orders/domain/ports/order-repository.port';
+import { EvaluatePromoCodeUseCase } from '../../../promotions/application/use-cases/evaluate-promo-code.use-case';
+import { isPromoRejected } from '../../../promotions/domain/services/promo-code-evaluator';
+import { normalizePromoCode } from '../../../promotions/domain/value-objects/promo-code';
+import { discountableBaseCents, extraTemplatesAmountFor } from '../../domain/checkout-pricing';
+import { appliedPromotionOf, promoRejectionException } from '../checkout-promotion';
 
 const STANDARD_ADDITIONAL = 7;   // 10 plantillas total − 3 del demo
 const PREMIUM_ADDITIONAL = 12;   // 15 plantillas total − 3 del demo
-const EXTRA_TEMPLATES_PRICE_CENTS = 4000; // S/ 40.00 — siempre, independiente de la tapa
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
 
 export type SubmitCheckoutInput = {
@@ -19,6 +24,8 @@ export type SubmitCheckoutInput = {
   paymentBuffer: Buffer;
   originalFilename: string;
   mimeType: string;
+  /** Optional promotion code; re-validated here, never trusted from the client. */
+  promoCode?: string | null;
 };
 
 @Injectable()
@@ -29,6 +36,7 @@ export class SubmitCheckoutUseCase {
     private readonly fileStorage: FileStoragePort,
     private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
+    private readonly evaluatePromoCode: EvaluatePromoCodeUseCase,
   ) {}
 
   async execute(input: SubmitCheckoutInput) {
@@ -76,10 +84,12 @@ export class SubmitCheckoutUseCase {
       }
     }
 
-    // Update extra_templates_amount if premium
-    if (input.packageType === 'PREMIUM') {
-      await this.ordersService.updateExtraTemplates(order.id, EXTRA_TEMPLATES_PRICE_CENTS);
-    }
+    // Package amount + promotion snapshot + total, in one guarded update.
+    // The code is validated before any write, so a rejection leaves no side effects.
+    const extraTemplatesAmountCents = extraTemplatesAmountFor(input.packageType);
+    const promotion = await this.resolvePromotion(order, input.promoCode, extraTemplatesAmountCents);
+    const stored = await this.ordersService.applyCheckoutPricing(order.id, { extraTemplatesAmountCents, promotion });
+    if (!stored) throw promoRejectionException('already_applied');
 
     // Reload order to get updated total
     const updatedOrder = await this.ordersService.findById(order.id);
@@ -148,6 +158,36 @@ export class SubmitCheckoutUseCase {
       totalAmountCents: updatedOrder.totalAmountCents,
       currency: updatedOrder.currency,
       message: 'Pedido confirmado. Tu comprobante será revisado pronto.',
+    };
+  }
+
+  /**
+   * One code per order: an order that already holds a code keeps it (the same
+   * code again is idempotent, a different one is rejected); otherwise the typed
+   * code, if any, is validated against the product price only.
+   */
+  private async resolvePromotion(
+    order: OrderRecord,
+    promoCode: string | null | undefined,
+    extraTemplatesAmountCents: number,
+  ): Promise<AppliedOrderPromotion | null> {
+    const applied = appliedPromotionOf(order);
+    const code = normalizePromoCode(promoCode) || applied?.code || '';
+    if (!code) return null;
+    if (!order.personalizedModelId) throw promoRejectionException('not_applicable');
+
+    const evaluation = await this.evaluatePromoCode.execute({
+      code,
+      product: { kind: 'PERSONALIZED_BOOK', modelId: order.personalizedModelId },
+      discountableBaseCents: discountableBaseCents({ baseAmountCents: order.baseAmountCents, extraTemplatesAmountCents }),
+      applied,
+    });
+    if (isPromoRejected(evaluation)) throw promoRejectionException(evaluation.reason);
+    return {
+      promotionId: evaluation.promotionId,
+      code: evaluation.code,
+      percent: evaluation.percent,
+      discountCents: evaluation.discountCents,
     };
   }
 }
