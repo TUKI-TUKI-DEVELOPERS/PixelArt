@@ -17,14 +17,6 @@ import { getAssetUrl } from "@/lib/assetUrl";
 import { tokens } from "@/lib/design-tokens";
 import { hexToRgba } from "@/lib/colors";
 
-const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
-
-type ActivePromo = {
-  targetType: string;
-  discountType: string;
-  discountValue: number;
-};
-
 function parsePriceCents(priceStr?: string): number | undefined {
   if (!priceStr) return undefined;
   const match = priceStr.match(/([\d.]+)/);
@@ -59,25 +51,8 @@ function SectionDivider() {
   );
 }
 
-function applyBestPromo(priceCents: number, promos: ActivePromo[]): number | undefined {
-  const applicable = promos.filter((p) => p.targetType === 'all');
-  if (!applicable.length) return undefined;
-  let best = priceCents;
-  for (const p of applicable) {
-    const result = p.discountType === 'percent'
-      ? Math.round(priceCents * (1 - p.discountValue / 100))
-      : Math.max(0, priceCents - p.discountValue);
-    if (result < best) best = result;
-  }
-  return best < priceCents ? best : undefined;
-}
-
 export default async function HomePage() {
   const K = HOME_ASSET_KEYS;
-
-  const activePromos: ActivePromo[] = await fetch(`${API_BASE}/api/promotions/active`, {
-    next: { revalidate: 60 },
-  }).then((r) => r.ok ? r.json() : []).catch(() => []);
 
   // URLs construidas directamente — sin fetch al backend
 
@@ -747,11 +722,7 @@ export default async function HomePage() {
       <SectionDivider />
 
       {/* ═══ BOOKS SECTION ═══ */}
-      <NuestrosLibrosSection books={books.map((b) => {
-        const priceCents = parsePriceCents(b.price);
-        const promoPrice = priceCents !== undefined ? applyBestPromo(priceCents, activePromos) : undefined;
-        return { ...b, priceCents, promoPrice };
-      })} />
+      <NuestrosLibrosSection books={books.map((b) => ({ ...b, priceCents: parsePriceCents(b.price) }))} />
 
       <SectionDivider />
 

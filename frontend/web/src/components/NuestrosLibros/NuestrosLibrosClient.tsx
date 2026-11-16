@@ -506,10 +506,6 @@ const FILTER_BADGE: Record<Exclude<FilterKey, 'todos'>, string> = {
   memorias: 'MEMORIAS FAMILIARES',
 };
 
-const API = "";
-
-type ActivePromo = { targetType: string; targetId: number | null; targetIds: number[]; discountType: string; discountValue: number };
-
 export default function NuestrosLibrosClient({ books }: Props) {
   const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   const [visibleCount, setVisibleCount]   = useState(CARDS_PER_PAGE);
@@ -517,20 +513,12 @@ export default function NuestrosLibrosClient({ books }: Props) {
   const [filterOpen, setFilterOpen]       = useState(false);
   const [lightboxSrc, setLightboxSrc]     = useState<string | null>(null);
   const [pillStyle, setPillStyle]         = useState({ left: 6, width: 0 });
-  const [promos, setPromos]               = useState<ActivePromo[]>([]);
   const filterContainerRef                = useRef<HTMLDivElement>(null);
   const filterBtnRefs                     = useRef<(HTMLButtonElement | null)[]>([]);
   const gridWrapperRef                    = useRef<HTMLDivElement>(null);
   const prevVisibleRef                    = useRef(0);
   const removingFromRef                   = useRef(Infinity);
   const scrollIntentRef                   = useRef<'more' | 'less' | null>(null);
-
-  useEffect(() => {
-    fetch(`${API}/api/promotions/active`)
-      .then((r) => r.ok ? r.json() : [])
-      .then(setPromos)
-      .catch(() => {});
-  }, []);
 
   /* Pill deslizante */
   useEffect(() => {
@@ -1462,7 +1450,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
           }}
         >
           <div ref={gridWrapperRef}>
-            <ProductGrid key={activeFilter} books={visibleBooks} promos={promos} />
+            <ProductGrid key={activeFilter} books={visibleBooks} />
           </div>
 
           {/* Ver más / Ver menos */}

@@ -8,6 +8,8 @@ import HamburgerIcon from "./HamburgerIcon";
 import MobileDrawer from "./MobileDrawer";
 import NavIcon from "./NavIcon";
 import LibrosPersonalizadosMegaMenu from "./LibrosPersonalizadosMegaMenu";
+import PromoCodeBanner, { type ManualBanner } from "./PromoCodeBanner";
+import type { PublicPromoCode } from "@/lib/promotions/public-codes";
 import { PIXELART_COLORS, BASE_COLORS, COLORS_ARRAY, hexToRgba } from "@/lib/colors";
 
 const NAV_LINKS = [
@@ -39,9 +41,7 @@ const NAV_LINKS = [
 // y useEffect en el servidor donde no existe window.
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-type BannerConfig = { text: string; color: string; enabled: boolean } | null;
-
-export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerConfig }) {
+export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: { bannerConfig?: ManualBanner; promoCodes?: PublicPromoCode[] }) {
   // BUG 1 FIX: derivar el link activo de la URL real en vez de estado manual
   const pathname = usePathname();
   const activeLink = NAV_LINKS.find((l) =>
@@ -104,22 +104,7 @@ export default function NavbarClient({ bannerConfig }: { bannerConfig?: BannerCo
       />
 
       {/* Banner de Promoción Dinámico */}
-      {bannerConfig?.enabled && bannerConfig.text && (
-        <div
-          style={{
-            width: "100%",
-            background: bannerConfig.color || "#1a1a2e",
-            padding: isMobile ? "8px 16px" : "10px 48px",
-            textAlign: "center",
-            fontSize: isMobile ? "12px" : "14px",
-            fontWeight: 600,
-            color: "#fff",
-            letterSpacing: "0.3px",
-          }}
-        >
-          {bannerConfig.text}
-        </div>
-      )}
+      <PromoCodeBanner codes={promoCodes} fallback={bannerConfig} />
 
       {/* Main Navbar */}
       <div

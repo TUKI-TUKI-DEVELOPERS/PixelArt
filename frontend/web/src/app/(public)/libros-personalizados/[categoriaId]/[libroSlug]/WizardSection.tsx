@@ -13,7 +13,6 @@ const API_BASE = "";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type ActivePromo = { label: string; targetType: string; targetId: number | null; discountType: string; discountValue: number };
 type VariantProp = { id: number; coverType: string; basePriceCents: number };
 type TemplateProp = { id: number; name: string | null; previewUrl: string; genderDirection: string | null };
 type DbIdsProp = { catalogBookId: number; personalizedModelId: number; personalizedCategoryId: number } | null;
@@ -962,24 +961,6 @@ const WIZARD_STEPS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function applyBestPromo(priceCents: number, promos: ActivePromo[], catalogBookId?: number): number | undefined {
-  const applicable = promos.filter(
-    (p) =>
-      p.targetType === "all" ||
-      (p.targetType === "model" && catalogBookId !== undefined && p.targetId === catalogBookId),
-  );
-  if (!applicable.length) return undefined;
-  let best = priceCents;
-  for (const p of applicable) {
-    const result =
-      p.discountType === "percent"
-        ? Math.round(priceCents * (1 - p.discountValue / 100))
-        : Math.max(0, priceCents - p.discountValue);
-    if (result < best) best = result;
-  }
-  return best < priceCents ? best : undefined;
-}
-
 function formatPrice(cents: number) {
   return `S/ ${(cents / 100).toFixed(2)}`;
 }
@@ -1063,7 +1044,6 @@ function MemberSection({
 export default function WizardSection({ accent, dbIds, variants, templates, libroNombre, categoriaSlug }: Props) {
   const { isMobile, isSmallMobile } = useWindowSize();
   const [currentStep, setCurrentStep] = useState(0);
-  const [promos, setPromos] = useState<ActivePromo[]>([]);
 
   // Wizard mode — derivado de categoría y libro
   const wizardMode = getWizardMode(categoriaSlug, libroNombre);
@@ -1171,13 +1151,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
   const prevStepRef = useRef(currentStep);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/promotions/active`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setPromos)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
     if (submitted && successRef.current) {
       successRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
@@ -1252,11 +1225,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
     if (singleMemorialDirection) setRecipientGender(singleMemorialDirection);
   }, [singleMemorialDirection]);
 
-  const activeGlobalPromo = promos.find(
-    (p) =>
-      p.targetType === "all" ||
-      (p.targetType === "model" && dbIds !== null && p.targetId === dbIds.catalogBookId),
-  );
   const selectedVariant = variants.find((v) => v.id === selectedVariantId);
 
   function updateForm(field: string, value: string) {
@@ -1678,13 +1646,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   </div>
                 ))}
               </div>
-
-              {activeGlobalPromo && (
-                <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#fef3c7", border: "1px solid #fbbf24", borderRadius: "12px", padding: "10px 20px", marginBottom: "20px", fontSize: "14px", fontWeight: 700, color: "#92400e" }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke="#92400e" strokeWidth="2" strokeLinecap="round"/></svg>
-                  {activeGlobalPromo.label} — {activeGlobalPromo.discountType === "percent" ? `${activeGlobalPromo.discountValue}% OFF` : `S/ ${(activeGlobalPromo.discountValue / 100).toFixed(2)} de descuento`} aplicado
-                </div>
-              )}
 
               <button
                 onClick={() => setCurrentStep(1)}
@@ -2352,8 +2313,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : `repeat(${variants.length}, 1fr)`, gap: "16px", marginBottom: "32px" }}>
                   {variants.map((v) => {
                     const isSelected = selectedVariantId === v.id;
-                    const vPromo = applyBestPromo(v.basePriceCents, promos, dbIds?.catalogBookId);
-                    const displayPrice = vPromo ?? v.basePriceCents;
                     const isSoft = v.coverType === "TAPA_DELGADA";
                     return (
                       <button
@@ -2398,10 +2357,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                             {isSoft ? "Cartulina estándar · Liviana y compacta" : "Cubierta rígida · Acabado premium y duradero"}
                           </div>
                           <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
-                            {vPromo !== undefined && (
-                              <span style={{ fontSize: "12px", color: "#bbb", textDecoration: "line-through" }}>{formatPrice(v.basePriceCents)}</span>
-                            )}
-                            <span style={{ fontSize: "28px", fontWeight: 800, color: accent, lineHeight: 1 }}>{formatPrice(displayPrice)}</span>
+                            <span style={{ fontSize: "28px", fontWeight: 800, color: accent, lineHeight: 1 }}>{formatPrice(v.basePriceCents)}</span>
                           </div>
                           <div style={{ fontSize: "11px", color: "#aaa", marginTop: "3px" }}>Precio base del libro</div>
                         </div>
@@ -2503,9 +2459,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           {/* ── Step 7: Package + Delivery + Contact ── */}
           {currentStep === 7 && (() => {
             const baseCents = selectedVariant?.basePriceCents ?? 0;
-            const promoBase = applyBestPromo(baseCents, promos, dbIds?.catalogBookId);
             const extraCents = selectedPackage === "PREMIUM" ? EXTRA_PLANTILLAS_CENTS : 0;
-            const totalCents = (promoBase ?? baseCents) + extraCents + (wantsRush ? RUSH_FEE_CENTS : 0);
+            const totalCents = baseCents + extraCents + (wantsRush ? RUSH_FEE_CENTS : 0);
             return (
               <div>
                 <h3 style={{ margin: "0 0 6px 0", fontFamily: tokens.fonts.display, fontSize: "24px", fontWeight: 700, letterSpacing: "-0.01em" }}>7. Tus datos</h3>
@@ -2517,7 +2472,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "10px" }}>
                     {(["STANDARD", "PREMIUM"] as const).map((pkg) => {
                       const isSelected = selectedPackage === pkg;
-                      const pkgPrice = (promoBase ?? baseCents) + (pkg === "PREMIUM" ? EXTRA_PLANTILLAS_CENTS : 0);
+                      const pkgPrice = baseCents + (pkg === "PREMIUM" ? EXTRA_PLANTILLAS_CENTS : 0);
                       return (
                         <button key={pkg} type="button" onClick={() => setSelectedPackage(pkg)}
                           style={{ padding: "14px 16px", borderRadius: "12px", textAlign: "left", cursor: "pointer", border: isSelected ? `2px solid ${accent}` : "2px solid #e5e7eb", background: isSelected ? `${accent}08` : "#fff", fontFamily: "inherit", transition: "all 0.2s ease", display: "flex", alignItems: "center", gap: "12px" }}
@@ -2596,11 +2551,8 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
           {/* ── Step 8: Summary ── */}
           {currentStep === 8 && (() => {
             const baseCents = selectedVariant?.basePriceCents ?? 0;
-            const promoBase = applyBestPromo(baseCents, promos, dbIds?.catalogBookId);
-            const effectiveBase = promoBase ?? baseCents;
             const extraCents = selectedPackage === "PREMIUM" ? EXTRA_PLANTILLAS_CENTS : 0;
-            const totalCents = effectiveBase + extraCents + (wantsRush ? RUSH_FEE_CENTS : 0);
-            const originalTotal = baseCents + extraCents + (wantsRush ? RUSH_FEE_CENTS : 0);
+            const totalCents = baseCents + extraCents + (wantsRush ? RUSH_FEE_CENTS : 0);
             return (
               <div>
                 <h3 style={{ margin: "0 0 20px 0", fontSize: "24px", fontWeight: 700 }}>8. Resumen de tu solicitud</h3>
@@ -2643,7 +2595,7 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "12px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#555" }}>
                       <span>{selectedVariant?.coverType.replace("TAPA_", "Tapa ")} · {selectedPackage === "PREMIUM" ? "15 plantillas" : "10 plantillas"}</span>
-                      <span>{formatPrice(effectiveBase + extraCents)}</span>
+                      <span>{formatPrice(baseCents + extraCents)}</span>
                     </div>
                     {wantsRush && (
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#555" }}>
@@ -2654,7 +2606,6 @@ export default function WizardSection({ accent, dbIds, variants, templates, libr
                   <div style={{ borderTop: `1px solid ${accent}20`, paddingTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: "15px", fontWeight: 700, color: "#333" }}>Total estimado</span>
                     <div style={{ textAlign: "right" }}>
-                      {promoBase !== undefined && <div style={{ fontSize: "13px", color: "#aaa", textDecoration: "line-through" }}>{formatPrice(originalTotal)}</div>}
                       <div style={{ fontSize: "28px", fontWeight: 800, color: accent }}>{formatPrice(totalCents)}</div>
                     </div>
                   </div>

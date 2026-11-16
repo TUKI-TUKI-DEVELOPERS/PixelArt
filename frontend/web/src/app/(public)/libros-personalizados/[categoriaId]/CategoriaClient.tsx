@@ -2,13 +2,12 @@
 
 import { tokens } from "@/lib/design-tokens";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import ProductGrid from "@/components/catalog/ProductGrid";
 import { getAssetUrl, toRelativeAssetUrl } from "@/lib/assetUrl";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
-const API = "";
 
 /* ── Datos por categoría ── */
 
@@ -26,14 +25,6 @@ type BookData = {
   reviewCount?: number;
 };
 
-
-type ActivePromo = {
-  targetType: string;
-  targetId: number | null;
-  targetIds: number[];
-  discountType: string;
-  discountValue: number;
-};
 
 const ADULT_BOOKS_BY_CATEGORY: Record<string, BookData[]> = {
   "libros-de-familia": [
@@ -734,15 +725,6 @@ export default function CategoriaClient({
     assetUrls.comunidad7,
     assetUrls.comunidad8,
   ].filter((url): url is string => !!url);
-  const [promos, setPromos] = useState<ActivePromo[]>([]);
-
-  useEffect(() => {
-    fetch(`${API}/api/promotions/active`)
-      .then((r) => r.json())
-      .then((data) => setPromos(Array.isArray(data) ? data : data.data ?? []))
-      .catch(() => {});
-  }, []);
-
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
   const books = allBooks.slice(0, visibleCount);
   const hasMore = visibleCount < allBooks.length;
@@ -957,7 +939,7 @@ export default function CategoriaClient({
           </p>
         </div>
 
-        <ProductGrid books={books} promos={promos} />
+        <ProductGrid books={books} />
 
         {hasMore && (
           <div

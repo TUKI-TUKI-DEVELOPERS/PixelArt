@@ -83,7 +83,7 @@ function getDenseVersionOption(label: string) {
 }
 
 export default function NuestrosLibrosCard({
-  title, description, image, href = '#', category, price, priceCents, promoPrice, versions,
+  title, description, image, href = '#', category, price, priceCents, versions,
 }: Book) {
   const versionPickerId = useId();
   const [liked, setLiked] = useState(false);
@@ -476,14 +476,9 @@ export default function NuestrosLibrosCard({
 
         {(price || priceCents !== undefined) && (
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-            {promoPrice !== undefined && priceCents !== undefined && (
-              <span style={{ fontSize: '12px', color: '#9ca3af', textDecoration: 'line-through' }}>
-                {formatCents(priceCents)}
-              </span>
-            )}
             <span style={{ fontSize: '12px', color: tokens.colors.neutral.text.muted }}>Desde</span>
-            <span style={{ fontSize: '17px', fontWeight: 800, color: promoPrice !== undefined ? '#e74c6f' : tokens.colors.neutral.text.primary }}>
-              {promoPrice !== undefined && priceCents !== undefined ? formatCents(promoPrice) : price}
+            <span style={{ fontSize: '17px', fontWeight: 800, color: tokens.colors.neutral.text.primary }}>
+              {price ?? (priceCents !== undefined ? formatCents(priceCents) : '')}
             </span>
           </div>
         )}
