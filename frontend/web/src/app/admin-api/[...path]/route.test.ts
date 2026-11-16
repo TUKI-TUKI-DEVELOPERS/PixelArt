@@ -26,6 +26,51 @@ describe('/admin-api/[...path] catch-all BFF', () => {
     expect(new Headers(init.headers).get('authorization')).toBe('Bearer admin-jwt');
   });
 
+  it('serves the promotions admin page: forwards the JSON body and passes a 409 overlap message through', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('{"message":"Se cruza en fechas y productos con la promoción NAVIDAD15"}', {
+        status: 409,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await route.POST(
+      new NextRequest('http://localhost/admin-api/promotions', {
+        method: 'POST',
+        headers: { cookie: 'pa_admin_token=admin-jwt', authorization: 'Bearer attacker', 'content-type': 'application/json' },
+        body: JSON.stringify({ code: 'X' }),
+      }),
+      { params: Promise.resolve({ path: ['promotions'] }) },
+    );
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(String(url)).toBe('http://api:3001/api/admin/promotions');
+    expect(init.method).toBe('POST');
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer admin-jwt');
+    expect(await new Response(init.body).text()).toBe('{"code":"X"}');
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ message: 'Se cruza en fechas y productos con la promoción NAVIDAD15' });
+  });
+
+  it('proxies promotion update and delete by id', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => new Response(null, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const cookie = { cookie: 'pa_admin_token=admin-jwt' };
+
+    await route.PUT(new NextRequest('http://localhost/admin-api/promotions/5', { method: 'PUT', headers: cookie, body: '{}' }), {
+      params: Promise.resolve({ path: ['promotions', '5'] }),
+    });
+    await route.DELETE(new NextRequest('http://localhost/admin-api/promotions/5', { method: 'DELETE', headers: cookie }), {
+      params: Promise.resolve({ path: ['promotions', '5'] }),
+    });
+
+    expect(fetchMock.mock.calls.map(([url, init]) => `${init.method} ${url}`)).toEqual([
+      'PUT http://api:3001/api/admin/promotions/5',
+      'DELETE http://api:3001/api/admin/promotions/5',
+    ]);
+  });
+
   it('streams private storage objects from the guarded /api/admin/storage/<key> endpoint', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response('jpeg-bytes', { status: 200, headers: { 'content-type': 'image/jpeg' } }));
     vi.stubGlobal('fetch', fetchMock);
