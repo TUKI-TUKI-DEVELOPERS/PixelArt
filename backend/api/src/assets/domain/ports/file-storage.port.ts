@@ -1,3 +1,12 @@
+import type { Readable } from 'stream';
+
+/** A stored object opened for streaming, with the metadata saved at upload time. */
+export type StoredObject = {
+  body: Readable;
+  contentType: string | null;
+  contentLength: number | null;
+};
+
 export abstract class FileStoragePort {
   abstract upload(
     key: string,
@@ -12,7 +21,15 @@ export abstract class FileStoragePort {
 
   abstract delete(key: string): Promise<void>;
 
+  /**
+   * Same-origin browser URL for the key: `/assets/...` for public prefixes,
+   * `/admin-api/storage/...` (ADMIN/OPERATOR only) for everything else.
+   * See domain/policies/storage-access.policy.ts.
+   */
   abstract getPublicUrl(key: string): string;
+
+  /** Opens an object for streaming; null when the key does not exist. */
+  abstract openObject(key: string): Promise<StoredObject | null>;
 
   abstract download(key: string): Promise<Buffer>;
 

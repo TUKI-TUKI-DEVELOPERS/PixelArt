@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CheckoutService } from './checkout.service';
+import { PaymentSubmitThrottle } from '../common/decorators/throttle.decorators';
 
 @Controller('checkout')
 export class CheckoutPublicController {
@@ -29,6 +30,7 @@ export class CheckoutPublicController {
    * Body: multipart — additionalTemplateIds[], packageType, paymentProof (file)
    */
   @Post(':token/submit')
+  @PaymentSubmitThrottle()
   @UseInterceptors(FileInterceptor('paymentProof'))
   async submit(
     @Param('token') token: string,

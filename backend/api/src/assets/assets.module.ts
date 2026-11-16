@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { AssetsController } from './assets.controller';
+import { AdminStorageController } from './admin-storage.controller';
 import { AssetsService } from './assets.service';
 import { AssetOrmEntity } from './infrastructure/persistence/entities/asset.orm-entity';
 import { MinioStorageService } from './infrastructure/storage/minio-storage.service';
@@ -9,6 +10,7 @@ import { TypeOrmAssetRepository } from './infrastructure/persistence/repositorie
 import { AssetRepositoryPort } from './domain/ports/asset-repository.port';
 import { FileStoragePort } from './domain/ports/file-storage.port';
 import { UploadAssetUseCase } from './application/use-cases/upload-asset.use-case';
+import { GetAdminStorageObjectUseCase } from './application/use-cases/get-admin-storage-object.use-case';
 
 @Module({
   imports: [
@@ -21,12 +23,13 @@ import { UploadAssetUseCase } from './application/use-cases/upload-asset.use-cas
       },
     }),
   ],
-  controllers: [AssetsController],
+  controllers: [AssetsController, AdminStorageController],
   providers: [
     AssetsService,
     MinioStorageService,
     TypeOrmAssetRepository,
     UploadAssetUseCase,
+    GetAdminStorageObjectUseCase,
     // Bind ports → implementations
     { provide: AssetRepositoryPort, useExisting: TypeOrmAssetRepository },
     { provide: FileStoragePort, useExisting: MinioStorageService },

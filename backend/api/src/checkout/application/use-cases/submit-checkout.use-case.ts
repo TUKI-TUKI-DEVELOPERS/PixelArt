@@ -5,6 +5,7 @@ import { OrdersService } from '../../../orders/orders.service';
 import { FileStoragePort } from '../../../assets/domain/ports/file-storage.port';
 import { EmailService } from '../../../email/email.service';
 import { PublicLink } from '../../../public-links/domain/public-link';
+import { detectPaymentProofImage, INVALID_PAYMENT_PROOF_MESSAGE } from '../../../payments/domain/payment-proof-file';
 
 const STANDARD_ADDITIONAL = 7;   // 10 plantillas total − 3 del demo
 const PREMIUM_ADDITIONAL = 12;   // 15 plantillas total − 3 del demo
@@ -31,6 +32,10 @@ export class SubmitCheckoutUseCase {
   ) {}
 
   async execute(input: SubmitCheckoutInput) {
+    // Validate the real bytes first, before any side effect; the client mimetype is never trusted.
+    const voucher = detectPaymentProofImage(input.paymentBuffer);
+    if (!voucher) throw new BadRequestException(INVALID_PAYMENT_PROOF_MESSAGE);
+
     const link: PublicLink = await this.publicLinksService.validate(input.token);
     if (link.linkType !== 'CHECKOUT' || !link.orderId) {
       throw new BadRequestException('Link de checkout inválido');
@@ -97,9 +102,8 @@ export class SubmitCheckoutUseCase {
     }
 
     // Upload payment proof to MinIO
-    const ext = input.mimeType.includes('png') ? 'png' : 'jpg';
-    const storageKey = `uploads/vouchers/${order.id}.${ext}`;
-    await this.fileStorage.upload(storageKey, input.paymentBuffer, input.mimeType);
+    const storageKey = `uploads/vouchers/${order.id}.${voucher.extension}`;
+    await this.fileStorage.upload(storageKey, input.paymentBuffer, voucher.mimeType);
 
     // Insert payment_proof record
     await this.dataSource.query(
@@ -109,7 +113,7 @@ export class SubmitCheckoutUseCase {
         order.id,
         storageKey,
         input.originalFilename,
-        input.mimeType,
+        voucher.mimeType,
         input.paymentBuffer.length,
         'YAPE_QR',
         updatedOrder.totalAmountCents,

@@ -6,6 +6,9 @@ const ORDER_ID = 100;
 const DEMO_REQUEST_ID = 55;
 const MODEL_ID = 9;
 const HOUR_MS = 60 * 60 * 1000;
+const JPEG_BYTES = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00]);
+const PNG_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
+const WEBP_BYTES = Buffer.concat([Buffer.from('RIFF'), Buffer.from([0x24, 0x00, 0x00, 0x00]), Buffer.from('WEBPVP8 ')]);
 
 const EXPECTED_ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
 const FRONTEND_BASE = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
@@ -94,7 +97,7 @@ function makeInput(overrides: Partial<SubmitCheckoutInput> = {}): SubmitCheckout
     token: 'tok-123',
     additionalTemplateIds: [4, 5, 6, 7, 8, 9, 10],
     packageType: 'STANDARD',
-    paymentBuffer: Buffer.from('voucher-bytes'),
+    paymentBuffer: JPEG_BYTES,
     originalFilename: 'voucher.jpg',
     mimeType: 'image/jpeg',
     ...overrides,
@@ -229,9 +232,9 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
     ]);
   });
 
-  it('uploads the voucher as jpg for non-png mime types', async () => {
+  it('stores a JPEG voucher with the detected type and a .jpg key', async () => {
     const h = makeHarness({ validTemplateCount: 7 });
-    const input = makeInput({ mimeType: 'image/jpeg' });
+    const input = makeInput();
     await h.useCase.execute(input);
     expect(h.fileStorage.upload).toHaveBeenCalledWith(
       `uploads/vouchers/${ORDER_ID}.jpg`,
@@ -240,14 +243,18 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
     );
   });
 
-  it('uploads the voucher as png when the mime type contains png', async () => {
+  it('trusts the file bytes, not the client mimetype: PNG bytes declared as image/jpeg are stored as PNG', async () => {
     const h = makeHarness({ validTemplateCount: 7 });
-    await h.useCase.execute(makeInput({ mimeType: 'image/png' }));
-    expect(h.fileStorage.upload).toHaveBeenCalledWith(
-      `uploads/vouchers/${ORDER_ID}.png`,
-      expect.any(Buffer),
-      'image/png',
-    );
+    await h.useCase.execute(makeInput({ paymentBuffer: PNG_BYTES, mimeType: 'image/jpeg' }));
+    expect(h.fileStorage.upload).toHaveBeenCalledWith(`uploads/vouchers/${ORDER_ID}.png`, PNG_BYTES, 'image/png');
+    const proofInsert = h.query.mock.calls.find(([sql]) => sql.includes('INSERT INTO payment_proofs'));
+    expect(proofInsert[1][3]).toBe('image/png');
+  });
+
+  it('accepts WEBP vouchers', async () => {
+    const h = makeHarness({ validTemplateCount: 7 });
+    await h.useCase.execute(makeInput({ paymentBuffer: WEBP_BYTES, mimeType: 'image/webp' }));
+    expect(h.fileStorage.upload).toHaveBeenCalledWith(`uploads/vouchers/${ORDER_ID}.webp`, WEBP_BYTES, 'image/webp');
   });
 
   it('records the payment proof with the reloaded total, size and YAPE_QR method', async () => {
@@ -283,5 +290,24 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
         adminUrl: `${FRONTEND_BASE}/admin/ordenes/${ORDER_ID}`,
       },
     });
+  });
+});
+
+describe('SubmitCheckoutUseCase — voucher file validation', () => {
+  it.each([
+    ['an HTML page renamed to .jpg', Buffer.from('<html><script>alert(document.cookie)</script></html>'), 'image/jpeg'],
+    ['an SVG declared as PNG', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'), 'image/png'],
+    ['a PDF', Buffer.from('%PDF-1.7\n'), 'application/pdf'],
+  ])('rejects %s with a Spanish 400 before any side effect', async (_label, paymentBuffer, mimeType) => {
+    const h = makeHarness({ validTemplateCount: 7 });
+    const execution = h.useCase.execute(makeInput({ paymentBuffer, mimeType }));
+    await expect(execution).rejects.toThrow(BadRequestException);
+    await expect(h.useCase.execute(makeInput({ paymentBuffer, mimeType }))).rejects.toThrow(
+      'El comprobante debe ser una imagen JPG, PNG o WEBP.',
+    );
+    expect(h.fileStorage.upload).not.toHaveBeenCalled();
+    expect(h.ordersService.updateExtraTemplates).not.toHaveBeenCalled();
+    expect(h.query.mock.calls.some(([sql]) => /INSERT|UPDATE/.test(sql))).toBe(false);
+    expect(h.publicLinksService.revoke).not.toHaveBeenCalled();
   });
 });

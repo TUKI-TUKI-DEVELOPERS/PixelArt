@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Param, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PaymentsService } from './payments.service';
+import { PaymentSubmitThrottle } from '../common/decorators/throttle.decorators';
 
 @Controller('payment')
 export class PaymentsPublicController {
@@ -12,6 +13,7 @@ export class PaymentsPublicController {
   }
 
   @Post(':token/voucher')
+  @PaymentSubmitThrottle()
   @UseInterceptors(FileInterceptor('file'))
   uploadVoucher(
     @Param('token') token: string,

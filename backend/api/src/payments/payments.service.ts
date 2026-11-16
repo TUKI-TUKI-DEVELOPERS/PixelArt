@@ -7,6 +7,7 @@ import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { EmailService, QueueEmailData } from '../email/email.service';
 import { DataSource } from 'typeorm';
 import { returningRows } from '../common/database/returning-rows';
+import { detectPaymentProofImage, INVALID_PAYMENT_PROOF_MESSAGE } from './domain/payment-proof-file';
 
 export type PaymentReviewResult = {
   status: 'APPROVED' | 'REJECTED';
@@ -51,7 +52,11 @@ export class PaymentsService {
   }
 
   /** Cliente sube voucher. Persisted proofs can be resumed after a later step failed. */
-  async uploadVoucher(token: string, buffer: Buffer, originalFilename: string, mimeType: string) {
+  async uploadVoucher(token: string, buffer: Buffer, originalFilename: string, _declaredMimeType: string) {
+    // The client mimetype is never trusted: type and extension come from the file's magic bytes.
+    const voucher = detectPaymentProofImage(buffer);
+    if (!voucher) throw new BadRequestException(INVALID_PAYMENT_PROOF_MESSAGE);
+
     const link = await this.publicLinksService.validate(token);
     if (link.linkType !== 'PAYMENT_UPLOAD' || !link.orderId) throw new BadRequestException('Link de pago inválido');
 
@@ -63,14 +68,14 @@ export class PaymentsService {
 
     if (!proof) {
       // Unique per-attempt keys ensure a failed concurrent insert cannot delete another upload.
-      const storageKey = `uploads/vouchers/${link.orderId}-${randomUUID()}.jpg`;
-      await this.fileStorage.upload(storageKey, buffer, mimeType);
+      const storageKey = `uploads/vouchers/${link.orderId}-${randomUUID()}.${voucher.extension}`;
+      await this.fileStorage.upload(storageKey, buffer, voucher.mimeType);
       try {
         proof = await this.repo.create({
           orderId: link.orderId,
           storageKey,
           originalFilename,
-          mimeType,
+          mimeType: voucher.mimeType,
           sizeBytes: buffer.length,
           paymentMethod: 'YAPE_QR',
           amountCents: manualPricing ? null : order.totalAmountCents,
