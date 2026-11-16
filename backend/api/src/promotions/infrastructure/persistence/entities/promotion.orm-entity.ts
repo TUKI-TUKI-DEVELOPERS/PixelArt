@@ -14,8 +14,11 @@ export class PromotionOrmEntity {
   @Column({ type: 'text' })
   label!: string;
 
-  @Column({ name: 'target_type', type: 'text' })
-  targetType!: string;
+  @Column({ type: 'text', nullable: true })
+  code!: string | null;
+
+  @Column({ name: 'target_type', type: 'text', nullable: true })
+  targetType!: string | null;
 
   @Column({ name: 'target_id', type: 'bigint', nullable: true })
   targetId!: string | null;
