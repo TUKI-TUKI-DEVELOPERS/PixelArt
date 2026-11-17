@@ -222,11 +222,6 @@ export default function HeroBookCarousel({ books, fabricBgUrl }: Props) {
             <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span className="hc-counter" aria-hidden="true">
-          {String(order[1] + 1).padStart(2, "0")}
-          <span className="hc-counter-sep"> — </span>
-          {String(books.length).padStart(2, "0")}
-        </span>
 
         {/* Miniaturas — salto directo a cada libro */}
         <div className="hc-thumbs" role="tablist" aria-label="Ir a un libro">
@@ -546,18 +541,6 @@ export default function HeroBookCarousel({ books, fabricBgUrl }: Props) {
         .hc-arrow:active {
           transform: scale(0.96);
         }
-        .hc-counter {
-          margin-left: 8px;
-          font-family: ${tokens.fonts.display};
-          font-style: italic;
-          font-size: 16px;
-          letter-spacing: 0.06em;
-          color: ${tokens.colors.neutral.text.primary};
-        }
-        .hc-counter-sep {
-          color: ${tokens.colors.neutral.text.disabled};
-        }
-
         /* ── Miniaturas ── */
         .hc-thumbs {
           margin-left: auto;

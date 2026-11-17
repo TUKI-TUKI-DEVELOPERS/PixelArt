@@ -21,6 +21,8 @@ const CARD_SHADOW_HOVER = '0 24px 64px rgba(0, 0, 0, 0.16)';
 
 type BookCardVersion = {
   label: string;
+  /** Short line under the version pill that clarifies a terse label (e.g. "Edición adultos · para papá"). */
+  caption?: string;
   subtitle?: string;
   description?: string;
   image?: string;
@@ -353,6 +355,22 @@ export default function BookCard({
                   );
                 })}
               </div>
+            )}
+
+            {hasVersions && versions?.some((version) => version.caption) && (
+              <p
+                aria-live="polite"
+                style={{
+                  margin:     '-2px 0 2px',
+                  minHeight:  '16px',
+                  fontSize:   '12px',
+                  lineHeight: 1.35,
+                  fontWeight: 600,
+                  color:      tokens.colors.neutral.text.secondary,
+                }}
+              >
+                {activeVersion?.caption ?? ''}
+              </p>
             )}
 
             <h3 style={{

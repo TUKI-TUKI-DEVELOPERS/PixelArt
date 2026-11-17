@@ -26,6 +26,7 @@ type BaseBook = {
 
 type BookVersion = BaseBook & {
   label: string;
+  caption?: string;
 };
 
 type Book = BaseBook & {
@@ -99,6 +100,7 @@ export default function ProductGrid({ books }: Props) {
         const { priceCents, price } = getPricing(book);
         const versions = book.versions?.map((version) => ({
           label: version.label,
+          caption: version.caption,
           subtitle: version.tagline ?? "",
           description: version.description ?? "",
           image: version.coverImageUrl ?? "",
