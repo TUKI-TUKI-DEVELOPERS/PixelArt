@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { tokens } from "@/lib/design-tokens";
 import { orderDiscountLabel, type OrderPromotionFields } from "@/lib/promotions/order-discount";
+import { downloadFile, downloadPdf } from "@/lib/download";
 
 const printActionStyle = { padding: "8px 12px", borderRadius: "6px", border: `1px solid ${tokens.colors.neutral.surface.border}`, background: tokens.colors.neutral.surface.base, color: tokens.colors.neutral.text.secondary, fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: tokens.fonts.body };
 
@@ -108,14 +109,14 @@ async function generateCustomBookPdf(orderId: number): Promise<StandardPdfRender
   return render;
 }
 
+// Never saves an error response as the file (e.g. a failed CMYK conversion as
+// "…-cmyk.pdf"): PDFs must start with %PDF-, anything else must be a 2xx.
 async function forceDownload(url: string, filename: string) {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  const blobUrl = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = blobUrl; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(blobUrl);
+  try {
+    await (filename.endsWith(".pdf") ? downloadPdf(url, filename) : downloadFile(url, filename));
+  } catch (error) {
+    alert(error instanceof Error ? error.message : "No se pudo descargar el archivo");
+  }
 }
 
 export default function OrdenDetallePage() {

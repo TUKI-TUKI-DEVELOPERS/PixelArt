@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { tokens } from "@/lib/design-tokens";
+import { downloadPdf } from "@/lib/download";
 
 const outputActionStyle = { padding: "8px 12px", borderRadius: "6px", border: `1px solid ${tokens.colors.neutral.surface.border}`, background: tokens.colors.neutral.surface.base, color: tokens.colors.neutral.text.secondary, fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: tokens.fonts.body };
 
@@ -36,11 +37,10 @@ export default function ProyectoDetallePage() {
     fetch(`/admin-api/photobook/projects/${id}/render`).then((r) => r.ok ? r.json() : null).then(setRenderFiles).catch(() => setRenderFiles(null));
   }, [id]);
 
+  // Every file here is a print PDF: never save an error response in its place.
   async function downloadFile(url: string, filename: string) {
-    const response = await fetch(url);
-    const blobUrl = URL.createObjectURL(await response.blob());
-    const anchor = document.createElement("a");
-    anchor.href = blobUrl; anchor.download = filename; anchor.click(); URL.revokeObjectURL(blobUrl);
+    try { await downloadPdf(url, filename); }
+    catch (error) { alert(error instanceof Error ? error.message : "No se pudo descargar el archivo"); }
   }
 
   useEffect(() => {
