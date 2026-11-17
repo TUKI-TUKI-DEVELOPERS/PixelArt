@@ -4,24 +4,31 @@ import { HOME_ASSET_KEYS } from "@/lib/homeAssetKeys";
 import { getAssetUrl } from "@/lib/assetUrl";
 import FooterBackground from "@/components/backgrounds/FooterBackground";
 
-function SocialIcon({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
+const SOCIAL_ICON_STYLE: React.CSSProperties = {
+  width: "36px",
+  height: "36px",
+  borderRadius: "50%",
+  background: "rgba(255,255,255,0.1)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "rgba(255,255,255,0.7)",
+  textDecoration: "none",
+  transition: "all 0.2s ease",
+};
+
+/* Sin href el ícono se muestra sin enlace: las redes todavía no tienen
+   página propia. Cuando existan, basta con pasar su URL. */
+function SocialIcon({ href, label, children }: { href?: string; label: string; children: React.ReactNode }) {
+  if (!href) {
+    return (
+      <span role="img" aria-label={label} style={SOCIAL_ICON_STYLE}>
+        {children}
+      </span>
+    );
+  }
   return (
-    <a
-      href={href}
-      aria-label={label}
-      style={{
-        width: "36px",
-        height: "36px",
-        borderRadius: "50%",
-        background: "rgba(255,255,255,0.1)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "rgba(255,255,255,0.7)",
-        textDecoration: "none",
-        transition: "all 0.2s ease",
-      }}
-    >
+    <a href={href} aria-label={label} target="_blank" rel="noopener noreferrer" style={SOCIAL_ICON_STYLE}>
       {children}
     </a>
   );
@@ -403,24 +410,24 @@ export default function Footer() {
           <div className="footer-col-social">
             <div style={LABEL_STYLE}>Síguenos</div>
             <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
-              <SocialIcon href="#" label="Facebook">
+              <SocialIcon label="Facebook">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
                 </svg>
               </SocialIcon>
-              <SocialIcon href="#" label="Instagram">
+              <SocialIcon label="Instagram">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                   <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                 </svg>
               </SocialIcon>
-              <SocialIcon href="#" label="TikTok">
+              <SocialIcon label="TikTok">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13.2a8.24 8.24 0 005.58 2.17V11.9a4.83 4.83 0 01-3.77-1.44V6.69h3.77z" />
                 </svg>
               </SocialIcon>
-              <SocialIcon href="#" label="YouTube">
+              <SocialIcon label="YouTube">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                 </svg>

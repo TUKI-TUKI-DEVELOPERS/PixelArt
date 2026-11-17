@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import PixelArtLogo from "./PixelArtLogo";
@@ -11,6 +11,11 @@ import LibrosPersonalizadosMegaMenu from "./LibrosPersonalizadosMegaMenu";
 import PromoCodeBanner, { type ManualBanner } from "./PromoCodeBanner";
 import type { PublicPromoCode } from "@/lib/promotions/public-codes";
 import { PIXELART_COLORS, BASE_COLORS, COLORS_ARRAY, hexToRgba } from "@/lib/colors";
+import { tokens } from "@/lib/design-tokens";
+import { whatsAppUrl } from "@/lib/whatsapp";
+
+const PRINT_WITH_US_LABEL = "¿Deseas imprimir con nosotros?";
+const PRINT_WITH_US_HREF = "/photobooks/a-medida";
 
 const NAV_LINKS = [
   {
@@ -80,6 +85,9 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Stable so MobileDrawer's scroll-lock effect does not re-run (and unlock) on every render.
+  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
+
   function handleMouseEnter() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setDropdownOpen(true);
@@ -91,6 +99,7 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
 
   return (
     <header style={{ width: "100%", position: "sticky", top: 0, zIndex: 1000 }}>
+      <style>{NAVBAR_STYLES}</style>
       {/* Barra Multicolor Superior - Audaz con Gradiente Animado */}
       <div
         className="pixelart-gradient-bar"
@@ -118,22 +127,24 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
       >
         <div
           ref={dropdownRef}
+          className="navbar-row"
           style={{
             width: "100%",
             maxWidth: "1600px",
             margin: "0 auto",
-            padding: isMobile ? "16px" : "18px 48px",
+            // Desktop padding/gap live in NAVBAR_STYLES so they can tighten at mid widths.
+            padding: isMobile ? "16px" : undefined,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: isMobile ? "16px" : "32px",
+            gap: isMobile ? "16px" : undefined,
             position: "relative",
           }}
         >
           {/* Hamburger Icon - Solo Mobile */}
           {isMobile && (
-            <HamburgerIcon 
-              open={mobileMenuOpen} 
+            <HamburgerIcon
+              open={mobileMenuOpen}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
             />
           )}
@@ -157,10 +168,10 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
           {/* Navigation Links - Solo Desktop */}
           {!isMobile && (
             <nav
+              className="navbar-links"
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "40px",
                 flex: 1,
                 justifyContent: "center",
               }}
@@ -178,14 +189,12 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
                     >
                       <Link
                         href={link.href}
-                        className={`nav-shimmer-btn${isActive ? " active" : ""}`}
+                        className={`nav-shimmer-btn navbar-link${isActive ? " active" : ""}`}
                         style={{
                           "--glow-hue": link.glowHue,
                           background: "transparent",
                           border: "none",
                           borderLeft: `3px solid ${link.color}`,
-                          paddingLeft: "12px",
-                          paddingRight: "12px",
                           paddingTop: "8px",
                           paddingBottom: "8px",
                           cursor: "pointer",
@@ -214,7 +223,7 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
                         }}
                       >
                         <div className="shimmer" />
-                        <NavIcon icon={link.icon} color={isActive ? link.color : BASE_COLORS.inkSepia} />
+                        <span className="navbar-link-icon"><NavIcon icon={link.icon} color={isActive ? link.color : BASE_COLORS.inkSepia} /></span>
                         {link.label}
                         <ChevronIcon open={dropdownOpen} color={isActive ? link.color : BASE_COLORS.inkSepia} />
                       </Link>
@@ -226,14 +235,12 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className={`nav-shimmer-btn${isActive ? " active" : ""}`}
+                    className={`nav-shimmer-btn navbar-link${isActive ? " active" : ""}`}
                     style={{
                       "--glow-hue": link.glowHue,
                       background: "transparent",
                       border: "none",
                       borderLeft: `3px solid ${link.color}`,
-                      paddingLeft: "12px",
-                      paddingRight: "12px",
                       paddingTop: "8px",
                       paddingBottom: "8px",
                       cursor: "pointer",
@@ -262,7 +269,7 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
                     }}
                   >
                     <div className="shimmer" />
-                    <NavIcon icon={link.icon} color={isActive ? link.color : BASE_COLORS.inkSepia} />
+                    <span className="navbar-link-icon"><NavIcon icon={link.icon} color={isActive ? link.color : BASE_COLORS.inkSepia} /></span>
                     {link.label}
                   </Link>
                 );
@@ -299,8 +306,10 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
             </div>
           )}
 
-          {/* Iconos sociales - Solo Desktop */}
-          {!isMobile && <SocialIcons />}
+          {/* WhatsApp + print-with-us CTA - Solo Desktop */}
+          {!isMobile && (
+            <NavActions />
+          )}
 
         </div>
       </div>
@@ -308,8 +317,9 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
       {/* Mobile Drawer */}
       <MobileDrawer
         open={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
+        onClose={closeMobileMenu}
         links={NAV_LINKS}
+        printWithUs={{ label: PRINT_WITH_US_LABEL, href: PRINT_WITH_US_HREF }}
       />
     </header>
   );
@@ -318,70 +328,14 @@ export default function NavbarClient({ bannerConfig = null, promoCodes = [] }: {
 // BUG 6: IconButton eliminado (era código muerto — nunca se usaba en el render)
 // BUG 7: NavIcon movido a ./NavIcon.tsx (componente compartido con MobileDrawer)
 
-function SocialIcons() {
-  const [igHovered, setIgHovered] = useState(false);
-  const [fbHovered, setFbHovered] = useState(false);
+function NavActions() {
   const [waHovered, setWaHovered] = useState(false);
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-      {/* Instagram */}
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        onMouseEnter={() => setIgHovered(true)}
-        onMouseLeave={() => setIgHovered(false)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "36px",
-          height: "36px",
-          borderRadius: "10px",
-          background: igHovered
-            ? "linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)"
-            : "transparent",
-          transition: "background 0.2s ease",
-          color: igHovered ? "#fff" : BASE_COLORS.inkSepia,
-        }}
-        aria-label="Instagram"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" strokeWidth="2"/>
-          <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2"/>
-          <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
-        </svg>
-      </a>
-
-      {/* Facebook */}
-      <a
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-        onMouseEnter={() => setFbHovered(true)}
-        onMouseLeave={() => setFbHovered(false)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "36px",
-          height: "36px",
-          borderRadius: "10px",
-          background: fbHovered ? "#1877f2" : "transparent",
-          transition: "background 0.2s ease",
-          color: fbHovered ? "#fff" : BASE_COLORS.inkSepia,
-        }}
-        aria-label="Facebook"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </a>
-
+    <div className="navbar-actions" style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
       {/* WhatsApp */}
       <a
-        href="#"
+        href={whatsAppUrl()}
         target="_blank"
         rel="noopener noreferrer"
         onMouseEnter={() => setWaHovered(true)}
@@ -403,6 +357,11 @@ function SocialIcons() {
           <path d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652c1.746.943 3.71 1.444 5.71 1.447h.006c6.585 0 11.946-5.336 11.949-11.896.002-3.176-1.24-6.165-3.48-8.45zM12.045 21.785h-.005c-1.776 0-3.517-.474-5.037-1.37l-.361-.213-3.754.979 1.003-3.645-.235-.374a9.86 9.86 0 0 1-1.521-5.26c.002-5.45 4.453-9.884 9.928-9.884 2.65 0 5.138 1.03 7.009 2.898a9.82 9.82 0 0 1 2.902 6.993c-.003 5.452-4.453 9.886-9.929 9.886zm5.443-7.405c-.3-.149-1.767-.867-2.04-.967-.273-.099-.473-.148-.672.15-.198.296-.769.967-.943 1.166-.173.198-.347.223-.645.074-.3-.148-1.265-.463-2.41-1.48-.89-.79-1.49-1.767-1.665-2.064-.173-.297-.018-.458.13-.606.134-.133.298-.347.447-.52.149-.173.198-.297.297-.495.099-.198.05-.372-.025-.52-.074-.149-.672-1.612-.921-2.207-.242-.579-.489-.5-.672-.51a12.08 12.08 0 0 0-.57-.01c-.198 0-.52.074-.793.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.148.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.413-.074-.124-.272-.198-.57-.347z" fill="currentColor"/>
         </svg>
       </a>
+
+      <Link href={PRINT_WITH_US_HREF} className="print-with-us-trigger" aria-label={PRINT_WITH_US_LABEL}>
+        <span className="print-with-us-label-full" aria-hidden="true">{PRINT_WITH_US_LABEL}</span>
+        <span className="print-with-us-label-short" aria-hidden="true">Imprimir con nosotros</span>
+      </Link>
     </div>
   );
 }
@@ -430,3 +389,55 @@ function ChevronIcon({ open, color }: { open: boolean; color: string }) {
     </svg>
   );
 }
+
+const INK = tokens.colors.neutral.text.primary;
+
+// Desktop-only layout rules (mobile keeps its inline styles). Below 1340px the
+// row tightens and the CTA switches to its short label; below 1120px the nav
+// icons hide so nothing wraps or overlaps at 1024px.
+const NAVBAR_STYLES = `
+  .navbar-row { padding: 18px 48px; gap: 32px; }
+  .navbar-links { gap: 40px; }
+  .navbar-link { padding-left: 12px; padding-right: 12px; white-space: nowrap; }
+  .navbar-link-icon { display: inline-flex; }
+
+  .print-with-us-trigger {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 0 16px;
+    border: 1.5px solid ${INK};
+    border-radius: 999px;
+    background: transparent;
+    color: ${INK};
+    font-family: ${tokens.fonts.body};
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+  .print-with-us-trigger:hover,
+  .print-with-us-trigger:focus-visible { background: ${INK}; color: #fff; }
+  .print-with-us-trigger:focus-visible { outline: 2px solid ${INK}; outline-offset: 3px; }
+  .print-with-us-label-short { display: none; }
+
+  @media (max-width: 1339px) {
+    .navbar-row { padding: 18px 24px; gap: 16px; }
+    .navbar-links { gap: 12px; }
+    .print-with-us-trigger { padding: 0 14px; }
+    .print-with-us-label-full { display: none; }
+    .print-with-us-label-short { display: inline; }
+  }
+
+  @media (max-width: 1119px) {
+    .navbar-links { gap: 8px; }
+    .navbar-link { padding-left: 8px; padding-right: 8px; }
+    .navbar-link-icon { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .print-with-us-trigger { transition: none; }
+  }
+`;
