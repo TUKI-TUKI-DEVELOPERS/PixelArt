@@ -2,10 +2,12 @@ version: "3.9"
 
 # ─── MODO PRODUCCIÓN (VPS) ─────────────────────────────────────────────────────
 # Build de producción (target: prod), sin bind-mounts de código fuente.
-#   docker compose -f infra/docker/docker-compose.prod.yml up --build -d
 #
-# Requiere infra/docker/.env.docker.local con las variables reales (nunca en git —
-# ver .gitignore, patrón .env.*.local).
+# Requiere .env.docker.local (raíz del repo) con las variables reales (nunca en
+# git — ver .gitignore, patrón .env.*.local). Pasarlo también a la interpolación
+# del compose, que exige POSTGRES_PASSWORD, MINIO_ACCESS_KEY, MINIO_SECRET_KEY y
+# JWT_SECRET (sin defaults — falla en vez de arrancar con credenciales conocidas):
+#   docker compose --env-file .env.docker.local -f infra/docker/docker-compose.prod.yml up --build -d
 # ──────────────────────────────────────────────────────────────────────────────
 
 services:
@@ -17,7 +19,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-pixelart}
       POSTGRES_USER: ${POSTGRES_USER:-pixelart}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pixelart_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     expose:
       - "5432"
     volumes:
@@ -44,16 +46,19 @@ services:
       retries: 5
 
   minio:
-    # Pineado a una versión pre-2024: las imágenes minio/minio:latest recientes
-    # requieren microarquitectura x86-64-v2, que esta VPS no soporta (ver logs:
-    # "Fatal glibc error: CPU does not support x86-64-v2").
-    image: minio/minio:RELEASE.2023-09-30T07-02-29Z
+    # MinIO removed minio/minio and minio/mc from Docker Hub (Sept 2026) and
+    # quay.io now requires auth, so production uses pgsty/minio: a maintained
+    # community build of the same server (multi-arch, ships `mc`, so the
+    # healthcheck below still works). Never downgrade below the release that
+    # last wrote the data: older servers fail with "decodeXLHeaders: Unknown
+    # xl header version".
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: pixelart_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-pixelart_access}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-pixelart_secret_key}
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY must be set}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY must be set}
     expose:
       - "9000"
       - "9001"
@@ -66,22 +71,29 @@ services:
       retries: 5
 
   minio-mc:
-    # Misma razón que el servicio minio — pineado a una versión de la misma época
-    image: minio/mc:RELEASE.2023-09-29T16-41-22Z
+    # Same image as the server: it ships `mc` and a shell for the entrypoint.
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     container_name: pixelart_minio_mc
     depends_on:
       minio:
         condition: service_healthy
     environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-pixelart_access}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-pixelart_secret_key}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY must be set}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY must be set}
       MINIO_BUCKET: ${MINIO_BUCKET:-pixelart-assets}
+    # Anonymous read ONLY on public prefixes — mirror of PUBLIC_STORAGE_PREFIXES in
+    # backend/api/src/assets/domain/policies/storage-access.policy.ts (and the web
+    # /assets gate). Vouchers, AI originals, print assets and print PDFs stay
+    # private even if the web gate were bypassed.
     entrypoint: >
       /bin/sh -c "
         mc alias set local http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY &&
         mc mb local/$$MINIO_BUCKET --ignore-existing &&
-        mc anonymous set download local/$$MINIO_BUCKET &&
-        echo 'MinIO: bucket $$MINIO_BUCKET listo.'
+        mc anonymous set none local/$$MINIO_BUCKET &&
+        for prefix in Home IA_Books Photobooks QRPago logo themes uploads/customers uploads/photobooks uploads/proposals generated/proposals photobooks/custom-requests; do
+          mc anonymous set download local/$$MINIO_BUCKET/$$prefix/ || exit 1;
+        done &&
+        echo 'MinIO: bucket $$MINIO_BUCKET listo (lectura anonima solo en prefijos publicos).'
       "
     restart: "no"
 
@@ -100,6 +112,13 @@ services:
       REDIS_HOST: redis
       MINIO_ENDPOINT: minio
       NODE_ENV: production
+      # Same interpolated credentials as the postgres/minio services, so the API
+      # can never drift from them or fall back to a default. JWT_SECRET is also
+      # validated at boot (resolveJwtSecret) but fails here first.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY must be set}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY must be set}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
       # NEXT_PUBLIC_URL (URL pública real, para links de checkout/feedback/demo
       # que se mandan por email) NO va acá — va en .env.docker.local, cargada
       # por env_file de arriba. Ponerla acá con sintaxis ${VAR:-} es sustitución
@@ -140,7 +159,10 @@ services:
       API_INTERNAL_URL: http://api:3001
       MINIO_INTERNAL_URL: http://minio:9000
     ports:
-      - "3000:3000"   # único servicio expuesto al host — el resto vive solo en la red interna
+      # Solo loopback: el tráfico real entra por `puente` (nginx en la red
+      # shared-gateway, no usa este puerto). Publicarlo en 0.0.0.0 saltaba
+      # nginx/TLS y permitía falsear X-Forwarded-For (trust proxy = 1 salto).
+      - "127.0.0.1:3000:3000"
     depends_on:
       api:
         condition: service_healthy

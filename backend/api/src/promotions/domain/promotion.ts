@@ -1,12 +1,19 @@
+import { EligibilityTarget } from './eligibility-target';
+
+/** Legacy targeting of automatic display promotions (promotions without a code). */
 export type TargetType = 'model' | 'models' | 'category' | 'all';
 export type DiscountType = 'percent' | 'fixed_cents';
 
 export class Promotion {
   readonly id: number;
   readonly label: string;
-  readonly targetType: TargetType;
+  /** Exact, case-sensitive customer code. null = legacy automatic display promotion. */
+  readonly code: string | null;
+  /** Legacy targeting; null for coded promotions, which use `eligibility`. */
+  readonly targetType: TargetType | null;
   readonly targetId: number | null;
   readonly targetIds: number[];
+  readonly eligibility: EligibilityTarget[];
   readonly discountType: DiscountType;
   readonly discountValue: number;
   readonly validFrom: Date;
@@ -18,9 +25,11 @@ export class Promotion {
   constructor(props: {
     id: number;
     label: string;
-    targetType: TargetType;
+    code?: string | null;
+    targetType: TargetType | null;
     targetId: number | null;
     targetIds?: number[];
+    eligibility?: EligibilityTarget[];
     discountType: DiscountType;
     discountValue: number;
     validFrom: Date;
@@ -31,6 +40,8 @@ export class Promotion {
   }) {
     Object.assign(this, props);
     if (!this.targetIds) (this as any).targetIds = [];
+    if (!this.eligibility) (this as any).eligibility = [];
+    if (this.code === undefined) (this as any).code = null;
   }
 
   /** Precio en centavos con el descuento aplicado */

@@ -8,6 +8,7 @@ import PixelArtLogo from './PixelArtLogo';
 import NavIcon from './NavIcon';
 import MobileLibrosAccordion from './MobileLibrosAccordion';
 import { BASE_COLORS, hexToRgba } from '@/lib/colors';
+import { tokens } from '@/lib/design-tokens';
 
 interface NavLink {
   label: string;
@@ -21,6 +22,8 @@ interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
   links: NavLink[];
+  /** "Print with us" call to action; the item is hidden when omitted. */
+  printWithUs?: { label: string; href: string };
 }
 
 /**
@@ -33,6 +36,7 @@ export default function MobileDrawer({
   open,
   onClose,
   links,
+  printWithUs,
 }: MobileDrawerProps) {
   // BUG 1 FIX: derivar el link activo de la URL real
   const pathname = usePathname();
@@ -174,6 +178,37 @@ export default function MobileDrawer({
                 padding: '24px 0',
               }}
             >
+              {printWithUs && (
+                <div style={{ padding: '0 24px 16px' }}>
+                  <Link
+                    href={printWithUs.href}
+                    className="drawer-print-with-us"
+                    onClick={onClose}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxSizing: 'border-box',
+                      width: '100%',
+                      minHeight: '48px',
+                      padding: '10px 14px',
+                      border: `1.5px solid ${tokens.colors.neutral.text.primary}`,
+                      borderRadius: '999px',
+                      background: 'transparent',
+                      color: tokens.colors.neutral.text.primary,
+                      fontFamily: tokens.fonts.body,
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      lineHeight: 1.3,
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {printWithUs.label}
+                  </Link>
+                </div>
+              )}
               {links.map((link) => (
                 <div key={link.label}>
                   <Link

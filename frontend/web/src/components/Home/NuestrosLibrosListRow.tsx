@@ -8,7 +8,7 @@ import type { Book } from './NuestrosLibrosSection';
 import { CATEGORY_META, formatCents } from './NuestrosLibrosCard';
 
 export default function NuestrosLibrosListRow({
-  title, description, image, href = '#', category, price, priceCents, promoPrice,
+  title, description, image, href = '#', category, price, priceCents,
 }: Book) {
   const meta = category ? CATEGORY_META[category] : { label: '', color: tokens.colors.neutral.text.primary, icon: 'book' };
 
@@ -111,19 +111,14 @@ export default function NuestrosLibrosListRow({
 
       {(price || priceCents !== undefined) && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
-          {promoPrice !== undefined && priceCents !== undefined && (
-            <span style={{ fontSize: '11px', color: '#9ca3af', textDecoration: 'line-through' }}>
-              {formatCents(priceCents)}
-            </span>
-          )}
           <span
             style={{
               fontSize: '16px',
               fontWeight: 800,
-              color: promoPrice !== undefined ? '#e74c6f' : tokens.colors.neutral.text.primary,
+              color: tokens.colors.neutral.text.primary,
             }}
           >
-            {promoPrice !== undefined && priceCents !== undefined ? formatCents(promoPrice) : price}
+            {price ?? (priceCents !== undefined ? formatCents(priceCents) : '')}
           </span>
         </div>
       )}

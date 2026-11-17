@@ -51,4 +51,18 @@ describe('orders list payment review', () => {
 
     await waitFor(() => expect(alertMock).toHaveBeenCalledWith('El voucher ya fue revisado'));
   });
+
+  it('shows the promotion discount under the order total', async () => {
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/admin-api/orders')) {
+        return Promise.resolve(Response.json([{ ...reviewing, totalAmountCents: 13500, discountAmountCents: 1500, promotionCode: 'Foto10', promotionPercent: 10 }]));
+      }
+      return Promise.resolve(Response.json({}));
+    }));
+
+    render(<OrdenesPage />);
+    expect((await screen.findAllByText('Descuento (Foto10, 10%) −S/ 15.00')).length).toBeGreaterThan(0);
+  });
 });
+

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEmail, IsInt, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsInt, IsNumber, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateProjectData } from '../domain/ports/photobook-repository.port';
 import { PhotobookPageDto } from './photobook-page.dto';
@@ -91,4 +91,10 @@ export class CreatePhotobookProjectDto implements CreateProjectData {
   @IsOptional()
   @IsString()
   draftToken?: string;
+
+  /** Promotion code typed by the customer; re-validated server-side. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  promoCode?: string;
 }

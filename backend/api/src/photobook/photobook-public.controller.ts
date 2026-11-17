@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Headers, NotFoundException, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, NotFoundException, Param, Post, Put, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
+import { PromoPreviewThrottle, PublicCreateThrottle } from '../common/decorators/throttle.decorators';
 import { PhotobookService } from './photobook.service';
 import { CreatePhotobookProjectDto } from './dto/create-photobook-project.dto';
 import { CreatePhotobookDraftDto } from './dto/create-photobook-draft.dto';
@@ -8,6 +9,7 @@ import { UpdatePhotobookDraftDto } from './dto/update-photobook-draft.dto';
 import { CreateCustomPhotobookRequestDto } from './dto/create-custom-photobook-request.dto';
 import { RequestCustomPhotobookCoverAdjustmentDto } from './dto/request-custom-photobook-cover-adjustment.dto';
 import { RedeemCustomPhotobookEditorCodeDto } from './dto/redeem-custom-photobook-editor-code.dto';
+import { CustomPhotobookPromoPreviewDto, TemplatePhotobookPromoPreviewDto } from './dto/photobook-promo-preview.dto';
 
 @Controller('photobook')
 export class PhotobookPublicController {
@@ -20,6 +22,7 @@ export class PhotobookPublicController {
   listProducts() { return this.service.listProducts(); }
 
   @Post('custom-requests')
+  @PublicCreateThrottle(10)
   createCustomRequest(@Body() body: CreateCustomPhotobookRequestDto) {
     return this.service.createCustomRequest(body);
   }
@@ -40,7 +43,6 @@ export class PhotobookPublicController {
   }
 
   @Post('custom-editor/access')
-  @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   async redeemCustomEditorCode(
     @Body() body: RedeemCustomPhotobookEditorCodeDto,
@@ -73,8 +75,36 @@ export class PhotobookPublicController {
   }
 
   @Post('custom-editor/finalize')
-  finalizeCustomEditor(@Headers('cookie') cookieHeader: string | undefined, @Body() body: { state?: Record<string, unknown> }) {
-    return this.service.finalizeCustomEditor(this.getCustomEditorSessionToken(cookieHeader), body.state ?? {});
+  finalizeCustomEditor(
+    @Headers('cookie') cookieHeader: string | undefined,
+    @Body() body: { state?: Record<string, unknown>; promoCode?: unknown },
+  ) {
+    const promoCode = typeof body.promoCode === 'string' ? body.promoCode : undefined;
+    return this.service.finalizeCustomEditor(this.getCustomEditorSessionToken(cookieHeader), body.state ?? {}, promoCode);
+  }
+
+  @Post('custom-editor/promo-preview')
+  @PromoPreviewThrottle()
+  previewCustomEditorPromo(@Headers('cookie') cookieHeader: string | undefined, @Body() body: CustomPhotobookPromoPreviewDto) {
+    return this.service.previewCustomEditorPromo(this.getCustomEditorSessionToken(cookieHeader), {
+      code: body.code,
+      coverType: body.coverType,
+      pageCount: body.pageCount,
+      wantsRush: Boolean(body.wantsRush),
+      customCoverSurchargeCents: body.customCoverSurchargeCents,
+    });
+  }
+
+  @Post('promo-preview')
+  @PromoPreviewThrottle()
+  previewTemplatePromo(@Body() body: TemplatePhotobookPromoPreviewDto) {
+    return this.service.previewTemplatePromo({
+      code: body.code,
+      themeId: body.photobookThemeId,
+      coverType: body.coverType,
+      pageCount: body.pageCount,
+      wantsRush: Boolean(body.wantsRush),
+    });
   }
 
   private getCustomEditorSessionToken(cookieHeader?: string) {
@@ -88,12 +118,14 @@ export class PhotobookPublicController {
   }
 
   @Post('projects')
+  @PublicCreateThrottle(10)
   createProject(@Body() body: CreatePhotobookProjectDto) {
-    const { draftToken, ...data } = body;
-    return this.service.createProject(data, draftToken);
+    const { draftToken, promoCode, ...data } = body;
+    return this.service.createProject(data, draftToken, promoCode);
   }
 
   @Post('drafts')
+  @PublicCreateThrottle(10)
   createDraft(@Body() body: CreatePhotobookDraftDto) {
     return this.service.createDraft(body.photobookProductId, body.photobookThemeId, body.state ?? {});
   }

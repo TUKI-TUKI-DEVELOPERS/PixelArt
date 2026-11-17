@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { proxyAdminApiRequest } from '@/lib/server/admin-proxy';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -19,4 +20,13 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
   const data = await response.json().catch(() => ({}));
   return NextResponse.json(data, { status: response.status });
+}
+
+/** Queues a PDF re-render (fire & forget on the API side). */
+export async function POST(request: NextRequest, { params }: RouteContext) {
+  const { id } = await params;
+  if (!/^\d+$/.test(id)) {
+    return NextResponse.json({ message: 'Proyecto inválido' }, { status: 400 });
+  }
+  return proxyAdminApiRequest(request, { prefix: '/api/admin/photobook/projects', segments: [id, 'render'] });
 }

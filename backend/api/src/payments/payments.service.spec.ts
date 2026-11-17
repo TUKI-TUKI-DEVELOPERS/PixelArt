@@ -1,4 +1,7 @@
+import { BadRequestException } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
+
+const PNG_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
 
 describe('PaymentsService custom photobook payments', () => {
   function createManualPricingHarness() {
@@ -47,23 +50,44 @@ describe('PaymentsService custom photobook payments', () => {
     expect(info).toMatchObject({ orderId: 41, manualPricing: true, totalAmountCents: 15000, customCoverSurchargeCents: 2500 });
   });
 
+  it('exposes the promotion-code discount snapshot of the order', async () => {
+    const h = createManualPricingHarness();
+    Object.assign(h.order, { totalAmountCents: 14100, discountAmountCents: 900, promotionCode: 'Medida10', promotionPercent: 10 });
+    h.dataSource.query.mockImplementation((sql: string) => Promise.resolve(
+      sql.includes('custom_photobook_requests') ? [{ id: '9' }]
+        : sql.includes('SELECT draft_state FROM photobook_projects') ? [{ draft_state: { customCoverSurchargeCents: 2500 } }] as any
+          : [],
+    ));
+
+    const info = await h.service.getPaymentInfo('payment-token');
+
+    expect(info).toMatchObject({ totalAmountCents: 14100, discount: { code: 'Medida10', percent: 10, amountCents: 900 } });
+  });
+
+  it('omits the discount when the order has no promotion code', async () => {
+    const h = createManualPricingHarness();
+    h.order.photobookProjectId = null;
+    const info = await h.service.getPaymentInfo('payment-token');
+    expect(info).not.toHaveProperty('discount');
+  });
+
   it('stores a null amount for manually priced proofs', async () => {
     const h = createManualPricingHarness();
-    await h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png');
+    await h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png');
     expect(h.repo.create).toHaveBeenCalledWith(expect.objectContaining({ amountCents: null }));
   });
 
   it('retains the real amount for standard orders', async () => {
     const h = createManualPricingHarness();
     h.order.photobookProjectId = null;
-    await h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png');
+    await h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png');
     expect(h.repo.create).toHaveBeenCalledWith(expect.objectContaining({ amountCents: 15000 }));
     expect(h.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ payload: expect.objectContaining({ totalAmountCents: 15000 }) }));
   });
 
   it('notifies admin and customer without calculated amount', async () => {
     const h = createManualPricingHarness();
-    await h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png');
+    await h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png');
     expect(h.emailService.queue).toHaveBeenCalledTimes(2);
     for (const call of h.emailService.queue.mock.calls) {
       expect(call[0].payload).not.toHaveProperty('totalAmountCents');
@@ -77,8 +101,8 @@ describe('PaymentsService custom photobook payments', () => {
     h.repo.findByOrderId.mockResolvedValueOnce(null).mockResolvedValue(proof);
     h.orders.advanceStatus.mockRejectedValueOnce(new Error('status failure'));
     h.emailService.queue.mockResolvedValue(undefined);
-    await expect(h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png')).rejects.toThrow('status failure');
-    await expect(h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png')).resolves.toMatchObject({ id: 12 });
+    await expect(h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png')).rejects.toThrow('status failure');
+    await expect(h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png')).resolves.toMatchObject({ id: 12 });
     expect(h.repo.create).toHaveBeenCalledTimes(1);
     expect(h.fileStorage.upload).toHaveBeenCalledTimes(1);
     expect(h.emailService.queue).toHaveBeenCalledTimes(2);
@@ -100,19 +124,42 @@ describe('PaymentsService custom photobook payments', () => {
       }
     });
 
-    await expect(h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png')).rejects.toThrow('outbox unavailable');
-    await expect(h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png')).resolves.toMatchObject({ id: 12 });
+    await expect(h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png')).rejects.toThrow('outbox unavailable');
+    await expect(h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png')).resolves.toMatchObject({ id: 12 });
 
     expect(h.emailService.queue.mock.calls.filter(([data]) => data.eventType === 'CUSTOM_PHOTOBOOK_PAYMENT_TO_ADMIN')).toHaveLength(1);
     expect(customerAttempts).toBe(2);
     expect(h.fileStorage.upload).toHaveBeenCalledTimes(1);
   });
 
+  it('stores the type detected from the bytes with a matching extension, ignoring the client mimetype', async () => {
+    const h = createManualPricingHarness();
+    await h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.jpg', 'image/jpeg');
+    const [storageKey, buffer, contentType] = h.fileStorage.upload.mock.calls[0];
+    expect(storageKey).toMatch(/^uploads\/vouchers\/41-[0-9a-f-]+\.png$/);
+    expect(buffer).toBe(PNG_BYTES);
+    expect(contentType).toBe('image/png');
+    expect(h.repo.create).toHaveBeenCalledWith(expect.objectContaining({ storageKey, mimeType: 'image/png' }));
+  });
+
+  it.each([
+    ['an HTML page renamed to .jpg', Buffer.from('<html><script>alert(document.cookie)</script></html>'), 'voucher.jpg', 'image/jpeg'],
+    ['an SVG image', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'), 'voucher.svg', 'image/svg+xml'],
+  ])('rejects %s with a Spanish 400 and stores nothing', async (_label, buffer, filename, mimeType) => {
+    const h = createManualPricingHarness();
+    const upload = h.service.uploadVoucher('payment-token', buffer, filename, mimeType);
+    await expect(upload).rejects.toBeInstanceOf(BadRequestException);
+    await expect(h.service.uploadVoucher('payment-token', buffer, filename, mimeType)).rejects.toThrow('El comprobante debe ser una imagen JPG, PNG o WEBP.');
+    expect(h.fileStorage.upload).not.toHaveBeenCalled();
+    expect(h.repo.create).not.toHaveBeenCalled();
+    expect(h.orders.advanceStatus).not.toHaveBeenCalled();
+  });
+
   it('deletes uploaded object when proof persistence fails', async () => {
     const h = createManualPricingHarness();
     h.repo.create.mockRejectedValue(new Error('persistence failure'));
-    await expect(h.service.uploadVoucher('payment-token', Buffer.from('voucher'), 'voucher.png', 'image/png')).rejects.toThrow('persistence failure');
-    expect(h.fileStorage.delete).toHaveBeenCalledWith(expect.stringMatching(/^uploads\/vouchers\/41-.+\.jpg$/));
+    await expect(h.service.uploadVoucher('payment-token', PNG_BYTES, 'voucher.png', 'image/png')).rejects.toThrow('persistence failure');
+    expect(h.fileStorage.delete).toHaveBeenCalledWith(expect.stringMatching(/^uploads\/vouchers\/41-.+\.png$/));
   });
 });
 

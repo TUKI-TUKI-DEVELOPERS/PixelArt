@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { tokens } from "@/lib/design-tokens";
 
-const API = "";
 const outputActionStyle = { padding: "8px 12px", borderRadius: "6px", border: `1px solid ${tokens.colors.neutral.surface.border}`, background: tokens.colors.neutral.surface.base, color: tokens.colors.neutral.text.secondary, fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: tokens.fonts.body };
 
 type ProjectRender = { pdfUrl: string; coversUrl: string | null; interiorUrl: string | null; isLegacyCombined: boolean; legacyCombinedUrl: string | null };
@@ -51,14 +50,14 @@ export default function ProyectoDetallePage() {
   }, []);
 
   useEffect(() => {
-    fetch(`${API}/api/admin/photobook/projects/${id}`)
+    fetch(`/admin-api/photobook/projects/${id}`)
       .then((r) => r.json())
       .then((detail: ProjectDetail) => {
         setData(detail);
         // Resolver URLs de todos los assets en paralelo
         Promise.all(
           detail.assetIds.map((assetId) =>
-            fetch(`${API}/api/assets/${assetId}/url`)
+            fetch(`/admin-api/assets/${assetId}/url`)
               .then((r) => r.json())
               .then((d) => ({ assetId, url: d.url as string }))
               .catch(() => ({ assetId, url: "" }))
@@ -76,7 +75,7 @@ export default function ProyectoDetallePage() {
   async function createOrder() {
     setCreating(true);
     try {
-      const res = await fetch(`${API}/api/admin/photobook/projects/${id}/create-order`, { method: "POST" });
+      const res = await fetch(`/admin-api/photobook/projects/${id}/create-order`, { method: "POST" });
       if (!res.ok) throw new Error("Error");
       const result = await res.json();
       setPaymentLink(result.paymentLink.url);

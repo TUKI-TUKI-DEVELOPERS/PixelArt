@@ -18,8 +18,25 @@ import { EmailService } from '../email/email.service';
 import { CreateCustomPhotobookRequestDto } from './dto/create-custom-photobook-request.dto';
 import { RequestCustomPhotobookCoverAdjustmentDto } from './dto/request-custom-photobook-cover-adjustment.dto';
 import { RedeemCustomPhotobookEditorCodeDto } from './dto/redeem-custom-photobook-editor-code.dto';
+import { AppliedOrderPromotion } from '../orders/domain/ports/order-repository.port';
+import {
+  CustomPhotobookPromoInput,
+  PhotobookPromoQuote,
+  QuotePhotobookPromoUseCase,
+  TemplatePhotobookPromoInput,
+} from './application/use-cases/quote-photobook-promo.use-case';
 
 type OrderInfo = { orderId: number; totalAmountCents: number; paymentLink: { token: string; url: string; expiresAt: Date } };
+type PromoPreview = Omit<PhotobookPromoQuote, 'promotion'>;
+
+/** A blank or missing code means "no promotion"; anything else must be valid. */
+function promoCodeOrNull(code: unknown): string | null {
+  return typeof code === 'string' && code.trim() ? code : null;
+}
+
+function toPromoPreview(quote: PhotobookPromoQuote): PromoPreview {
+  return { code: quote.code, percent: quote.percent, discountCents: quote.discountCents, totalCents: quote.totalCents };
+}
 type CustomPhotobookCoverSurface = 'FRONT_COVER' | 'BACK_COVER';
 
 // A 22 cm cover face at ~288 DPI, matching the PDF render target.
@@ -66,8 +83,20 @@ export class PhotobookService {
     private readonly publicLinksService: PublicLinksService,
     private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
+    private readonly quotePhotobookPromo: QuotePhotobookPromoUseCase,
     private readonly pdfService?: PhotobookPdfService,
   ) {}
+
+  /** Template photobook price with a promotion code, recomputed server-side. Writes nothing. */
+  async previewTemplatePromo(input: TemplatePhotobookPromoInput): Promise<PromoPreview> {
+    return toPromoPreview(await this.quotePhotobookPromo.quoteTemplate(input));
+  }
+
+  /** Custom photobook price with a promotion code for the editor session. Writes nothing. */
+  async previewCustomEditorPromo(sessionToken: string, input: CustomPhotobookPromoInput): Promise<PromoPreview> {
+    await this.resolveCustomEditorSession(sessionToken);
+    return toPromoPreview(await this.quotePhotobookPromo.quoteCustom(input));
+  }
 
   async listThemes() {
     const themes = await this.repo.listThemes();
@@ -1267,8 +1296,10 @@ export class PhotobookService {
     });
   }
 
-  async finalizeCustomEditor(sessionToken: string, state: Record<string, unknown>) {
+  async finalizeCustomEditor(sessionToken: string, state: Record<string, unknown>, promoCode?: string) {
     const requestId = await this.resolveCustomEditorSession(sessionToken);
+    const code = promoCodeOrNull(promoCode);
+    let promotion: AppliedOrderPromotion | null = null;
     const result = await this.dataSource.transaction(async (manager) => {
       const rows: { id: string; status: string; linked_photobook_project_id: string | null }[] = await manager.query(
         `SELECT id, status, linked_photobook_project_id
@@ -1310,6 +1341,11 @@ export class PhotobookService {
       const wantsRush = Boolean(state.wantsRush);
       const rushFeeCents = calculatePhotobookRushFeeCents(wantsRush);
       const calculatedTotalCents = calculatePhotobookTotalCents(coverType as 'TAPA_DELGADA' | 'TAPA_GRUESA', pages.length, wantsRush) + customCoverSurchargeCents;
+      // A rejected code throws here, before anything is written.
+      if (code) {
+        const quote = await this.quotePhotobookPromo.quoteCustom({ code, coverType, pageCount: pages.length, wantsRush, customCoverSurchargeCents });
+        promotion = quote.promotion;
+      }
 
       await manager.query(`DELETE FROM photobook_project_assets WHERE project_id = $1`, [request.linked_photobook_project_id]);
       await manager.query(`DELETE FROM photobook_pages WHERE project_id = $1`, [request.linked_photobook_project_id]);
@@ -1370,7 +1406,7 @@ export class PhotobookService {
       return { projectId: Number(request.linked_photobook_project_id), status: 'AWAITING_PAYMENT' };
     });
 
-    const order = await this.createOrderFromProject(result.projectId);
+    const order = await this.createOrderFromProject(result.projectId, promotion);
     if (this.pdfService) {
       void this.pdfService.generateAndStore(result.projectId).catch((err: Error) => {
         this.logger.error(`Error generando PDF final para photobook a medida #${result.projectId}: ${err.message}`);
@@ -1614,7 +1650,7 @@ export class PhotobookService {
     return { ...detail, orderId, hasPaymentProof };
   }
 
-  async createProject(data: CreateProjectData, draftToken?: string) {
+  async createProject(data: CreateProjectData, draftToken?: string, promoCode?: string) {
     const product = await this.repo.getProduct(data.photobookProductId);
     if (!product) throw new NotFoundException('Producto no encontrado');
     if (data.pages.length < product.minPages) {
@@ -1633,6 +1669,19 @@ export class PhotobookService {
     const wantsRush = !!data.wantsRush;
     const rushFeeCents = calculatePhotobookRushFeeCents(wantsRush);
     const calculatedTotalCents = calculatePhotobookTotalCents(data.coverType, data.pages.length, wantsRush);
+
+    // The code is re-validated at this last pre-payment step; a rejected code
+    // throws before the project is saved. The discount excludes the rush fee.
+    const code = promoCodeOrNull(promoCode);
+    const quote = code
+      ? await this.quotePhotobookPromo.quoteTemplate({
+        code,
+        themeId: data.photobookThemeId,
+        coverType: data.coverType,
+        pageCount: data.pages.length,
+        wantsRush,
+      })
+      : null;
 
     // Dimensiones personalizadas solo se persisten cuando el producto las
     // permite. El formato estándar es 22x22 cm cuadrado: si un cliente
@@ -1667,7 +1716,7 @@ export class PhotobookService {
     // es idempotente, así que reintentarlo después es seguro).
     let order: OrderInfo | null = null;
     try {
-      order = await this.createOrderFromProject(savedProject.id);
+      order = await this.createOrderFromProject(savedProject.id, quote?.promotion ?? null);
     } catch (err) {
       this.logger.warn(`No se pudo crear la orden automática para el proyecto #${savedProject.id}: ${(err as Error).message}`);
     }
@@ -1698,7 +1747,9 @@ export class PhotobookService {
   // timeout, o ya se procesó antes), devuelve esa misma orden/link en vez de
   // intentar crear otra — evita chocar contra la restricción única
   // orders.photobook_project_id y evita mandar el email de pago dos veces.
-  async createOrderFromProject(projectId: number): Promise<OrderInfo> {
+  // `promotion` only applies when the order is first activated; an existing
+  // order keeps its own snapshot.
+  async createOrderFromProject(projectId: number, promotion: AppliedOrderPromotion | null = null): Promise<OrderInfo> {
     const frontendBase = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
     const detail = await this.repo.findProjectById(projectId);
     if (!detail) throw new NotFoundException('Proyecto no encontrado');
@@ -1711,14 +1762,20 @@ export class PhotobookService {
       customerFullName: detail.customerFullName ?? '',
       customerEmail: detail.customerEmail ?? '',
       customerPhone: detail.customerPhone ?? '',
+      // Rush fee (and the custom-cover surcharge) stay folded into the base;
+      // the discount snapshot was computed on the product price only.
       baseAmountCents: detail.calculatedTotalCents,
+      promotion,
     });
 
     if (detail.status === 'CONFIRMED') await this.repo.updateProjectStatus(projectId, 'CONVERTED_TO_ORDER');
 
+    // Only a still-valid link may be reused; an expired one would send the
+    // customer to a dead page, so in that case a fresh link is issued and emailed.
     const existingLinkRows: { token: string; expires_at: Date }[] = await this.dataSource.query(
       `SELECT token, expires_at FROM public_links
        WHERE order_id = $1 AND link_type = 'PAYMENT_UPLOAD' AND revoked_at IS NULL
+         AND expires_at > now()
        ORDER BY created_at DESC LIMIT 1`,
       [order.id],
     );

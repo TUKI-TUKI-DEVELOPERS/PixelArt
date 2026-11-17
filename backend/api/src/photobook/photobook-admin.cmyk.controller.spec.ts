@@ -13,9 +13,10 @@ describe('photobook CMYK download routes', () => {
   beforeEach(() => { jest.clearAllMocks(); });
 
   it('requires authenticated admin/operator authorization metadata', () => {
-    const handler = PhotobookAdminController.prototype.downloadProjectCmyk;
-    expect(Reflect.getMetadata('__guards__', handler)).toEqual([JwtAuthGuard, RolesGuard]);
-    expect(Reflect.getMetadata(ROLES_KEY, handler)).toEqual(['ADMIN', 'OPERATOR']);
+    // Class-level guards cover this route (and every other admin photobook route).
+    expect(Reflect.getMetadata('__guards__', PhotobookAdminController)).toEqual([JwtAuthGuard, RolesGuard]);
+    expect(Reflect.getMetadata(ROLES_KEY, PhotobookAdminController)).toEqual(['ADMIN', 'OPERATOR']);
+    expect(Reflect.getMetadata(ROLES_KEY, PhotobookAdminController.prototype.downloadProjectCmyk)).toBeUndefined();
   });
 
   it.each(['covers', 'interior'])('downloads %s as a PDF attachment without mutating the standard render', async (part) => {

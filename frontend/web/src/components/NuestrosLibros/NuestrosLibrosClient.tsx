@@ -506,10 +506,6 @@ const FILTER_BADGE: Record<Exclude<FilterKey, 'todos'>, string> = {
   memorias: 'MEMORIAS FAMILIARES',
 };
 
-const API = "";
-
-type ActivePromo = { targetType: string; targetId: number | null; targetIds: number[]; discountType: string; discountValue: number };
-
 export default function NuestrosLibrosClient({ books }: Props) {
   const { isMobile, isSmallMobile, isTablet } = useWindowSize();
   const [visibleCount, setVisibleCount]   = useState(CARDS_PER_PAGE);
@@ -517,20 +513,12 @@ export default function NuestrosLibrosClient({ books }: Props) {
   const [filterOpen, setFilterOpen]       = useState(false);
   const [lightboxSrc, setLightboxSrc]     = useState<string | null>(null);
   const [pillStyle, setPillStyle]         = useState({ left: 6, width: 0 });
-  const [promos, setPromos]               = useState<ActivePromo[]>([]);
   const filterContainerRef                = useRef<HTMLDivElement>(null);
   const filterBtnRefs                     = useRef<(HTMLButtonElement | null)[]>([]);
   const gridWrapperRef                    = useRef<HTMLDivElement>(null);
   const prevVisibleRef                    = useRef(0);
   const removingFromRef                   = useRef(Infinity);
   const scrollIntentRef                   = useRef<'more' | 'less' | null>(null);
-
-  useEffect(() => {
-    fetch(`${API}/api/promotions/active`)
-      .then((r) => r.ok ? r.json() : [])
-      .then(setPromos)
-      .catch(() => {});
-  }, []);
 
   /* Pill deslizante */
   useEffect(() => {
@@ -1462,7 +1450,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
           }}
         >
           <div ref={gridWrapperRef}>
-            <ProductGrid key={activeFilter} books={visibleBooks} promos={promos} />
+            <ProductGrid key={activeFilter} books={visibleBooks} />
           </div>
 
           {/* Ver más / Ver menos */}
@@ -1871,25 +1859,14 @@ export default function NuestrosLibrosClient({ books }: Props) {
             <p style={{ margin: "0 0 16px 0", fontSize: isMobile ? "14px" : "16px", color: "#555", fontWeight: 400 }}>
               ¿Tienes un libro PIXELART? Etiquétanos y aparece aquí.
             </p>
-            <a
-              href="https://instagram.com/pixelart.pe"
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* Sin enlace hasta tener el Instagram propio de PixelArt. */}
+            <span
               style={{
                 display: "inline-flex", alignItems: "center", gap: "8px",
                 padding: "12px 28px", borderRadius: "9999px",
                 border: "2px solid #B72020", background: "transparent",
                 color: "#B72020", fontSize: "14px", fontWeight: 700,
                 textDecoration: "none", letterSpacing: "0.02em",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#B72020";
-                e.currentTarget.style.color = "#fff";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#B72020";
               }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1898,7 +1875,7 @@ export default function NuestrosLibrosClient({ books }: Props) {
                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
               </svg>
               @pixelart.pe
-            </a>
+            </span>
           </div>
         </div>
       </section>

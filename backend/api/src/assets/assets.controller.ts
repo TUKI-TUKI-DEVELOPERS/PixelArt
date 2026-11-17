@@ -10,8 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { AdminThrottleExempt } from '../common/decorators/throttle.decorators';
 import { AssetsService } from './assets.service';
 
 @Controller('assets')
@@ -19,10 +22,11 @@ export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}
 
   /**
-   * POST /api/assets/upload — Admin upload (JWT required)
+   * POST /api/assets/upload — Admin upload (JWT + ADMIN/OPERATOR required)
    */
   @Post('upload')
-  @UseGuards(JwtAuthGuard, ThrottlerGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'OPERATOR')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('file'))
   async upload(
@@ -45,7 +49,6 @@ export class AssetsController {
    * Para clientes que suben fotos desde wizards públicos.
    */
   @Post('upload-public')
-  @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 100, ttl: 60000 } })
   @UseInterceptors(FileInterceptor('file'))
   async uploadPublic(
@@ -74,7 +77,14 @@ export class AssetsController {
     return this.assetsService.getAssetUrlByStorageKey(key);
   }
 
+  /**
+   * GET /api/assets/:id/url — Admin only. Ids are sequential, so this must not
+   * be public; admin pages call it through the /admin-api BFF, once per photo.
+   */
   @Get(':id/url')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'OPERATOR')
+  @AdminThrottleExempt()
   getUrl(@Param('id') id: string) {
     return this.assetsService.getAssetUrl(id);
   }

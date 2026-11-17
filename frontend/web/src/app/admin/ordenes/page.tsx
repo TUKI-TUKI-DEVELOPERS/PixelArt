@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { orderDiscountLabel, type OrderPromotionFields } from "@/lib/promotions/order-discount";
 
 const API = "";
 
-type Order = { id: number; channel: string; status: string; customerFullName: string; customerEmail: string; totalAmountCents: number; createdAt: string };
+type Order = { id: number; channel: string; status: string; customerFullName: string; customerEmail: string; totalAmountCents: number; createdAt: string } & OrderPromotionFields;
 
 const STATUS_MAP: Record<string, { bg: string; text: string; label: string }> = {
   CONFIGURING_PHOTOBOOK:    { bg: "#f3f4f6", text: "#4b5563", label: "Configurando photobook" },
@@ -89,7 +90,10 @@ function KanbanCard({ o, acting, onApprove, onReject, onAdvance }: {
 
       {/* Monto + tiempo */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: "13px", fontWeight: 700, color: "#111" }}>S/ {(o.totalAmountCents / 100).toFixed(2)}</span>
+        <span style={{ fontSize: "13px", fontWeight: 700, color: "#111" }}>
+          S/ {(o.totalAmountCents / 100).toFixed(2)}
+          {orderDiscountLabel(o) && <span style={{ display: "block", fontSize: "11px", fontWeight: 600, color: "#5b21b6" }}>{orderDiscountLabel(o)}</span>}
+        </span>
         <span style={{ fontSize: "11px", fontWeight: 600, color: age.color }}>{age.text}</span>
       </div>
 
@@ -281,7 +285,10 @@ export default function OrdenesPage() {
                           {o.channel === "CUSTOM_BOOK" ? "Custom" : "Photo"}
                         </span>
                       </td>
-                      <td style={{ padding: "14px 16px", fontSize: "13px", fontWeight: 600 }}>S/ {(o.totalAmountCents / 100).toFixed(2)}</td>
+                      <td style={{ padding: "14px 16px", fontSize: "13px", fontWeight: 600 }}>
+                        S/ {(o.totalAmountCents / 100).toFixed(2)}
+                        {orderDiscountLabel(o) && <div style={{ fontSize: "11px", fontWeight: 600, color: "#5b21b6" }}>{orderDiscountLabel(o)}</div>}
+                      </td>
                       <td style={{ padding: "14px 16px" }}>
                         <span style={{ padding: "4px 10px", borderRadius: "6px", background: st.bg, color: st.text, fontSize: "11px", fontWeight: 600 }}>{st.label}</span>
                       </td>

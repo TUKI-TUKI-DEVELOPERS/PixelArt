@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { PublicLink } from '../../../public-links/domain/public-link';
 import { SubmitCheckoutUseCase, SubmitCheckoutInput } from './submit-checkout.use-case';
 
@@ -6,6 +6,9 @@ const ORDER_ID = 100;
 const DEMO_REQUEST_ID = 55;
 const MODEL_ID = 9;
 const HOUR_MS = 60 * 60 * 1000;
+const JPEG_BYTES = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00]);
+const PNG_BYTES = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d]);
+const WEBP_BYTES = Buffer.concat([Buffer.from('RIFF'), Buffer.from([0x24, 0x00, 0x00, 0x00]), Buffer.from('WEBPVP8 ')]);
 
 const EXPECTED_ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'luccano5@hotmail.com';
 const FRONTEND_BASE = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
@@ -29,6 +32,13 @@ const baseOrder = {
   demoRequestId: DEMO_REQUEST_ID,
   personalizedModelId: MODEL_ID,
   customerFullName: 'Cliente Test',
+  baseAmountCents: 27400,
+  rushFeeCents: 1500,
+  extraTemplatesAmountCents: 0,
+  discountAmountCents: 0,
+  promotionId: null,
+  promotionCode: null,
+  promotionPercent: null,
   totalAmountCents: 28900,
   currency: 'PEN',
 };
@@ -36,7 +46,8 @@ const baseOrder = {
 type Harness = {
   useCase: SubmitCheckoutUseCase;
   publicLinksService: { validate: jest.Mock; revoke: jest.Mock };
-  ordersService: { findById: jest.Mock; updateExtraTemplates: jest.Mock; advanceStatus: jest.Mock };
+  ordersService: { findById: jest.Mock; applyCheckoutPricing: jest.Mock; advanceStatus: jest.Mock };
+  evaluatePromoCode: { execute: jest.Mock };
   fileStorage: { upload: jest.Mock };
   emailService: { queue: jest.Mock };
   query: jest.Mock;
@@ -49,6 +60,8 @@ function makeHarness(options: {
   existingProofRows?: unknown[];
   validTemplateCount?: number;
   originalSelections?: Array<{ template_id: string }>;
+  evaluation?: unknown;
+  pricingStored?: boolean;
 } = {}): Harness {
   const link = options.link ?? makeLink();
   const order = options.order !== undefined ? options.order : baseOrder;
@@ -57,8 +70,13 @@ function makeHarness(options: {
   const publicLinksService = { validate: jest.fn().mockResolvedValue(link), revoke: jest.fn() };
   const ordersService = {
     findById: jest.fn().mockResolvedValueOnce(order).mockResolvedValueOnce(updatedOrder),
-    updateExtraTemplates: jest.fn(),
+    applyCheckoutPricing: jest.fn().mockResolvedValue(options.pricingStored ?? true),
     advanceStatus: jest.fn(),
+  };
+  const evaluatePromoCode = {
+    execute: jest.fn().mockResolvedValue(
+      options.evaluation ?? { ok: true, promotionId: 42, code: 'NAVIDAD15', percent: 15, discountCents: 4110 },
+    ),
   };
   const fileStorage = { upload: jest.fn() };
   const emailService = { queue: jest.fn() };
@@ -84,9 +102,10 @@ function makeHarness(options: {
     fileStorage as any,
     emailService as any,
     { query } as any,
+    evaluatePromoCode as any,
   );
 
-  return { useCase, publicLinksService, ordersService, fileStorage, emailService, query };
+  return { useCase, publicLinksService, ordersService, fileStorage, emailService, query, evaluatePromoCode };
 }
 
 function makeInput(overrides: Partial<SubmitCheckoutInput> = {}): SubmitCheckoutInput {
@@ -94,7 +113,7 @@ function makeInput(overrides: Partial<SubmitCheckoutInput> = {}): SubmitCheckout
     token: 'tok-123',
     additionalTemplateIds: [4, 5, 6, 7, 8, 9, 10],
     packageType: 'STANDARD',
-    paymentBuffer: Buffer.from('voucher-bytes'),
+    paymentBuffer: JPEG_BYTES,
     originalFilename: 'voucher.jpg',
     mimeType: 'image/jpeg',
     ...overrides,
@@ -161,7 +180,7 @@ describe('SubmitCheckoutUseCase — template ownership rule', () => {
     await expect(h.useCase.execute(makeInput())).rejects.toThrow(
       'Alguna plantilla seleccionada no pertenece al modelo de tu solicitud',
     );
-    expect(h.ordersService.updateExtraTemplates).not.toHaveBeenCalled();
+    expect(h.ordersService.applyCheckoutPricing).not.toHaveBeenCalled();
     expect(h.fileStorage.upload).not.toHaveBeenCalled();
   });
 
@@ -178,7 +197,11 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
     const h = makeHarness({ validTemplateCount: 7 });
     const result = await h.useCase.execute(makeInput());
 
-    expect(h.ordersService.updateExtraTemplates).not.toHaveBeenCalled();
+    expect(h.ordersService.applyCheckoutPricing).toHaveBeenCalledWith(ORDER_ID, {
+      extraTemplatesAmountCents: 0,
+      promotion: null,
+    });
+    expect(h.evaluatePromoCode.execute).not.toHaveBeenCalled();
     expect(h.publicLinksService.revoke).toHaveBeenCalledWith(7);
     expect(h.ordersService.advanceStatus).toHaveBeenCalledWith(
       ORDER_ID,
@@ -203,7 +226,10 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
       makeInput({ packageType: 'PREMIUM', additionalTemplateIds: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }),
     );
 
-    expect(h.ordersService.updateExtraTemplates).toHaveBeenCalledWith(ORDER_ID, 4000);
+    expect(h.ordersService.applyCheckoutPricing).toHaveBeenCalledWith(ORDER_ID, {
+      extraTemplatesAmountCents: 4000,
+      promotion: null,
+    });
     expect(result.totalAmountCents).toBe(32900);
   });
 
@@ -229,9 +255,9 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
     ]);
   });
 
-  it('uploads the voucher as jpg for non-png mime types', async () => {
+  it('stores a JPEG voucher with the detected type and a .jpg key', async () => {
     const h = makeHarness({ validTemplateCount: 7 });
-    const input = makeInput({ mimeType: 'image/jpeg' });
+    const input = makeInput();
     await h.useCase.execute(input);
     expect(h.fileStorage.upload).toHaveBeenCalledWith(
       `uploads/vouchers/${ORDER_ID}.jpg`,
@@ -240,14 +266,18 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
     );
   });
 
-  it('uploads the voucher as png when the mime type contains png', async () => {
+  it('trusts the file bytes, not the client mimetype: PNG bytes declared as image/jpeg are stored as PNG', async () => {
     const h = makeHarness({ validTemplateCount: 7 });
-    await h.useCase.execute(makeInput({ mimeType: 'image/png' }));
-    expect(h.fileStorage.upload).toHaveBeenCalledWith(
-      `uploads/vouchers/${ORDER_ID}.png`,
-      expect.any(Buffer),
-      'image/png',
-    );
+    await h.useCase.execute(makeInput({ paymentBuffer: PNG_BYTES, mimeType: 'image/jpeg' }));
+    expect(h.fileStorage.upload).toHaveBeenCalledWith(`uploads/vouchers/${ORDER_ID}.png`, PNG_BYTES, 'image/png');
+    const proofInsert = h.query.mock.calls.find(([sql]) => sql.includes('INSERT INTO payment_proofs'));
+    expect(proofInsert[1][3]).toBe('image/png');
+  });
+
+  it('accepts WEBP vouchers', async () => {
+    const h = makeHarness({ validTemplateCount: 7 });
+    await h.useCase.execute(makeInput({ paymentBuffer: WEBP_BYTES, mimeType: 'image/webp' }));
+    expect(h.fileStorage.upload).toHaveBeenCalledWith(`uploads/vouchers/${ORDER_ID}.webp`, WEBP_BYTES, 'image/webp');
   });
 
   it('records the payment proof with the reloaded total, size and YAPE_QR method', async () => {
@@ -283,5 +313,98 @@ describe('SubmitCheckoutUseCase — happy paths', () => {
         adminUrl: `${FRONTEND_BASE}/admin/ordenes/${ORDER_ID}`,
       },
     });
+  });
+});
+
+describe('SubmitCheckoutUseCase — voucher file validation', () => {
+  it.each([
+    ['an HTML page renamed to .jpg', Buffer.from('<html><script>alert(document.cookie)</script></html>'), 'image/jpeg'],
+    ['an SVG declared as PNG', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'), 'image/png'],
+    ['a PDF', Buffer.from('%PDF-1.7\n'), 'application/pdf'],
+  ])('rejects %s with a Spanish 400 before any side effect', async (_label, paymentBuffer, mimeType) => {
+    const h = makeHarness({ validTemplateCount: 7 });
+    const execution = h.useCase.execute(makeInput({ paymentBuffer, mimeType }));
+    await expect(execution).rejects.toThrow(BadRequestException);
+    await expect(h.useCase.execute(makeInput({ paymentBuffer, mimeType }))).rejects.toThrow(
+      'El comprobante debe ser una imagen JPG, PNG o WEBP.',
+    );
+    expect(h.fileStorage.upload).not.toHaveBeenCalled();
+    expect(h.ordersService.applyCheckoutPricing).not.toHaveBeenCalled();
+    expect(h.evaluatePromoCode.execute).not.toHaveBeenCalled();
+    expect(h.query.mock.calls.some(([sql]) => /INSERT|UPDATE/.test(sql))).toBe(false);
+    expect(h.publicLinksService.revoke).not.toHaveBeenCalled();
+  });
+
+  it('rejects a fake voucher before validating a promo code', async () => {
+    const h = makeHarness({ validTemplateCount: 7 });
+    await expect(
+      h.useCase.execute(makeInput({ paymentBuffer: Buffer.from('<html></html>'), promoCode: 'NAVIDAD15' })),
+    ).rejects.toThrow(BadRequestException);
+    expect(h.evaluatePromoCode.execute).not.toHaveBeenCalled();
+    expect(h.ordersService.applyCheckoutPricing).not.toHaveBeenCalled();
+  });
+});
+
+describe('SubmitCheckoutUseCase — promotion code', () => {
+  const PREMIUM_IDS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+  it('re-validates the code server-side on the product price only and stores the snapshot with the totals', async () => {
+    const h = makeHarness({ validTemplateCount: 12 });
+    await h.useCase.execute(makeInput({ packageType: 'PREMIUM', additionalTemplateIds: PREMIUM_IDS, promoCode: ' NAVIDAD15 ' }));
+
+    expect(h.evaluatePromoCode.execute).toHaveBeenCalledWith({
+      code: 'NAVIDAD15',
+      product: { kind: 'PERSONALIZED_BOOK', modelId: MODEL_ID },
+      discountableBaseCents: 27400 + 4000, // base + premium; rush fee excluded
+      applied: null,
+    });
+    expect(h.ordersService.applyCheckoutPricing).toHaveBeenCalledWith(ORDER_ID, {
+      extraTemplatesAmountCents: 4000,
+      promotion: { promotionId: 42, code: 'NAVIDAD15', percent: 15, discountCents: 4110 },
+    });
+  });
+
+  it('records the payment proof with the discounted total read back from the order', async () => {
+    const h = makeHarness({ validTemplateCount: 7, updatedOrder: { ...baseOrder, totalAmountCents: 24790 } });
+    const result = await h.useCase.execute(makeInput({ promoCode: 'NAVIDAD15' }));
+    const proofInsert = h.query.mock.calls.find(([sql]) => sql.includes('INSERT INTO payment_proofs'));
+    expect(proofInsert[1][6]).toBe(24790);
+    expect(result.totalAmountCents).toBe(24790);
+  });
+
+  it('rejects an invalid code with its Spanish message before writing anything', async () => {
+    const h = makeHarness({ validTemplateCount: 7, evaluation: { ok: false, reason: 'expired' } });
+    const error = await h.useCase.execute(makeInput({ promoCode: 'VIEJO' })).catch((e) => e);
+
+    expect(error).toBeInstanceOf(UnprocessableEntityException);
+    expect(error.message).toBe('Este código ha vencido');
+    expect(h.ordersService.applyCheckoutPricing).not.toHaveBeenCalled();
+    expect(h.fileStorage.upload).not.toHaveBeenCalled();
+    expect(h.query.mock.calls.some(([sql]) => sql.includes('INSERT INTO'))).toBe(false);
+  });
+
+  it('keeps an already applied code when the retry sends none (one code per order)', async () => {
+    const order = { ...baseOrder, promotionId: 42, promotionCode: 'NAVIDAD15', promotionPercent: 15, discountAmountCents: 4110 };
+    const h = makeHarness({ validTemplateCount: 7, order });
+    await h.useCase.execute(makeInput());
+
+    expect(h.evaluatePromoCode.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'NAVIDAD15', applied: { promotionId: 42, code: 'NAVIDAD15', percent: 15 } }),
+    );
+  });
+
+  it('rejects a second, different code with 409', async () => {
+    const order = { ...baseOrder, promotionId: 42, promotionCode: 'NAVIDAD15', promotionPercent: 15 };
+    const h = makeHarness({ validTemplateCount: 7, order, evaluation: { ok: false, reason: 'already_applied' } });
+    await expect(h.useCase.execute(makeInput({ promoCode: 'OTRO10' }))).rejects.toThrow(ConflictException);
+    expect(h.ordersService.applyCheckoutPricing).not.toHaveBeenCalled();
+  });
+
+  it('409 when a concurrent submit stored a different code first (guarded update matched no row)', async () => {
+    const h = makeHarness({ validTemplateCount: 7, pricingStored: false });
+    await expect(h.useCase.execute(makeInput({ promoCode: 'NAVIDAD15' }))).rejects.toThrow(
+      'Este pedido ya tiene otro código de promoción aplicado',
+    );
+    expect(h.fileStorage.upload).not.toHaveBeenCalled();
   });
 });

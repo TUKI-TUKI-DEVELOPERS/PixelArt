@@ -7,6 +7,9 @@ import { useWindowSize } from "@/hooks/useWindowSize";
 import { getAssetUrl } from "@/lib/assetUrl";
 import interact from "interactjs";
 import PhotobookEditorCore from "@/components/photobook/PhotobookEditorCore";
+import PromoCodeField, { type AppliedPromo } from "@/components/promotions/PromoCodeField";
+import { previewCustomPhotobookPromo, previewPhotobookPromo } from "@/lib/api/photobook";
+import { percentDiscountCents } from "@/lib/utils/price";
 
 const API = "";
 const ACCENT = "#804187";
@@ -138,6 +141,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const [coverType, setCoverType] = useState<CoverType>("TAPA_DELGADA");
   const [wantsRush, setWantsRush] = useState(false);
   const [customCoverSurchargeInput, setCustomCoverSurchargeInput] = useState("");
+  const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -185,6 +189,17 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const customFormatValid = formatConfigured && (coverType === "TAPA_DELGADA" ? [15, 20, 25, 35] : [15, 20, 25, 35, 50]).includes(totalPages / 2);
   const customCoverSurchargeCents = customEditor ? parseSolesToCents(customCoverSurchargeInput) : null;
   const totalCents = (getPriceCents(coverType, hojas) ?? 0) + (wantsRush ? RUSH_FEE_CENTS : 0) + (customCoverSurchargeCents ?? 0);
+  // The code discounts the product price only: never the rush fee or the
+  // custom-cover surcharge. The server recomputes it before payment.
+  const promoDiscountCents = promo ? percentDiscountCents(getPriceCents(coverType, hojas) ?? 0, promo.percent) : 0;
+  const payableCents = totalCents - promoDiscountCents;
+
+  async function previewPromo(code: string): Promise<AppliedPromo> {
+    const result = customEditor
+      ? await previewCustomPhotobookPromo({ code, coverType, pageCount: pages.length, wantsRush, customCoverSurchargeCents: customCoverSurchargeCents ?? 0 })
+      : await previewPhotobookPromo({ code, photobookThemeId: themeId ?? 0, coverType, pageCount: pages.length, wantsRush });
+    return { code: result.code, percent: result.percent };
+  }
 
   // Derive placed photo IDs
   const placedPhotoIds = useMemo(() => {
@@ -679,6 +694,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
           wantsRush,
           rushFeeCents: wantsRush ? RUSH_FEE_CENTS : 0,
           pricePerPageCents: product.pricePerPageCents,
+          ...(promo ? { promoCode: promo.code } : {}),
           pages: pages.map((p) => ({
             pageNumber: p.pageNumber,
             layoutKey: p.layoutKey,
@@ -730,7 +746,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
       const response = await fetch(`${API}/api/photobook/custom-editor/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state: { ...buildDraftData(), step: 6 } }),
+        body: JSON.stringify({ state: { ...buildDraftData(), step: 6 }, ...(promo ? { promoCode: promo.code } : {}) }),
       });
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
@@ -1170,6 +1186,13 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               <div style={{ background: "#fff", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px" }}>
                 <h3 style={{ margin: "0 0 10px", fontSize: "16px", fontWeight: 700, color: "#111" }}>Todo listo para continuar al pago</h3>
                 <p style={{ margin: "0 0 20px", fontSize: "14px", lineHeight: 1.6, color: "#6b7280" }}>Al continuar, guardaremos tus cubiertas aprobadas y páginas interiores, y te llevaremos al pago por QR. Podrás volver a este acceso mientras el pago esté pendiente.</p>
+                <PromoCodeField
+                  onPreview={previewPromo}
+                  applied={promo}
+                  discountCents={promoDiscountCents}
+                  totalCents={payableCents}
+                  onChange={(next) => { setPromo(next); setUploadError(null); }}
+                />
                 {uploadError && <div style={{ padding: "10px 14px", borderRadius: "10px", background: "#fef2f2", border: "1px solid #fecaca", fontSize: "13px", color: "#dc2626", fontWeight: 500, marginBottom: "14px" }}>{uploadError}</div>}
                 <button onClick={handleFinalizeCustomPhotobook} disabled={submitting} style={{ width: "100%", padding: "14px 0", borderRadius: "12px", border: "none", background: submitting ? "#d1d5db" : ACCENT, color: "#fff", fontSize: "15px", fontWeight: 700, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit" }}>
                   {submitting ? "Preparando pago..." : "Continuar al pago"}
@@ -1183,10 +1206,22 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
               <p style={{ margin: 0, fontSize: "14px", color: "#888" }}>Escaneá el QR, hacé el pago, y subí la captura para terminar tu pedido.</p>
             </div>
 
+            {/* Código de promoción — una vez creada la orden, el código queda fijo */}
+            {(!paymentToken || promo) && (
+              <PromoCodeField
+                onPreview={previewPromo}
+                applied={promo}
+                locked={Boolean(paymentToken)}
+                discountCents={promoDiscountCents}
+                totalCents={payableCents}
+                onChange={(next) => { setPromo(next); setUploadError(null); }}
+              />
+            )}
+
             {/* Monto */}
             <div style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "24px" }}>
               <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Total a pagar</div>
-              <div style={{ fontSize: "40px", fontWeight: 900, color: "#111" }}>{fmtPrice(totalCents)}</div>
+              <div style={{ fontSize: "40px", fontWeight: 900, color: "#111" }}>{promo ? fmtPriceWithCents(payableCents) : fmtPrice(totalCents)}</div>
             </div>
 
             {/* QR Yape */}

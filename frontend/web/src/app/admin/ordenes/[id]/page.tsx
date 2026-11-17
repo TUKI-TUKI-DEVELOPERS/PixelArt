@@ -4,14 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { tokens } from "@/lib/design-tokens";
+import { orderDiscountLabel, type OrderPromotionFields } from "@/lib/promotions/order-discount";
 
-const API = "";
 const printActionStyle = { padding: "8px 12px", borderRadius: "6px", border: `1px solid ${tokens.colors.neutral.surface.border}`, background: tokens.colors.neutral.surface.base, color: tokens.colors.neutral.text.secondary, fontSize: "12px", fontWeight: 600, cursor: "pointer", fontFamily: tokens.fonts.body };
 
 /** Resuelve la URL pública de un asset desde su ID */
 async function resolveAssetUrl(assetId: number): Promise<string | null> {
   try {
-    const res = await fetch(`${API}/api/assets/${assetId}/url`);
+    const res = await fetch(`/admin-api/assets/${assetId}/url`);
     if (!res.ok) return null;
     const data = await res.json();
     return data.url ?? null;
@@ -29,7 +29,7 @@ type CharacterMeta =
   | { mode: "amor" | "mascotas" | "familia" | "memorial"; recipient: CharacterMember & { nickname?: string | null }; dedicator?: CharacterMember }
   | null;
 
-type OrderDetail = {
+type OrderDetail = OrderPromotionFields & {
   id: number; channel: string; status: string; customerFullName: string; customerEmail: string; customerPhone: string;
   totalAmountCents: number; baseAmountCents: number; rushFeeCents: number; currency: string; estimatedDeliveryDate: string | null; manualPricing: boolean; customCoverSurchargeCents?: number;
   demoRequestId: number | null;
@@ -777,12 +777,13 @@ export default function OrdenDetallePage() {
             { label: "Teléfono", value: data.customerPhone || "—" },
             { label: data.manualPricing ? "Precio acordado" : "Total", value: data.manualPricing
               ? data.customCoverSurchargeCents == null ? "Por WhatsApp" : `S/ ${(data.totalAmountCents / 100).toFixed(2)} · incluye S/ ${(data.customCoverSurchargeCents / 100).toFixed(2)} por tapas`
-              : `S/ ${(data.totalAmountCents / 100).toFixed(2)}`, accent: true },
+              : `S/ ${(data.totalAmountCents / 100).toFixed(2)}`, accent: true, sub: orderDiscountLabel(data) },
             { label: "Entrega",  value: data.estimatedDeliveryDate ?? "—" },
           ].map((f, i, arr) => (
             <div key={f.label} style={{ padding: "14px 20px", borderRight: i < arr.length - 1 ? "1px solid #f3f4f6" : "none" }}>
               <div style={{ fontSize: "11px", fontWeight: 600, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "5px" }}>{f.label}</div>
               <div style={{ fontSize: "13px", fontWeight: 700, color: f.accent ? "#111" : "#374151" }}>{f.value}</div>
+              {"sub" in f && f.sub && <div style={{ marginTop: "3px", fontSize: "12px", fontWeight: 600, color: "#5b21b6" }}>{f.sub}</div>}
             </div>
           ))}
         </div>
@@ -882,7 +883,7 @@ export default function OrdenDetallePage() {
                     onClick={async () => {
                       setPdfRegenerating(true);
                       try {
-                        await fetch(`${API}/api/admin/photobook/projects/${data.photobookProjectId}/render`, { method: "POST" });
+                        await fetch(`/admin-api/photobook/projects/${data.photobookProjectId}/render`, { method: "POST" });
                         // Esperar 8s y luego recargar la URL del PDF
                         await new Promise((r) => setTimeout(r, 8000));
                         const res = await fetch(`/admin-api/photobook/projects/${data.photobookProjectId}/render`);
@@ -1691,7 +1692,7 @@ export default function OrdenDetallePage() {
                   onClick={async () => {
                     setActing(true);
                     try {
-                      const res = await fetch(`${API}/api/admin/feedback/generate/${id}`, { method: "POST" });
+                      const res = await fetch(`/admin-api/feedback/generate/${id}`, { method: "POST" });
                       if (!res.ok) throw new Error();
                       const result = await res.json();
                       setFeedbackLink(result.url);

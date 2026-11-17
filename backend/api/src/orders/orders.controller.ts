@@ -16,6 +16,7 @@ import { FileStoragePort } from '../assets/domain/ports/file-storage.port';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { AdminThrottleExempt, AiGenerationThrottle } from '../common/decorators/throttle.decorators';
 import type { Response } from 'express';
 import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 import { returningRows } from '../common/database/returning-rows';
@@ -23,6 +24,7 @@ import { returningRows } from '../common/database/returning-rows';
 @Controller('admin/orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'OPERATOR')
+@AdminThrottleExempt()
 export class OrdersAdminController {
   private readonly logger = new Logger(OrdersAdminController.name);
 
@@ -368,6 +370,7 @@ export class OrdersAdminController {
    * directo como archivos de imprenta — sin marca de agua, listo para el PDF.
    */
   @Post(':id/print-assets/generate')
+  @AiGenerationThrottle()
   generatePrintAsset(
     @Param('id') id: string,
     @Query('templateId') templateId: string,
@@ -390,6 +393,7 @@ export class OrdersAdminController {
    * archivo de imprenta, PENDING_REVIEW. Mismo patrón que .../generate para TEMPLATE.
    */
   @Post(':id/print-assets/generate-cover')
+  @AiGenerationThrottle()
   generateCover(
     @Param('id') id: string,
     @Body('selectedAssetIds') selectedAssetIds?: Record<string, number>,
@@ -404,6 +408,7 @@ export class OrdersAdminController {
    * sube directo como archivo de imprenta, PENDING_REVIEW.
    */
   @Post(':id/print-assets/generate-back-cover')
+  @AiGenerationThrottle()
   generateBackCover(@Param('id') id: string, @Body('refinementPrompt') refinementPrompt?: string) {
     return this.generateOrderCoverUseCase.generateBackCover({ orderId: Number(id), refinementPrompt });
   }

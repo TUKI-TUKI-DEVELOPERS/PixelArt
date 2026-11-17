@@ -6,10 +6,13 @@ import {
   Body,
   UploadedFile,
   UseInterceptors,
+  HttpCode,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CheckoutService } from './checkout.service';
+import { PaymentSubmitThrottle, PromoPreviewThrottle } from '../common/decorators/throttle.decorators';
+import { PromoPreviewDto } from './dto/promo-preview.dto';
 
 @Controller('checkout')
 export class CheckoutPublicController {
@@ -25,16 +28,30 @@ export class CheckoutPublicController {
   }
 
   /**
+   * POST /api/checkout/:token/promo-preview
+   * Body: { code, package } — valida el código sin escribir nada y devuelve
+   * { code, percent, discountCents, totalCents } o un 4xx con el motivo en español.
+   */
+  @Post(':token/promo-preview')
+  @HttpCode(200)
+  @PromoPreviewThrottle()
+  previewPromo(@Param('token') token: string, @Body() body: PromoPreviewDto) {
+    return this.checkoutService.previewPromo({ token, code: body.code, packageType: body.package });
+  }
+
+  /**
    * POST /api/checkout/:token/submit
-   * Body: multipart — additionalTemplateIds[], packageType, paymentProof (file)
+   * Body: multipart — additionalTemplateIds[], packageType, paymentProof (file), promoCode (opcional)
    */
   @Post(':token/submit')
+  @PaymentSubmitThrottle()
   @UseInterceptors(FileInterceptor('paymentProof'))
   async submit(
     @Param('token') token: string,
     @Body('packageType') packageType: string,
     @Body('additionalTemplateIds') rawIds: string | string[],
     @UploadedFile() file: Express.Multer.File,
+    @Body('promoCode') promoCode?: string,
   ) {
     if (!file) throw new BadRequestException('Comprobante de pago requerido');
 
@@ -57,6 +74,7 @@ export class CheckoutPublicController {
       paymentBuffer: file.buffer,
       originalFilename: file.originalname,
       mimeType: file.mimetype,
+      promoCode: typeof promoCode === 'string' ? promoCode : null,
     });
   }
 }

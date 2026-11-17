@@ -11,6 +11,8 @@ type PaymentInfo = {
   customerName: string;
   totalAmountCents?: number;
   customCoverSurchargeCents?: number;
+  /** Promotion code snapshot already subtracted from totalAmountCents. */
+  discount?: { code: string; percent: number | null; amountCents: number };
   manualPricing: boolean;
   currency: string;
   expiresAt: string;
@@ -139,9 +141,15 @@ export default function PagarPage() {
       {/* Amount */}
       <div hidden={info.manualPricing && info.totalAmountCents == null} style={{ background: "#f9fafb", borderRadius: "16px", border: "1px solid #e5e7eb", padding: "24px", textAlign: "center", marginBottom: "32px" }}>
         {info.customCoverSurchargeCents != null && info.totalAmountCents != null && <div style={{ margin: "0 auto 16px", maxWidth: "320px", display: "grid", gap: "6px", fontSize: "13px", color: "#6b7280", textAlign: "left" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}><span>Photobook y express (si aplica)</span><span>S/ {((info.totalAmountCents - info.customCoverSurchargeCents) / 100).toFixed(2)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}><span>Photobook y express (si aplica)</span><span>S/ {((info.totalAmountCents + (info.discount?.amountCents ?? 0) - info.customCoverSurchargeCents) / 100).toFixed(2)}</span></div>
               <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}><span>Adicional por tapas personalizadas</span><span>S/ {(info.customCoverSurchargeCents / 100).toFixed(2)}</span></div>
             </div>}
+        {info.discount && info.totalAmountCents != null && (
+          <div style={{ margin: "0 auto 16px", maxWidth: "320px", display: "flex", justifyContent: "space-between", gap: "12px", fontSize: "13px", color: "#5b21b6", fontWeight: 600 }}>
+            <span>Descuento ({info.discount.code})</span>
+            <span>−S/ {(info.discount.amountCents / 100).toFixed(2)}</span>
+          </div>
+        )}
             <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>Total a pagar</div>
         <div style={{ fontSize: "40px", fontWeight: 900, color: "#111" }}>{totalFormatted}</div>
             {info.manualPricing && <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "8px" }}>El importe ingresado será revisado manualmente con tu comprobante.</div>}

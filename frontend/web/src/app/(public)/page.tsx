@@ -17,14 +17,6 @@ import { getAssetUrl } from "@/lib/assetUrl";
 import { tokens } from "@/lib/design-tokens";
 import { hexToRgba } from "@/lib/colors";
 
-const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api:3001";
-
-type ActivePromo = {
-  targetType: string;
-  discountType: string;
-  discountValue: number;
-};
-
 function parsePriceCents(priceStr?: string): number | undefined {
   if (!priceStr) return undefined;
   const match = priceStr.match(/([\d.]+)/);
@@ -59,25 +51,8 @@ function SectionDivider() {
   );
 }
 
-function applyBestPromo(priceCents: number, promos: ActivePromo[]): number | undefined {
-  const applicable = promos.filter((p) => p.targetType === 'all');
-  if (!applicable.length) return undefined;
-  let best = priceCents;
-  for (const p of applicable) {
-    const result = p.discountType === 'percent'
-      ? Math.round(priceCents * (1 - p.discountValue / 100))
-      : Math.max(0, priceCents - p.discountValue);
-    if (result < best) best = result;
-  }
-  return best < priceCents ? best : undefined;
-}
-
 export default async function HomePage() {
   const K = HOME_ASSET_KEYS;
-
-  const activePromos: ActivePromo[] = await fetch(`${API_BASE}/api/promotions/active`, {
-    next: { revalidate: 60 },
-  }).then((r) => r.ok ? r.json() : []).catch(() => []);
 
   // URLs construidas directamente — sin fetch al backend
 
@@ -86,6 +61,10 @@ export default async function HomePage() {
   const familyHeroHomeUrl = getAssetUrl(K.ourBooksFamilyPapaHeroeHome);
   const familyHeroAdultHomeUrl = getAssetUrl(K.ourBooksFamilyPapaHeroeAdultoHome);
   const petAngelUrl = getAssetUrl(K.ourBooksPetsAngel);
+  const papaHeroeUrl = getAssetUrl(K.ourBooksFamilyPapaHeroe);
+  const mamaHeroinaUrl = getAssetUrl(K.ourBooksFamilyMamaHeroina);
+  const angelGuardianUrl = getAssetUrl(K.ourBooksMemoriasAngelGuardian);
+  const miAmorUrl = getAssetUrl(K.ourBooksLoveMiAmor);
   const petAngelHomeUrl = getAssetUrl(K.ourBooksPetsAngelHome);
   const photobookMachuPicchuUrl = getAssetUrl(K.ourBooksPhotobooksMachuPicchu);
   const photobookParisUrl       = getAssetUrl(K.ourBooksPhotobooksParis);
@@ -146,6 +125,17 @@ export default async function HomePage() {
       price: "S/ 130.00",
     },
     {
+      key: "family-papa-heroe",
+      kicker: "Libros de Familia",
+      title: "Papá, Mi Héroe",
+      description:
+        "Para el hombre que te enseñó a ser fuerte. Sus fotos y las tuyas en escenas que celebran todo lo que hizo por ti.",
+      image: papaHeroeUrl,
+      href: "/libros-personalizados/libros-de-familia/papa-mi-heroe",
+      accent: tokens.colors.customBooks.primary,
+      price: "S/ 130.00",
+    },
+    {
       key: "photobook-iquitos",
       kicker: "Photobooks",
       title: "Photobook Iquitos",
@@ -168,6 +158,17 @@ export default async function HomePage() {
       price: "S/ 130.00",
     },
     {
+      key: "memories-angel-guardian",
+      kicker: "Libros de Memorias",
+      title: "Mi Ángel Guardián",
+      description:
+        "Un homenaje lleno de amor para honrar a quien fue tu guía, tu fuerza y tu luz. Su presencia sigue brillando en cada página.",
+      image: angelGuardianUrl,
+      href: "/libros-personalizados/libros-de-memorias-familiares/mi-angel-guardian",
+      accent: tokens.colors.customBooks.primary,
+      price: "S/ 130.00",
+    },
+    {
       key: "photobook-machu-picchu",
       kicker: "Photobooks",
       title: "Photobook Machu Picchu",
@@ -177,6 +178,28 @@ export default async function HomePage() {
       href: "/photobooks",
       accent: tokens.colors.photobooks.primary,
       price: "S/ 90.00",
+    },
+    {
+      key: "love-mi-amor",
+      kicker: "Libros de Amor",
+      title: "Mi Amor",
+      description:
+        "Su historia de amor contada con sus fotos, en escenas románticas y cotidianas. Ideal para un aniversario o para sorprender sin motivo.",
+      image: miAmorUrl,
+      href: "/libros-personalizados/libros-de-amor/mi-amor",
+      accent: tokens.colors.customBooks.primary,
+      price: "S/ 130.00",
+    },
+    {
+      key: "family-mama-heroina",
+      kicker: "Libros de Familia",
+      title: "Mamá, Mi Heroína",
+      description:
+        "Para la mujer que lo dio todo. Su amor de cada día convertido en un libro impreso con sus fotos y las tuyas.",
+      image: mamaHeroinaUrl,
+      href: "/libros-personalizados/libros-de-familia/mama-mi-heroina",
+      accent: tokens.colors.customBooks.primary,
+      price: "S/ 130.00",
     },
   ];
 
@@ -747,11 +770,7 @@ export default async function HomePage() {
       <SectionDivider />
 
       {/* ═══ BOOKS SECTION ═══ */}
-      <NuestrosLibrosSection books={books.map((b) => {
-        const priceCents = parsePriceCents(b.price);
-        const promoPrice = priceCents !== undefined ? applyBestPromo(priceCents, activePromos) : undefined;
-        return { ...b, priceCents, promoPrice };
-      })} />
+      <NuestrosLibrosSection books={books.map((b) => ({ ...b, priceCents: parsePriceCents(b.price) }))} />
 
       <SectionDivider />
 

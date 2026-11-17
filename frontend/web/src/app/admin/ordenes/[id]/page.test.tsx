@@ -113,4 +113,17 @@ describe('order print output controls', () => {
 
     await waitFor(() => expect(alertMock).toHaveBeenCalledWith('El voucher ya fue revisado'));
   });
+
+  it('shows the promotion discount next to the total', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/orders/42')) return Response.json({ ...order, totalAmountCents: 9000, discountAmountCents: 1000, promotionCode: 'Amor10', promotionPercent: 10 });
+      if (url.endsWith('/print-assets')) return Response.json([]);
+      return Response.json({});
+    }));
+
+    render(<OrderDetailPage />);
+    expect(await screen.findByText('Descuento (Amor10, 10%) −S/ 10.00')).toBeTruthy();
+  });
 });
+

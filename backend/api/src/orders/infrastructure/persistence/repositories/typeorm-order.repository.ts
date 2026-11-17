@@ -1,29 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ActivatePhotobookOrderData, OrderRepositoryPort, CreateOrderData, OrderRecord, StatusEvent } from '../../../domain/ports/order-repository.port';
+import {
+  ActivatePhotobookOrderData,
+  AppliedOrderPromotion,
+  CheckoutPricing,
+  CreateOrderData,
+  OrderRecord,
+  OrderRepositoryPort,
+  StatusEvent,
+} from '../../../domain/ports/order-repository.port';
 import { OrderOrmEntity } from '../entities/order.orm-entity';
 import { OrderStatusEventOrmEntity } from '../entities/order-status-event.orm-entity';
+import { OrderMapper } from '../mappers/order.mapper';
+import { returningRows } from '../../../../common/database/returning-rows';
 
-function toRecord(e: OrderOrmEntity): OrderRecord {
+const toRecord = OrderMapper.toRecord;
+
+/** Snapshot columns; all empty (and discount 0) when no code was applied. */
+function promotionColumns(promotion: AppliedOrderPromotion | null) {
   return {
-    id: Number(e.id),
-    channel: e.channel,
-    status: e.status,
-    publicToken: e.publicToken,
-    demoRequestId: e.demoRequestId ? Number(e.demoRequestId) : null,
-    personalizedModelId: e.personalizedModelId ? Number(e.personalizedModelId) : null,
-    photobookProjectId: e.photobookProjectId ? Number(e.photobookProjectId) : null,
-    customerFullName: e.customerFullName,
-    customerEmail: e.customerEmail,
-    customerPhone: e.customerPhone,
-    baseAmountCents: Number(e.baseAmountCents),
-    rushFeeCents: Number(e.rushFeeCents),
-    extraTemplatesAmountCents: Number(e.extraTemplatesAmountCents),
-    totalAmountCents: Number(e.totalAmountCents),
-    currency: e.currency,
-    estimatedDeliveryDate: e.estimatedDeliveryDate,
-    createdAt: e.createdAt,
+    discountAmountCents: String(promotion?.discountCents ?? 0),
+    promotionId: promotion?.promotionId != null ? String(promotion.promotionId) : null,
+    promotionCode: promotion?.code ?? null,
+    promotionPercent: promotion?.percent ?? null,
   };
 }
 
@@ -41,7 +41,8 @@ export class TypeOrmOrderRepository extends OrderRepositoryPort {
   async create(data: CreateOrderData): Promise<OrderRecord> {
     const rushFee = data.rushFeeCents ?? 0;
     const extraTemplates = data.extraTemplatesAmountCents ?? 0;
-    const total = data.baseAmountCents + rushFee + extraTemplates;
+    const promotion = data.promotion ?? null;
+    const total = data.baseAmountCents + rushFee + extraTemplates - (promotion?.discountCents ?? 0);
 
     const entity = this.repo.create({
       channel: data.channel,
@@ -55,6 +56,7 @@ export class TypeOrmOrderRepository extends OrderRepositoryPort {
       baseAmountCents: String(data.baseAmountCents),
       rushFeeCents: String(rushFee),
       extraTemplatesAmountCents: String(extraTemplates),
+      ...promotionColumns(promotion),
       totalAmountCents: String(total),
       estimatedDeliveryDate: data.estimatedDeliveryDate ?? null,
       status: data.status ?? 'AWAITING_PAYMENT_PROOF',
@@ -82,11 +84,43 @@ export class TypeOrmOrderRepository extends OrderRepositoryPort {
 
   async updateExtraTemplates(id: number, extraTemplatesAmountCents: number): Promise<void> {
     const order = await this.repo.findOneByOrFail({ id: String(id) });
-    const newTotal = Number(order.baseAmountCents) + Number(order.rushFeeCents) + extraTemplatesAmountCents;
+    const newTotal =
+      Number(order.baseAmountCents) +
+      Number(order.rushFeeCents) +
+      extraTemplatesAmountCents -
+      Number(order.discountAmountCents ?? 0);
     await this.repo.update(String(id), {
       extraTemplatesAmountCents: String(extraTemplatesAmountCents),
       totalAmountCents: String(newTotal),
     });
+  }
+
+  async applyCheckoutPricing(id: number, pricing: CheckoutPricing): Promise<boolean> {
+    const promotion = pricing.promotion;
+    // The WHERE guard makes "one code per order" race-safe: a different code
+    // never overwrites an existing snapshot, the same code is idempotent.
+    const result = await this.repo.manager.query(
+      `UPDATE orders SET
+         extra_templates_amount_cents = $2::bigint,
+         discount_amount_cents        = $3::bigint,
+         promotion_id                 = $4::bigint,
+         promotion_code               = $5::text,
+         promotion_percent            = $6::int,
+         total_amount_cents = base_amount_cents + rush_fee_cents + $2::bigint - $3::bigint,
+         updated_at = now()
+       WHERE id = $1
+         AND (promotion_code IS NULL OR promotion_code = $5::text)
+       RETURNING id`,
+      [
+        id,
+        pricing.extraTemplatesAmountCents,
+        promotion?.discountCents ?? 0,
+        promotion?.promotionId ?? null,
+        promotion?.code ?? null,
+        promotion?.percent ?? null,
+      ],
+    );
+    return returningRows<{ id: string }>(result).length > 0;
   }
 
   async ensurePhotobookConfigurationOrder(data: ActivatePhotobookOrderData): Promise<OrderRecord> {
@@ -124,7 +158,8 @@ export class TypeOrmOrderRepository extends OrderRepositoryPort {
       baseAmountCents: String(data.baseAmountCents),
       rushFeeCents: '0',
       extraTemplatesAmountCents: '0',
-      totalAmountCents: String(data.baseAmountCents),
+      ...promotionColumns(data.promotion ?? null),
+      totalAmountCents: String(data.baseAmountCents - (data.promotion?.discountCents ?? 0)),
       status: 'AWAITING_PAYMENT_PROOF',
     });
     await this.eventRepo.save(this.eventRepo.create({

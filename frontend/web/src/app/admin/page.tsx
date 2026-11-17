@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const API = "";
 
 type Order = {
   id: number;
@@ -65,8 +64,8 @@ export default function DashboardPage() {
   useEffect(() => {
     Promise.all([
       fetch(`/admin-api/orders`).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
-      fetch(`${API}/api/admin/feedback`).then((r) => r.json()).catch(() => []),
+      fetch(`/admin-api/demo/requests`).then((r) => r.json()).catch(() => []),
+      fetch(`/admin-api/feedback`).then((r) => r.json()).catch(() => []),
     ]).then(([ordersData, demosData, feedbackData]) => {
       setOrders(Array.isArray(ordersData) ? ordersData : ordersData.data ?? []);
       setDemos(Array.isArray(demosData) ? demosData : demosData.data ?? []);

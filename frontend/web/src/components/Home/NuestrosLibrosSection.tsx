@@ -31,7 +31,6 @@ export type Book = {
   category: BookCategory;
   price?: string;
   priceCents?: number;
-  promoPrice?: number;
   pages?: number;
   versions?: BookVersion[];
   /* A quién está dedicado el libro — taxonomía real, no se infiere del texto */
@@ -122,8 +121,8 @@ export default function NuestrosLibrosSection({ books }: Props) {
 
     if (sort === 'price-asc' || sort === 'price-desc') {
       result = [...result].sort((a, b) => {
-        const pa = a.promoPrice ?? a.priceCents ?? 0;
-        const pb = b.promoPrice ?? b.priceCents ?? 0;
+        const pa = a.priceCents ?? 0;
+        const pb = b.priceCents ?? 0;
         return sort === 'price-asc' ? pa - pb : pb - pa;
       });
     }
@@ -688,8 +687,8 @@ export default function NuestrosLibrosSection({ books }: Props) {
                   style={{ height: viewMode === 'grid' ? '100%' : 'auto' }}
                 >
                   {viewMode === 'grid'
-                    ? <NuestrosLibrosCard {...book} promoPrice={book.promoPrice} />
-                    : <NuestrosLibrosListRow {...book} promoPrice={book.promoPrice} />}
+                    ? <NuestrosLibrosCard {...book} />
+                    : <NuestrosLibrosListRow {...book} />}
                 </motion.div>
               );
             })}

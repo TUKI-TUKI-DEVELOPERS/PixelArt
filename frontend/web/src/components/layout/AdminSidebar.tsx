@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const API = "";
 
 type Badges = { demos: number; payments: number; photobooks: number; customPhotobooks: number };
 
@@ -74,7 +73,7 @@ export default function AdminSidebar() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/admin/demo/requests`).then((r) => r.json()).catch(() => []),
+      fetch(`/admin-api/demo/requests`).then((r) => r.json()).catch(() => []),
       fetch(`/admin-api/orders`).then((r) => r.json()).catch(() => []),
       fetch("/admin-api/photobook/custom-requests").then((r) => r.json()).catch(() => []),
     ]).then(([demosData, ordersData, customPhotobooksData]) => {

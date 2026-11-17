@@ -1,4 +1,5 @@
 import {
+  calculatePhotobookProductCents,
   calculatePhotobookRushFeeCents,
   calculatePhotobookTotalCents,
   isValidPhotobookCoverType,
@@ -82,5 +83,16 @@ describe('calculatePhotobookTotalCents', () => {
     // Below MIN_HOJAS the cover branch short-circuits to 0, so the invalid
     // type is never looked up and the result is just the rush fee.
     expect(calculatePhotobookTotalCents('INVALID' as any, 28, true)).toBe(2500);
+  });
+});
+
+describe('calculatePhotobookProductCents', () => {
+  it('prices cover type and sheets without the rush fee', () => {
+    expect(calculatePhotobookProductCents('TAPA_GRUESA', 32)).toBe(12400);
+    expect(calculatePhotobookProductCents('TAPA_DELGADA', 28)).toBe(0);
+  });
+
+  it('is the total minus the rush fee', () => {
+    expect(calculatePhotobookTotalCents('TAPA_GRUESA', 40, true) - calculatePhotobookProductCents('TAPA_GRUESA', 40)).toBe(2500);
   });
 });

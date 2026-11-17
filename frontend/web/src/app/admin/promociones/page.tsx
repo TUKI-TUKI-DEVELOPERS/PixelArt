@@ -1,83 +1,101 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import {
+  deletePromotion,
+  listPromotions,
+  savePromotion,
+  type AdminPromotion,
+} from "@/lib/api/promotions";
+import {
+  buildPersonalizedEligibility,
+  buildPhotobookEligibility,
+  describeEligibility,
+  splitEligibility,
+  splitPhotobookEligibility,
+  type PersonalizedCategory,
+  type PhotobookSelection,
+  type PhotobookTheme,
+} from "@/lib/promotions/eligibility";
 
 const API = "";
 
-type TargetType = "model" | "models" | "category" | "all";
-type DiscountType = "percent" | "fixed_cents";
+type CatalogBook = { id: number; name: string };
 
-type Promotion = {
-  id: number;
-  label: string;
-  targetType: TargetType;
-  targetId: number | null;
-  targetIds: number[];
-  discountType: DiscountType;
-  discountValue: number;
+type PromoForm = {
+  code: string;
+  percent: string;
   validFrom: string;
   validUntil: string;
   isActive: boolean;
-  createdAt: string;
+  categoryIds: number[];
+  modelIds: number[];
+  photobook: PhotobookSelection;
 };
 
-type CatalogBook = { id: number; name: string };
-
-const EMPTY_FORM = {
-  label: "",
-  targetType: "model" as TargetType,
-  targetId: "" as string,
-  targetIds: [] as number[],
-  discountType: "percent" as DiscountType,
-  discountValue: "" as string,
+const EMPTY_FORM: PromoForm = {
+  code: "",
+  percent: "",
   validFrom: "",
   validUntil: "",
   isActive: true,
+  categoryIds: [],
+  modelIds: [],
+  photobook: { templateAll: false, themeIds: [], custom: false },
 };
 
 function toLocalDatetime(iso: string) {
-  return iso ? iso.slice(0, 16) : "";
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function formatDiscount(p: Promotion) {
+function formatDiscount(p: AdminPromotion) {
   return p.discountType === "percent"
     ? `${p.discountValue}%`
     : `S/ ${(p.discountValue / 100).toFixed(2)}`;
 }
 
-function promoStatus(p: Promotion): { label: string; bg: string; text: string } {
+function promoStatus(p: AdminPromotion): { label: string; bg: string; text: string } {
   const now = new Date();
   const from = new Date(p.validFrom);
   const until = new Date(p.validUntil);
   if (!p.isActive) return { label: "Inactiva", bg: "#f3f4f6", text: "#6b7280" };
   if (now < from)  return { label: "Próxima",  bg: "#dbeafe", text: "#1e40af" };
-  if (now > until) return { label: "Expirada", bg: "#fee2e2", text: "#991b1b" };
+  if (now >= until) return { label: "Expirada", bg: "#fee2e2", text: "#991b1b" };
   return { label: "Activa", bg: "#d1fae5", text: "#065f46" };
 }
 
-function targetLabel(p: Promotion, catalogBooks: CatalogBook[]) {
+/** Legacy automatic promotions (no code) still use the old catalog-book targeting. */
+function legacyTargetLabel(p: AdminPromotion, catalogBooks: CatalogBook[]) {
   if (p.targetType === "all") return "Todos los libros";
   if (p.targetType === "models") {
     if (!p.targetIds?.length) return "Libros específicos (sin selección)";
-    const names = p.targetIds.map(id => catalogBooks.find(b => b.id === id)?.name ?? `#${id}`);
-    return names.join(", ");
+    return p.targetIds.map((id) => catalogBooks.find((b) => b.id === id)?.name ?? `#${id}`).join(", ");
   }
   const book = catalogBooks.find((b) => b.id === p.targetId);
   return book ? `Libro: ${book.name}` : `Libro #${p.targetId}`;
 }
 
+function targetLabel(p: AdminPromotion, catalogBooks: CatalogBook[], categories: PersonalizedCategory[], themes: PhotobookTheme[]) {
+  return p.code ? describeEligibility(p.eligibility, categories, themes) : legacyTargetLabel(p, catalogBooks);
+}
+
 export default function PromocionesPage() {
-  const [promos, setPromos]           = useState<Promotion[]>([]);
+  const [promos, setPromos]             = useState<AdminPromotion[]>([]);
   const [catalogBooks, setCatalogBooks] = useState<CatalogBook[]>([]);
-  const [loading, setLoading]         = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing]     = useState<Promotion | null>(null);
-  const [form, setForm]           = useState({ ...EMPTY_FORM });
+  const [categories, setCategories]     = useState<PersonalizedCategory[]>([]);
+  const [themes, setThemes]             = useState<PhotobookTheme[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [loadError, setLoadError]       = useState<string | null>(null);
+  const [showModal, setShowModal]       = useState(false);
+  const [editing, setEditing]           = useState<AdminPromotion | null>(null);
+  const [form, setForm]                 = useState<PromoForm>({ ...EMPTY_FORM });
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState<string | null>(null);
   const [deleting, setDeleting]         = useState<number | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Promotion | null>(null);
-  const [conflictAccepted, setConflictAccepted] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AdminPromotion | null>(null);
 
   // Banner
   const [bannerText, setBannerText]       = useState("");
@@ -88,16 +106,27 @@ export default function PromocionesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [promosRes, booksRes] = await Promise.all([
-      fetch(`${API}/api/admin/promotions`).then((r) => r.json()).catch(() => []),
+    setLoadError(null);
+    const [promosRes, booksRes, categoriesRes, themesRes] = await Promise.all([
+      listPromotions().catch((err: Error) => { setLoadError(err.message); return [] as AdminPromotion[]; }),
       fetch(`${API}/api/catalog/books`).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/api/personalized/categories`).then((r) => r.json()).catch(() => []),
+      fetch(`${API}/api/photobook/themes`).then((r) => r.json()).catch(() => []),
     ]);
+    type RawTheme = { id: number | string; name: string };
+    setThemes(((themesRes?.data ?? themesRes ?? []) as RawTheme[]).map((t) => ({ id: Number(t.id), name: t.name })));
     setPromos(promosRes);
     const books: CatalogBook[] = (booksRes?.data ?? booksRes ?? []).map((b: { id: number | string; name: string }) => ({
       id: Number(b.id),
       name: b.name,
     }));
     setCatalogBooks(books);
+    type RawCategory = { id: number | string; name: string; models?: { id: number | string; name: string }[] };
+    setCategories(((categoriesRes?.data ?? categoriesRes ?? []) as RawCategory[]).map((c) => ({
+      id: Number(c.id),
+      name: c.name,
+      models: (c.models ?? []).map((m) => ({ id: Number(m.id), name: m.name })),
+    })));
     setLoading(false);
   }, []);
 
@@ -119,7 +148,7 @@ export default function PromocionesPage() {
 
   async function saveBanner(overrides?: { enabled?: boolean }) {
     setBannerSaving(true);
-    await fetch(`${API}/api/admin/site-config/promo_banner`, {
+    await fetch(`/admin-api/site-config/promo_banner`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ value: { text: bannerText, color: bannerColor, enabled: bannerEnabled, ...overrides } }),
@@ -137,122 +166,97 @@ export default function PromocionesPage() {
     setEditing(null);
     setForm({ ...EMPTY_FORM });
     setError(null);
-    setConflictAccepted(false);
     setShowModal(true);
   }
 
-  function openEdit(p: Promotion) {
+  function openEdit(p: AdminPromotion) {
     setEditing(p);
-    setConflictAccepted(false);
+    const split = splitEligibility(p.eligibility ?? []);
     setForm({
-      label:         p.label,
-      targetType:    p.targetType,
-      targetId:      p.targetId ? String(p.targetId) : "",
-      targetIds:     p.targetIds ?? [],
-      discountType:  p.discountType,
-      discountValue: String(p.discountValue),
-      validFrom:     toLocalDatetime(p.validFrom),
-      validUntil:    toLocalDatetime(p.validUntil),
-      isActive:      p.isActive,
+      code:        p.code ?? "",
+      percent:     p.discountType === "percent" ? String(p.discountValue) : "",
+      validFrom:   toLocalDatetime(p.validFrom),
+      validUntil:  toLocalDatetime(p.validUntil),
+      isActive:    p.isActive,
+      categoryIds: split.categoryIds,
+      modelIds:    split.modelIds,
+      photobook:   splitPhotobookEligibility(p.eligibility ?? []),
     });
     setError(null);
     setShowModal(true);
   }
 
-  function getConflicts(): { bookId: number; bookName: string; promo: Promotion }[] {
-    const selectedIds =
-      form.targetType === "model" && form.targetId
-        ? [Number(form.targetId)]
-        : form.targetType === "models"
-          ? form.targetIds
-          : [];
-    if (!selectedIds.length) return [];
-
-    const activePromos = promos.filter(
-      (p) => ["Activa", "Próxima"].includes(promoStatus(p).label) && p.id !== editing?.id,
-    );
-
-    return selectedIds.flatMap((bookId) => {
-      const conflict = activePromos.find(
-        (p) =>
-          p.targetType === "all" ||
-          (p.targetType === "model" && p.targetId === bookId) ||
-          (p.targetType === "models" && p.targetIds?.includes(bookId)),
-      );
-      if (!conflict) return [];
-      const book = catalogBooks.find((b) => b.id === bookId);
-      return [{ bookId, bookName: book?.name ?? `#${bookId}`, promo: conflict }];
+  function toggleCategory(categoryId: number) {
+    setForm((f) => {
+      const selected = f.categoryIds.includes(categoryId);
+      const categoryModelIds = categories.find((c) => c.id === categoryId)?.models.map((m) => m.id) ?? [];
+      return {
+        ...f,
+        categoryIds: selected ? f.categoryIds.filter((id) => id !== categoryId) : [...f.categoryIds, categoryId],
+        // The whole category already covers its books.
+        modelIds: selected ? f.modelIds : f.modelIds.filter((id) => !categoryModelIds.includes(id)),
+      };
     });
+  }
+
+  function togglePhotobook(change: Partial<PhotobookSelection> | { themeId: number }) {
+    setForm((f) => {
+      if ("themeId" in change) {
+        const { themeIds } = f.photobook;
+        const next = themeIds.includes(change.themeId) ? themeIds.filter((id) => id !== change.themeId) : [...themeIds, change.themeId];
+        return { ...f, photobook: { ...f.photobook, themeIds: next } };
+      }
+      return { ...f, photobook: { ...f.photobook, ...change } };
+    });
+  }
+
+  function toggleModel(modelId: number) {
+    setForm((f) => ({
+      ...f,
+      modelIds: f.modelIds.includes(modelId) ? f.modelIds.filter((id) => id !== modelId) : [...f.modelIds, modelId],
+    }));
   }
 
   async function handleSave() {
-    if (!form.label.trim())        return setError("El nombre es obligatorio");
-    if (!form.discountValue)       return setError("El descuento es obligatorio");
-    if (!form.validFrom)           return setError("La fecha de inicio es obligatoria");
-    if (!form.validUntil)          return setError("La fecha de fin es obligatoria");
-    if (form.targetType === "models" && form.targetIds.length === 0) return setError("Seleccioná al menos un libro");
-    if (form.targetType === "model" && !form.targetId) return setError("Seleccioná el libro destino");
-
-    const conflicts = getConflicts();
-    if (conflicts.length && !conflictAccepted) {
-      return setError("Hay conflictos con otras promociones. Confirmá el reemplazo antes de guardar.");
-    }
+    const code = form.code.trim();
+    const percent = Number(form.percent);
+    const eligibility = [
+      ...buildPersonalizedEligibility(form.categoryIds, form.modelIds),
+      ...buildPhotobookEligibility(form.photobook),
+    ];
+    if (!code)                                     return setError("El código es obligatorio");
+    if (/\s/.test(code))                           return setError("El código no puede tener espacios");
+    if (!Number.isInteger(percent) || percent < 1 || percent > 100) return setError("El descuento debe ser un porcentaje entero entre 1 y 100");
+    if (!form.validFrom)                           return setError("La fecha de inicio es obligatoria");
+    if (!form.validUntil)                          return setError("La fecha de fin es obligatoria");
+    if (!eligibility.length)                       return setError("Selecciona al menos un libro o photobook");
 
     setSaving(true);
     setError(null);
-
-    // Desactivar promos conflictivas si el admin aceptó el reemplazo
-    if (conflictAccepted && conflicts.length) {
-      const idsToDeactivate = [...new Set(conflicts.map((c) => c.promo.id))];
-      await Promise.all(
-        idsToDeactivate.map((id) =>
-          fetch(`${API}/api/admin/promotions/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ isActive: false }),
-          }),
-        ),
-      );
+    try {
+      await savePromotion(editing?.id ?? null, {
+        code,
+        percent,
+        validFrom:  new Date(form.validFrom).toISOString(),
+        validUntil: new Date(form.validUntil).toISOString(),
+        isActive:   form.isActive,
+        eligibility,
+      });
+      setShowModal(false);
+      load();
+    } catch (err) {
+      // e.g. 409 "Se cruza en fechas y productos con la promoción NAVIDAD15"
+      setError(err instanceof Error ? err.message : "Error al guardar");
+    } finally {
+      setSaving(false);
     }
-
-    const body = {
-      label:         form.label.trim(),
-      targetType:    form.targetType,
-      targetId:      form.targetType === "model" ? Number(form.targetId) : null,
-      targetIds:     form.targetType === "models" ? form.targetIds : [],
-      discountType:  form.discountType,
-      discountValue: Number(form.discountValue),
-      validFrom:     new Date(form.validFrom).toISOString(),
-      validUntil:    new Date(form.validUntil).toISOString(),
-      isActive:      form.isActive,
-    };
-
-    const url = editing
-      ? `${API}/api/admin/promotions/${editing.id}`
-      : `${API}/api/admin/promotions`;
-
-    const res = await fetch(url, {
-      method:  editing ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(body),
-    });
-
-    setSaving(false);
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return setError(err.message ?? "Error al guardar");
-    }
-
-    setShowModal(false);
-    load();
   }
 
   async function confirmDelete() {
     if (!deleteTarget) return;
     setDeleting(deleteTarget.id);
     setDeleteTarget(null);
-    await fetch(`${API}/api/admin/promotions/${deleteTarget.id}`, { method: "DELETE" });
+    await deletePromotion(deleteTarget.id).catch((err: Error) => setLoadError(err.message));
     setDeleting(null);
     load();
   }
@@ -260,7 +264,6 @@ export default function PromocionesPage() {
   const activeCount   = promos.filter((p) => promoStatus(p).label === "Activa").length;
   const upcomingCount = promos.filter((p) => promoStatus(p).label === "Próxima").length;
   const expiredCount  = promos.filter((p) => promoStatus(p).label === "Expirada").length;
-  const conflicts     = getConflicts();
 
   return (
     <div style={{ padding: "32px" }}>
@@ -271,7 +274,7 @@ export default function PromocionesPage() {
         <div>
           <h1 style={{ margin: "0 0 4px", fontSize: "28px", fontWeight: 800, color: "#111" }}>Promociones</h1>
           <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-            Descuentos por libro, categoría o global con rango de fechas
+            Códigos de descuento para libros personalizados y photobooks, con rango de fechas
           </p>
         </div>
         <button
@@ -287,6 +290,12 @@ export default function PromocionesPage() {
           Nueva Promoción
         </button>
       </div>
+
+      {loadError && (
+        <div role="alert" style={{ padding: "12px 16px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b", fontSize: "13px", fontWeight: 600, marginBottom: "20px" }}>
+          {loadError}
+        </div>
+      )}
 
       {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "28px" }}>
@@ -310,7 +319,7 @@ export default function PromocionesPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f9fafb" }}>
-                {["Nombre", "Destino", "Descuento", "Vigencia", "Estado", ""].map((h) => (
+                {["Código", "Aplica a", "Descuento", "Vigencia", "Estado", ""].map((h) => (
                   <th key={h} style={{ textAlign: "left", padding: "12px 16px", fontSize: "11px", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
                 ))}
               </tr>
@@ -332,14 +341,14 @@ export default function PromocionesPage() {
         <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", padding: "64px", textAlign: "center" }}>
           <div style={{ fontSize: "40px", marginBottom: "12px" }}>🏷️</div>
           <div style={{ fontSize: "16px", fontWeight: 700, color: "#111", marginBottom: "6px" }}>Sin promociones</div>
-          <div style={{ fontSize: "14px", color: "#9ca3af" }}>Creá la primera y empezará a aplicarse automáticamente</div>
+          <div style={{ fontSize: "14px", color: "#9ca3af" }}>Crea el primer código de promoción</div>
         </div>
       ) : (
         <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: "#f9fafb" }}>
-                {["Nombre", "Destino", "Descuento", "Vigencia", "Estado", ""].map((h) => (
+                {["Código", "Aplica a", "Descuento", "Vigencia", "Estado", ""].map((h) => (
                   <th key={h} style={{ textAlign: "left", padding: "12px 16px", fontSize: "11px", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", borderBottom: "1px solid #e5e7eb" }}>{h}</th>
                 ))}
               </tr>
@@ -350,10 +359,17 @@ export default function PromocionesPage() {
                 return (
                   <tr key={p.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
                     <td style={{ padding: "14px 16px" }}>
-                      <div style={{ fontSize: "14px", fontWeight: 600, color: "#111" }}>{p.label}</div>
+                      {p.code ? (
+                        <code style={{ fontSize: "14px", fontWeight: 700, color: "#111", background: "#f3f4f6", padding: "3px 8px", borderRadius: "6px" }}>{p.code}</code>
+                      ) : (
+                        <div>
+                          <div style={{ fontSize: "14px", fontWeight: 600, color: "#111" }}>{p.label}</div>
+                          <div style={{ fontSize: "11px", color: "#9ca3af" }}>Sin código · ya no descuenta</div>
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: "14px 16px" }}>
-                      <div style={{ fontSize: "13px", color: "#6b7280" }}>{targetLabel(p, catalogBooks)}</div>
+                      <div style={{ fontSize: "13px", color: "#6b7280" }}>{targetLabel(p, catalogBooks, categories, themes)}</div>
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       <div style={{ display: "inline-flex", alignItems: "center", padding: "4px 10px", borderRadius: "20px", background: "#ede9fe", color: "#5b21b6", fontSize: "13px", fontWeight: 700 }}>
@@ -485,10 +501,10 @@ export default function PromocionesPage() {
                 Estás por eliminar la promoción:
               </p>
               <p style={{ margin: "0 0 16px", fontSize: "15px", fontWeight: 700, color: "#111" }}>
-                "{deleteTarget.label}"
+                "{deleteTarget.code ?? deleteTarget.label}"
               </p>
               <div style={{ padding: "10px 14px", borderRadius: "8px", background: "#f9fafb", border: "1px solid #e5e7eb", fontSize: "13px", color: "#6b7280" }}>
-                {targetLabel(deleteTarget, catalogBooks)} · {formatDiscount(deleteTarget)} · <span style={{ ...{ display: "inline-flex", padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: 700, background: promoStatus(deleteTarget).bg, color: promoStatus(deleteTarget).text } }}>{promoStatus(deleteTarget).label}</span>
+                {targetLabel(deleteTarget, catalogBooks, categories, themes)} · {formatDiscount(deleteTarget)} · <span style={{ ...{ display: "inline-flex", padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: 700, background: promoStatus(deleteTarget).bg, color: promoStatus(deleteTarget).text } }}>{promoStatus(deleteTarget).label}</span>
               </div>
             </div>
 
@@ -541,164 +557,126 @@ export default function PromocionesPage() {
 
             <div style={{ padding: "20px 24px 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
-              {/* Nombre */}
+              {/* Código */}
               <div>
-                <label style={labelStyle}>Nombre de la promoción</label>
+                <label htmlFor="promo-code" style={labelStyle}>Código</label>
                 <input
-                  value={form.label}
-                  onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-                  placeholder="Ej: Día de la Madre — 20% OFF"
+                  id="promo-code"
+                  value={form.code}
+                  onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+                  placeholder="Ej: NAVIDAD15"
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  style={{ ...inputStyle, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+                />
+                <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                  El cliente debe escribirlo exactamente igual: distingue mayúsculas y minúsculas, sin espacios.
+                </div>
+              </div>
+
+              {/* Descuento */}
+              <div>
+                <label htmlFor="promo-percent" style={labelStyle}>Descuento (%)</label>
+                <input
+                  id="promo-percent"
+                  type="number"
+                  value={form.percent}
+                  onChange={(e) => setForm((f) => ({ ...f, percent: e.target.value }))}
+                  placeholder="Ej: 15"
+                  min={1}
+                  max={100}
+                  step={1}
                   style={inputStyle}
                 />
-              </div>
-
-              {/* Target type */}
-              <div>
-                <label style={labelStyle}>Aplicar a</label>
-                <select
-                  value={form.targetType}
-                  onChange={(e) => { setForm((f) => ({ ...f, targetType: e.target.value as TargetType, targetId: "", targetIds: [] })); setConflictAccepted(false); }}
-                  style={inputStyle}
-                >
-                  <option value="model">Un libro específico</option>
-                  <option value="models">Varios libros específicos</option>
-                  <option value="all">Todos los libros</option>
-                </select>
-              </div>
-
-              {/* Un solo libro */}
-              {form.targetType === "model" && (
-                <div>
-                  <label style={labelStyle}>Libro</label>
-                  <select
-                    value={form.targetId}
-                    onChange={(e) => { setForm((f) => ({ ...f, targetId: e.target.value })); setConflictAccepted(false); }}
-                    style={inputStyle}
-                  >
-                    <option value="">Seleccioná un libro</option>
-                    {catalogBooks.map((b) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
+                <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                  Se aplica al precio del producto (libro y paquete premium, o photobook); nunca al envío express ni al adicional por tapas personalizadas.
                 </div>
-              )}
+              </div>
 
-              {/* Múltiples libros */}
-              {form.targetType === "models" && (
-                <div>
-                  <label style={labelStyle}>
-                    Libros ({form.targetIds.length} seleccionados)
-                  </label>
-                  <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", maxHeight: "200px", overflowY: "auto", padding: "4px 0" }}>
-                    {catalogBooks.map((b) => {
-                      const checked = form.targetIds.includes(b.id);
-                      return (
-                        <label
-                          key={b.id}
-                          style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", cursor: "pointer", background: checked ? "#f5f3ff" : "transparent" }}
-                        >
+              {/* Aplica a */}
+              <div>
+                <div style={labelStyle}>
+                  Aplica a ({form.categoryIds.length} categorías · {form.modelIds.length} libros)
+                </div>
+                <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", maxHeight: "260px", overflowY: "auto", padding: "4px 0" }}>
+                  {categories.length === 0 && (
+                    <div style={{ padding: "10px 12px", fontSize: "13px", color: "#9ca3af" }}>No se pudieron cargar las categorías</div>
+                  )}
+                  {categories.map((c) => {
+                    const wholeCategory = form.categoryIds.includes(c.id);
+                    return (
+                      <div key={c.id} style={{ borderBottom: "1px solid #f3f4f6", padding: "4px 0" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", cursor: "pointer", background: wholeCategory ? "#f5f3ff" : "transparent" }}>
                           <input
                             type="checkbox"
-                            checked={checked}
-                            onChange={() => { setConflictAccepted(false); setForm((f) => ({
-                              ...f,
-                              targetIds: checked
-                                ? f.targetIds.filter(id => id !== b.id)
-                                : [...f.targetIds, b.id],
-                            })); }}
+                            checked={wholeCategory}
+                            onChange={() => toggleCategory(c.id)}
                             style={{ width: "16px", height: "16px", accentColor: "#7c3aed", cursor: "pointer" }}
                           />
-                          <span style={{ fontSize: "14px", color: checked ? "#5b21b6" : "#111", fontWeight: checked ? 600 : 400 }}>
-                            {b.name}
-                          </span>
+                          <span style={{ fontSize: "14px", fontWeight: 700, color: wholeCategory ? "#5b21b6" : "#111" }}>{c.name}</span>
+                          <span style={{ fontSize: "12px", color: "#9ca3af" }}>toda la categoría</span>
                         </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Aviso de conflictos */}
-              {(() => {
-                if (!conflicts.length) return null;
-                if (conflictAccepted) {
-                  return (
-                    <div style={{ padding: "12px 16px", borderRadius: "10px", background: "#f0fdf4", border: "1px solid #86efac", display: "flex", alignItems: "center", gap: "8px" }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#15803d" }}>
-                        Confirmado — la promoción anterior será desactivada al guardar.
-                      </span>
-                    </div>
-                  );
-                }
-                return (
-                  <div style={{ padding: "14px 16px", borderRadius: "10px", background: "#fff7ed", border: "2px solid #fb923c" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                      <span style={{ fontSize: "13px", fontWeight: 700, color: "#9a3412" }}>
-                        {conflicts.length === 1 ? "Este libro ya tiene una promoción activa" : "Algunos libros ya tienen promociones activas"}
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "12px" }}>
-                      {conflicts.map(({ bookId, bookName, promo }) => (
-                        <div key={bookId} style={{ fontSize: "12px", color: "#7c2d12", paddingLeft: "24px" }}>
-                          <span style={{ fontWeight: 700 }}>{bookName}</span>
-                          {" → "}<span style={{ fontStyle: "italic" }}>"{promo.label}"</span>
-                          {" · "}{formatDiscount(promo)}
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ paddingLeft: "24px", fontSize: "12px", color: "#9a3412", marginBottom: "14px" }}>
-                      Para continuar, confirmá que querés reemplazar {conflicts.length === 1 ? "esa promoción" : "esas promociones"}. La{conflicts.length === 1 ? "" : "s"} anterior{conflicts.length === 1 ? "" : "es"} quedará{conflicts.length === 1 ? "" : "n"} desactivada{conflicts.length === 1 ? "" : "s"}.
-                    </div>
-                    <button
-                      onClick={() => setConflictAccepted(true)}
-                      style={{
-                        marginLeft: "24px", padding: "7px 16px", borderRadius: "8px",
-                        border: "none", background: "#ea580c", color: "#fff",
-                        fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
-                      }}
-                    >
-                      Sí, reemplazar la promoción anterior
-                    </button>
-                  </div>
-                );
-              })()}
-
-              {/* Tipo de descuento */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={labelStyle}>Tipo de descuento</label>
-                  <select
-                    value={form.discountType}
-                    onChange={(e) => setForm((f) => ({ ...f, discountType: e.target.value as DiscountType, discountValue: "" }))}
-                    style={inputStyle}
-                  >
-                    <option value="percent">Porcentaje (%)</option>
-                    <option value="fixed_cents">Monto fijo (S/)</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>
-                    {form.discountType === "percent" ? "Descuento (%)" : "Monto (en centavos)"}
-                  </label>
-                  <input
-                    type="number"
-                    value={form.discountValue}
-                    onChange={(e) => setForm((f) => ({ ...f, discountValue: e.target.value }))}
-                    placeholder={form.discountType === "percent" ? "Ej: 20" : "Ej: 2000 = S/20"}
-                    min={1}
-                    max={form.discountType === "percent" ? 100 : undefined}
-                    style={inputStyle}
-                  />
+                        {!wholeCategory && c.models.map((m) => {
+                          const checked = form.modelIds.includes(m.id);
+                          return (
+                            <label key={m.id} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 12px 6px 38px", cursor: "pointer", background: checked ? "#f5f3ff" : "transparent" }}>
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => toggleModel(m.id)}
+                                style={{ width: "15px", height: "15px", accentColor: "#7c3aed", cursor: "pointer" }}
+                              />
+                              <span style={{ fontSize: "13px", color: checked ? "#5b21b6" : "#374151", fontWeight: checked ? 600 : 400 }}>{m.name}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {form.discountType === "fixed_cents" && form.discountValue && (
-                <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "-8px" }}>
-                  Equivale a S/ {(Number(form.discountValue) / 100).toFixed(2)}
+              {/* Photobooks */}
+              <div>
+                <div style={labelStyle}>
+                  Photobooks ({form.photobook.templateAll ? "todos los de plantilla" : `${form.photobook.themeIds.length} temas`}{form.photobook.custom ? " · a medida" : ""})
                 </div>
-              )}
+                <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", maxHeight: "220px", overflowY: "auto", padding: "4px 0" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", cursor: "pointer", background: form.photobook.templateAll ? "#f5f3ff" : "transparent" }}>
+                    <input
+                      type="checkbox"
+                      checked={form.photobook.templateAll}
+                      onChange={() => togglePhotobook({ templateAll: !form.photobook.templateAll, themeIds: [] })}
+                      style={{ width: "16px", height: "16px", accentColor: "#7c3aed", cursor: "pointer" }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: 700, color: form.photobook.templateAll ? "#5b21b6" : "#111" }}>Todos los photobooks de plantilla</span>
+                  </label>
+                  {!form.photobook.templateAll && themes.map((t) => {
+                    const checked = form.photobook.themeIds.includes(t.id);
+                    return (
+                      <label key={t.id} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "6px 12px 6px 38px", cursor: "pointer", background: checked ? "#f5f3ff" : "transparent" }}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => togglePhotobook({ themeId: t.id })}
+                          style={{ width: "15px", height: "15px", accentColor: "#7c3aed", cursor: "pointer" }}
+                        />
+                        <span style={{ fontSize: "13px", color: checked ? "#5b21b6" : "#374151", fontWeight: checked ? 600 : 400 }}>{t.name}</span>
+                      </label>
+                    );
+                  })}
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", cursor: "pointer", borderTop: "1px solid #f3f4f6", background: form.photobook.custom ? "#f5f3ff" : "transparent" }}>
+                    <input
+                      type="checkbox"
+                      checked={form.photobook.custom}
+                      onChange={() => togglePhotobook({ custom: !form.photobook.custom })}
+                      style={{ width: "16px", height: "16px", accentColor: "#7c3aed", cursor: "pointer" }}
+                    />
+                    <span style={{ fontSize: "14px", fontWeight: 700, color: form.photobook.custom ? "#5b21b6" : "#111" }}>Photobook a medida</span>
+                  </label>
+                </div>
+              </div>
 
               {/* Fechas */}
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -756,12 +734,12 @@ export default function PromocionesPage() {
                   {form.isActive ? "Activa" : "Inactiva"}
                 </button>
                 <span style={{ fontSize: "13px", color: "#6b7280" }}>
-                  {form.isActive ? "Se aplicará dentro del rango de fechas" : "No se mostrará aunque esté en fechas"}
+                  {form.isActive ? "El código funcionará dentro del rango de fechas" : "El código no funcionará aunque esté en fechas"}
                 </span>
               </div>
 
               {error && (
-                <div style={{ padding: "12px 16px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b", fontSize: "13px", fontWeight: 600 }}>
+                <div role="alert" style={{ padding: "12px 16px", borderRadius: "8px", background: "#fee2e2", color: "#991b1b", fontSize: "13px", fontWeight: 600 }}>
                   {error}
                 </div>
               )}
@@ -780,12 +758,12 @@ export default function PromocionesPage() {
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={saving || (conflicts.length > 0 && !conflictAccepted)}
+                  disabled={saving}
                   style={{
                     flex: 2, padding: "11px", borderRadius: "10px", border: "none",
-                    background: (conflicts.length > 0 && !conflictAccepted) ? "#9ca3af" : "#111",
+                    background: "#111",
                     color: "#fff", fontSize: "14px",
-                    fontWeight: 700, cursor: (conflicts.length > 0 && !conflictAccepted) ? "not-allowed" : "pointer",
+                    fontWeight: 700, cursor: saving ? "not-allowed" : "pointer",
                     fontFamily: "inherit",
                     opacity: saving ? 0.6 : 1,
                   }}

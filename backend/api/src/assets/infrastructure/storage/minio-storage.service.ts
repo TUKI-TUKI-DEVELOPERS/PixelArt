@@ -3,20 +3,27 @@ import { createCipheriv, createDecipheriv, createHmac, randomBytes } from 'crypt
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { FileStoragePort } from '../../domain/ports/file-storage.port';
+import { FileStoragePort, StoredObject } from '../../domain/ports/file-storage.port';
+import { buildStorageObjectUrl } from '../../domain/policies/storage-access.policy';
+import { secretFromEnv } from '../../../common/config/secret-env';
 
 @Injectable()
 export class MinioStorageService extends FileStoragePort {
   private readonly logger = new Logger(MinioStorageService.name);
   private readonly s3: S3Client;
   private readonly bucket: string;
+  private readonly accessKeyId: string;
+  private readonly secretAccessKey: string;
 
   constructor() {
     super();
     const endpoint = process.env.MINIO_ENDPOINT || 'localhost';
     const port = process.env.MINIO_PORT || '9000';
-    const accessKeyId = process.env.MINIO_ACCESS_KEY || 'pixelart_access';
-    const secretAccessKey = process.env.MINIO_SECRET_KEY || 'pixelart_secret_key';
+    // Local defaults only outside production — prod refuses to boot without them.
+    const accessKeyId = secretFromEnv('MINIO_ACCESS_KEY', 'pixelart_access');
+    const secretAccessKey = secretFromEnv('MINIO_SECRET_KEY', 'pixelart_secret_key');
+    this.accessKeyId = accessKeyId;
+    this.secretAccessKey = secretAccessKey;
     this.bucket = process.env.MINIO_BUCKET || 'pixelart-assets';
     const useSSL = (process.env.MINIO_USE_SSL || 'false') === 'true';
 
@@ -102,9 +109,7 @@ export class MinioStorageService extends FileStoragePort {
     }, 0);
     if (entropy < 4.5) throw unavailable();
 
-    const accessKeyId = process.env.MINIO_ACCESS_KEY || 'pixelart_access';
-    const secretAccessKey = process.env.MINIO_SECRET_KEY || 'pixelart_secret_key';
-    if ([accessKeyId, secretAccessKey].some((credential) => decodedKey.equals(Buffer.from(credential, 'utf8')))) {
+    if ([this.accessKeyId, this.secretAccessKey].some((credential) => decodedKey.equals(Buffer.from(credential, 'utf8')))) {
       throw unavailable();
     }
 
@@ -145,10 +150,7 @@ export class MinioStorageService extends FileStoragePort {
     return getSignedUrl(this.s3, command, { expiresIn: expiresInSeconds });
   }
 
-  /**
-   * URL pública directa (solo si el bucket/policy permite lectura pública).
-   * En tu docker-compose ya pusiste: mc anonymous set download
-   */
+  /** Reads the whole object into memory (server-side use only). */
   async download(key: string): Promise<Buffer> {
     const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
     const response = await this.s3.send(command);
@@ -161,21 +163,26 @@ export class MinioStorageService extends FileStoragePort {
     });
   }
 
+  async openObject(key: string): Promise<StoredObject | null> {
+    try {
+      const response = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }));
+      return {
+        body: response.Body as Readable,
+        contentType: response.ContentType ?? null,
+        contentLength: response.ContentLength ?? null,
+      };
+    } catch (err) {
+      const code = (err as { name?: string })?.name;
+      if (code === 'NoSuchKey' || code === 'NotFound') return null;
+      throw err;
+    }
+  }
+
   getPublicUrl(storageKey: string): string {
-    // Relativa al origen de la app — pasa por el rewrite /assets/:path* de
-    // next.config.ts, que proxea server-side hacia MinIO (interno, nunca
-    // expuesto directo en prod). Antes devolvía una URL absoluta a
-    // MINIO_PUBLIC_HOST:PORT (típicamente "localhost") — funcionaba solo
-    // en la máquina de quien tuviera un MinIO local corriendo en ese puerto,
-    // rota para cualquier otro usuario real, y bloqueada por el navegador
-    // como "mixed content" en páginas HTTPS.
-    // Normalizar a NFD (macOS almacena archivos en NFD) y encodear cada segmento
-    // para manejar acentos, espacios y caracteres especiales
-    const encodedKey = storageKey
-      .normalize('NFD')
-      .split('/')
-      .map((segment) => encodeURIComponent(segment))
-      .join('/');
-    return `/assets/${encodedKey}`;
+    // Same-origin, relative URL (never an absolute MinIO host, which broke for
+    // real users and as mixed content on HTTPS). Public prefixes go through the
+    // gated /assets/* path; private ones (vouchers, print assets, renders...)
+    // through the authenticated admin BFF. See storage-access.policy.ts.
+    return buildStorageObjectUrl(storageKey);
   }
 }

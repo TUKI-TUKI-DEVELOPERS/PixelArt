@@ -49,6 +49,7 @@ function createHarness() {
   const publicLinksService = { generate: jest.fn(), validate: jest.fn(), revoke: jest.fn() };
   const repo: Record<string, jest.Mock> = { getProduct: jest.fn(), createDraft: jest.fn(), updateProjectStatus: jest.fn() };
   const ordersService = { create: jest.fn(), ensurePhotobookConfigurationOrder: jest.fn().mockResolvedValue({ id: 99 }), activatePhotobookOrder: jest.fn(), findById: jest.fn() };
+  const quotePhotobookPromo = { quoteTemplate: jest.fn(), quoteCustom: jest.fn() };
   const service = new PhotobookService(
     repo as any,
     fileStorage as any,
@@ -59,9 +60,10 @@ function createHarness() {
     publicLinksService as any,
     emailService as any,
     dataSource as any,
+    quotePhotobookPromo as any,
   );
 
-  return { service, manager, dataSource, fileStorage, assetRepo, assetsService, imageGeneration, ordersService, publicLinksService, emailService, repo };
+  return { service, manager, dataSource, fileStorage, assetRepo, assetsService, imageGeneration, ordersService, publicLinksService, emailService, repo, quotePhotobookPromo };
 }
 
 describe('PhotobookService.createCustomRequest', () => {
@@ -847,6 +849,44 @@ describe('PhotobookService.createCustomRequest', () => {
         expect(manual.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'PAYMENT_PROOF_RECEIVED_ADMIN', payload: expect.not.objectContaining({ totalAmountCents: expect.any(Number) }) }));
   });
 
+  describe('payment link reuse', () => {
+    function confirmedProjectHarness() {
+      const h = createHarness();
+      h.repo.findProjectById = jest.fn().mockResolvedValue({ id: 79, status: 'CONVERTED_TO_ORDER', customerFullName: 'Ana Cliente', customerEmail: 'ana@example.com', customerPhone: '+51999111222', calculatedTotalCents: 12900 });
+      h.repo.updateProjectStatus = jest.fn();
+      h.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 55, totalAmountCents: 12900 });
+      return h;
+    }
+
+    it('only reuses a payment link that has not expired yet', async () => {
+      const h = confirmedProjectHarness();
+      h.dataSource.query.mockResolvedValueOnce([{ token: 'live-token', expires_at: new Date('2099-01-01T00:00:00.000Z') }]);
+
+      await expect(h.service.createOrderFromProject(79)).resolves.toMatchObject({ paymentLink: { token: 'live-token' } });
+
+      const [lookupSql, lookupParams] = h.dataSource.query.mock.calls[0];
+      expect(lookupSql).toMatch(/link_type = 'PAYMENT_UPLOAD'/);
+      expect(lookupSql).toMatch(/revoked_at IS NULL/);
+      expect(lookupSql).toMatch(/expires_at > now\(\)/i);
+      expect(lookupParams).toEqual([55]);
+      expect(h.publicLinksService.generate).not.toHaveBeenCalled();
+      expect(h.emailService.queue).not.toHaveBeenCalled();
+    });
+
+    it('issues and emails a fresh link when the only previous link has expired', async () => {
+      const h = confirmedProjectHarness();
+      // The lookup filters out expired links, so the database returns nothing.
+      h.dataSource.query.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+      h.publicLinksService.generate.mockResolvedValue({ token: 'fresh-token', expiresAt: new Date('2099-01-08T00:00:00.000Z') });
+
+      await expect(h.service.createOrderFromProject(79)).resolves.toMatchObject({
+        paymentLink: { token: 'fresh-token', url: 'http://localhost:3000/pagar/fresh-token' },
+      });
+      expect(h.publicLinksService.generate).toHaveBeenCalledWith({ linkType: 'PAYMENT_UPLOAD', orderId: 55 });
+      expect(h.emailService.queue).toHaveBeenCalledWith(expect.objectContaining({ payload: expect.objectContaining({ paymentUrl: 'http://localhost:3000/pagar/fresh-token' }) }));
+    });
+  });
+
 });
 
 describe('PhotobookService.createProject dimensions', () => {
@@ -1264,5 +1304,106 @@ describe('PhotobookService.downloadCustomReferenceAsset', () => {
       mimeType: 'image/jpeg',
     });
     expect(h.fileStorage.download).toHaveBeenCalledWith('uploads/photobooks/customer-cover.jpg');
+  });
+});
+
+describe('PhotobookService promotion codes', () => {
+  const promotion = { promotionId: 7, code: 'Foto10', percent: 10, discountCents: 1240 };
+  const quote = { code: 'Foto10', percent: 10, discountCents: 1240, totalCents: 13660, promotion };
+
+  function mockOrderCreation(h: ReturnType<typeof createHarness>, projectId: number) {
+    h.repo.findProjectById = jest.fn().mockResolvedValue({
+      id: projectId, status: 'CONFIRMED', customerFullName: 'Ana', customerEmail: 'ana@example.com', customerPhone: '999', calculatedTotalCents: 14900,
+    });
+    h.ordersService.activatePhotobookOrder.mockResolvedValue({ id: 55, totalAmountCents: 13660 });
+    h.dataSource.query.mockResolvedValue([]);
+    h.publicLinksService.generate.mockResolvedValue({ token: 'payment-token', expiresAt: new Date('2026-12-01T00:00:00.000Z') });
+  }
+
+  it('createProject re-validates the code server-side and snapshots it on the order', async () => {
+    const h = createHarness();
+    h.repo.getProduct.mockResolvedValue({ id: 1, minPages: 1, pricePerPageCents: 0, allowsCustomDimensions: false });
+    h.repo.createProject = jest.fn().mockResolvedValue({ id: 9 });
+    h.quotePhotobookPromo.quoteTemplate.mockResolvedValue(quote);
+    mockOrderCreation(h, 9);
+    const pages = Array.from({ length: 32 }, (_, i) => ({ pageNumber: i + 1, layoutKey: 'FULL_1', slots: [] }));
+
+    const result = await h.service.createProject({
+      photobookProductId: 1, photobookThemeId: 3, coverType: 'TAPA_GRUESA', wantsRush: true, pages, assetIds: [],
+      customerEmail: 'ana@example.com', customerFullName: 'Ana', customerPhone: '999', deliveryAddress: 'Av. 1',
+    } as any, undefined, 'Foto10');
+
+    expect(h.quotePhotobookPromo.quoteTemplate).toHaveBeenCalledWith({ code: 'Foto10', themeId: 3, coverType: 'TAPA_GRUESA', pageCount: 32, wantsRush: true });
+    expect(h.ordersService.activatePhotobookOrder).toHaveBeenCalledWith(expect.objectContaining({ photobookProjectId: 9, baseAmountCents: 14900, promotion }));
+    expect(result.order?.totalAmountCents).toBe(13660);
+  });
+
+  it('createProject saves nothing when the code is rejected', async () => {
+    const h = createHarness();
+    h.repo.getProduct.mockResolvedValue({ id: 1, minPages: 1, pricePerPageCents: 0, allowsCustomDimensions: false });
+    h.repo.createProject = jest.fn();
+    h.quotePhotobookPromo.quoteTemplate.mockRejectedValue(new BadRequestException('Este código ha vencido'));
+
+    await expect(h.service.createProject({
+      photobookProductId: 1, photobookThemeId: 3, coverType: 'TAPA_GRUESA', pages: [{ pageNumber: 1, layoutKey: 'FULL_1', slots: [] }], assetIds: [],
+    } as any, undefined, 'Viejo5')).rejects.toThrow('Este código ha vencido');
+    expect(h.repo.createProject).not.toHaveBeenCalled();
+  });
+
+  it('createProject without a code never evaluates promotions', async () => {
+    const h = createHarness();
+    h.repo.getProduct.mockResolvedValue({ id: 1, minPages: 1, pricePerPageCents: 0, allowsCustomDimensions: false });
+    h.repo.createProject = jest.fn().mockResolvedValue({ id: 9 });
+    mockOrderCreation(h, 9);
+
+    await h.service.createProject({ photobookProductId: 1, photobookThemeId: 3, coverType: 'TAPA_GRUESA', pages: [{ pageNumber: 1, layoutKey: 'FULL_1', slots: [] }], assetIds: [] } as any, undefined, '  ');
+
+    expect(h.quotePhotobookPromo.quoteTemplate).not.toHaveBeenCalled();
+    expect(h.ordersService.activatePhotobookOrder).toHaveBeenCalledWith(expect.objectContaining({ promotion: null }));
+  });
+
+  it('finalizeCustomEditor quotes the custom photobook (surcharge excluded) and snapshots the code', async () => {
+    const h = createHarness();
+    const pages = Array.from({ length: 30 }, (_, index) => ({ pageNumber: index + 1, layoutKey: 'FULL_1', slots: [{ id: 501 }] }));
+    h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);
+    h.manager.query.mockImplementation((query: string) => {
+      if (query.includes('SELECT id, status, linked_photobook_project_id')) {
+        return Promise.resolve([{ id: '41', status: 'EDITOR_IN_PROGRESS', linked_photobook_project_id: '77' }]);
+      }
+      if (query.includes('INSERT INTO photobook_pages')) return Promise.resolve([{ id: '901' }]);
+      return Promise.resolve([]);
+    });
+    h.quotePhotobookPromo.quoteCustom.mockResolvedValue(quote);
+    mockOrderCreation(h, 77);
+
+    await h.service.finalizeCustomEditor('opaque-session', {
+      formatConfigured: true, coverType: 'TAPA_DELGADA', pages, wantsRush: true, customCoverSurchargeCents: 3550,
+      form: { name: 'Ana', email: 'ana@example.com', phone: '999', deliveryAddress: 'Av. 1', deliveryDistrict: 'Y', deliveryCity: 'A', deliveryRegion: 'A', deliveryDepartment: 'A' },
+    }, 'Medida10');
+
+    expect(h.quotePhotobookPromo.quoteCustom).toHaveBeenCalledWith({
+      code: 'Medida10', coverType: 'TAPA_DELGADA', pageCount: 30, wantsRush: true, customCoverSurchargeCents: 3550,
+    });
+    expect(h.ordersService.activatePhotobookOrder).toHaveBeenCalledWith(expect.objectContaining({ photobookProjectId: 77, promotion }));
+  });
+
+  it('previewCustomEditorPromo requires an active editor session', async () => {
+    const h = createHarness();
+    h.dataSource.query.mockResolvedValueOnce([]);
+
+    await expect(h.service.previewCustomEditorPromo('expired', {
+      code: 'Medida10', coverType: 'TAPA_DELGADA', pageCount: 30, wantsRush: false, customCoverSurchargeCents: 0,
+    })).rejects.toBeInstanceOf(NotFoundException);
+    expect(h.quotePhotobookPromo.quoteCustom).not.toHaveBeenCalled();
+  });
+
+  it('previewCustomEditorPromo returns the quote without the order snapshot', async () => {
+    const h = createHarness();
+    h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);
+    h.quotePhotobookPromo.quoteCustom.mockResolvedValue(quote);
+
+    await expect(h.service.previewCustomEditorPromo('opaque-session', {
+      code: 'Medida10', coverType: 'TAPA_DELGADA', pageCount: 30, wantsRush: false, customCoverSurchargeCents: 0,
+    })).resolves.toEqual({ code: 'Foto10', percent: 10, discountCents: 1240, totalCents: 13660 });
   });
 });

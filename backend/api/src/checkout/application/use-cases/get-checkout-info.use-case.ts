@@ -117,6 +117,9 @@ export class GetCheckoutInfoUseCase {
       baseAmountCents: order.baseAmountCents,
       rushFeeCents: order.rushFeeCents,
       extraTemplatesAmountCents: order.extraTemplatesAmountCents,
+      appliedPromotion: order.promotionCode
+        ? { code: order.promotionCode, percent: order.promotionPercent, discountCents: order.discountAmountCents }
+        : null,
       currency: order.currency,
       expiresAt: link.expiresAt,
       proposals: proposalRows.map((p) => ({

@@ -7,9 +7,9 @@ import Link from "next/link";
 import { HeartHandshake, Users, Home as HomeIcon, PawPrint, Feather, type LucideIcon } from "lucide-react";
 import MaternalSkyBackground from "@/components/backgrounds/MaternalSkyBackground";
 import WizardSection from "./WizardSection";
-import BookCard from "@/components/Home/BookCard";
-import type { BookCategory } from "@/components/Home/NuestrosLibrosSection";
+import ProductGrid from "@/components/catalog/ProductGrid";
 import { getAssetUrl } from "@/lib/assetUrl";
+import { buildCategoryBooks } from "@/lib/categoryBooks";
 import { useWindowSize } from "@/hooks/useWindowSize";
 
 /* ── "De quién a quién" — ícono por tipo de relación (lucide-react, mismo
@@ -35,38 +35,6 @@ const ADULT_BASE_SLUGS: Record<string, string> = {
   "mi-angel-guardian-padre-adulto": "mi-angel-guardian",
   "mi-angel-guardian-madre-adulto": "mi-angel-guardian",
   "siempre-seras-parte-de-mi-adulto": "siempre-seras-parte-de-mi",
-};
-
-/* ── Miniaturas por slug ── */
-const SLUG_THUMBNAIL: Record<string, string> = {
-  "10-razones-por-las-que-te-amo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_10RazonesPorLasQueTeAmo_Miniatura.png",
-  "mi-amor": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_Miamor_Miniatura.png",
-  "1025-dias-enamorandome-de-ti": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Amor_xDiasEnamorandomeDeTi_Miniatura.png",
-  "nuestro-angel-de-4-patas": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_NuestroAngelde4Patas_Miniatura.png",
-  "aventura-entre-patas": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Miniatura.png",
-  "aventura-entre-patas-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_AventuraEntrePatas_Adulto_Miniatura.webp",
-  "mi-amigo-miauravilloso": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_MiAmigoMiauravilloso_Miniatura.png",
-  "mi-mejor-amigo-del-mundo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Mascotas_ElMejorAmigoDelMundo_Miniatura.png",
-  "papa-mi-heroe": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Miniatura.png",
-  "papa-mi-heroe-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_PapaMiHeroe_Adulto_Miniatura.png",
-  "mama-mi-heroina": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Miniatura.png",
-  "te-amo-abuelo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Miniatura.png",
-  "te-amo-abuela": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Miniatura.png",
-  "el-mejor-equipo": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Miniatura.png",
-  "la-familia": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Miniatura.png",
-  "mi-angel-guardian": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardian_Miniatura.png",
-  "siempre-en-mi-corazon": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazon_Miniatura.png",
-  "siempre-seras-parte-de-mi": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMiCorazon_Miniatura.png",
-  "mama-mi-heroina-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MamamiHeroina_Adulto_Miniatura.webp",
-  "te-amo-abuelo-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuelo_Adulto_Miniatura.webp",
-  "te-amo-abuela-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_TeAmoAbuela_Adulto_Miniatura.webp",
-  "el-mejor-equipo-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_ElMejorEquipo_Adulto_Miniatura.webp",
-  "la-familia-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_Familia_MiFamilia_Adulto_Miniatura.webp",
-  "siempre-en-mi-corazon-abuelo-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuelo_Adulto_Miniatura.webp",
-  "siempre-en-mi-corazon-abuela-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreEnMiCorazonAbuela_Adulto_Miniatura.webp",
-  "mi-angel-guardian-padre-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianPadre_Adulto_Miniatura.webp",
-  "mi-angel-guardian-madre-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_MiAngelGuardianMadre_Adulto_Miniatura.webp",
-  "siempre-seras-parte-de-mi-adulto": "IA_Books/IaBooks_Miniaturas/IaBooks_Libros_MemoriaFamiliar_SiempreSerasParteDeMi_Adulto_Miniatura.webp",
 };
 
 /* ── Datos de libros ── */
@@ -527,44 +495,6 @@ const FOTOS_RECOMENDADAS: Record<string, string[]> = {
 };
 
 /* ── Libros relacionados por categoría ── */
-const CATEGORIA_TO_BOOK_CATEGORY: Record<string, BookCategory> = {
-  "libros-de-amor":                "love",
-  "libros-de-mascotas":            "pets",
-  "libros-de-familia":             "family",
-  "libros-de-memorias-familiares": "memories",
-};
-
-type RelatedBook = { name: string; slug: string; reviews: number; tagline: string };
-
-const RELATED_BOOKS: Record<string, RelatedBook[]> = {
-  "libros-de-amor": [
-    { name: "10 Razones Por Las Que Te Amo", slug: "10-razones-por-las-que-te-amo", reviews: 200, tagline: "PORQUE EN LO SIMPLE VIVIMOS LO MAS GRANDE" },
-    { name: "Mi Amor", slug: "mi-amor", reviews: 150, tagline: "ERES MI INSPIRACIÓN INFINITA" },
-    { name: "1025 Días Enamorándome De Ti", slug: "1025-dias-enamorandome-de-ti", reviews: 180, tagline: "EL MEJOR CONTEO ES EL DE NOSOTROS" },
-  ],
-  "libros-de-mascotas": [
-    { name: "Nuestro Ángel de 4 Patas", slug: "nuestro-angel-de-4-patas", reviews: 188, tagline: "SU HUELLA QUEDÓ PARA SIEMPRE EN TU CORAZÓN" },
-    { name: "Aventura Entre Patas", slug: "aventura-entre-patas", reviews: 150, tagline: "CELEBRA TUS AVENTURAS JUNTO A TU PELUDO AMIGO" },
-    { name: "Aventura Entre Patas Adulto", slug: "aventura-entre-patas-adulto", reviews: 0, tagline: "PARA EL COMPAÑERO QUE CAMINA TU VIDA" },
-    { name: "Mi Amigo Miauravilloso", slug: "mi-amigo-miauravilloso", reviews: 188, tagline: "PARA TU GUARDIAN MISTICO" },
-    { name: "Mi Mejor Amigo del Mundo", slug: "mi-mejor-amigo-del-mundo", reviews: 90, tagline: "ERES MI COMPAÑERO FIEL" },
-  ],
-  "libros-de-familia": [
-    { name: "Papá, Mi Héroe", slug: "papa-mi-heroe", reviews: 185, tagline: "PARA EL HOMBRE QUE ME ENSEÑO A SER VALIENTE" },
-    { name: "Papá, Mi Héroe Adulto", slug: "papa-mi-heroe-adulto", reviews: 0, tagline: "PARA EL PAPÁ QUE SOSTUVO MI CAMINO" },
-    { name: "Mamá, Mi Heroína", slug: "mama-mi-heroina", reviews: 182, tagline: "EL REGALO QUE TU MAMÁ GUARDARÁ PARA SIEMPRE" },
-    { name: "Te Amo, Abuelo", slug: "te-amo-abuelo", reviews: 185, tagline: "ÉL TE CONTO HISTORIAS, AHORA TU DALE UN TESORO" },
-    { name: "Te Amo, Abuela", slug: "te-amo-abuela", reviews: 90, tagline: "PORQUE EL AMOR DE UNA ABUELA NUNCA SE OLVIDA" },
-    { name: "La Familia", slug: "la-familia", reviews: 170, tagline: "PORQUE ESTANDO JUNTOS TODO ES MEJOR" },
-    { name: "El Mejor Equipo", slug: "el-mejor-equipo", reviews: 180, tagline: "PORQUE SER HERMANOS SE MERECE UN LIBRO PROPIO" },
-  ],
-  "libros-de-memorias-familiares": [
-    { name: "Mi Ángel Guardián", slug: "mi-angel-guardian", reviews: 0, tagline: "PORQUE TU LUZ SIGUE BRILLANDO EN MÍ" },
-    { name: "Siempre en mi Corazón", slug: "siempre-en-mi-corazon", reviews: 0, tagline: "PORQUE TU RECUERDO VIVE EN CADA LATIDO" },
-    { name: "Siempre Serás Parte de Mi Corazón", slug: "siempre-seras-parte-de-mi", reviews: 0, tagline: "PORQUE NUESTRO VÍNCULO ES ETERNO" },
-  ],
-};
-
 const RELATED_SECTION_TITLE: Record<string, string> = {
   "libros-de-amor":                "OTROS LIBROS QUE TE VAN A ENAMORAR",
   "libros-de-mascotas":            "MÁS LIBROS PARA TU PELUDO",
@@ -682,6 +612,21 @@ type Props = {
   templates?: TemplateProp[];
 };
 
+/* Recuadros del hero: fondo oscuro translúcido y texto claro en todos los
+   libros, sea cual sea la imagen de fondo. Antes eran un vidrio al 18 % con
+   colores de texto fijados libro por libro, y en fondos oscuros o con luces
+   el texto se perdía. */
+const HERO_CARD_SURFACE = {
+  background: "rgba(17, 15, 14, 0.74)",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  boxShadow: "0 16px 48px rgba(0, 0, 0, 0.3)",
+} as const;
+const HERO_TEXT = "#fff";
+const HERO_TEXT_SOFT = "rgba(255, 255, 255, 0.88)";
+const HERO_TEXT_MUTED = "rgba(255, 255, 255, 0.65)";
+
 export default function LibroDetalleClient({
   categoriaSlug,
   libroSlug,
@@ -706,8 +651,10 @@ export default function LibroDetalleClient({
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
 
   const isMamaHeroina = assetSlug === "mama-mi-heroina";
-  const hasBg = !!backgroundUrl;
   const hasRealImages = carouselImageUrls.length > 0;
+  const relatedBooks = buildCategoryBooks(categoriaSlug).filter(
+    (book) => book.slug !== libroSlug && !book.versions?.some((version) => version.slug === libroSlug),
+  );
 
   const CATEGORIA_LABEL: Record<string, string> = {
     "libros-de-amor": "AMOR",
@@ -944,18 +891,9 @@ export default function LibroDetalleClient({
               style={{
                 width: "100%",
                 maxWidth: "680px",
-                ...(hasBg ? {
-                  background: "rgba(255, 255, 255, 0.18)",
-                  backdropFilter: "blur(28px)",
-                  WebkitBackdropFilter: "blur(28px)",
-                  borderRadius: "20px",
-                  boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
-                  padding: isMobile ? "28px 24px" : "36px 40px",
-                } : {
-                  background: "rgba(255,255,255,0.7)",
-                  borderRadius: "20px",
-                  padding: isMobile ? "28px 24px" : "36px 40px",
-                }),
+                ...HERO_CARD_SURFACE,
+                borderRadius: "20px",
+                padding: isMobile ? "28px 24px" : "36px 40px",
               }}
             >
               {(() => {
@@ -988,11 +926,10 @@ export default function LibroDetalleClient({
                   fontFamily: tokens.fonts.display,
                   fontSize: isSmallMobile ? "26px" : isMobile ? "30px" : "38px",
                   fontWeight: 700,
-                  color: (["mi-amor", "aventura-entre-patas", "mi-amigo-miauravilloso"].includes(assetSlug)) ? "#fff" : "#111",
+                  color: HERO_TEXT,
                   lineHeight: 1.15,
                   letterSpacing: "-0.01em",
                   textAlign: "center",
-                  textShadow: "0 4px 12px rgba(0,0,0,0.18)",
                 }}
               >
                 {info.nombre}
@@ -1001,7 +938,9 @@ export default function LibroDetalleClient({
                 style={{
                   fontSize: "16px",
                   fontWeight: 700,
-                  color: ["1025-dias-enamorandome-de-ti", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(assetSlug) ? "#fff" : info.accent,
+                  /* El color del libro aclarado: con 45 % se mantiene por encima de
+                     4.5:1 (WCAG AA) incluso donde el recuadro queda sobre blanco. */
+                  color: `color-mix(in srgb, ${info.accent} 45%, white)`,
                   marginBottom: "20px",
                   textAlign: "center",
                 }}
@@ -1014,11 +953,7 @@ export default function LibroDetalleClient({
                   margin: "0 0 16px 0",
                   fontSize: "18px",
                   fontWeight: 600,
-                  color: libroSlug === "1025-dias-enamorandome-de-ti"
-                    ? info.accent
-                    : ["mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(assetSlug)
-                    ? "#fff"
-                    : "#111",
+                  color: HERO_TEXT,
                 }}
               >
                 {info.descripcionCorta}
@@ -1040,7 +975,7 @@ export default function LibroDetalleClient({
                     style={{
                       fontSize: "16px",
                       lineHeight: 1.6,
-                      color: ["mi-mejor-amigo-del-mundo", "mi-angel-guardian", "siempre-seras-parte-de-mi"].includes(assetSlug) ? "#fff" : "#444",
+                      color: HERO_TEXT_SOFT,
                       paddingLeft: "28px",
                       position: "relative",
                     }}
@@ -1089,36 +1024,27 @@ export default function LibroDetalleClient({
               style={{
                 width: "100%",
                 maxWidth: "680px",
-                ...(hasBg ? {
-                  background: "rgba(255, 255, 255, 0.18)",
-                  backdropFilter: "blur(28px)",
-                  WebkitBackdropFilter: "blur(28px)",
-                  borderRadius: "16px",
-                  boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
-                  padding: "24px 28px",
-                } : {
-                  background: "rgba(248, 245, 240, 0.8)",
-                  borderRadius: "16px",
-                  padding: "24px 28px",
-                }),
+                ...HERO_CARD_SURFACE,
+                borderRadius: "16px",
+                padding: "24px 28px",
               }}
             >
-              <div style={{ fontSize: "12px", fontWeight: 600, color: "#4a4a4a", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px", textAlign: "center" }}>
+              <div style={{ fontSize: "12px", fontWeight: 600, color: HERO_TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "16px", textAlign: "center" }}>
                 Características del Libro
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 32px" }}>
                 {info.caracteristicas.map((item) => (
-                  <div key={item.label} style={{ fontSize: "14px", fontWeight: 500, color: "#555", lineHeight: 1.5 }}>
+                  <div key={item.label} style={{ fontSize: "14px", fontWeight: 500, color: HERO_TEXT_SOFT, lineHeight: 1.5 }}>
                     {item.label}: {item.value}
                   </div>
                 ))}
               </div>
-              <div style={{ height: "1px", background: "rgba(0,0,0,0.08)", margin: "16px 0 12px" }} />
+              <div style={{ height: "1px", background: "rgba(255, 255, 255, 0.14)", margin: "16px 0 12px" }} />
               <div>
-                <div style={{ fontSize: "14px", fontWeight: 600, color: "#444", letterSpacing: "0.3px" }}>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: HERO_TEXT, letterSpacing: "0.3px" }}>
                   Desde {info.precio.desde}
                 </div>
-                <div style={{ fontSize: "12px", color: "#888", marginTop: "4px" }}>
+                <div style={{ fontSize: "12px", color: HERO_TEXT_MUTED, marginTop: "4px" }}>
                   El precio varía según la cantidad de plantillas elegidas (10 a 15)
                 </div>
               </div>
@@ -1200,8 +1126,9 @@ export default function LibroDetalleClient({
       <section style={{ background: "#f8f9fa", padding: isMobile ? "48px 20px 64px" : "72px 48px 96px" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
 
-          {/* Header editorial */}
-          <div style={{ textAlign: "center", marginBottom: isMobile ? "40px" : "56px" }}>
+          {/* Header editorial (sin margen inferior: ProductGrid ya deja 90px
+              para la portada que sobresale de cada tarjeta) */}
+          <div style={{ textAlign: "center" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
               <span style={{ width: "28px", height: "2px", background: info.accent }} />
               <span style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: info.accent, lineHeight: 1.1 }}>
@@ -1240,30 +1167,9 @@ export default function LibroDetalleClient({
             </p>
           </div>
 
-          {/* Grid de BookCards */}
-          <div style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: isMobile ? "48px 0" : "48px 24px",
-            alignItems: "start",
-          }}>
-            {(RELATED_BOOKS[categoriaSlug] ?? [])
-              .filter((b) => b.slug !== libroSlug)
-              .map((book) => (
-                <div key={book.slug} style={{ flex: isMobile ? "1 1 100%" : "0 0 calc(33.333% - 16px)" }}>
-                <BookCard
-                  title={book.name}
-                  subtitle={book.tagline}
-                  description=""
-                  image={SLUG_THUMBNAIL[book.slug] ? getAssetUrl(SLUG_THUMBNAIL[book.slug]) : (SLUG_THUMBNAIL[ADULT_BASE_SLUGS[book.slug] ?? ""] ? getAssetUrl(SLUG_THUMBNAIL[ADULT_BASE_SLUGS[book.slug] ?? ""]) : "")}
-                  href={`/libros-personalizados/${categoriaSlug}/${book.slug}`}
-                  category={CATEGORIA_TO_BOOK_CATEGORY[categoriaSlug] ?? "love"}
-                  rating={book.reviews > 0 ? 5 : 4.5}
-                />
-                </div>
-              ))}
-          </div>
+          {/* Las mismas tarjetas de la página de categoría (descripción, precio
+              y versiones), sin el libro que se está viendo. */}
+          <ProductGrid books={relatedBooks} />
         </div>
       </section>
 

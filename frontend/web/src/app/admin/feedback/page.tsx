@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-const API = "";
 
 type FeedbackItem = { id: number; orderId: number; stars: number; ratingX2: number; comment: string | null; redirectedToGoogle: boolean; createdAt: string };
 
@@ -11,7 +10,7 @@ export default function FeedbackAdminPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/api/admin/feedback`).then((r) => r.json()).then(setItems).catch(() => {}).finally(() => setLoading(false));
+    fetch(`/admin-api/feedback`).then((r) => r.json()).then(setItems).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const avgRating = items.length > 0 ? items.reduce((s, f) => s + f.stars, 0) / items.length : 0;

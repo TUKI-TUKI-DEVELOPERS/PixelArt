@@ -3,22 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { tokens } from "@/lib/design-tokens";
+import { promoLandingHref, type PublicPromoCode } from "@/lib/promotions/public-codes";
 
 const API = "";
 
-type ActivePromo = {
-  id: number;
-  label: string;
-  targetType: string;
-  discountType: string;
-  discountValue: number;
-  validUntil: string;
-};
-
-function formatDiscount(promo: ActivePromo): string {
-  return promo.discountType === "percent"
-    ? `${promo.discountValue}% OFF`
-    : `S/ ${(promo.discountValue / 100).toFixed(2)} OFF`;
+function formatDiscount(promo: PublicPromoCode): string {
+  return `${promo.percent}% OFF`;
 }
 
 function formatDeadline(iso: string): string {
@@ -51,7 +41,7 @@ function useCountdown(validUntil: string) {
   return timeLeft;
 }
 
-function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => void }) {
+function PromoContent({ promo, onClose }: { promo: PublicPromoCode; onClose: () => void }) {
   const timeLeft = useCountdown(promo.validUntil);
   const discount = formatDiscount(promo);
 
@@ -196,7 +186,7 @@ function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => v
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
             <span style={{ width: "28px", height: "2px", background: tokens.colors.customBooks.primary }} />
             <span style={{ color: tokens.colors.neutral.text.tertiary, fontSize: "12px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              Promoción
+              Código de promoción
             </span>
           </div>
 
@@ -214,8 +204,11 @@ function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => v
               textWrap: "balance",
             }}
           >
-            {promo.label}
+            {promo.code}
           </h2>
+          <p style={{ margin: "10px 0 0", color: tokens.colors.neutral.text.secondary, fontSize: "14px", lineHeight: 1.5 }}>
+            Ingresa este código al momento de pagar{promo.scope ? ` (válido ${promo.scope})` : ""}.
+          </p>
         </header>
 
         <div className="promo-modal-body" style={{ padding: "0 32px 32px" }}>
@@ -252,7 +245,7 @@ function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => v
 
           <Link
             className="promo-modal-cta"
-            href="/libros-personalizados"
+            href={promoLandingHref(promo)}
             onClick={onClose}
             style={{
               display: "flex",
@@ -271,7 +264,7 @@ function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => v
               boxShadow: "0 4px 8px rgba(17, 17, 17, 0.14)",
             }}
           >
-            Ver la promoción
+            Ver productos
             <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14" />
               <path d="m13 6 6 6-6 6" />
@@ -302,26 +295,36 @@ function PromoContent({ promo, onClose }: { promo: ActivePromo; onClose: () => v
   );
 }
 
+const seenKey = (promo: PublicPromoCode) => `promo_modal_${promo.code}`;
+
+/** Announces the first valid coded promotion once per browser session. */
 export default function PromoModal() {
-  const [promo, setPromo] = useState<ActivePromo | null>(null);
+  const [promo, setPromo] = useState<PublicPromoCode | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/api/promotions/active`)
+    fetch(`${API}/api/promotions/codes`)
       .then((response) => response.ok ? response.json() : [])
-      .then((promos: ActivePromo[]) => {
-        if (!promos.length) return;
-        const best = promos[0];
-        const key = `promo_modal_${best.id}`;
-        if (sessionStorage.getItem(key)) return;
-        setPromo(best);
+      .then((promos: PublicPromoCode[]) => {
+        if (!Array.isArray(promos) || !promos.length) return;
+        const first = promos[0];
+        try {
+          if (sessionStorage.getItem(seenKey(first))) return;
+        } catch {
+          // Storage blocked: still show it once for this page view.
+        }
+        setPromo(first);
         setVisible(true);
       })
       .catch(() => {});
   }, []);
 
   function close() {
-    if (promo) sessionStorage.setItem(`promo_modal_${promo.id}`, "1");
+    try {
+      if (promo) sessionStorage.setItem(seenKey(promo), "1");
+    } catch {
+      // Storage blocked: nothing to remember.
+    }
     setVisible(false);
   }
 

@@ -26,40 +26,15 @@ type BaseBook = {
 
 type BookVersion = BaseBook & {
   label: string;
+  caption?: string;
 };
 
 type Book = BaseBook & {
   versions?: BookVersion[];
 };
 
-type ActivePromo = {
-  targetType: string;
-  targetId: number | null;
-  targetIds: number[];
-  discountType: string;
-  discountValue: number;
-};
-
-function applyBestPromo(priceCents: number, promos: ActivePromo[], catalogBookId?: number): number | undefined {
-  const applicable = promos.filter((p) =>
-    p.targetType === 'all' ||
-    (p.targetType === 'model'  && catalogBookId !== undefined && p.targetId === catalogBookId) ||
-    (p.targetType === 'models' && catalogBookId !== undefined && p.targetIds?.includes(catalogBookId))
-  );
-  if (!applicable.length) return undefined;
-  let best = priceCents;
-  for (const p of applicable) {
-    const result = p.discountType === 'percent'
-      ? Math.round(priceCents * (1 - p.discountValue / 100))
-      : Math.max(0, priceCents - p.discountValue);
-    if (result < best) best = result;
-  }
-  return best < priceCents ? best : undefined;
-}
-
 type Props = {
   books: Book[];
-  promos?: ActivePromo[];
 };
 
 const BADGE_TO_CATEGORY: Record<string, BookCategory> = {
@@ -73,7 +48,7 @@ function formatPrice(cents: number): string {
   return `S/ ${(cents / 100).toFixed(2)}`;
 }
 
-export default function ProductGrid({ books, promos = [] }: Props) {
+export default function ProductGrid({ books }: Props) {
   const { isMobile, isTablet } = useWindowSize();
 
   if (books.length === 0) {
@@ -120,12 +95,12 @@ export default function ProductGrid({ books, promos = [] }: Props) {
           return {
             priceCents,
             price: priceCents !== undefined ? formatPrice(priceCents) : undefined,
-            promoPrice: priceCents !== undefined ? applyBestPromo(priceCents, promos, Number(item.id)) : undefined,
           };
         };
-        const { priceCents, price, promoPrice } = getPricing(book);
+        const { priceCents, price } = getPricing(book);
         const versions = book.versions?.map((version) => ({
           label: version.label,
+          caption: version.caption,
           subtitle: version.tagline ?? "",
           description: version.description ?? "",
           image: version.coverImageUrl ?? "",
@@ -154,7 +129,6 @@ export default function ProductGrid({ books, promos = [] }: Props) {
               category={category}
               price={price}
               priceCents={priceCents}
-              promoPrice={promoPrice}
               versions={versions}
             />
           </motion.div>

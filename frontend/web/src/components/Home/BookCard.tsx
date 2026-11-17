@@ -21,13 +21,14 @@ const CARD_SHADOW_HOVER = '0 24px 64px rgba(0, 0, 0, 0.16)';
 
 type BookCardVersion = {
   label: string;
+  /** Short line under the version pill that clarifies a terse label (e.g. "Edición adultos · para papá"). */
+  caption?: string;
   subtitle?: string;
   description?: string;
   image?: string;
   href?: string;
   price?: string;
   priceCents?: number;
-  promoPrice?: number;
 };
 
 type BookCardProps = {
@@ -40,7 +41,6 @@ type BookCardProps = {
   category?: BookCategory;
   price?: string;
   priceCents?: number;
-  promoPrice?: number;
   pages?: number;
   rating?: number;
   versions?: BookCardVersion[];
@@ -83,7 +83,7 @@ function formatCents(cents: number) {
 
 export default function BookCard({
   title, subtitle, description, image,
-  href = '#', category, price, priceCents, promoPrice, rating = 5, versions,
+  href = '#', category, price, priceCents, rating = 5, versions,
 }: BookCardProps) {
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
@@ -97,7 +97,6 @@ export default function BookCard({
   const displayImageLoaded = displayImage ? !!loadedImages[displayImage] : false;
   const displayPrice = activeVersion?.price ?? price;
   const displayPriceCents = activeVersion?.priceCents ?? priceCents;
-  const displayPromoPrice = activeVersion?.promoPrice ?? promoPrice;
   const imageBoxWidth = 310;
   const imageBoxHeight = 210;
   const articlePaddingTop = '112px';
@@ -358,6 +357,22 @@ export default function BookCard({
               </div>
             )}
 
+            {hasVersions && versions?.some((version) => version.caption) && (
+              <p
+                aria-live="polite"
+                style={{
+                  margin:     '-2px 0 2px',
+                  minHeight:  '16px',
+                  fontSize:   '12px',
+                  lineHeight: 1.35,
+                  fontWeight: 600,
+                  color:      tokens.colors.neutral.text.secondary,
+                }}
+              >
+                {activeVersion?.caption ?? ''}
+              </p>
+            )}
+
             <h3 style={{
               margin:     0,
               fontSize:   tokens.typography.body.size,
@@ -396,20 +411,13 @@ export default function BookCard({
 
             {(displayPrice || displayPriceCents !== undefined) && (
               <div style={{ margin: '4px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-                {displayPromoPrice !== undefined && displayPriceCents !== undefined && (
-                  <span style={{ fontSize: '13px', color: '#9ca3af', textDecoration: 'line-through' }}>
-                    Desde {formatCents(displayPriceCents)}
-                  </span>
-                )}
                 <p style={{
                   margin:     0,
                   fontSize:   tokens.typography.body.size,
                   fontWeight: 800,
-                  color:      displayPromoPrice !== undefined ? '#e74c6f' : tokens.colors.neutral.text.primary,
+                  color:      tokens.colors.neutral.text.primary,
                 }}>
-                  Desde {displayPromoPrice !== undefined && displayPriceCents !== undefined
-                    ? formatCents(displayPromoPrice)
-                    : displayPrice}
+                  Desde {displayPrice ?? (displayPriceCents !== undefined ? formatCents(displayPriceCents) : '')}
                 </p>
               </div>
             )}

@@ -18,13 +18,20 @@ export class TypeOrmUserRepository implements UserRepositoryPort {
       .where('LOWER(u.email) = LOWER(:email)', { email })
       .getOne();
 
-    if (!row) return null;
+    return row ? this.toDomain(row) : null;
+  }
 
+  async findById(id: number): Promise<User | null> {
+    const row = await this.repo.findOne({ where: { id: String(id) } });
+    return row ? this.toDomain(row) : null;
+  }
+
+  private toDomain(row: UserOrmEntity): User {
     return new User(
       Number(row.id),
       row.email,
       row.passwordHash,
-      row.role as any,
+      row.role,
       row.isActive,
     );
   }

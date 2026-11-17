@@ -397,6 +397,13 @@ CREATE TABLE orders (
   base_amount_cents BIGINT NOT NULL DEFAULT 0 CHECK (base_amount_cents >= 0),
   rush_fee_cents BIGINT NOT NULL DEFAULT 0 CHECK (rush_fee_cents >= 0),
   extra_templates_amount_cents BIGINT NOT NULL DEFAULT 0 CHECK (extra_templates_amount_cents >= 0),
+  -- Promotion code applied at checkout. Snapshot: never recomputed after it is
+  -- stored, even if the promotion expires, changes or is deleted later.
+  -- promotion_id FK (ON DELETE SET NULL) is added after the promotions table.
+  discount_amount_cents BIGINT NOT NULL DEFAULT 0 CHECK (discount_amount_cents >= 0),
+  promotion_id BIGINT,
+  promotion_code TEXT,
+  promotion_percent INT CHECK (promotion_percent BETWEEN 1 AND 100),
   total_amount_cents BIGINT NOT NULL CHECK (total_amount_cents >= 0),
 
   currency TEXT NOT NULL DEFAULT 'PEN',
@@ -417,7 +424,14 @@ CREATE TABLE orders (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-  CONSTRAINT chk_total_amount CHECK (total_amount_cents = base_amount_cents + rush_fee_cents + extra_templates_amount_cents),
+  CONSTRAINT chk_total_amount CHECK (total_amount_cents = base_amount_cents + rush_fee_cents + extra_templates_amount_cents - discount_amount_cents),
+
+  -- Either no promotion at all, or a complete code + percent snapshot
+  -- (promotion_id may be NULL if the promotion was deleted afterwards).
+  CONSTRAINT chk_order_promotion_snapshot CHECK (
+    (promotion_code IS NULL AND promotion_percent IS NULL AND promotion_id IS NULL AND discount_amount_cents = 0)
+    OR (promotion_code IS NOT NULL AND promotion_percent IS NOT NULL)
+  ),
 
   -- Si es CUSTOM_BOOK debe existir demo_request_id y personalized_model_id
   CONSTRAINT chk_custom_book_requires_demo
@@ -1051,7 +1065,11 @@ CREATE TABLE IF NOT EXISTS rush_fee_rules (
 CREATE TABLE IF NOT EXISTS promotions (
   id             BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   label          TEXT NOT NULL,
-  target_type    TEXT NOT NULL CHECK (target_type IN ('model', 'models', 'category', 'all')),
+  -- Exact, case-sensitive code typed by the customer. NULL = legacy automatic
+  -- display promotion (targeted through target_type/target_id/promotion_targets).
+  code           TEXT,
+  -- Legacy targeting; NULL for coded promotions (promotion_eligibility_targets).
+  target_type    TEXT CHECK (target_type IN ('model', 'models', 'category', 'all')),
   target_id      BIGINT,
   discount_type  TEXT NOT NULL CHECK (discount_type IN ('percent', 'fixed_cents')),
   discount_value BIGINT NOT NULL CHECK (discount_value > 0),
@@ -1063,11 +1081,20 @@ CREATE TABLE IF NOT EXISTS promotions (
   CONSTRAINT chk_promotions_valid_range   CHECK (valid_until > valid_from),
   CONSTRAINT chk_promotions_percent_range CHECK (
     discount_type != 'percent' OR (discount_value > 0 AND discount_value <= 100)
-  )
+  ),
+  CONSTRAINT chk_promotions_code_format CHECK (
+    code IS NULL OR (code = btrim(code) AND length(code) BETWEEN 1 AND 40 AND code !~ '\s')
+  ),
+  CONSTRAINT chk_promotions_code_is_percent CHECK (code IS NULL OR discount_type = 'percent'),
+  CONSTRAINT chk_promotions_code_or_target CHECK (code IS NOT NULL OR target_type IS NOT NULL)
 );
 
 CREATE INDEX IF NOT EXISTS promotions_active_idx
   ON promotions (is_active, valid_from, valid_until);
+
+-- Case-sensitive: 'NAVIDAD15' and 'navidad15' are different codes.
+CREATE UNIQUE INDEX IF NOT EXISTS promotions_code_uidx
+  ON promotions (code) WHERE code IS NOT NULL;
 
 -- Junction table para target_type = 'models' (múltiples libros por promoción)
 CREATE TABLE IF NOT EXISTS promotion_targets (
@@ -1075,6 +1102,40 @@ CREATE TABLE IF NOT EXISTS promotion_targets (
   catalog_book_id BIGINT NOT NULL REFERENCES catalog_books(id) ON DELETE CASCADE,
   PRIMARY KEY (promotion_id, catalog_book_id)
 );
+
+-- What a coded promotion applies to. One promotion may hold many targets:
+--   PERSONALIZED_CATEGORY   → personalized_category_id (every book of the category)
+--   PERSONALIZED_BOOK       → personalized_model_id
+--   TEMPLATE_PHOTOBOOKS_ALL → every template photobook (no ref)
+--   PHOTOBOOK_THEME         → photobook_theme_id (template photobooks of one theme)
+--   CUSTOM_PHOTOBOOK        → the custom ("a medida") photobook as one category (no ref)
+CREATE TABLE IF NOT EXISTS promotion_eligibility_targets (
+  id                       BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  promotion_id             BIGINT NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
+  target_kind              TEXT NOT NULL CHECK (target_kind IN (
+                             'PERSONALIZED_CATEGORY', 'PERSONALIZED_BOOK',
+                             'TEMPLATE_PHOTOBOOKS_ALL', 'PHOTOBOOK_THEME', 'CUSTOM_PHOTOBOOK')),
+  personalized_category_id BIGINT REFERENCES personalized_categories(id) ON DELETE CASCADE,
+  personalized_model_id    BIGINT REFERENCES personalized_models(id) ON DELETE CASCADE,
+  photobook_theme_id       BIGINT REFERENCES photobook_themes(id) ON DELETE CASCADE,
+  created_at               TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CONSTRAINT chk_promotion_eligibility_ref CHECK (
+    (target_kind = 'PERSONALIZED_CATEGORY' AND personalized_category_id IS NOT NULL AND personalized_model_id IS NULL AND photobook_theme_id IS NULL)
+    OR (target_kind = 'PERSONALIZED_BOOK' AND personalized_model_id IS NOT NULL AND personalized_category_id IS NULL AND photobook_theme_id IS NULL)
+    OR (target_kind = 'PHOTOBOOK_THEME' AND photobook_theme_id IS NOT NULL AND personalized_category_id IS NULL AND personalized_model_id IS NULL)
+    OR (target_kind IN ('TEMPLATE_PHOTOBOOKS_ALL', 'CUSTOM_PHOTOBOOK') AND personalized_category_id IS NULL AND personalized_model_id IS NULL AND photobook_theme_id IS NULL)
+  )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS promotion_eligibility_targets_uidx
+  ON promotion_eligibility_targets (
+    promotion_id, target_kind,
+    COALESCE(personalized_category_id, personalized_model_id, photobook_theme_id, 0)
+  );
+
+ALTER TABLE orders ADD CONSTRAINT fk_orders_promotion
+  FOREIGN KEY (promotion_id) REFERENCES promotions(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS orders_promotion_id_idx ON orders(promotion_id);
 
 -- =========================================
 -- CUSTOM BOOK PRINT (archivos para imprenta)

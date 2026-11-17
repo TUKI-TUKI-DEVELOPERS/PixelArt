@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
@@ -10,9 +11,29 @@ export function configureBodyParsers(app: { use: (...handlers: any[]) => any }) 
   app.use(urlencoded({ extended: true }));
 }
 
+/**
+ * Client IP for rate limiting and logs (req.ip).
+ *
+ * Production chain: browser -> nginx -> Next (rewrite / BFF) -> Nest.
+ * nginx appends the real client address to X-Forwarded-For; Next's rewrite
+ * proxy (http-proxy without xfwd) and our BFF routes pass that header through
+ * WITHOUT appending their own hop. So exactly one hop is trusted: req.ip is
+ * the RIGHTMOST X-Forwarded-For entry (written by nginx), and any value a
+ * client injects further left is ignored. Requests without the header (Next
+ * server-side rendering calls) fall back to the socket address.
+ *
+ * Assumes nginx sets `X-Forwarded-For $proxy_add_x_forwarded_for` (or
+ * $remote_addr) and that Next/Nest are not reachable without nginx in front;
+ * otherwise the header is client-controlled.
+ */
+export function configureTrustProxy(app: { set: (setting: string, value: unknown) => unknown }) {
+  app.set('trust proxy', 1);
+}
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false });
   configureBodyParsers(app);
+  configureTrustProxy(app);
 
   // C3: Security headers (X-Content-Type-Options, X-Frame-Options, etc.)
   app.use(helmet({
