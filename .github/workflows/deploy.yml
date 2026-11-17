@@ -28,8 +28,10 @@ permissions:
 jobs:
   deploy:
     name: Deploy to production
+    # Manual runs deploy main only: a dispatch from any other branch would
+    # ship code that never went through CI.
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
       (github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
@@ -66,7 +68,9 @@ jobs:
           if ! bash scripts/deploy.sh; then
             echo "::error::Deploy of $SHA failed; rolling back to $PREV"
             git checkout --quiet --detach "$PREV"
-            bash scripts/deploy.sh || true
+            if ! bash scripts/deploy.sh; then
+              echo "::error::Rollback to $PREV failed too; the server needs manual attention"
+            fi
             exit 1
           fi
           REMOTE
