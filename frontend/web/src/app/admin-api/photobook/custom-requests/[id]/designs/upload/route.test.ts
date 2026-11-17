@@ -1,3 +1,7 @@
+// @vitest-environment node
+// Route handlers run on the Node server, not in a browser. Under jsdom on
+// Node 20 (the CI and production runtime) request.formData() trips an
+// internal undici assertion that real requests never hit.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST } from './route';
