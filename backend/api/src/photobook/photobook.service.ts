@@ -1227,8 +1227,8 @@ export class PhotobookService {
 
   async getCustomEditorSession(sessionToken: string) {
     const requestId = await this.resolveCustomEditorSession(sessionToken);
-    const rows: { customer_full_name: string; cover_title: string | null; requested_theme: string; status: string; linked_photobook_project_id: string | null; front_storage_key: string | null; back_storage_key: string | null }[] = await this.dataSource.query(
-      `SELECT r.customer_full_name, r.cover_title, r.requested_theme, r.status, r.linked_photobook_project_id,
+    const rows: { customer_full_name: string; customer_email: string; customer_phone: string; cover_title: string | null; requested_theme: string; status: string; linked_photobook_project_id: string | null; front_storage_key: string | null; back_storage_key: string | null }[] = await this.dataSource.query(
+      `SELECT r.customer_full_name, r.customer_email, r.customer_phone, r.cover_title, r.requested_theme, r.status, r.linked_photobook_project_id,
               front_asset.storage_key AS front_storage_key, back_asset.storage_key AS back_storage_key
        FROM custom_photobook_requests r
        LEFT JOIN assets front_asset ON front_asset.id = r.front_cover_asset_id
@@ -1244,6 +1244,9 @@ export class PhotobookService {
 
     return {
       customerName: request.customer_full_name,
+      // Raw request values; the editor normalizes them before prefilling its order form.
+      customerEmail: request.customer_email,
+      customerPhone: request.customer_phone,
       title: request.cover_title || request.requested_theme,
       status: request.status,
       linkedPhotobookProjectId: Number(request.linked_photobook_project_id),

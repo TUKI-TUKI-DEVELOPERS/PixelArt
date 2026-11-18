@@ -10,6 +10,7 @@ import PhotobookEditorCore from "@/components/photobook/PhotobookEditorCore";
 import PromoCodeField, { type AppliedPromo } from "@/components/promotions/PromoCodeField";
 import { previewCustomPhotobookPromo, previewPhotobookPromo } from "@/lib/api/photobook";
 import { percentDiscountCents } from "@/lib/utils/price";
+import { fillEmptyContactFields, isValidEditorPhone, type ContactPrefill } from "./editorContact";
 
 const API = "";
 const ACCENT = "#804187";
@@ -83,6 +84,8 @@ type Props = {
   isFormatChangeOpen?: boolean;
   formatUpdate?: Record<string, unknown>;
   onChangeFormat?: (draft: Record<string, unknown>) => void;
+  /** Custom editor only: contact data from the customer's request, used to fill blank order-form fields. */
+  customerContact?: ContactPrefill;
 };
 
 const STEPS = [
@@ -107,8 +110,9 @@ function clearDraft(key: string) {
   try { localStorage.removeItem(key); } catch { /* */ }
 }
 
-export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, products, coverUrl, backCoverUrl, customEditor = false, isFormatChangeOpen = false, formatUpdate, onChangeFormat }: Props) {
+export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, products, coverUrl, backCoverUrl, customEditor = false, isFormatChangeOpen = false, formatUpdate, onChangeFormat, customerContact }: Props) {
   const steps = customEditor ? CUSTOM_STEPS : STEPS;
+  const contactPrefill = customEditor ? customerContact : undefined;
   const draftKey = `photobook_draft_${temaSlug}`;
   const router = useRouter();
   const pathname = usePathname();
@@ -143,7 +147,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
   const [customCoverSurchargeInput, setCustomCoverSurchargeInput] = useState("");
   const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [form, setForm] = useState({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "" });
+  const [form, setForm] = useState(() => fillEmptyContactFields({ name: "", email: "", phone: "", deliveryAddress: "", deliveryDistrict: "", deliveryCity: "", deliveryRegion: "", deliveryDepartment: "" }, contactPrefill));
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formatConfigured, setFormatConfigured] = useState(false);
@@ -232,7 +236,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
     if (draft.pages) setPages(draft.pages as PageData[]);
     if (Array.isArray(draft.photos) && draft.photos.length > 0) restorePhotos(draft.photos as UploadedPhoto[]);
     if (draft.step) setStep(draft.step as number);
-    if (draft.form) setForm(draft.form as typeof form);
+    if (draft.form) setForm(fillEmptyContactFields(draft.form as typeof form, contactPrefill));
     if (draft.coverType) setCoverType(draft.coverType as CoverType);
     if (draft.selectedProduct) setSelectedProduct(draft.selectedProduct as number);
     if (draft.wantsRush !== undefined) setWantsRush(draft.wantsRush as boolean);
@@ -1347,7 +1351,7 @@ export default function PhotobookEditorClient({ temaSlug, temaNombre, themeId, p
                 if (!form.email.trim()) errors.email = "El email es requerido";
                 else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = "Ingresa un email válido";
                 if (!form.phone.trim()) errors.phone = "El teléfono es requerido";
-                else if (!/^(\+51)?\d{9}$/.test(form.phone.replace(/\s/g, ""))) errors.phone = "Ingresa un número válido (+51 seguido de 9 dígitos)";
+                else if (!isValidEditorPhone(form.phone)) errors.phone = "Ingresa un número válido (+51 seguido de 9 dígitos)";
                 if (!form.deliveryAddress.trim()) errors.deliveryAddress = "La dirección es requerida";
                 if (!form.deliveryDistrict.trim()) errors.deliveryDistrict = "El distrito es requerido";
                 if (!form.deliveryCity.trim()) errors.deliveryCity = "La ciudad es requerida";

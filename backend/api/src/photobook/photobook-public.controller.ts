@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, NotFoundException, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, NotFoundException, Param, Post, Put, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { PromoPreviewThrottle, PublicCreateThrottle } from '../common/decorators/throttle.decorators';
@@ -60,11 +60,13 @@ export class PhotobookPublicController {
   }
 
   @Get('custom-editor/session')
+  @Header('Cache-Control', 'no-store')
   getCustomEditorSession(@Headers('cookie') cookieHeader?: string) {
     return this.service.getCustomEditorSession(this.getCustomEditorSessionToken(cookieHeader));
   }
 
   @Get('custom-editor/draft')
+  @Header('Cache-Control', 'no-store')
   getCustomEditorDraft(@Headers('cookie') cookieHeader?: string) {
     return this.service.getCustomEditorDraft(this.getCustomEditorSessionToken(cookieHeader));
   }
