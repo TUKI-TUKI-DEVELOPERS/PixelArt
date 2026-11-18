@@ -2,15 +2,22 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import CustomPhotobookFullEditorClient from "./CustomPhotobookFullEditorClient";
 
+const editorProps = vi.hoisted(() => ({ last: null as Record<string, unknown> | null }));
+
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
-vi.mock("../[temaSlug]/editor/PhotobookEditorClient", () => ({ default: () => <div>Editor</div> }));
+vi.mock("../[temaSlug]/editor/PhotobookEditorClient", () => ({
+  default: (props: Record<string, unknown>) => {
+    editorProps.last = props;
+    return <div>Editor</div>;
+  },
+}));
 vi.mock("./CustomPhotobookSheetSetup", () => ({ default: ({ correctionNotice }: { correctionNotice?: boolean }) => <div>{correctionNotice ? "Format correction required" : "Format setup"}</div> }));
 
 function stubEditorFetch(state: Record<string, unknown>) {
   const fetchMock = vi.fn((input: RequestInfo | URL) => {
     const path = String(input);
     const body = path.endsWith("/session")
-      ? { customerName: "Customer", title: "Book", frontCoverUrl: "/cover.jpg", backCoverUrl: null }
+      ? { customerName: "Customer", customerEmail: "customer@example.com", customerPhone: "+51 999 111 222", title: "Book", frontCoverUrl: "/cover.jpg", backCoverUrl: null }
       : path.endsWith("/products")
         ? [{ id: 8 }]
         : { state };
@@ -24,6 +31,7 @@ describe("CustomPhotobookFullEditorClient", () => {
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
+    editorProps.last = null;
   });
 
   it.each([undefined, "INVALID"])("requires correction for a 50-sheet draft with coverType %s", async (coverType) => {
@@ -44,5 +52,17 @@ describe("CustomPhotobookFullEditorClient", () => {
 
     expect(await screen.findByText("Editor")).toBeTruthy();
     expect(screen.queryByText("Format correction required")).toBeNull();
+  });
+
+  it("hands the request contact data from the session to the editor for prefilling", async () => {
+    stubEditorFetch({ formatConfigured: true, coverType: "TAPA_DELGADA", pages: Array.from({ length: 30 }, () => ({})) });
+
+    render(<CustomPhotobookFullEditorClient />);
+
+    expect(await screen.findByText("Editor")).toBeTruthy();
+    expect(editorProps.last).toMatchObject({
+      customEditor: true,
+      customerContact: { name: "Customer", email: "customer@example.com", phone: "+51 999 111 222" },
+    });
   });
 });

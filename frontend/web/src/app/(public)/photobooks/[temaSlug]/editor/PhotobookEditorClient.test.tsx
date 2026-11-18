@@ -85,7 +85,9 @@ const photo = {
   originalFilename: 'foto-1.jpg',
 };
 
-function renderEditor({ customEditor = false, onChangeFormat }: { customEditor?: boolean; onChangeFormat?: (draft: Record<string, unknown>) => void } = {}) {
+type CustomerContact = { name: string; email: string; phone: string };
+
+function renderEditor({ customEditor = false, onChangeFormat, customerContact }: { customEditor?: boolean; onChangeFormat?: (draft: Record<string, unknown>) => void; customerContact?: CustomerContact } = {}) {
   return render(
     <PhotobookEditorClient
       temaSlug="viaje"
@@ -96,8 +98,15 @@ function renderEditor({ customEditor = false, onChangeFormat }: { customEditor?:
       backCoverUrl="https://cdn.test/back.jpg"
       customEditor={customEditor}
       onChangeFormat={onChangeFormat}
+      customerContact={customerContact}
     />,
   );
+}
+
+async function findContactInputs() {
+  const section = (await screen.findByText('Datos de contacto')).parentElement!;
+  const [name, email, phone] = Array.from(section.querySelectorAll('input'));
+  return { name, email, phone };
 }
 
 function draftPages(count = 30) {
@@ -468,6 +477,67 @@ describe('PhotobookEditorClient characterization', () => {
       pageNumber: 1,
       layoutKey: 'FULL_1',
       slots: [{ assetId: 501, slotIndex: 0, cropData: null }],
+    });
+  });
+
+  describe('custom request contact prefill', () => {
+    const customerContact = { name: 'Ana Cliente', email: 'ana@example.com', phone: '+51 999-111-222' };
+    const emptyForm = { name: '', email: '', phone: '', deliveryAddress: '', deliveryDistrict: '', deliveryCity: '', deliveryRegion: '', deliveryDepartment: '' };
+    const customDraft = { editorMode: 'CUSTOM_FULL_EDITOR', formatConfigured: true, step: 4, coverType: 'TAPA_DELGADA', pages: draftPages(30), wantsRush: false };
+
+    it.each([
+      ['an empty saved form', { form: emptyForm }],
+      ['a draft without a form', {}],
+    ])('prefills name, email and normalized phone over %s', async (_label, formState) => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { ...customDraft, ...formState } }) }));
+
+      renderEditor({ customEditor: true, customerContact });
+
+      const inputs = await findContactInputs();
+      await waitFor(() => expect(inputs.name.value).toBe('Ana Cliente'));
+      expect(inputs.email.value).toBe('ana@example.com');
+      expect(inputs.phone.value).toBe('+51999111222');
+      expect(screen.getByText('Dirección de entrega').parentElement!.querySelector('input')!.value).toBe('');
+    });
+
+    it('never overwrites contact values that the saved draft already holds', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ state: { ...customDraft, form: { ...emptyForm, name: 'Ana María', phone: '987654321' } } }),
+      }));
+
+      renderEditor({ customEditor: true, customerContact });
+
+      const inputs = await findContactInputs();
+      await waitFor(() => expect(inputs.email.value).toBe('ana@example.com'));
+      expect(inputs.name.value).toBe('Ana María');
+      expect(inputs.phone.value).toBe('987654321');
+    });
+
+    it('leaves the phone empty when the request phone cannot pass the editor validation', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ state: { ...customDraft, form: emptyForm } }) }));
+
+      renderEditor({ customEditor: true, customerContact: { ...customerContact, phone: '+1 555 123 4567' } });
+
+      const inputs = await findContactInputs();
+      await waitFor(() => expect(inputs.name.value).toBe('Ana Cliente'));
+      expect(inputs.phone.value).toBe('');
+    });
+
+    it('keeps the template editor contact form exactly as the draft left it', async () => {
+      mocks.searchParams = 'draft=draft-template';
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ state: { pages: draftPages(), photos: [photo], step: 4, form: emptyForm, coverType: 'TAPA_DELGADA', wantsRush: false, selectedProduct: 1 } }),
+      }));
+
+      renderEditor({ customerContact });
+
+      const inputs = await findContactInputs();
+      expect(await screen.findByText('Completa tu pedido')).toBeTruthy();
+      expect(inputs.name.value).toBe('');
+      expect(inputs.email.value).toBe('');
+      expect(inputs.phone.value).toBe('');
     });
   });
 

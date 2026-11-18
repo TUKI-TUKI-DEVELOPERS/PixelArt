@@ -599,6 +599,24 @@ describe('PhotobookService.createCustomRequest', () => {
     expect(h.dataSource.query).toHaveBeenCalledWith(expect.stringContaining('custom_photobook_editor_sessions'), expect.any(Array));
   });
 
+  it('returns the request contact data with the editor session so the order form can be prefilled', async () => {
+    const h = createHarness();
+    h.dataSource.query
+      .mockResolvedValueOnce([{ request_id: '41' }])
+      .mockResolvedValueOnce([{
+        customer_full_name: 'Ana Cliente', customer_email: 'ana@example.com', customer_phone: '+51 999 111 222',
+        cover_title: 'Japón, otoño de 2026', requested_theme: 'Japón', status: 'EDITOR_IN_PROGRESS',
+        linked_photobook_project_id: '77', front_storage_key: 'photobooks/41/front.png', back_storage_key: null,
+      }]);
+
+    await expect(h.service.getCustomEditorSession('opaque-session')).resolves.toMatchObject({
+      customerName: 'Ana Cliente', customerEmail: 'ana@example.com', customerPhone: '+51 999 111 222',
+    });
+    const [requestQuery, params] = h.dataSource.query.mock.calls[1];
+    expect(requestQuery).toEqual(expect.stringMatching(/r\.customer_email[\s\S]*r\.customer_phone/));
+    expect(params).toEqual([41]);
+  });
+
   it.each([['missing', undefined], ['invalid', 'UNKNOWN_COVER']])('rejects a 50-sheet custom format with %s coverType before writes or order creation', async (_label, coverType) => {
     const h = createHarness();
     h.dataSource.query.mockResolvedValueOnce([{ request_id: '41' }]);

@@ -6,7 +6,7 @@ import PhotobookEditorClient from "../[temaSlug]/editor/PhotobookEditorClient";
 import CustomPhotobookSheetSetup from "./CustomPhotobookSheetSetup";
 
 type Product = { id: number; name: string; pricePerPageCents: number; minPages: number; currency: string; allowsCustomDimensions: boolean };
-type Session = { customerName: string; title: string; frontCoverUrl: string; backCoverUrl: string | null };
+type Session = { customerName: string; customerEmail: string; customerPhone: string; title: string; frontCoverUrl: string; backCoverUrl: string | null };
 type FormatDialogMode = "initial" | "change" | null;
 type DraftState = Record<string, unknown>;
 
@@ -74,6 +74,7 @@ export default function CustomPhotobookFullEditorClient() {
         coverUrl={session.frontCoverUrl}
         backCoverUrl={session.backCoverUrl}
         customEditor
+        customerContact={{ name: session.customerName, email: session.customerEmail, phone: session.customerPhone }}
         isFormatChangeOpen={formatDialogMode === "change"}
         formatUpdate={formatUpdate ?? undefined}
         onChangeFormat={(currentDraft) => {
