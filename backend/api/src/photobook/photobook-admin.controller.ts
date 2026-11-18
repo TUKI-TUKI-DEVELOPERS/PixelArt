@@ -12,6 +12,7 @@ import type { Response } from 'express';
 import { CmykPdfConverterService } from '../common/infrastructure/pdf/cmyk-pdf-converter.service';
 
 function attachmentDisposition(filename: string): string {
+  // eslint-disable-next-line no-control-regex -- intentional: strip control characters from the header filename
   const safeFilename = filename.replace(/[\\/\u0000-\u001f\u007f"]/g, '_');
   const fallback = safeFilename.replace(/[^\x20-\x7e]/g, '_');
   return `attachment; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`;

@@ -33,6 +33,7 @@ export class CmykPdfConverterService {
           '-dAutoFilterColorImages=false', '-dColorImageFilter=/FlateEncode',
           '-dAutoFilterGrayImages=false', '-dGrayImageFilter=/FlateEncode',
           `--permit-file-read=${profile}`, `-sOutputFile=${output}`, input,
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors -- execFile passes an Error instance; @types/node types it as an Omit<> intersection the rule cannot recognize
         ], { shell: false, timeout: TIMEOUT_MS }, (error) => error ? reject(error) : resolvePromise());
       });
       const result = await fs.readFile(output);

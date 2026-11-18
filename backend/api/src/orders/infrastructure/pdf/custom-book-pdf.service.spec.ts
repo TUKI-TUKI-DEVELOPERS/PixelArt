@@ -56,6 +56,7 @@ describe('CustomBookPdfService split composition', () => {
     const log = jest.spyOn((target as any).logger, 'log');
 
     await expect(target.generateAndStore(42)).rejects.toThrow();
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- the service only logs template-literal strings
     expect(log.mock.calls.flat().join(' ')).not.toContain(storageKey);
   });
 
@@ -77,6 +78,7 @@ describe('CustomBookPdfService split composition', () => {
 
     expect(cards).toHaveLength(1);
     expect(cards[0].imageSrc).toBeNull();
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- the service only logs template-literal strings
     const loggedErrors = errorLog.mock.calls.flat().join(' ');
     expect(loggedErrors).not.toContain(storageSecret);
     expect(loggedErrors).not.toContain(errorSecret);

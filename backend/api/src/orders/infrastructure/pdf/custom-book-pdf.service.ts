@@ -336,7 +336,7 @@ export class CustomBookPdfService {
               .png()
               .toBuffer();
             imageSrc = `data:image/png;base64,${optimized.toString('base64')}`;
-          } catch (err) {
+          } catch {
             this.logger.error(`Venta cruzada: no se pudo cargar miniatura para modelo ${r.model_id}`);
           }
         }

@@ -2,6 +2,11 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Lint is enforced by the CI `Lint` step (`npm run lint`). Skipping it inside
+  // `next build` keeps production image builds independent of lint results.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Disable telemetry in Docker
   env: {
     NEXT_TELEMETRY_DISABLED: '1',

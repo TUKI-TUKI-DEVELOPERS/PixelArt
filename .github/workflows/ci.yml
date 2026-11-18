@@ -27,6 +27,9 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Lint
+        working-directory: backend/api
+        run: npm run lint
       - name: Typecheck
         working-directory: backend/api
         run: npx tsc --noEmit -p tsconfig.json
@@ -45,6 +48,9 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Lint
+        working-directory: frontend/web
+        run: npm run lint
       - name: Typecheck
         working-directory: frontend/web
         run: npx tsc --noEmit -p tsconfig.json
