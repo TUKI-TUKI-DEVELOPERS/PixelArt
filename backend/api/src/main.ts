@@ -81,5 +81,7 @@ async function bootstrap() {
 }
 
 if (require.main === module) {
-  bootstrap();
+  // Not awaited on purpose: a startup failure stays an unhandled rejection,
+  // which crashes the process (Node's default), exactly as before.
+  void bootstrap();
 }

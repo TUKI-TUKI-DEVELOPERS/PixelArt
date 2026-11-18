@@ -58,7 +58,7 @@ export default async function CategoriaPage({ params }: Props) {
   ]);
 
   // Fetch assets para libros-de-amor
-  let assetUrls: Record<string, string> = {};
+  const assetUrls: Record<string, string> = {};
   if (categoriaId === "libros-de-amor") {
     const K = CATEGORIA_AMOR_ASSET_KEYS;
     const keys = Object.entries(K);

@@ -1,5 +1,5 @@
 import { MinioStorageService } from './minio-storage.service';
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 jest.mock('@aws-sdk/client-s3', () => ({
   S3Client: jest.fn().mockImplementation(() => ({ send: jest.fn() })),
@@ -8,8 +8,6 @@ jest.mock('@aws-sdk/client-s3', () => ({
   DeleteObjectCommand: jest.fn(),
   HeadObjectCommand: jest.fn(),
 }));
-
-const s3 = () => (MinioStorageService as any).mock;
 
 describe('MinioStorageService private objects', () => {
   const original = {

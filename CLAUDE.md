@@ -29,13 +29,15 @@ npm run build                       # nest build
 npm run seed                        # ts-node src/database/seed.ts
 npm run test                        # jest
 npm run test -- --testPathPattern=users  # run tests matching pattern
-npm run lint                        # eslint --fix
+npm run lint                        # eslint . (check only; CI gate)
+npm run lint:fix                    # eslint . --fix
 
 # Frontend only
 cd frontend/web
 npm run dev                         # next dev -p 3000
 npm run build                       # next build
-npm run lint                        # next lint
+npm run lint                        # eslint . (check only; CI gate)
+npm run lint:fix                    # eslint . --fix
 
 # Seeds (in Docker)
 docker compose -f infra/docker/docker-compose.yml exec api npm run seed

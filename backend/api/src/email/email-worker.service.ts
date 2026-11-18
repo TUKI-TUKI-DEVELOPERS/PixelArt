@@ -8,6 +8,7 @@ import { EmailSenderPort } from './domain/ports/email-sender.port';
 const MAX_ATTEMPTS = 3;
 const WORKER_ID = `worker-${process.pid}`;
 
+// eslint-disable-next-line @typescript-eslint/no-base-to-string -- payload values come from parsed JSON (strings, numbers, null), never plain objects
 const escapeHtml = (value: unknown) => String(value ?? '')
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -132,6 +133,7 @@ export class EmailWorkerService {
     const amountCents = payload.totalAmountCents;
     const vars: Record<string, string> = {
       customerName: escapeHtml(payload.customerName),
+      /* eslint-disable @typescript-eslint/no-base-to-string -- payload values come from parsed JSON (strings, numbers, null), never plain objects */
       actionUrl: String(
         payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.coverApprovalUrl ?? payload.editorPortalUrl ?? payload.feedbackUrl ?? payload.adminUrl ?? '',
       ),
@@ -139,6 +141,7 @@ export class EmailWorkerService {
       estimatedDeliveryDate: String(payload.estimatedDeliveryDate ?? ''),
       rejectionReason: String(payload.rejectionReason ?? 'No especificado'),
       expiresAt: String(payload.expiresAt ?? ''),
+      /* eslint-enable @typescript-eslint/no-base-to-string */
       editorCode: escapeHtml(payload.editorCode),
       adjustmentSurface: escapeHtml(payload.adjustmentSurface),
       adjustmentMessage: escapeHtml(payload.adjustmentMessage),

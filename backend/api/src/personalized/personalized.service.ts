@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MinioStorageService } from '../assets/infrastructure/storage/minio-storage.service';
 import { PersonalizedRepositoryPort } from './domain/ports/personalized-repository.port';
 import { PersonalizedCategoryMapper } from './infrastructure/persistence/mappers/personalized-category.mapper';
