@@ -133,15 +133,13 @@ export class EmailWorkerService {
     const amountCents = payload.totalAmountCents;
     const vars: Record<string, string> = {
       customerName: escapeHtml(payload.customerName),
-      /* eslint-disable @typescript-eslint/no-base-to-string -- payload values come from parsed JSON (strings, numbers, null), never plain objects */
-      actionUrl: String(
-        payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.coverApprovalUrl ?? payload.editorPortalUrl ?? payload.feedbackUrl ?? payload.adminUrl ?? '',
+      actionUrl: escapeHtml(
+        payload.checkoutUrl ?? payload.paymentUrl ?? payload.demoViewUrl ?? payload.coverApprovalUrl ?? payload.editorPortalUrl ?? payload.feedbackUrl ?? payload.adminUrl,
       ),
       totalAmount: typeof amountCents === 'number' ? `S/ ${(amountCents / 100).toFixed(2)}` : '',
-      estimatedDeliveryDate: String(payload.estimatedDeliveryDate ?? ''),
-      rejectionReason: String(payload.rejectionReason ?? 'No especificado'),
-      expiresAt: String(payload.expiresAt ?? ''),
-      /* eslint-enable @typescript-eslint/no-base-to-string */
+      estimatedDeliveryDate: escapeHtml(payload.estimatedDeliveryDate),
+      rejectionReason: escapeHtml(payload.rejectionReason ?? 'No especificado'),
+      expiresAt: escapeHtml(payload.expiresAt),
       editorCode: escapeHtml(payload.editorCode),
       adjustmentSurface: escapeHtml(payload.adjustmentSurface),
       adjustmentMessage: escapeHtml(payload.adjustmentMessage),
